@@ -1,0 +1,93 @@
+version: '3'
+services:
+  # --------------------------------------------------------------------------
+  # Django/Gunicorn
+  # --------------------------------------------------------------------------
+  django:
+    build: .
+    hostname: django
+    command: /usr/local/bin/gunicorn chagrade.wsgi:application -w 2 -b :8000 --reload
+    env_file: .env
+    volumes:
+      - .:/app
+    ports:
+      - "80:8000"
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    logging:
+      options:
+        max-size: "200k"
+    container_name: django
+    stdin_open: true
+    tty: true
+
+  # --------------------------------------------------------------------------
+  # Database
+  # --------------------------------------------------------------------------
+  postgres:
+    image: postgres:9.5
+    environment:
+      - "PGDATA=/var/lib/postgresql/data/pgdata"
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - 5432:5432
+#    volumes:
+#      - ./var/lib/postgresql/data:/app/var/lib/postgresql/data
+    env_file: .env
+    logging:
+      options:
+        max-size: "200k"
+    container_name: postgres
+  #-----------------------------------------------
+  #   Rabbitmq Service
+  #-----------------------------------------------
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbit
+    hostname: rabbit
+    env_file: .env
+    ports:
+      - 15672:15672
+      - 5672:5672
+    volumes:
+      - ./var/rabbitmq:/var/lib/rabbitmq/
+  #-----------------------------------------------
+  #   Celery Service
+  #-----------------------------------------------
+  celery:
+    container_name: celery
+    hostname: celery
+    command: bash -c "celery -A chagrade worker --loglevel=debug"
+    working_dir: /app/
+    env_file: .env
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    depends_on:
+      - rabbitmq
+      - postgres
+    environment:
+      - DJANGO_SETTINGS_MODULE=chagrade.settings.base
+    env_file: .env
+    volumes:
+      - .:/app
+  #-----------------------------------------------
+  #   Flower Service
+  #-----------------------------------------------
+  flower:
+    container_name: flower
+    hostname: flower
+    env_file: .env
+    build:
+      context: .
+      dockerfile: Dockerfile.flower
+    ports:
+      - 15555:5555
+    depends_on:
+      - celery
+      - rabbitmq
+

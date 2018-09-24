@@ -1,0 +1,11 @@
+.main-background {
+    width: 100%;
+    min-height: 100%;
+    /*background-attachment:scroll;*/
+    background: linear-gradient(to top,
+    rgba(30, 87, 153, 0.85) 40%,
+    rgba(255, 255, 255, 0.85) 100%),
+    url(../images/dark-triangles.png) 1%; /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e5799', endColorstr='#007db9e8', GradientType=0); /* IE6-9 */
+    background-size: auto;
+}

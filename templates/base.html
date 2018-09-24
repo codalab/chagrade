@@ -1,0 +1,87 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block head_title %}{% endblock %}</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.4/themes/smoothness/jquery-ui.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/26ae41ff0f.css">
+    <link href="https://fonts.googleapis.com/css?family=Cabin|Raleway" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}"/>
+
+    {% block extra_head %}
+    {% endblock %}
+
+</head>
+
+<body class="main-background">
+<div class="ui container">
+    {% block body %}
+
+    <header class="ui center aligned container bottom20">
+        <div id="logo" class="">
+            <h1><a href="/">Chagrade</a><sup>
+                <small>(beta)</small>
+            </sup></h1>
+            <h4 class="ui sub header">Machine Learning Classes Management</h4>
+        </div>
+
+        <nav>
+            <div class="ui menu">
+                {% if user.is_authenticated %}
+{#                    <li id="home"><a href="{% url 'home' %}">Home</a></li>#}
+                    <a class="item">Logout</a>
+                    <li>Home</li>
+                {% else %}
+                    <div class="right menu">
+                        <a class="item">Login</a>
+                        <a class="item">Sign-up</a>
+                    </div>
+                {% endif %}
+                <a class="item">Help</a>
+            </div>
+        </nav>
+    </header>
+
+    <div id="{% block app_name %}{% endblock %}" class="app">
+        <div id="{% block panel_name %}{% endblock %}" class="ui segment">
+            <div id="{% block module_name %}{% endblock %}" class="module container-padding">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+    <footer class="ui footer segment">
+
+{#        <p class="white-text">2017, Work In Progress - Version 0.1</p>#}
+{#        <p>#}
+{#            <a class="white-text" href="https://github.com/codalab/chagrade/issues">#}
+{#                <i class="github icon"></i>#}
+{#                Join us on Github for contact & Bug Reports.#}
+{#            </a>#}
+{#        </p>#}
+        <div class="ui horizontal link list">
+            <a class="item" href="https://github.com/codalab/chagrade/issues">
+                <i class="github icon"></i>
+                Join us on Github for contact & Bug Reports.
+            </a>
+            <a class="item">
+                Work In Progress - Version 0.1
+            </a>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>

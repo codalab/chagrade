@@ -1,0 +1,15 @@
+Django==2.1.1
+django-extensions
+gunicorn
+ipdb
+psycopg2
+psycopg2-binary
+whitenoise
+djangorestframework
+social-auth-core
+social-auth-app-django
+flower
+gevent
+gevent-eventemitter
+greenlet
+celery

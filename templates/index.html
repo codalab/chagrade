@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+
+    <div class="ui inverticed vertical masthead center aligned segment">
+        <h1 class="ui massive header">Welcome to Chagrade</h1>
+        <h6 class="ui sub header">
+            Here you can enroll in classes as a student or instruct and manage them as an instructor.
+        </h6>
+        <a class="ui large green button" href="" role="button">Sign Up</a>
+    </div>
+    <div class="ui grid">
+        <div class="three column row">
+            <div class="center aligned column">
+                <h1><i class="large cloud upload icon"></i>Upload:</h1>
+                Upload your data and baseline methods. The platform lets you choose among pre-loaded
+                datasets or lets you upload your own in a simple text-based format. The platform
+                also lets you upload a starting kit to help the participants solve there tasks.
+                A Python example is provided.
+            </div>
+            <div class="center aligned column">
+                <h1><i class="large wrench icon"></i>Design:</h1>
+                Prepare your very own challenge protocol and rules. The platform helps you create
+                tasks by automatically splitting your data and letting you choose among pre-defined
+                metrics. An editor helps you add documentation pages.
+            </div>
+            <div class="center aligned column">
+                <h1><i class="large ship icon"></i>Ship:</h1>
+                The platform compiles your tasks, sample code, and documentation into a
+                self-contained zip archive, ready to upload to a competition platform.
+                (in this version, Codalab.org is supported).
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
