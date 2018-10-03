@@ -4,7 +4,8 @@ from drf_yasg import openapi
 from rest_framework import permissions
 from rest_framework.routers import SimpleRouter
 
-from api.views.producers import ProducerViewSet
+# from apps.api.views.producers import ProducerViewSet
+from apps.api.views.profiles import ProfileViewSet
 from .views import competitions, profiles, search
 
 app_name = 'api'
@@ -12,16 +13,17 @@ API_PREFIX = "v1"
 
 # API routes
 router = SimpleRouter()
-router.register('producers', ProducerViewSet)
-router.register('competitions', competitions.CompetitionViewSet)
-router.register('submissions', competitions.SubmissionViewSet)
+router.register('users', ProfileViewSet)
+# router.register('producers', ProducerViewSet)
+# router.register('competitions', competitions.CompetitionViewSet)
+# router.register('submissions', competitions.SubmissionViewSet)
 
 # Documentation details
 schema_view = get_schema_view(
     openapi.Info(
-        title="Chahub API",
+        title="Chagrade API",
         default_version='v1',
-        description="Chahub is a platform for machine learning resources, like competitions, test sets, and example solutions",
+        description="Chagrade is a platform for machine learning resources, like competitions, test sets, and example solutions",
         contact=openapi.Contact(email="info@codalab.org"),
         license=openapi.License(name="MIT License"),
     ),
@@ -32,8 +34,8 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     url('^', include(router.urls)),
-    url('query/', search.SearchView.as_view()),
-    url('my_profile/', profiles.GetMyProfile.as_view()),
+    # url('query/', search.SearchView.as_view()),
+    # url('my_profile/', profiles.GetMyProfile.as_view()),
 
     url('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 

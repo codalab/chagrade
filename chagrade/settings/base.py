@@ -15,11 +15,7 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-print("BASE DIR IS: {}".format(BASE_DIR))
-
 CHAGRADE_BASE_DIR = os.path.dirname(BASE_DIR)
-
-print("CHAGRADE_BASE_DIR IS: {}".format(CHAGRADE_BASE_DIR))
 
 
 # Quick-start development settings - unsuitable for production
@@ -45,6 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Third Party
     'django_extensions',
+    'social_django',
+    'rest_framework',
+    'drf_yasg',
     # Our Apps
     'apps.profiles',
     'apps.klasses',
@@ -139,6 +138,81 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'profiles.ChaUser'
 
+AUTHENTICATION_BACKENDS = (
+    "apps.chahub_auth.oauth_backends.ChahubOAuth2",
+    "django.contrib.auth.backends.ModelBackend",
+)
+
+# =========================================================================
+# Social Auth
+# =========================================================================
+
+# Generic
+SOCIAL_AUTH_STRATEGY = 'social_django.strategy.DjangoStrategy'
+SOCIAL_AUTH_STORAGE = 'social_django.models.DjangoStorage'
+SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['username', 'first_name', 'email']
+
+SOCIAL_AUTH_CHAHUB_KEY = os.environ.get('SOCIAL_AUTH_CODALAB_KEY')
+SOCIAL_AUTH_CHAHUB_SECRET = os.environ.get('SOCIAL_AUTH_CODALAB_SECRET')
+
+SOCIAL_AUTH_CHAHUB_BASE_URL = os.environ.get('SOCIAL_AUTH_CHAHUB_BASE_URL', 'https://chahub.org')
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'index'
+SOCIAL_AUTH_LOGIN_URL = 'index'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = 'profiles:set_password'
+SOCIAL_AUTH_NEW_ASSOCIATION_REDIRECT_URL = 'profiles:set_password'
+SOCIAL_AUTH_DISCONNECT_REDIRECT_URL = 'index'
+
+
+# User Models
+# SOCIAL_AUTH_USER_MODEL = 'authenz.ClUser'
+SOCIAL_AUTH_USER_MODEL = 'profiles.ChaUser'
+
+SOCIAL_AUTH_PIPELINE = (
+    # Get the information we can about the user and return it in a simple
+    # format to create the user instance later. On some cases the details are
+    # already part of the auth response from the provider, but sometimes this
+    # could hit a provider API.
+    'social_core.pipeline.social_auth.social_details',
+
+    # Get the social uid from whichever service we're authing thru. The uid is
+    # the unique identifier of the given user in the provider.
+    'social_core.pipeline.social_auth.social_uid',
+
+    # Verifies that the current auth process is valid within the current
+    # project, this is where emails and domains whitelists are applied (if
+    # defined).
+    'social_core.pipeline.social_auth.auth_allowed',
+
+    # Checks if the current social-account is already associated in the site.
+    'social_core.pipeline.social_auth.social_user',
+
+    # Make up a username for this person, appends a random string at the end if
+    # there's any collision.
+    # 'social_core.pipeline.user.get_username',
+
+    # Send a validation email to the user to verify its email address.
+    # Disabled by default.
+    # 'social_core.pipeline.mail.mail_validation',
+
+    # Associates the current social details with another user account with
+    # a similar email address. Disabled by default.
+    'social_core.pipeline.social_auth.associate_by_email',
+
+    # Create a user account if we haven't found one yet.
+    'social_core.pipeline.user.create_user',
+
+    # Create the record that associates the social account with the user.
+    'social_core.pipeline.social_auth.associate_user',
+
+    # Populate the extra_data field in the social record with the values
+    # specified by settings (and the default ones like access_token, etc).
+    'social_core.pipeline.social_auth.load_extra_data',
+
+    # Update the user record with any changed info from the auth service.
+    'social_core.pipeline.user.user_details',
+)
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
@@ -167,3 +241,28 @@ else:
 # ============================================================================
 BROKER_URL = os.environ.get("BROKER_URL")
 # CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+
+
+# =============================================================================
+# DRF
+# =============================================================================
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        # 'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_VERSION': 'v1',
+
+    # Why did I add this?
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    # 'PAGE_SIZE': 10,
+}
+REST_FRAMEWORK_EXTENSIONS = {
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
+}
+
+FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.TemporaryFileUploadHandler", ]

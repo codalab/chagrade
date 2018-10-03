@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    <div class="ui vertical masthead center aligned segment">
+{#        <form method="post">{% csrf_token %}#}
+{#            {{ form.as_p }}#}
+{#            <input type="submit" value="Send message">#}
+{#        </form>#}
+        <div class="ui relaxed list" style="margin-bottom: 5vh; font-weight: bolder;">
+            <div class="item">Your password can't be too similar to your other personal information.</div>
+            <div class="item">Your password must contain at least 8 characters.</div>
+            <div class="item">Your password can't be a commonly used password.</div>
+            <div class="item">Your password can't be entirely numeric.</div>
+        </div>
+
+        <div class="ui center aligned grid">
+            <div class="ui six wide column message">
+
+                <form class="ui form" method="post">
+                    {% csrf_token %}
+
+                    {{ form.non_field_errors }}
+
+                    <div class="field">
+                        {{ form.username.errors }}
+                        {{ form.username.label_tag }}
+                        {{ form.username }}
+                    </div>
+
+                    <div class="field">
+                        {{ form.password.errors }}
+                        {{ form.password.label_tag }}
+                        {{ form.password }}
+                    </div>
+
+                    <input type="submit" value="Login">
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

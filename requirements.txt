@@ -6,6 +6,7 @@ psycopg2
 psycopg2-binary
 whitenoise
 djangorestframework
+drf-yasg[validation]==1.9.1
 social-auth-core
 social-auth-app-django
 flower
@@ -13,3 +14,7 @@ gevent
 gevent-eventemitter
 greenlet
 celery
+social-auth-core
+social-auth-app-django
+django-oauth-toolkit==1.0.0
+drf-extensions==0.3.1

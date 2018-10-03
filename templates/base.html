@@ -29,7 +29,7 @@
     {% block body %}
 
     <header class="ui center aligned container bottom20">
-        <div id="logo" class="">
+        <div id="logo" class="" style="margin: 2vh 0 2vh 0;">
             <h1><a href="/">Chagrade</a><sup>
                 <small>(beta)</small>
             </sup></h1>
@@ -40,12 +40,17 @@
             <div class="ui menu">
                 {% if user.is_authenticated %}
 {#                    <li id="home"><a href="{% url 'home' %}">Home</a></li>#}
-                    <a class="item">Logout</a>
-                    <li>Home</li>
-                {% else %}
                     <div class="right menu">
-                        <a class="item">Login</a>
-                        <a class="item">Sign-up</a>
+                        <a class="item" href="{% url "index" %}">Home</a>
+                        <a class="item" href="{% url "profiles:logout" %}">Logout</a>
+                    </div>
+                {% else %}
+{#                    <div class="right menu">#}
+{#                        <a class="item">Sign-up</a>#}
+{#                    </div>#}
+                    <div class="right menu">
+                        <a class="item" href="{% url "social:begin" "chahub" %}">Sign-up/Login</a>
+                        <a class="item" href="">Login</a>
                     </div>
                 {% endif %}
                 <a class="item">Help</a>

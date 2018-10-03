@@ -7,7 +7,9 @@ from django.db import models
 
 class ChaUser(AbstractUser):
     # instructor_profile = models.ForeignKey('InstructorProfile', related_name='user', null=True, blank=True)
-    instructor_profile = models.OneToOneField('Instructor', related_name='user', null=True, blank=True, on_delete=models.CASCADE)
+    instructor = models.OneToOneField('Instructor', related_name='user', null=True, blank=True, on_delete=models.CASCADE)
+
+    has_set_password = models.BooleanField(default=False, null=False, blank=False)
 
     receive_emails_from_team = models.BooleanField(default=True)
     receive_emails_from_instructor = models.BooleanField(default=True)
@@ -17,7 +19,7 @@ class ChaUser(AbstractUser):
         return self.username
 
     def is_instructor(self):
-        return True if self.instructor_profile else False
+        return True if self.instructor else False
 
 
 class Instructor(models.Model):
