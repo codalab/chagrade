@@ -57,6 +57,8 @@ class SetPasswordView(LoginRequiredMixin, FormView):
             raise Http404("You already have a usable password")
         else:
             print("Password changed!")
+            # print(form.cleaned_data)
+            self.request.user.set_password(form.cleaned_data.get('new_password1'))
             self.request.user.has_set_password = True
             self.request.user.save()
             return super().form_valid(form)
