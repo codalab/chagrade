@@ -10,5 +10,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('login/', auth_views.LoginView.as_view(template_name='profiles/login.html'), name='login'),
     path('change_password/', views.ChangePasswordView.as_view(), name='change_password'),
-    path('set_password/', views.SetPasswordView.as_view(), name='set_password')
+    path('set_password/', views.SetPasswordView.as_view(), name='set_password'),
+    path('instructor_signup/', views.InstructorProfileCreationView.as_view(), name='instructor_signup'),
+    path('instructor_overview/', views.InstructorOverView.as_view(), name='instructor_overview')
 ]

@@ -6,80 +6,128 @@
 
     {% if user.is_authenticated %}
 
-        <div class="ui vertical masthead center aligned segment">
-
-        {% if user.is_instructor %}
-            Instructor
-        {% else %}
-            Not instructor
-        {% endif %}
-
+        <div class="ui centered grid">
+            <div class="row">
+                <div class="twelve wide column">
+                    <div class="ui centered grid message">
+                        <div class="row">
+                            <div class="ui center aligned container" style="margin-bottom: 5px;">
+                                <h1 class="ui massive header" style="font-size: 56px;">Welcome to Chagrade</h1>
+                                <h2 class="sub header">
+                                    Here you can create <b>and grade classes attached to challenges</b>
+                                </h2>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="center aligned six wide column">
+                                <a class="ui large green button" href="" role="button">I'm a Student</a>
+                            </div>
+                            <div class="center aligned six wide column">
+                                <a class="ui large green button" href="" role="button">I'm an Instructor</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui three column row">
+                <div class="center aligned column">
+                    <h3 class="ui icon header">
+                        <i class="student icon"></i>
+                        <div class="content">
+                            Learning By Doing
+                        </div>
+                    </h3>
+                    <div style="">
+                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>
+                    </div>
+                </div>
+                <div class="center aligned column">
+                    <h3 class="ui icon header">
+                        <i class="users icon"></i>
+                        <div class="content">
+                            Learning By Doing
+                        </div>
+                    </h3>
+                    <div style="">
+                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>
+                    </div>
+                </div>
+                <div class="center aligned column">
+                    <h3 class="ui icon header">
+                        <i class="square github icon"></i>
+                        <div class="content">
+                            Learning By Doing
+                        </div>
+                    </h3>
+                    <div style="">
+                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
     {% else %}
 
-        <div class="ui vertical masthead center aligned segment" style="margin-bottom: 5px;">
-            <h1 class="ui massive header">Welcome to Chagrade</h1>
-{#            <h6 class="ui sub header">#}
-{#                Here you can enroll in classes as a student or instruct and manage them as an instructor.#}
-{#            </h6>#}
-{#            <a class="ui large green button" href="" role="button">Sign Up</a>#}
-        </div>
-        <div class="ui grid">
-            <div class="three column row">
+        <div class="ui centered grid">
+            <div class="row">
+                <div class="twelve wide column">
+                    <div class="ui centered grid message">
+                        <div class="row">
+                            <div class="ui center aligned container" style="margin-bottom: 5px;">
+                                <h1 class="ui massive header" style="font-size: 56px;">Welcome to Chagrade</h1>
+                                <h2 class="sub header">
+                                    Here you can create <b>and grade classes attached to challenges</b>
+                                </h2>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="center aligned six wide column">
+                                <a class="ui large green button" href="" role="button">Sign-In</a>
+                            </div>
+                            <div class="center aligned six wide column">
+                                <a class="ui large blue button" href="{% url "profiles:login" %}" role="button">Login</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui three column row">
                 <div class="center aligned column">
-                    <h1><i class="large cloud upload icon"></i>Upload:</h1>
-                    Upload your data and baseline methods. The platform lets you choose among pre-loaded
-                    datasets or lets you upload your own in a simple text-based format. The platform
-                    also lets you upload a starting kit to help the participants solve there tasks.
-                    A Python example is provided.
+                    <h3 class="ui icon header">
+                        <i class="student icon"></i>
+                        <div class="content">
+                            Learning By Doing
+                        </div>
+                    </h3>
+                    <div style="">
+                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>
+                    </div>
                 </div>
                 <div class="center aligned column">
-                    <h1><i class="large wrench icon"></i>Design:</h1>
-                    Prepare your very own challenge protocol and rules. The platform helps you create
-                    tasks by automatically splitting your data and letting you choose among pre-defined
-                    metrics. An editor helps you add documentation pages.
+                    <h3 class="ui icon header">
+                        <i class="users icon"></i>
+                        <div class="content">
+                            Learning By Doing
+                        </div>
+                    </h3>
+                    <div style="">
+                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>
+                    </div>
                 </div>
                 <div class="center aligned column">
-                    <h1><i class="large ship icon"></i>Ship:</h1>
-                    The platform compiles your tasks, sample code, and documentation into a
-                    self-contained zip archive, ready to upload to a competition platform.
-                    (in this version, Codalab.org is supported).
+                    <h3 class="ui icon header">
+                        <i class="square github icon"></i>
+                        <div class="content">
+                            Learning By Doing
+                        </div>
+                    </h3>
+                    <div style="">
+                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>
+                    </div>
                 </div>
             </div>
         </div>
 
     {% endif %}
-
-{#    <div class="ui inverticed vertical masthead center aligned segment">#}
-{#        <h1 class="ui massive header">Welcome to Chagrade</h1>#}
-{#        <h6 class="ui sub header">#}
-{#            Here you can enroll in classes as a student or instruct and manage them as an instructor.#}
-{#        </h6>#}
-{#        <a class="ui large green button" href="" role="button">Sign Up</a>#}
-{#    </div>#}
-{#    <div class="ui grid">#}
-{#        <div class="three column row">#}
-{#            <div class="center aligned column">#}
-{#                <h1><i class="large cloud upload icon"></i>Upload:</h1>#}
-{#                Upload your data and baseline methods. The platform lets you choose among pre-loaded#}
-{#                datasets or lets you upload your own in a simple text-based format. The platform#}
-{#                also lets you upload a starting kit to help the participants solve there tasks.#}
-{#                A Python example is provided.#}
-{#            </div>#}
-{#            <div class="center aligned column">#}
-{#                <h1><i class="large wrench icon"></i>Design:</h1>#}
-{#                Prepare your very own challenge protocol and rules. The platform helps you create#}
-{#                tasks by automatically splitting your data and letting you choose among pre-defined#}
-{#                metrics. An editor helps you add documentation pages.#}
-{#            </div>#}
-{#            <div class="center aligned column">#}
-{#                <h1><i class="large ship icon"></i>Ship:</h1>#}
-{#                The platform compiles your tasks, sample code, and documentation into a#}
-{#                self-contained zip archive, ready to upload to a competition platform.#}
-{#                (in this version, Codalab.org is supported).#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
 
 {% endblock %}

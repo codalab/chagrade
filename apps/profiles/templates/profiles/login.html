@@ -4,40 +4,38 @@
 
 {% block content %}
     <div class="ui vertical masthead center aligned segment">
-{#        <form method="post">{% csrf_token %}#}
-{#            {{ form.as_p }}#}
-{#            <input type="submit" value="Send message">#}
-{#        </form>#}
-        <div class="ui relaxed list" style="margin-bottom: 5vh; font-weight: bolder;">
-            <div class="item">Your password can't be too similar to your other personal information.</div>
-            <div class="item">Your password must contain at least 8 characters.</div>
-            <div class="item">Your password can't be a commonly used password.</div>
-            <div class="item">Your password can't be entirely numeric.</div>
-        </div>
-
         <div class="ui center aligned grid">
-            <div class="ui six wide column message">
+            <div class="row">
+                <div class="ui six wide column message">
 
-                <form class="ui form" method="post">
-                    {% csrf_token %}
+                    <form class="ui form" method="post">
+                        {% csrf_token %}
 
-                    {{ form.non_field_errors }}
+                        {{ form.non_field_errors }}
 
-                    <div class="field">
-                        {{ form.username.errors }}
-                        {{ form.username.label_tag }}
-                        {{ form.username }}
-                    </div>
+                        <div class="field">
+                            {{ form.username.errors }}
+                            {{ form.username.label_tag }}
+                            {{ form.username }}
+                        </div>
 
-                    <div class="field">
-                        {{ form.password.errors }}
-                        {{ form.password.label_tag }}
-                        {{ form.password }}
-                    </div>
+                        <div class="field">
+                            {{ form.password.errors }}
+                            {{ form.password.label_tag }}
+                            {{ form.password }}
+                        </div>
 
-                    <input type="submit" value="Login">
-                    <input type="hidden" name="next" value="/"/>
-                </form>
+                        <input type="submit" value="Login">
+                        <input type="hidden" name="next" value="/"/>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="ui eight wide yellow column message">
+                    <p>
+                        Don't have a Chahub account? Create on at <a href="chahub.org">Chahub.org</a> and then <a class="item" href="{% url "social:begin" "chahub" %}">Sign-In</a>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
