@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'social_django',
     'rest_framework',
     'drf_yasg',
+    'oauth2_provider',
     # Our Apps
     'apps.profiles',
     'apps.klasses',
@@ -202,7 +203,10 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.associate_by_email',
 
     # Create a user account if we haven't found one yet.
-    'social_core.pipeline.user.create_user',
+    # 'social_core.pipeline.user.create_user',
+
+    # Above pipeline fails if we have a user with that username. Using a custom re-write of that pipeline function
+    'apps.profiles.pipeline.create_or_find_user',
 
     # Create the record that associates the social account with the user.
     'social_core.pipeline.social_auth.associate_user',
@@ -250,11 +254,14 @@ BROKER_URL = os.environ.get("BROKER_URL")
 # =============================================================================
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        # 'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
     'DEFAULT_VERSION': 'v1',

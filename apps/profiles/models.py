@@ -26,7 +26,7 @@ class Instructor(models.Model):
     university_name = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
-        return "{0} - {1}".format(self.user.username, self.university_name)
+        return "{0}".format(self.user.username)
 
 
 class StudentMembership(models.Model):

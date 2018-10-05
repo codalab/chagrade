@@ -6,7 +6,8 @@ from rest_framework.routers import SimpleRouter
 
 # from apps.api.views.producers import ProducerViewSet
 from apps.api.views.profiles import ProfileViewSet
-from .views import competitions, profiles, search
+from apps.api.views.klasses import KlassViewSet
+# from .views import competitions, profiles, search
 
 app_name = 'api'
 API_PREFIX = "v1"
@@ -14,6 +15,7 @@ API_PREFIX = "v1"
 # API routes
 router = SimpleRouter()
 router.register('users', ProfileViewSet)
+router.register('klasses', KlassViewSet)
 # router.register('producers', ProducerViewSet)
 # router.register('competitions', competitions.CompetitionViewSet)
 # router.register('submissions', competitions.SubmissionViewSet)

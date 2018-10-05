@@ -29,47 +29,38 @@
             </div>
             <div class="ui row">
                 <div class="sixteen wide center aligned column">
-                    <table class="ui table">
+                    <table class="ui center aligned stackable table">
                         <thead style="background-color: #2185d0; color: white;">
                             <tr class="black">
-                                <td>
-                                    Image:
-                                </td>
-                                <td>
-                                    Title:
-                                </td>
-                                <td>
-                                    Group:
-                                </td>
-                                <td>
-                                    Organizer:
-                                </td>
-                                <td>
-                                    Created At:
-                                </td>
-                                <td>
-                                    Updated At:
-                                </td>
-                                <td>
-                                    Edit:
-                                </td>
-                                <td>
-                                    Status:
-                                </td>
-                                <td>
-                                    Download Grades:
-                                </td>
-                                <td>
-                                    Download Submissions
-                                </td>
-                                <td>
-                                    Delete:
-                                </td>
+                                <td>Image:</td>
+                                <td>Title:</td>
+                                <td>Group:</td>
+                                <td>Organizer:</td>
+                                <td>Created:</td>
+                                <td>Modified:</td>
+                                <td>Edit:</td>
+                                <td>Status:</td>
+                                <td>Grades:</td>
+                                <td>Submissions</td>
+                                <td>Delete:</td>
                             </tr>
                         </thead>
                         <tbody>
 
-                            {% for klass in user.instructor.klasses %}
+                            {% for klass in user.instructor.klasses.all %}
+                                <tr>
+                                   <td>{{ klass.image }}</td>
+                                   <td>{{ klass.title }}</td>
+                                   <td>{{ klass.group }}</td>
+                                   <td>{{ klass.instructor }}</td>
+                                   <td>{{ klass.created }}</td>
+                                   <td>{{ klass.modified }}</td>
+                                   <td><a href="" class="ui yellow mini button">Edit</a></td>
+                                   <td>{{ klass.status }}</td>
+                                   <td><a href="" class="ui yellow mini button">Download</a></td>
+                                   <td><a href="" class="ui yellow mini button">Download</a></td>
+                                   <td><a href="" class="ui red mini button">X</a></td>
+                                </tr>
                             {% endfor %}
 
                         </tbody>
