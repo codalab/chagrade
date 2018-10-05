@@ -25,6 +25,9 @@ class ChaUser(AbstractUser):
 class Instructor(models.Model):
     university_name = models.CharField(max_length=200, null=True, blank=True)
 
+    def __str__(self):
+        return "{0} - {1}".format(self.user.username, self.university_name)
+
 
 class StudentMembership(models.Model):
     user = models.ForeignKey('ChaUser', related_name='klass_memberships', null=False, blank=False, on_delete=models.CASCADE)
@@ -37,10 +40,13 @@ class StudentMembership(models.Model):
 
     date_enrolled = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return "{0}:{1} - {2}".format(self.user.username, self.student_id, self.klass.name)
+
 
 class AssistantMembership(models.Model):
     instructor = models.ForeignKey('Instructor', related_name='assistant_memberships', null=False, blank=False, on_delete=models.CASCADE)
     klass = models.ForeignKey('klasses.Klass', related_name='assigned_assistants', null=False, blank=False, on_delete=models.CASCADE)
 
-
-
+    def __str__(self):
+        return "{0} - {1}".format(self.instructor.user.username, self.klass.name)

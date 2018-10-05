@@ -16,7 +16,7 @@ from apps.profiles.forms import InstructorProfileForm
 from apps.profiles.models import ChaUser
 
 
-import pdb; pdb.set_trace()
+# import pdb; pdb.set_trace()
 
 
 def logout_view(request):
@@ -33,7 +33,7 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
 
     def get_form_kwargs(self, **kwargs):
         # data = super(ChangePassword, self).get_form_kwargs(**kwargs)
-        data = super(ChangePasswordView, self).get_form_kwargs()
+        data = super(ChangePasswordView, self).get_form_kwargs(**kwargs)
         data['user'] = self.request.user
         return data
 
@@ -49,7 +49,7 @@ class SetPasswordView(LoginRequiredMixin, FormView):
 
     def get_form_kwargs(self, **kwargs):
         # data = super(ChangePassword, self).get_form_kwargs(**kwargs)
-        data = super(SetPasswordView, self).get_form_kwargs()
+        data = super(SetPasswordView, self).get_form_kwargs(**kwargs)
         data['user'] = self.request.user
         return data
 
@@ -74,7 +74,7 @@ class InstructorProfileCreationView(LoginRequiredMixin, FormView):
     # success_url = '/profiles/instructor_overview/'
 
     def get_form_kwargs(self, **kwargs):
-        data = super().get_form_kwargs()
+        data = super().get_form_kwargs(**kwargs)
         return data
 
     def form_valid(self, form):
@@ -88,7 +88,7 @@ class InstructorProfileCreationView(LoginRequiredMixin, FormView):
 
 
 class InstructorOverView(LoginRequiredMixin, TemplateView):
-    template_name = 'instructor_mgmt.html'
+    template_name = 'instructor_overview.html'
 
     def dispatch(self, request, *args, **kwargs):
         # If the user doesn't have an instructor object, re-direct them to fill out the form first
@@ -98,7 +98,3 @@ class InstructorOverView(LoginRequiredMixin, TemplateView):
         else:
             print("SEND USE")
             return super().dispatch(request, *args, **kwargs)
-
-    # def get(self, request, *args, **kwargs):
-    #     context = self.get_context_data(**kwargs)
-    #     return render(request, template_name=self.template_name, context=context)

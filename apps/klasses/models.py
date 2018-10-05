@@ -14,3 +14,6 @@ class Klass(models.Model):
     students = models.ManyToManyField('profiles.ChaUser', through='profiles.StudentMembership')
 
     teacher_assistants = models.ManyToManyField('profiles.Instructor', through='profiles.AssistantMembership')
+
+    name = models.CharField(max_length=60, null=False, blank=False, default="New Course")
+    course_number = models.SlugField(max_length=60, null=False, blank=False, unique=True, default=None)

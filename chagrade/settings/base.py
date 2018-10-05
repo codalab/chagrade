@@ -158,11 +158,13 @@ SOCIAL_AUTH_CHAHUB_SECRET = os.environ.get('SOCIAL_AUTH_CODALAB_SECRET')
 SOCIAL_AUTH_CHAHUB_BASE_URL = os.environ.get('SOCIAL_AUTH_CHAHUB_BASE_URL', 'https://chahub.org')
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'index'
-SOCIAL_AUTH_LOGIN_URL = 'index'
+SOCIAL_AUTH_LOGIN_URL = 'profiles:login'
 SOCIAL_AUTH_NEW_USER_REDIRECT_URL = 'profiles:set_password'
 SOCIAL_AUTH_NEW_ASSOCIATION_REDIRECT_URL = 'profiles:set_password'
 SOCIAL_AUTH_DISCONNECT_REDIRECT_URL = 'index'
 
+LOGIN_URL = 'profiles:login'
+LOGIN_REDIRECT_URL = 'index'
 
 # User Models
 # SOCIAL_AUTH_USER_MODEL = 'authenz.ClUser'

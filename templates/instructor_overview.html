@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+
+    <div class="ui centered grid">
+            <div class="row">
+                <div class="twelve wide column">
+                    <div class="ui centered grid message">
+                        <div class="row">
+                            <div class="ui center aligned container" style="margin-bottom: 5px;">
+                                <h1 class="ui massive header" style="font-size: 56px;">Your Classes</h1>
+                                <h2 class="sub header">
+                                    Here you can create <b>and grade classes attached to challenges</b>
+                                </h2>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="center aligned six wide column">
+                                <a class="ui large green button" href="" role="button">Create a Class</a>
+                            </div>
+                            <div class="center aligned six wide column">
+                                <a class="ui large yellow button" href="" role="button">Create a Class from Template</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui row">
+                <div class="sixteen wide center aligned column">
+                    <table class="ui table">
+                        <thead style="background-color: #2185d0; color: white;">
+                            <tr class="black">
+                                <td>
+                                    Image:
+                                </td>
+                                <td>
+                                    Title:
+                                </td>
+                                <td>
+                                    Group:
+                                </td>
+                                <td>
+                                    Organizer:
+                                </td>
+                                <td>
+                                    Created At:
+                                </td>
+                                <td>
+                                    Updated At:
+                                </td>
+                                <td>
+                                    Edit:
+                                </td>
+                                <td>
+                                    Status:
+                                </td>
+                                <td>
+                                    Download Grades:
+                                </td>
+                                <td>
+                                    Download Submissions
+                                </td>
+                                <td>
+                                    Delete:
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% for klass in user.instructor.klasses %}
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+{#                    <h3 class="ui icon header">#}
+{#                        <i class="student icon"></i>#}
+{#                        <div class="content">#}
+{#                            Learning By Doing#}
+{#                        </div>#}
+{#                    </h3>#}
+{#                    <div style="">#}
+{#                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>#}
+{#                    </div>#}
+                </div>
+{#                <div class="center aligned column">#}
+{#                    <h3 class="ui icon header">#}
+{#                        <i class="users icon"></i>#}
+{#                        <div class="content">#}
+{#                            Learning By Doing#}
+{#                        </div>#}
+{#                    </h3>#}
+{#                    <div style="">#}
+{#                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>#}
+{#                    </div>#}
+{#                </div>#}
+{#                <div class="center aligned column">#}
+{#                    <h3 class="ui icon header">#}
+{#                        <i class="square github icon"></i>#}
+{#                        <div class="content">#}
+{#                            Learning By Doing#}
+{#                        </div>#}
+{#                    </h3>#}
+{#                    <div style="">#}
+{#                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>#}
+{#                    </div>#}
+{#                </div>#}
+            </div>
+        </div>
+
+
+{% endblock %}

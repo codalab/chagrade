@@ -20,8 +20,8 @@ services:
       options:
         max-size: "200k"
     container_name: django
-    stdin_open: true
-    tty: true
+    stdin_open: ${DOCKER_DEBUG}
+    tty: ${DOCKER_DEBUG}
 
   # --------------------------------------------------------------------------
   # Database
