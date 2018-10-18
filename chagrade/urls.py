@@ -24,6 +24,7 @@ urlpatterns = [
     # Our includes
     url(r'^admin/', admin.site.urls),
     url(r'^profiles/', include('apps.profiles.urls', namespace='profiles')),
+    url(r'^klasses/', include('apps.klasses.urls', namespace='klasses')),
     url(r'^social/', include('social_django.urls', namespace='social')),
     path('api/<str:version>/', include('apps.api.urls')),
 ]

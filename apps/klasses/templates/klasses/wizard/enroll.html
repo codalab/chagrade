@@ -1,0 +1,122 @@
+{% extends 'klasses/wizard/wizard_base.html' %}
+
+{% block wizard_title %}
+    <h2 class="ui massive header" style="font-size: 56px;">Enroll Students</h2>
+{% endblock %}
+
+{#{% block wizard_description %}#}
+{#    <h4 class="sub header">SOMETHING</h4>#}
+{#{% endblock %}#}
+
+{% block wizard_content %}
+    <div class="ui centered grid">
+        <div class="row">
+            <div class="ui fourteen wide column message">
+                <div>
+                    <span>
+                        <a class="ui button">Create Student Team</a>
+                        <a class="ui button">Upload Team CSV</a>
+                    </span>
+                    <h1>Teams</h1>
+                    <table class="ui table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Creator</th>
+                            <th># Members</th>
+                            <th>Pending Req/Inv</th>
+                            <th>Status</th>
+                            <th></th>
+                            <th>Entries</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for team in klass.teams.all %}
+                            <tr>
+                                <td>
+                                    {{ forloop.counter }}
+                                </td>
+                                <td>
+                                    {{ team.name }}
+                                </td>
+                                <td>
+                                    {{ team.members.count }}
+                                </td>
+                                <td>
+                                    Not Implemented
+                                </td>
+                                <td>
+                                    Not Implemented
+                                </td>
+                                <td>
+                                    Not Implemented
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="ui divider" style="margin-top: 5vh; margin-bottom: 5vh;"></div>
+
+                <div style="">
+                    <span>
+                        <a class="ui button">Send Message</a>
+                        <a class="ui button">Download CSV</a>
+                    </span>
+                    <h1>Participants</h1>
+                    <table class="ui table">
+                        <thead>
+                        <tr>
+                            <td>#</td>
+                            <td>First Name</td>
+                            <td>Last Name</td>
+                            <td>Display Name</td>
+                            <td>Email</td>
+                            <td>Team</td>
+                            <td>Status</td>
+                            <td></td>
+                            <td>Entries</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for student in klass.students.all %}
+                            <tr>
+                                <td>
+                                    {{ forloop.counter }}
+                                </td>
+                                <td>
+                                    {{ student.user.first_name }}
+                                </td>
+                                <td>
+                                    {{ student.user.last_name }}
+                                </td>
+                                <td>
+                                    {{ student.user.username }}
+                                </td>
+                                <td>
+                                    {{ student.user.email }}
+                                </td>
+                                <td>
+                                    {{ student.team }}
+                                </td>
+                                <td>
+                                    Not Implemented
+                                </td>
+                                <td>
+                                    Not Implemented
+                                </td>
+                                <td>
+                                    Not Implemented
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

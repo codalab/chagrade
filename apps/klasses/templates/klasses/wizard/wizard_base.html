@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="ui centered grid">
+        <div class="row">
+            <div class="twelve wide column">
+                <div class="ui centered grid">
+                    <div class="row">
+                        <div class="ui center aligned container" style="margin-bottom: 5px;">
+                            <h2 class="ui massive header" style="font-size: 56px;">{% block wizard_title %}{% endblock %}</h2>
+                                {% block wizard_description %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui centered grid wizard-steps">
+        <div class="ui mini steps">
+{#            <div class="completed step">#}
+{#                <div class="content">#}
+{#                    <div class="title">Shipping</div>#}
+{#                    <div class="description">Choose your shipping options</div>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="completed step">#}
+{#                <div class="content">#}
+{#                    <div class="title">Billing</div>#}
+{#                    <div class="description">Enter billing information</div>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="active step">#}
+{#                <div class="content">#}
+{#                    <div class="title">Confirm Order</div>#}
+{#                    <div class="description">Verify order details</div>#}
+{#                </div>#}
+{#            </div>#}
+            <a href="{% url "klasses:klass_enrollment" klass_pk=klass.pk %}" class="step">
+                <i class="users icon"></i>
+                <div class="content">
+                    <div class="title">Enroll Students</div>
+{#                    <div class="description">Choose your shipping options</div>#}
+                </div>
+            </a>
+            <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="step">
+                <i class="student icon"></i>
+                <div class="content">
+                    <div class="title">Define Homework</div>
+{#                    <div class="description">Attach competitions to homework and define deadlines</div>#}
+                </div>
+            </a>
+            <a href="" class="step">
+                <i class="pencil alternate icon"></i>
+                <div class="content">
+                    <div class="title">Grade Homework</div>
+{#                    <div class="description">Make grades, publish them</div>#}
+                </div>
+            </a>
+            <a href="{% url "klasses:klass_activate" klass_pk=klass.pk %}" class="{% if klass.active %}completed {% endif %}step">
+                <i class="info icon"></i>
+                <div class="content">
+                    <div class="title">Activate Class</div>
+{#                    <div class="description">Make class visible to students</div>#}
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="ui blue inverted mini menu" style="margin-top: 5vh;">
+        <a class="item">
+            Previous
+        </a>
+        <div class="right menu">
+{#            <div class="ui dropdown item">#}
+{#                Language <i class="dropdown icon"></i>#}
+{#                <div class="menu">#}
+{#                    <a class="item">English</a>#}
+{#                </div>#}
+{#            </div>#}
+            <a class="item">
+                Next
+            </a>
+        </div>
+    </div>
+
+    {% block wizard_content %}
+    {% endblock %}
+
+    <div class="ui blue inverted mini menu" style="margin-top: 5vh;">
+        <a class="item">
+            Previous
+        </a>
+        <div class="right menu">
+            {#            <div class="ui dropdown item">#}
+            {#                Language <i class="dropdown icon"></i>#}
+            {#                <div class="menu">#}
+            {#                    <a class="item">English</a>#}
+            {#                </div>#}
+            {#            </div>#}
+            <a class="item">
+                Next
+            </a>
+        </div>
+    </div>
+
+{% endblock %}

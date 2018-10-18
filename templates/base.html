@@ -14,6 +14,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
 
+    <script src="http://semantic-ui.com/javascript/library/tablesort.js"></script>
+
     <link rel="stylesheet" href="https://use.fontawesome.com/26ae41ff0f.css">
     <link href="https://fonts.googleapis.com/css?family=Cabin|Raleway" rel="stylesheet">
 
@@ -26,60 +28,38 @@
 
 <body class="main-background">
 <div class="ui container">
-    {% block body %}
-
-    <header class="ui center aligned container bottom20" style="margin-bottom: 5vh;">
-        <div id="logo" class="" style="margin: 2vh 0 2vh 0;">
-            <h1><a href="/">Chagrade</a><sup>
-                <small>(beta)</small>
-            </sup></h1>
-            <h4 class="ui sub header">Machine Learning Classes Management</h4>
-        </div>
-
-        <nav>
-            <div class="ui fluid four item menu">
-{#                <div class="right menu">#}
-                    <a class="item" href="{% url "index" %}">Home</a>
-                    {% if user.is_authenticated %}
-                        {#                    <li id="home"><a href="{% url 'home' %}">Home</a></li>#}
-                        {#                    <div class="right menu">#}
-{#                        <a class="item" href="{% url "index" %}">Home</a>#}
-                        <a class="item" href="{% url "profiles:logout" %}">Logout</a>
-                        {#                    </div>#}
-                    {% else %}
-                        {#                    <div class="right menu">#}
-                        {#                        <a class="item">Sign-up</a>#}
-                        {#                    </div>#}
-                        {#                    <div class="right menu">#}
-{#                        <a class="item" href="{% url "index" %}">Home</a>#}
-                        <a class="item" href="{% url "social:begin" "chahub" %}">Sign-In</a>
-                        <a class="item" href="{% url "profiles:login" %}">Login</a>
-                        {#                    </div>#}
-                    {% endif %}
-                    <a class="item">Help</a>
-{#                </div>#}
+        <header class="ui center aligned container bottom20" style="margin-bottom: 5vh;">
+            <div id="logo" class="" style="margin: 2vh 0 2vh 0;">
+                <h1><a href="/">Chagrade</a><sup>
+                    <small>(beta)</small>
+                </sup></h1>
+                <h4 class="ui sub header">Machine Learning Classes Management</h4>
             </div>
-        </nav>
-    </header>
 
-    <div id="{% block app_name %}{% endblock %}" class="app">
-        <div id="{% block panel_name %}{% endblock %}" class="ui segment">
-            <div id="{% block module_name %}{% endblock %}" class="module container-padding">
-                {% block content %}
-                {% endblock %}
+            <nav>
+                <div class="ui fluid four item menu">
+                        <a class="item" href="{% url "index" %}">Home</a>
+                        {% if user.is_authenticated %}
+                            <a class="item" href="{% url "profiles:logout" %}">Logout</a>
+                        {% else %}
+                            <a class="item" href="{% url "social:begin" "chahub" %}">Sign-In</a>
+                            <a class="item" href="{% url "profiles:login" %}">Login</a>
+                        {% endif %}
+                        <a class="item">Help</a>
+                </div>
+            </nav>
+        </header>
+
+        <div class="app">
+            <div class="ui segment">
+                <div class="module container-padding">
+                    {% block content %}
+                    {% endblock %}
+                </div>
             </div>
         </div>
-    </div>
-    {% endblock %}
     <footer class="ui footer segment">
 
-{#        <p class="white-text">2017, Work In Progress - Version 0.1</p>#}
-{#        <p>#}
-{#            <a class="white-text" href="https://github.com/codalab/chagrade/issues">#}
-{#                <i class="github icon"></i>#}
-{#                Join us on Github for contact & Bug Reports.#}
-{#            </a>#}
-{#        </p>#}
         <div class="ui horizontal link list">
             <a class="item" href="https://github.com/codalab/chagrade/issues">
                 <i class="github icon"></i>
@@ -91,6 +71,12 @@
         </div>
     </footer>
 </div>
+
+<script>
+    $('document').ready(function(){
+        $('table').tablesort()
+    });
+</script>
 
 </body>
 </html>

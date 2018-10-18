@@ -32,6 +32,8 @@ class Klass(models.Model):
     image = models.ImageField(null=True, blank=True)
     syllabus = models.FileField(null=True, blank=True)
 
+    active = models.BooleanField(default=False)
+
     # status = models.CharField(max_length=60,)
 
     def __str__(self):

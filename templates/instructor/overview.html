@@ -18,10 +18,10 @@
                         </div>
                         <div class="row">
                             <div class="center aligned six wide column">
-                                <a class="ui large green button" href="" role="button">Create a Class</a>
+                                <a class="ui large green button" href="{% url "klasses:create_klass" %}" role="button">Create a Class</a>
                             </div>
                             <div class="center aligned six wide column">
-                                <a class="ui large yellow button" href="" role="button">Create a Class from Template</a>
+                                <a class="ui large grey disabled button" href="" role="button">Create a Class from Template</a>
                             </div>
                         </div>
                     </div>
@@ -29,20 +29,20 @@
             </div>
             <div class="ui row">
                 <div class="sixteen wide center aligned column">
-                    <table class="ui center aligned stackable table">
+                    <table class="ui center aligned sortable celled table">
                         <thead style="background-color: #2185d0; color: white;">
                             <tr class="black">
-                                <td>Image:</td>
-                                <td>Title:</td>
-                                <td>Group:</td>
-                                <td>Organizer:</td>
-                                <td>Created:</td>
-                                <td>Modified:</td>
-                                <td>Edit:</td>
-                                <td>Status:</td>
-                                <td>Grades:</td>
-                                <td>Submissions</td>
-                                <td>Delete:</td>
+                                <th>Image:</th>
+                                <th>Title:</th>
+                                <th>Group:</th>
+                                <th>Organizer:</th>
+                                <th>Created:</th>
+                                <th>Modified:</th>
+                                <th>Edit:</th>
+                                <th>Status:</th>
+                                <th>Grades:</th>
+                                <th>Submissions</th>
+                                <th>Delete:</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -55,48 +55,17 @@
                                    <td>{{ klass.instructor }}</td>
                                    <td>{{ klass.created }}</td>
                                    <td>{{ klass.modified }}</td>
-                                   <td><a href="" class="ui yellow mini button">Edit</a></td>
+                                   <td><a href="{% url "klasses:klass_details" klass_pk=klass.pk %}" class="ui yellow mini button">Edit</a></td>
                                    <td>{{ klass.status }}</td>
-                                   <td><a href="" class="ui yellow mini button">Download</a></td>
-                                   <td><a href="" class="ui yellow mini button">Download</a></td>
-                                   <td><a href="" class="ui red mini button">X</a></td>
+                                   <td><a href="" class="ui grey mini disabled button">Download</a></td>
+                                   <td><a href="" class="ui grey mini disabled button">Download</a></td>
+                                   <td><a href="" class="ui grey mini disabled button">X</a></td>
                                 </tr>
                             {% endfor %}
 
                         </tbody>
                     </table>
-{#                    <h3 class="ui icon header">#}
-{#                        <i class="student icon"></i>#}
-{#                        <div class="content">#}
-{#                            Learning By Doing#}
-{#                        </div>#}
-{#                    </h3>#}
-{#                    <div style="">#}
-{#                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>#}
-{#                    </div>#}
                 </div>
-{#                <div class="center aligned column">#}
-{#                    <h3 class="ui icon header">#}
-{#                        <i class="users icon"></i>#}
-{#                        <div class="content">#}
-{#                            Learning By Doing#}
-{#                        </div>#}
-{#                    </h3>#}
-{#                    <div style="">#}
-{#                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>#}
-{#                    </div>#}
-{#                </div>#}
-{#                <div class="center aligned column">#}
-{#                    <h3 class="ui icon header">#}
-{#                        <i class="square github icon"></i>#}
-{#                        <div class="content">#}
-{#                            Learning By Doing#}
-{#                        </div>#}
-{#                    </h3>#}
-{#                    <div style="">#}
-{#                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>#}
-{#                    </div>#}
-{#                </div>#}
             </div>
         </div>
 

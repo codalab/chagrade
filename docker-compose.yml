@@ -29,7 +29,7 @@ services:
   postgres:
     image: postgres:9.5
     environment:
-      - "PGDATA=/var/lib/postgresql/data/pgdata"
+      - PGDATA=/app/var/lib/postgresql/data/pgdata
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}

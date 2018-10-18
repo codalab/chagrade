@@ -20,7 +20,7 @@
                         </div>
                         <div class="row">
                             <div class="center aligned six wide column">
-                                <a class="ui large green button" href="" role="button">I'm a Student</a>
+                                <a class="ui large grey disabled button" href="" role="button">I'm a Student<br> (Not Implemented)</a>
                             </div>
                             <div class="center aligned six wide column">
                                 <a class="ui large green button" href="{% url "profiles:instructor_overview" %}" role="button">I'm an Instructor</a>
@@ -82,7 +82,7 @@
                         </div>
                         <div class="row">
                             <div class="center aligned six wide column">
-                                <a class="ui large green button" href="" role="button">Sign-In</a>
+                                <a class="ui large green button" href="{% url "social:begin" "chahub" %}" role="button">Sign-In</a>
                             </div>
                             <div class="center aligned six wide column">
                                 <a class="ui large blue button" href="{% url "profiles:login" %}" role="button">Login</a>

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Class Creation{% endblock %}
+
+{% block content %}
+    <div class="ui vertical masthead container">
+        <div class="ui center aligned grid">
+            <div class="ui fourteen wide column">
+
+                <form class="ui form" method="post">
+                    {% csrf_token %}
+
+                    {{ form.non_field_errors }}
+
+                    <div class="field">
+                        {{ form.title.errors }}
+                        {{ form.title.label_tag }}
+                        {{ form.title }}
+                    </div>
+
+                    <div class="field">
+                        {{ form.course_number.errors }}
+                        {{ form.course_number.label_tag }}
+                        {{ form.course_number }}
+                    </div>
+
+                    <div class="field">
+                        {{ form.description.errors }}
+                        {{ form.description.label_tag }}
+                        {{ form.description }}
+                    </div>
+
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
