@@ -15,9 +15,9 @@ class Klass(models.Model):
     # INCOMPLETE = 'incomplete'
 
     instructor = models.ForeignKey('profiles.Instructor', related_name='klasses', on_delete=models.PROTECT)
-    students = models.ManyToManyField('profiles.ChaUser', through='profiles.StudentMembership')
+    # students = models.ManyToManyField('profiles.ChaUser', through='profiles.StudentMembership')
 
-    teacher_assistants = models.ManyToManyField('profiles.Instructor', through='profiles.AssistantMembership')
+    # teacher_assistants = models.ManyToManyField('profiles.Instructor', through='profiles.AssistantMembership')
 
     title = models.CharField(max_length=60, null=False, blank=False, default="New Course")
     course_number = models.SlugField(max_length=60, null=False, blank=False, unique=True, default=None)

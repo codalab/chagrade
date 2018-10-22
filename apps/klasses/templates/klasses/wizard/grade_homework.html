@@ -1,0 +1,49 @@
+{% extends 'klasses/wizard/wizard_base.html' %}
+
+{% block wizard_title %}
+    <h2 class="ui massive header" style="font-size: 56px;">Grade Homework</h2>
+{% endblock %}
+
+{#{% block wizard_description %}#}
+{#    <h4 class="sub header">SOMETHING</h4>#}
+{#{% endblock %}#}
+
+{% block wizard_content %}
+    <div class="ui centered grid">
+        <div class="row">
+            <div class="ui fourteen wide column message">
+                <div>
+                    <h1>Participants</h1>
+                    <span>
+                        <a href="" class="ui button">Download CSV</a>
+                    </span>
+                    <table class="ui sortable table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Team</th>
+                            <th>Submission</th>
+                            {% for homework_def in klass.homework_definitons.all %}
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                {{ forloop.counter }}
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            {% for homework_def in klass.homework_definitons.all %}
+                            {% endfor %}
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

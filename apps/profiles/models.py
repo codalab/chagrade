@@ -41,7 +41,7 @@ class StudentMembership(models.Model):
     date_enrolled = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return "{0}:{1} - {2}".format(self.user.username, self.student_id, self.klass.name)
+        return "{0}:{1} - {2}".format(self.user.username, self.student_id, self.klass.title)
 
 
 class AssistantMembership(models.Model):
@@ -49,4 +49,4 @@ class AssistantMembership(models.Model):
     klass = models.ForeignKey('klasses.Klass', related_name='assigned_assistants', null=False, blank=False, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{0} - {1}".format(self.instructor.user.username, self.klass.name)
+        return "{0} - {1}".format(self.instructor.user.username, self.klass.title)

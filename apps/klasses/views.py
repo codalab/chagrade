@@ -12,6 +12,8 @@ from django.views.generic.base import ContextMixin
 from apps.klasses.forms import KlassForm
 from apps.klasses.models import Klass
 
+from apps.klasses.mixins import WizardMixin
+
 
 class KlassCreationView(LoginRequiredMixin, FormView):
     template_name = 'klasses/klass_form.html'
@@ -43,7 +45,7 @@ class KlassOverView(LoginRequiredMixin, DetailView):
     pk_url_kwarg = 'klass_pk'
 
 
-class KlassEnrollmentView(LoginRequiredMixin, TemplateView):
+class KlassEnrollmentView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/enroll.html'
 
     def get_context_data(self, **kwargs):
@@ -56,7 +58,7 @@ class KlassEnrollmentView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class KlassDefineHomeworkView(LoginRequiredMixin, TemplateView):
+class KlassDefineHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/define_homework.html'
 
     def get_context_data(self, **kwargs):
@@ -69,7 +71,20 @@ class KlassDefineHomeworkView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class KlassActivateView(LoginRequiredMixin, TemplateView):
+class KlassGradeHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
+    template_name = 'klasses/wizard/grade_homework.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(KlassGradeHomeworkView, self).get_context_data(**kwargs)
+        try:
+            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+            context['klass'] = klass
+        except ObjectDoesNotExist:
+            raise Http404('Klass object not found')
+        return context
+
+
+class KlassActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/activate_klass.html'
 
     def get_context_data(self, **kwargs):

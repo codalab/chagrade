@@ -10,5 +10,6 @@ urlpatterns = [
     path('wizard/<int:klass_pk>', views.KlassOverView.as_view(), name='klass_details'),
     path('wizard/<int:klass_pk>/enroll', views.KlassEnrollmentView.as_view(), name='klass_enrollment'),
     path('wizard/<int:klass_pk>/define_homework', views.KlassDefineHomeworkView.as_view(), name='klass_homework'),
-    path('wizard/<int:klass_pk>/activate_class', views.KlassActivateView.as_view(), name='klass_activate')
+    path('wizard/<int:klass_pk>/grade_homework', views.KlassGradeHomeworkView.as_view(), name='klass_grading'),
+    path('wizard/<int:klass_pk>/activate', views.KlassActivateView.as_view(), name='klass_activate')
 ]

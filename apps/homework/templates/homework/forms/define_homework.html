@@ -1,0 +1,34 @@
+{% extends 'klasses/wizard/wizard_base.html' %}
+
+{% block wizard_title %}
+    <h2 class="ui massive header" style="font-size: 56px;">Define Homework</h2>
+{% endblock %}
+
+
+{% block wizard_content %}
+    <div class="ui centered grid">
+        <div class="row">
+            <div class="ui center aligned fourteen wide column message">
+                <form class="ui form" method="post">
+                    {% csrf_token %}
+
+                    {{ form.non_field_errors }}
+
+                    {% for field in form %}
+                        <div class="field">
+                            {{ field.errors }}
+                            <span>
+                                {{ field.label_tag }}
+                                {{ field }}
+                            </span>
+                        </div>
+                    {% endfor %}
+
+
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

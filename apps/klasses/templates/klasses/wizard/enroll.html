@@ -18,7 +18,7 @@
                         <a class="ui button">Upload Team CSV</a>
                     </span>
                     <h1>Teams</h1>
-                    <table class="ui table">
+                    <table class="ui sortable table">
                         <thead>
                         <tr>
                             <th>#</th>
@@ -68,20 +68,20 @@
                     <h1>Participants</h1>
                     <table class="ui table">
                         <thead>
-                        <tr>
-                            <td>#</td>
-                            <td>First Name</td>
-                            <td>Last Name</td>
-                            <td>Display Name</td>
-                            <td>Email</td>
-                            <td>Team</td>
-                            <td>Status</td>
-                            <td></td>
-                            <td>Entries</td>
-                        </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Display Name</th>
+                                <th>Email</th>
+                                <th>Team</th>
+                                <th>Status</th>
+                                <th></th>
+                                <th>Entries</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {% for student in klass.students.all %}
+                        {% for student in klass.enrolled_students.all %}
                             <tr>
                                 <td>
                                     {{ forloop.counter }}

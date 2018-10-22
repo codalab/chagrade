@@ -4,35 +4,66 @@
 
 {% block content %}
 
-{#    <div class="ui inverticed vertical masthead center aligned segment">#}
-{#        <h1 class="ui massive header">Welcome to Chagrade</h1>#}
-{#        <h6 class="ui sub header">#}
-{#            Here you can enroll in classes as a student or instruct and manage them as an instructor.#}
-{#        </h6>#}
-{#        <a class="ui large green button" href="" role="button">Sign Up</a>#}
-{#    </div>#}
-{#    <div class="ui grid">#}
-{#        <div class="three column row">#}
-{#            <div class="center aligned column">#}
-{#                <h1><i class="large cloud upload icon"></i>Upload:</h1>#}
-{#                Upload your data and baseline methods. The platform lets you choose among pre-loaded#}
-{#                datasets or lets you upload your own in a simple text-based format. The platform#}
-{#                also lets you upload a starting kit to help the participants solve there tasks.#}
-{#                A Python example is provided.#}
-{#            </div>#}
-{#            <div class="center aligned column">#}
-{#                <h1><i class="large wrench icon"></i>Design:</h1>#}
-{#                Prepare your very own challenge protocol and rules. The platform helps you create#}
-{#                tasks by automatically splitting your data and letting you choose among pre-defined#}
-{#                metrics. An editor helps you add documentation pages.#}
-{#            </div>#}
-{#            <div class="center aligned column">#}
-{#                <h1><i class="large ship icon"></i>Ship:</h1>#}
-{#                The platform compiles your tasks, sample code, and documentation into a#}
-{#                self-contained zip archive, ready to upload to a competition platform.#}
-{#                (in this version, Codalab.org is supported).#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
+    <div class="ui centered grid">
+            <div class="row">
+                <div class="twelve wide column">
+                    <div class="ui centered grid message">
+                        <div class="row">
+                            <div class="ui center aligned container" style="margin-bottom: 5px;">
+                                <h1 class="ui massive header" style="font-size: 56px;">Your Classes</h1>
+{#                                <h2 class="sub header">#}
+{#                                    Here you can create <b>and grade classes attached to challenges</b>#}
+{#                                </h2>#}
+                            </div>
+                        </div>
+{#                        <div class="row">#}
+{#                            <div class="center aligned six wide column">#}
+{#                                <a class="ui large green button" href="{% url "klasses:create_klass" %}" role="button">Create a Class</a>#}
+{#                            </div>#}
+{#                            <div class="center aligned six wide column">#}
+{#                                <a class="ui large grey disabled button" href="" role="button">Create a Class from Template</a>#}
+{#                            </div>#}
+{#                        </div>#}
+                    </div>
+                </div>
+            </div>
+            <div class="ui row">
+                <div class="sixteen wide center aligned column">
+                    <table class="ui center aligned sortable celled table">
+                        <thead style="background-color: #2185d0; color: white;">
+                        <tr class="black">
+                            <th>Image:</th>
+                            <th>Title:</th>
+                            <th>Group:</th>
+                            <th>Organizer:</th>
+                            <th>Next Homework</th>
+                            <th>Current Grade</th>
+                            <th>Download Grades</th>
+                            <th>Download Submissions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for membership in user.klass_memberships.all %}
+                            {% with membership.klass as klass %}
+                                <tr>
+                                    <td>{{ klass.image }}</td>
+                                    <td>{{ klass.title }}</td>
+                                    <td>{{ klass.group }}</td>
+                                    <td>{{ klass.instructor }}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            {% endwith %}
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
 
 {% endblock %}
