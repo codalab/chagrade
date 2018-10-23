@@ -14,7 +14,7 @@
             <div class="ui fourteen wide column message">
                 <div>
                     <span>
-                        <a class="ui button">Create Homework</a>
+                        <a href="{% url "homework:define_homework" klass_pk=klass.pk %}" class="ui yellow button">Create Homework</a>
                     </span>
                     <h1>Homework</h1>
                     <table class="ui sortable table">
@@ -36,13 +36,13 @@
                                 <td>
                                     {{ forloop.counter }}
                                 </td>
+                                <td>{{ homework_def.name }}</td>
+                                <td>{{ homework_def.creator }}</td>
+                                <td>{{ homework_def.modified }}</td>
+                                <td>{{ homework_def.due_date }}</td>
                                 <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td>{{ homework_def.submissions.count }}</td>
+                                <td>{{ homework_def.avg_grade }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>

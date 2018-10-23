@@ -1,20 +1,20 @@
 from django import forms
 from django.forms import DateTimeInput, SelectDateWidget
 
-from apps.homework.models import HomeworkDefinition, HomeworkSubmission
+from apps.homework.models import Definition, Submission, Grade
 
 
-class HomeworkSubmissionForm(forms.ModelForm):
+class SubmissionForm(forms.ModelForm):
     class Meta:
-        model = HomeworkSubmission
+        model = Submission
         fields = [
             'submission_github_url'
         ]
 
 
-class HomeworkDefinitionForm(forms.ModelForm):
+class DefinitionForm(forms.ModelForm):
     class Meta:
-        model = HomeworkDefinition
+        model = Definition
         fields = [
             'due_date',
             'name',
@@ -30,3 +30,11 @@ class HomeworkDefinitionForm(forms.ModelForm):
         widgets = {
             'due_date': SelectDateWidget()
         }
+
+
+class GradeForm(forms.ModelForm):
+    class Meta:
+        model = Grade
+        fields = [
+            'score'
+        ]

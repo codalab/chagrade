@@ -1,0 +1,90 @@
+{#{% extends 'base.html' %}#}
+{##}
+{#{% block title %}Submit Homework{% endblock %}#}
+{##}
+{#{% block content %}#}
+{#    <div class="ui vertical masthead container">#}
+{#        <div class="ui center aligned grid">#}
+{#            <div class="ui fourteen wide column">#}
+{##}
+{#                <form class="ui form" method="post">#}
+{#                    {% csrf_token %}#}
+{##}
+{#                    {{ form.non_field_errors }}#}
+{##}
+{#                    {% for field in form %}#}
+{#                        <div class="field">#}
+{#                            {{ field.errors }}#}
+{#                            <span>#}
+{#                                {{ field.label_tag }}#}
+{#                                {{ field }}#}
+{#                            </span>#}
+{#                        </div>#}
+{#                    {% endfor %}#}
+{##}
+{#                    <input type="submit" value="Submit">#}
+{#                </form>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#{% endblock %}#}
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .condensed {
+            margin: 0.5vh 0 0 0 !important;
+            padding: 0.5vh 0 0 0 !important;
+        }
+
+        .no-padding {
+            padding: 1vh 0 0 0 !important;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="ui centered grid">
+        <div class="row">
+        <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
+            <div class="fourteen wide column">
+                <div class="ui centered grid segment">
+                    <div class="row">
+                        <div class="two wide column">
+                            <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
+                        </div>
+                        <div class="fourteen wide column">
+                            <div class="ui grid">
+                                <div class="row no-padding">
+                                    <div class="twelve wide column">
+                                        <h1 class="ui header">{{klass.title}}</h1>
+                                        {% if klass.group %}
+                                            <h4 class="ui header condensed">From Group: {{ klass.group.name }}</h4>
+                                        {% endif %}
+                                        <h4 class="ui header condensed">Organized by: {{ klass.instructor.user.username }}</h4>
+                                    </div>
+                                    <div class="four wide column">
+{#                                        <a href="{% url "klasses:edit_klass" klass_pk=klass.pk %}" class="ui small yellow button">#}
+{#                                            Edit#}
+{#                                        </a>#}
+                                        <h5 class="ui header condensed">Created: {{klass.created.date}}</h5>
+                                        <h5 class="ui header condensed">Modified: {{klass.modified.date}}</h5>
+                                    </div>
+                                </div>
+                                <div class="row no-padding">
+                                    <div class="sixteen wide column">
+                                        Description: {{ klass.description }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

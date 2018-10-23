@@ -1,7 +1,7 @@
 {% extends 'klasses/wizard/wizard_base.html' %}
 
 {% block wizard_title %}
-    <h2 class="ui massive header" style="font-size: 56px;">Define Homework</h2>
+    <h2 class="ui massive header" style="font-size: 56px;">Grade Homework</h2>
 {% endblock %}
 
 
@@ -27,7 +27,7 @@
 
                     <span>
                         <input class="ui green button" type="submit" value="Submit">
-                        <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="ui red button">Cancel</a>
+                        <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="ui red button">Cancel</a>
                     </span>
                 </form>
             </div>

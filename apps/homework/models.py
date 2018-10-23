@@ -4,8 +4,8 @@ from django.db import models
 # Or should we abstract two seperate sub-models from this one?
 
 
-class HomeworkDefinition(models.Model):
-    klass = models.ForeignKey('klasses.Klass', related_name='homework_defintions', on_delete=models.PROTECT)
+class Definition(models.Model):
+    klass = models.ForeignKey('klasses.Klass', related_name='homework_definitions', on_delete=models.PROTECT)
     creator = models.ForeignKey('profiles.Instructor', related_name='created_homework_defintions', on_delete=models.PROTECT)
 
     due_date = models.DateTimeField(default=None)
@@ -29,29 +29,43 @@ class HomeworkDefinition(models.Model):
     class Meta:
         unique_together = ('klass', 'name')
 
+    def __str__(self):
+        return "{}".format(self.name)
 
-class HomeworkSubmission(models.Model):
+
+class Submission(models.Model):
     klass = models.ForeignKey('klasses.Klass', related_name='homework_submissions', on_delete=models.PROTECT)
     creator = models.ForeignKey('profiles.StudentMembership', related_name='submitted_homework', on_delete=models.PROTECT)
 
     submission_github_url = models.URLField(default=None, null=True, blank=True)
 
+    def __str__(self):
+        return "{}".format(self.submission_github_url)
 
-class HomeworkGrade(models.Model):
-    submission = models.ForeignKey('HomeworkSubmission', related_name='grades', on_delete=models.CASCADE)
+
+class Grade(models.Model):
+    submission = models.ForeignKey('Submission', related_name='grades', on_delete=models.CASCADE)
     evaluator = models.ForeignKey('profiles.Instructor', related_name='assigned_grades', on_delete=models.PROTECT)
 
+    score = models.IntegerField(default=0)
 
-class CustomHomeworkQuestion(models.Model):
-    HomeworkDefinition = models.ForeignKey('HomeworkDefinition', related_name='custom_questions', on_delete=models.CASCADE)
+    def __str__(self):
+        return "{0}:{1}".format(self.submission.submission_github_url, self.score)
+
+
+class Question(models.Model):
+    HomeworkDefinition = models.ForeignKey('Definition', related_name='custom_questions', on_delete=models.CASCADE)
 
     has_specific_answer = models.BooleanField(default=False)
 
     question = models.CharField(max_length=300)
     answer = models.CharField(max_length=200, null=True, blank=True)
 
+    def __str__(self):
+        return self.question
 
-class GradingCriteria(models.Model):
+
+class Criteria(models.Model):
     # Automatic grading will not work without some more structure to how this should work...
     # We can check scores, execution time, etc
     # Analyzing code goes a bit far, but they will have to select from some pre-made options in order for us to decide
@@ -67,7 +81,7 @@ class GradingCriteria(models.Model):
         (TESTS, 'tests')
     )
 
-    HomeworkDefinition = models.ForeignKey('HomeworkDefinition', related_name='criterias', on_delete=models.CASCADE)
+    homework_definition = models.ForeignKey('Definition', related_name='criterias', on_delete=models.CASCADE)
 
     criteria_type = models.CharField(choices=criteria_type_choices, max_length=20)
 
@@ -78,3 +92,6 @@ class GradingCriteria(models.Model):
 
     lower_range = models.IntegerField(default=0)
     upper_range = models.IntegerField(default=10)
+
+    def __str__(self):
+        return "{0}-{1}".format(self.homework_definition, self.pk)

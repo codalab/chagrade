@@ -1,5 +1,9 @@
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 from django.urls import reverse_lazy
 from django.urls import resolve
+
+from apps.klasses.models import Klass
 
 
 class WizardMixin(object):
@@ -14,6 +18,16 @@ class WizardMixin(object):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        print("THIS IS GETTING CALLED")
+
+        # Almost every view uses this
+        try:
+            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+            context['klass'] = klass
+        except ObjectDoesNotExist:
+            raise Http404('Klass object not found')
+
         # If we don't have a current_step set try to set one automatically
         if not self._current_step:
             self._current_step = resolve(self.request.path_info).url_name

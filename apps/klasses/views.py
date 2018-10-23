@@ -48,50 +48,14 @@ class KlassOverView(LoginRequiredMixin, DetailView):
 class KlassEnrollmentView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/enroll.html'
 
-    def get_context_data(self, **kwargs):
-        context = super(KlassEnrollmentView, self).get_context_data(**kwargs)
-        try:
-            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
-            context['klass'] = klass
-        except ObjectDoesNotExist:
-            raise Http404('Klass object not found')
-        return context
-
 
 class KlassDefineHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/define_homework.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(KlassDefineHomeworkView, self).get_context_data(**kwargs)
-        try:
-            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
-            context['klass'] = klass
-        except ObjectDoesNotExist:
-            raise Http404('Klass object not found')
-        return context
 
 
 class KlassGradeHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/grade_homework.html'
 
-    def get_context_data(self, **kwargs):
-        context = super(KlassGradeHomeworkView, self).get_context_data(**kwargs)
-        try:
-            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
-            context['klass'] = klass
-        except ObjectDoesNotExist:
-            raise Http404('Klass object not found')
-        return context
-
 
 class KlassActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/activate_klass.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(KlassActivateView, self).get_context_data(**kwargs)
-        try:
-            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
-            context['klass'] = klass
-        except ObjectDoesNotExist:
-            raise Http404('Klass object not found')
-        return context
