@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Profile{% endblock %}
+
+{% block content %}
+    <div class="ui vertical masthead center aligned segment">
+        <div class="ui center aligned grid">
+            <div class="ui twelve wide column message">
+                <h1 class="ui header">Your Profile</h1>
+                <div class="ui form">
+                    <div class="field">
+                        <span>
+                            Username: {{ user.username }}
+                        </span>
+                    </div>
+                    <div class="field">
+                        <span>
+                            Email: {{ user.email }}
+                        </span>
+                    </div>
+                    <div class="field">
+                        <span>
+                            First Name: {{ user.first_name }}
+                        </span>
+                    </div>
+                    <div class="field">
+                        <span>
+                            Last Name: {{ user.last_name }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

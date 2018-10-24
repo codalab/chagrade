@@ -88,3 +88,7 @@ class InstructorOverView(LoginRequiredMixin, TemplateView):
 
 class StudentOverView(LoginRequiredMixin, TemplateView):
     template_name = 'student/overview.html'
+
+
+class MyProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'profiles/my_profile.html'

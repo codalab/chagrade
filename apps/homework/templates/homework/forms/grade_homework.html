@@ -8,7 +8,36 @@
 {% block wizard_content %}
     <div class="ui centered grid">
         <div class="row">
-            <div class="ui center aligned fourteen wide column message">
+            <div class="ui fourteen wide column message">
+                <h4 class="ui header">Submission Info:</h4>
+                <div class="ui relaxed celled list">
+                    <div class="item">First Name: {{ submission.creator.user.first_name }}</div>
+                    <div class="item">Last Name: {{ submission.creator.user.last_name }}</div>
+                    <div class="item">Username: {{ submission.creator.user.username }}</div>
+                    <div class="item">Email: {{ submission.creator.user.email }}</div>
+                    <div class="item">Team Leader: !Not Implemented!</div>
+                </div>
+                <h4 class="ui header">Challenge Rules</h4>
+                <div class="ui relaxed celled list">
+                    <a class="disabled item">Link to challenge website</a>
+                    <a class="disabled item">Link to Github repo of submission</a>
+                </div>
+                {% if submission.definition.custom_questions.count > 0 %}
+                    <h4>Other Homework Questions</h4>
+                    <div class="ui relaxed celled list">
+                        {% for question in submission.definition.custom_questions.all %}
+                            {{ question.question }}:
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if submission.definition.criterias.count > 0 %}
+                    <h4>Grades:</h4>
+                    <div class="ui relaxed celled list">
+                        {% for criteria in submission.definition.criterias.all %}
+                            {{ criteria.type }}:
+                        {% endfor %}
+                    </div>
+                {% endif %}
                 <form class="ui form" method="post">
                     {% csrf_token %}
 
@@ -30,6 +59,7 @@
                         <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="ui red button">Cancel</a>
                     </span>
                 </form>
+            </div>
             </div>
         </div>
     </div>

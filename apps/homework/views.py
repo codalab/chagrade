@@ -31,6 +31,11 @@ class GradeFormView(LoginRequiredMixin, WizardMixin, FormMixin, TemplateView):
     form_class = GradeForm
     # success_url = reverse_lazy('klasses:klass_homework')
 
+    def get_context_data(self, **kwargs):
+        context = super(GradeFormView, self).get_context_data(**kwargs)
+        context['submission'] = Submission.objects.get(pk=kwargs.get('submission_pk'))
+        return context
+
     def form_valid(self, form):
         super(GradeFormView, self).form_valid(form)
 
@@ -39,7 +44,7 @@ class SubmissionFormView(LoginRequiredMixin, FormMixin, TemplateView):
     template_name = 'homework/forms/submit_homework.html'
     model = Submission
     form_class = SubmissionForm
-    success_url = reverse_lazy('profiles:student_overview')
+    success_url = reverse_lazy('homework:homework_overview')
 
     def get_context_data(self, **kwargs):
         context = super(SubmissionFormView, self).get_context_data(**kwargs)
@@ -52,3 +57,16 @@ class SubmissionFormView(LoginRequiredMixin, FormMixin, TemplateView):
 
     def form_valid(self, form):
         super(SubmissionFormView, self).form_valid(form)
+
+
+# class HomeworkOverView(LoginRequiredMixin, TemplateView):
+#     template_name = 'homework/overview.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(HomeworkOverView, self).get_context_data(**kwargs)
+#         try:
+#             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+#             context['klass'] = klass
+#         except ObjectDoesNotExist:
+#             raise Http404('Klass object not found')
+#         return context

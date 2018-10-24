@@ -49,6 +49,9 @@ class Grade(models.Model):
 
     score = models.IntegerField(default=0)
 
+    teacher_comments = models.CharField(max_length=400, default='', null=True, blank=True)
+    instructor_notes = models.CharField(max_length=400, default='', null=True, blank=True)
+
     def __str__(self):
         return "{0}:{1}".format(self.submission.submission_github_url, self.score)
 

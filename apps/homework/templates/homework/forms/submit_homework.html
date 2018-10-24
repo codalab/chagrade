@@ -1,33 +1,3 @@
-{#{% extends 'base.html' %}#}
-{##}
-{#{% block title %}Submit Homework{% endblock %}#}
-{##}
-{#{% block content %}#}
-{#    <div class="ui vertical masthead container">#}
-{#        <div class="ui center aligned grid">#}
-{#            <div class="ui fourteen wide column">#}
-{##}
-{#                <form class="ui form" method="post">#}
-{#                    {% csrf_token %}#}
-{##}
-{#                    {{ form.non_field_errors }}#}
-{##}
-{#                    {% for field in form %}#}
-{#                        <div class="field">#}
-{#                            {{ field.errors }}#}
-{#                            <span>#}
-{#                                {{ field.label_tag }}#}
-{#                                {{ field }}#}
-{#                            </span>#}
-{#                        </div>#}
-{#                    {% endfor %}#}
-{##}
-{#                    <input type="submit" value="Submit">#}
-{#                </form>#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
-{#{% endblock %}#}
 
 {% extends 'base.html' %}
 {% load static %}
@@ -68,9 +38,6 @@
                                         <h4 class="ui header condensed">Organized by: {{ klass.instructor.user.username }}</h4>
                                     </div>
                                     <div class="four wide column">
-{#                                        <a href="{% url "klasses:edit_klass" klass_pk=klass.pk %}" class="ui small yellow button">#}
-{#                                            Edit#}
-{#                                        </a>#}
                                         <h5 class="ui header condensed">Created: {{klass.created.date}}</h5>
                                         <h5 class="ui header condensed">Modified: {{klass.modified.date}}</h5>
                                     </div>
@@ -84,6 +51,64 @@
                         </div>
                     </div>
                 </div>
+                <div class="ui header">Assignments for Class {{ klass.title }}</div>
+                {% for definition in klass.homework_definitions.all %}
+                    <div class="ui message">
+                        <div class="content">
+                            <div class="header">
+                                {{ definition.name }}
+                            </div>
+                            <hr>
+                            <h4>Due Date: {{ definition.due_date }}</h4>
+                            <p>{{ definition.description }}</p>
+                            {% if definition.team_based %}
+                                <h4>Graded as teamwork</h4>
+                            {% endif %}
+                            <div class="ui grid">
+                                <div class="row">
+                                    <div class="eight wide column">
+                                        <h4 class="ui header">Submission:</h4>
+{#                                        <p>Due Date: {{ definition.due_date }}</p>#}
+                                        {% if definition %}
+
+                                        {% else %}
+                                            No Submission yet, make one!
+                                        {% endif %}
+                                    </div>
+                                    <div class="eight wide column">
+                                        {% if definition %}
+                                            <a href="" class="ui button">View/Submit Homework</a>
+                                            <a href="" class="ui button">View Challenge Submission</a>
+                                        {% else %}
+                                            No Submission!
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="eight wide column">Grade:</div>
+                                    <div class="eight wide column"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <form class="ui form" method="post">
+                    {% csrf_token %}
+
+                    {{ form.non_field_errors }}
+
+                    {% for field in form %}
+                        <div class="field">
+                            {{ field.errors }}
+                            <span>
+                                {{ field.label_tag }}
+                                {{ field }}
+                            </span>
+                        </div>
+                    {% endfor %}
+
+                    <input type="submit" value="Submit">
+                </form>
             </div>
         </div>
     </div>
