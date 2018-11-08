@@ -7,6 +7,7 @@ psycopg2-binary
 whitenoise
 djangorestframework
 drf-yasg[validation]==1.9.1
+drf-writable-nested
 social-auth-core
 social-auth-app-django
 flower

@@ -27,7 +27,7 @@ class Klass(models.Model):
     modified = models.DateTimeField(default=timezone.now, null=True, blank=True)
 
     # Don't like this related name but we already used .klasses
-    group = models.ForeignKey('groups.InstructorGroup', related_name='klasses', null=True, blank=True, on_delete=models.PROTECT)
+    group = models.ForeignKey('groups.Group', related_name='klasses', null=True, blank=True, on_delete=models.PROTECT)
 
     image = models.ImageField(null=True, blank=True)
     syllabus = models.FileField(null=True, blank=True)
@@ -42,6 +42,15 @@ class Klass(models.Model):
     @property
     def status(self):
         return "NOT-IMPLEMENTED"
+
+    def create_klass_from_self(self, instructor):
+        # We're going to need to make new objects for every relationship on this. IE: Students, etc. Should just set to none.
+        template = self
+        template.pk = None
+        new_klass = template.save()
+        new_klass.instructor = instructor
+        new_klass.group = instructor.group
+        return new_klass
 
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''

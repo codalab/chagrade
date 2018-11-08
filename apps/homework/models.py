@@ -34,30 +34,55 @@ class Definition(models.Model):
 
 
 class Submission(models.Model):
-    klass = models.ForeignKey('klasses.Klass', related_name='homework_submissions', on_delete=models.PROTECT)
-    creator = models.ForeignKey('profiles.StudentMembership', related_name='submitted_homework', on_delete=models.PROTECT)
+    klass = models.ForeignKey('klasses.Klass', default=None, related_name='homework_submissions', on_delete=models.PROTECT)
+    definition = models.ForeignKey('Definition', default=None, related_name='submissions', on_delete=models.PROTECT)
+    creator = models.ForeignKey('profiles.StudentMembership', related_name='submitted_homeworks', on_delete=models.PROTECT)
 
     submission_github_url = models.URLField(default=None, null=True, blank=True)
 
+    method_name = models.CharField(max_length=100, default='', null=True, blank=True)
+    method_description = models.CharField(max_length=300, default='', null=True, blank=True)
+    project_url = models.URLField(max_length=200, default='', null=True, blank=True)
+    publication_url = models.URLField(max_length=200, default='', null=True, blank=True)
+
     def __str__(self):
         return "{}".format(self.submission_github_url)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        print("This is getting called")
+        super().save(force_insert, force_update, using, update_fields)
 
 
 class Grade(models.Model):
     submission = models.ForeignKey('Submission', related_name='grades', on_delete=models.CASCADE)
     evaluator = models.ForeignKey('profiles.Instructor', related_name='assigned_grades', on_delete=models.PROTECT)
+    # criteria = models.OneToOneField('Criteria', related_name='grade', on_delete=models.PROTECT)
+    # criteria = models.OneToOneField('Criteria', related_name='grade', on_delete=models.PROTECT)
 
-    score = models.IntegerField(default=0)
+    # overall_grade = models.IntegerField(default=0)
+    overall_grade = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
     teacher_comments = models.CharField(max_length=400, default='', null=True, blank=True)
     instructor_notes = models.CharField(max_length=400, default='', null=True, blank=True)
 
     def __str__(self):
-        return "{0}:{1}".format(self.submission.submission_github_url, self.score)
+        return "{0}:{1}".format(self.submission.submission_github_url, self.evaluator.user.username)
+
+    # def save(self, force_insert=False, force_update=False, using=None,
+    #          update_fields=None):
+    #     from apps.homework.tasks import calculate_new_grade
+    #     super().save(force_insert=force_insert, force_update=force_update, using=using,
+    #          update_fields=update_fields)
+    #     # calculate_new_grade.delay(self.pk, countdown=3)
+    #     print("@@@@@@@@@@@@@@@@@@@@@")
+    #     print(self.pk)
+    #     print(self.id)
+    #     print("@@@@@@@@@@@@@@@@@@@@@")
+    #     calculate_new_grade.apply_async(args=[self.pk], countdown=3)
 
 
 class Question(models.Model):
-    HomeworkDefinition = models.ForeignKey('Definition', related_name='custom_questions', on_delete=models.CASCADE)
+    definition = models.ForeignKey('Definition', related_name='custom_questions', on_delete=models.CASCADE)
 
     has_specific_answer = models.BooleanField(default=False)
 
@@ -69,32 +94,30 @@ class Question(models.Model):
 
 
 class Criteria(models.Model):
-    # Automatic grading will not work without some more structure to how this should work...
-    # We can check scores, execution time, etc
-    # Analyzing code goes a bit far, but they will have to select from some pre-made options in order for us to decide
-    # how to judge that/collect relevant data
+    definition = models.ForeignKey('Definition', related_name='criterias', on_delete=models.CASCADE)
 
-    SCORE = 'score'
-    DURATION = 'duration'
-    TESTS = 'tests'
-
-    criteria_type_choices = (
-        (SCORE, 'Score'),
-        (DURATION, 'duration'),
-        (TESTS, 'tests')
-    )
-
-    homework_definition = models.ForeignKey('Definition', related_name='criterias', on_delete=models.CASCADE)
-
-    criteria_type = models.CharField(choices=criteria_type_choices, max_length=20)
-
-    # If we're within the range, score 100%, else score as score/upper-range: IE: 6/10 == 60%
-    # This should leave teachers with multiple flexible ways to do this?
-    # Brackets would be composite scores or Teachers would just hand grade as 100%, etc
-    score_as_percent = models.BooleanField(default=True)
-
+    description = models.CharField(max_length=150, default='')
     lower_range = models.IntegerField(default=0)
     upper_range = models.IntegerField(default=10)
 
     def __str__(self):
-        return "{0}-{1}".format(self.homework_definition, self.pk)
+        return "{0}-{1}".format(self.definition, self.pk)
+
+
+class QuestionAnswer(models.Model):
+    submission = models.ForeignKey('Submission', related_name='question_answers', on_delete=models.PROTECT)
+    question = models.ForeignKey('Question', default=None, related_name='student_answers', on_delete=models.PROTECT)
+
+    # definition = models.ForeignKey('Definition', related_name='student_answers', on_delete=models.CASCADE)
+
+    text = models.CharField(max_length=150, default='')
+    is_correct = models.BooleanField(default=False)
+
+
+class CriteriaAnswer(models.Model):
+    # submission = models.ForeignKey('Submission', related_name='criteria_answers', on_delete=models.CASCADE)
+    grade = models.ForeignKey('Grade', default=None, related_name='criteria_answers', on_delete=models.CASCADE)
+    criteria = models.ForeignKey('Criteria', related_name='answers', on_delete=models.CASCADE)
+    # text = models.CharField(max_length=150, default='')
+    score = models.IntegerField(default=0)
+    # evaluator = models.ForeignKey('profiles.Instructor', related_name='criteria_answers', on_delete=models.PROTECT)

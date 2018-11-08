@@ -40,7 +40,9 @@
                                 <td>{{ homework_def.creator }}</td>
                                 <td>{{ homework_def.modified }}</td>
                                 <td>{{ homework_def.due_date }}</td>
-                                <td></td>
+                                <td>
+                                    <a class="ui mini yellow button" href="{% url "homework:edit_homework_def" klass_pk=klass.pk definition_pk=homework_def.pk %}">Edit</a>
+                                </td>
                                 <td>{{ homework_def.submissions.count }}</td>
                                 <td>{{ homework_def.avg_grade }}</td>
                             </tr>

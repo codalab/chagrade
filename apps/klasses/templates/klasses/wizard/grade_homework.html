@@ -20,41 +20,52 @@
                     <table class="ui sortable table">
                         <thead>
                         <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+{#                            <th>Submission</th>#}
+                            {% for homework_def in klass.homework_definitions.all %}
+                                <th colspan="2">
+                                    {{ homework_def.name }}
+                                </th>
+                            {% endfor %}
+                        </tr>
+                        <tr>
                             <th>#</th>
                             <th>Name</th>
                             <th>Team</th>
-{#                            <th>Submission</th>#}
                             {% for homework_def in klass.homework_definitions.all %}
-                                <th colspan="4">
-                                    {{ homework_def.name }}
-                                </th>
+{#                                <th>Submission</th>#}
+{#                                <th>Score</th>#}
+                                <th>Grade</th>
+                                <th></th>
                             {% endfor %}
                         </tr>
                         </thead>
                         <tbody>
                         {% for sub in klass.homework_submissions.all %}
-                        <tr>
-                            <td>
-                                {{ forloop.counter }}
-                            </td>
-                            <td>{{ sub.creator.user.username }}</td>
-                            <td>{{ sub.team }}</td>
-{#                            <td>{{ sub.id }}</td>#}
-                            {% for homework_def in klass.homework_definitions.all %}
+                            <tr>
                                 <td>
-                                    Submission
+                                    {{ forloop.counter }}
                                 </td>
-                                <td>
-                                    Score
-                                </td>
-                                <td>
-                                    Grade
-                                </td>
-                                <td>
-                                    <a href="{% url "homework:grade_homework" klass_pk=klass.pk submission_pk=sub.pk %}" class="ui button">Edit</a>
-                                </td>
-                            {% endfor %}
-                        </tr>
+                                <td>{{ sub.creator.user.username }}</td>
+                                <td>{{ sub.team }}</td>
+    {#                            <td>{{ sub.id }}</td>#}
+                                {% for homework_def in klass.homework_definitions.all %}
+{#                                    <td>#}
+{#                                        Submission#}
+{#                                    </td>#}
+{#                                    <td>#}
+{#                                        Score#}
+{#                                    </td>#}
+                                    <td>
+                                        {{ sub.grades.last.overall_grade }}
+                                    </td>
+                                    <td>
+                                        <a href="{% url "homework:grade_homework" klass_pk=klass.pk submission_pk=sub.pk %}" class="ui button">Edit</a>
+                                    </td>
+                                {% endfor %}
+                            </tr>
                         {% endfor %}
                         </tbody>
                     </table>

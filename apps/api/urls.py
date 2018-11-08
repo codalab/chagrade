@@ -5,7 +5,8 @@ from rest_framework import permissions
 from rest_framework.routers import SimpleRouter
 
 # from apps.api.views.producers import ProducerViewSet
-from apps.api.views.profiles import ProfileViewSet
+from apps.api.views.homework import DefinitionViewSet, CriteriaViewSet, QuestionViewSet, SubmissionViewSet, GradeViewSet
+from apps.api.views.profiles import ProfileViewSet, StudentViewSet
 from apps.api.views.klasses import KlassViewSet
 # from .views import competitions, profiles, search
 
@@ -15,7 +16,13 @@ API_PREFIX = "v1"
 # API routes
 router = SimpleRouter()
 router.register('users', ProfileViewSet)
+router.register('students', StudentViewSet)
 router.register('klasses', KlassViewSet)
+router.register('definitions', DefinitionViewSet)
+router.register('criterias', CriteriaViewSet)
+router.register('questions', QuestionViewSet)
+router.register('submissions', SubmissionViewSet)
+router.register('grades', GradeViewSet)
 # router.register('producers', ProducerViewSet)
 # router.register('competitions', competitions.CompetitionViewSet)
 # router.register('submissions', competitions.SubmissionViewSet)

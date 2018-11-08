@@ -25,6 +25,8 @@ class ChaUser(AbstractUser):
 class Instructor(models.Model):
     university_name = models.CharField(max_length=200, null=True, blank=True)
 
+    group = models.ForeignKey('groups.Group', related_name='instructor_members', null=True, blank=True, on_delete=models.PROTECT)
+
     def __str__(self):
         return "{0}".format(self.user.username)
 
@@ -32,6 +34,7 @@ class Instructor(models.Model):
 class StudentMembership(models.Model):
     user = models.ForeignKey('ChaUser', related_name='klass_memberships', null=False, blank=False, on_delete=models.CASCADE)
     klass = models.ForeignKey('klasses.Klass', related_name='enrolled_students', null=False, blank=False, on_delete=models.CASCADE)
+    team = models.ForeignKey('groups.Team', related_name='members', null=True, blank=True, on_delete=models.PROTECT)
 
     student_id = models.CharField(null=False, blank=False, max_length=25)
 
@@ -46,7 +49,7 @@ class StudentMembership(models.Model):
 
 class AssistantMembership(models.Model):
     instructor = models.ForeignKey('Instructor', related_name='assistant_memberships', null=False, blank=False, on_delete=models.CASCADE)
-    klass = models.ForeignKey('klasses.Klass', related_name='assigned_assistants', null=False, blank=False, on_delete=models.CASCADE)
+    klass = models.ForeignKey('klasses.Klass', related_name='assistants', null=False, blank=False, on_delete=models.CASCADE)
 
     def __str__(self):
         return "{0} - {1}".format(self.instructor.user.username, self.klass.title)

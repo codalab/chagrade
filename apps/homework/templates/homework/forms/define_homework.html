@@ -8,22 +8,172 @@
 {% block wizard_content %}
     <div class="ui centered grid">
         <div class="row">
-            <div class="ui center aligned fourteen wide column message">
+            <div class="ui fourteen wide column message">
                 <form class="ui form" method="post">
                     {% csrf_token %}
 
                     {{ form.non_field_errors }}
 
-                    {% for field in form %}
-                        <div class="field">
-                            {{ field.errors }}
-                            <span>
-                                {{ field.label_tag }}
-                                {{ field }}
-                            </span>
-                        </div>
-                    {% endfor %}
 
+                    <div class="fields">
+
+                        {% for field in form %}
+                            {% if forloop.counter0|divisibleby:4 %}
+                                </div>
+                                <div class="fields">
+                            {% endif %}
+                            <div class="four wide field">
+                                {{ field.errors }}
+                                <span>
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+{#                        {% for field in form %}#}
+{#                            <div class="field">#}
+{#                                {{ field.errors }}#}
+{#                                <span>#}
+{#                                    {{ field.label_tag }}#}
+{#                                    {{ field }}#}
+{#                                </span>#}
+{#                            </div>#}
+{#                        {% endfor %}#}
+
+{#                        <div class="field">#}
+{##}
+{#                                <span>#}
+{#                                    <label for="id_due_date_month">Due date:</label>#}
+{#                                    <select name="due_date_month" required id="id_due_date_month"><option value="1">January</option><option#}
+{#                                            value="2">February</option><option value="3">March</option><option#}
+{#                                            value="4">April</option><option value="5">May</option><option#}
+{#                                            value="6">June</option><option value="7">July</option><option value="8">August</option><option#}
+{#                                            value="9">September</option><option value="10">October</option><option#}
+{#                                            value="11">November</option><option#}
+{#                                            value="12">December</option></select><select name="due_date_day" required#}
+{#                                                                                         id="id_due_date_day"><option#}
+{#                                        value="1">1</option><option value="2">2</option><option value="3">3</option><option#}
+{#                                        value="4">4</option><option value="5">5</option><option value="6">6</option><option#}
+{#                                        value="7">7</option><option value="8">8</option><option value="9">9</option><option#}
+{#                                        value="10">10</option><option value="11">11</option><option#}
+{#                                        value="12">12</option><option value="13">13</option><option#}
+{#                                        value="14">14</option><option value="15">15</option><option#}
+{#                                        value="16">16</option><option value="17">17</option><option#}
+{#                                        value="18">18</option><option value="19">19</option><option#}
+{#                                        value="20">20</option><option value="21">21</option><option#}
+{#                                        value="22">22</option><option value="23">23</option><option#}
+{#                                        value="24">24</option><option value="25">25</option><option#}
+{#                                        value="26">26</option><option value="27">27</option><option#}
+{#                                        value="28">28</option><option value="29">29</option><option#}
+{#                                        value="30">30</option><option value="31">31</option></select><select#}
+{#                                        name="due_date_year" required id="id_due_date_year"><option#}
+{#                                        value="2018">2018</option><option value="2019">2019</option><option#}
+{#                                        value="2020">2020</option><option value="2021">2021</option><option#}
+{#                                        value="2022">2022</option><option value="2023">2023</option><option#}
+{#                                        value="2024">2024</option><option value="2025">2025</option><option#}
+{#                                        value="2026">2026</option><option value="2027">2027</option></select>#}
+{#                                </span>#}
+{#                        </div>#}
+
+{#                        <div class="three wide field">#}
+{#                            <label for="id_due_date_month">Due Date:</label>#}
+{#                            <input name="due_date" required id="id_due_date" type="text"/>#}
+{#                            <span>#}
+{#                                    <label for="id_due_date_month">Due date:</label>#}
+{#                                    <select name="due_date_month" required id="id_due_date_month"><option value="1">January</option><option#}
+{#                                            value="2">February</option><option value="3">March</option><option#}
+{#                                            value="4">April</option><option value="5">May</option><option#}
+{#                                            value="6">June</option><option value="7">July</option><option value="8">August</option><option#}
+{#                                            value="9">September</option><option value="10">October</option><option#}
+{#                                            value="11">November</option><option#}
+{#                                            value="12">December</option></select><select name="due_date_day" required#}
+{#                                                                                         id="id_due_date_day"><option#}
+{#                                        value="1">1</option><option value="2">2</option><option value="3">3</option><option#}
+{#                                        value="4">4</option><option value="5">5</option><option value="6">6</option><option#}
+{#                                        value="7">7</option><option value="8">8</option><option value="9">9</option><option#}
+{#                                        value="10">10</option><option value="11">11</option><option#}
+{#                                        value="12">12</option><option value="13">13</option><option#}
+{#                                        value="14">14</option><option value="15">15</option><option#}
+{#                                        value="16">16</option><option value="17">17</option><option#}
+{#                                        value="18">18</option><option value="19">19</option><option#}
+{#                                        value="20">20</option><option value="21">21</option><option#}
+{#                                        value="22">22</option><option value="23">23</option><option#}
+{#                                        value="24">24</option><option value="25">25</option><option#}
+{#                                        value="26">26</option><option value="27">27</option><option#}
+{#                                        value="28">28</option><option value="29">29</option><option#}
+{#                                        value="30">30</option><option value="31">31</option></select><select#}
+{#                                        name="due_date_year" required id="id_due_date_year"><option#}
+{#                                        value="2018">2018</option><option value="2019">2019</option><option#}
+{#                                        value="2020">2020</option><option value="2021">2021</option><option#}
+{#                                        value="2022">2022</option><option value="2023">2023</option><option#}
+{#                                        value="2024">2024</option><option value="2025">2025</option><option#}
+{#                                        value="2026">2026</option><option value="2027">2027</option></select>#}
+{#                                </span>#}
+{#                        </div>#}
+{##}
+{#                        <div class="three wide field">#}
+{#                            <label for="id_name">Name:</label>#}
+{#                            <input type="text" name="name" maxlength="100" required id="id_name" value="{{ instance. }}">#}
+{#                        </div>#}
+{##}
+{#                        <div class="ten wide field">#}
+{#                            <label for="id_description">Description:</label>#}
+{#                            <input type="text" name="description" maxlength="300" id="id_description">#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="fields">#}
+{##}
+{#                        <div class="eight wide field">#}
+{#                            <label for="id_challenge_url">Challenge url:</label>#}
+{#                            <input type="url" name="challenge_url" maxlength="200" id="id_challenge_url">#}
+{#                        </div>#}
+{##}
+{##}
+{#                        <div class="eight wide field">#}
+{#                            <label for="id_starting_kit_github_url">Starting kit github url:</label>#}
+{#                            <input type="url" name="starting_kit_github_url" maxlength="200"#}
+{#                                   id="id_starting_kit_github_url">#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="fields">#}
+{##}
+{#                        <div class="four wide field">#}
+{#                            <label for="id_ask_method_name">Ask method name:</label>#}
+{#                            <input class="ui checkbox" type="checkbox" name="ask_method_name" id="id_ask_method_name">#}
+{#                        </div>#}
+{##}
+{#                        <div class="four wide field">#}
+{#                            <label for="id_ask_method_description">Ask method description:</label>#}
+{#                            <input class="ui checkbox" type="checkbox" name="ask_method_description" id="id_ask_method_description">#}
+{#                        </div>#}
+{##}
+{#                        <div class="four wide field">#}
+{#                            <label for="id_ask_project_url">Ask project url:</label>#}
+{#                            <input class="ui checkbox" type="checkbox" name="ask_project_url" id="id_ask_project_url">#}
+{#                        </div>#}
+{##}
+{#                        <div class="four wide field">#}
+{#                            <label for="id_ask_publication_url">Ask publication url:</label>#}
+{#                            <input class="ui checkbox" type="checkbox" name="ask_publication_url" id="id_ask_publication_url">#}
+{#                        </div>#}
+{##}
+{#                        <div class="four wide field">#}
+{#                            <label for="id_team_based">Team based:</label>#}
+{#                            <input class="ui checkbox" type="checkbox" name="team_based" id="id_team_based">#}
+{#                        </div>#}
+{##}
+{#                    </div>#}
+
+                    <define-extra-questions></define-extra-questions>
+
+                    <define-criteria></define-criteria>
+
+                    {% if is_edit_page %}
+                        <criteria-table></criteria-table>
+                        <question-table></question-table>
+                    {% endif %}
 
                     <span>
                         <input class="ui green button" type="submit" value="Submit">
@@ -35,3 +185,14 @@
     </div>
 
 {% endblock %}
+
+{#{% block extra_script %}#}
+{#    <script>#}
+{#        $(document).ready(function () {#}
+{#            $("#id_due_date").datepicker();#}
+{#        });#}
+{#        $(function () {#}
+{#            $("#datepicker").datepicker();#}
+{#        });#}
+{#    </script>#}
+{#{% endblock %}#}

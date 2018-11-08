@@ -16,10 +16,32 @@
 
     <script src="http://semantic-ui.com/javascript/library/tablesort.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+    <!-- Riot -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.11.2/riot+compiler.min.js"></script>
+
+    <script src="{% static "js/jquery.form.serializer.js" %}"></script>
+
+    <script src="{% static "js/ours/client.js" %}"></script>
+
     <link rel="stylesheet" href="https://use.fontawesome.com/26ae41ff0f.css">
     <link href="https://fonts.googleapis.com/css?family=Cabin|Raleway" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}"/>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    <!-- Our Riot -->
+    <script src="{% static "riotjs/wizard/participants_table.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/wizard/criteria_table.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/wizard/question_table.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/wizard/activate_klass.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/wizard/define_extra_questions.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/wizard/define_criteria.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/student/submit_homework.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/wizard/grade_homework.tag" %}" type="riot/tag"></script>
 
     {% block extra_head %}
     {% endblock %}
@@ -74,10 +96,33 @@
 </div>
 
 <script>
+    // Load in URLs or other django generated goodies
+    URLS = {
+        API: "/api/v1/"
+    }
+    USER_AUTHENTICATED = ("{{ user.is_authenticated }}" === "True")
+    {% if klass %}
+        KLASS = {{ klass.pk }}
+    {% endif %}
+    {% if definition %}
+        DEFINITION = {{ definition.pk }}
+    {% endif %}
+    {% if user.is_authenticated and user.instructor %}
+        INSTRUCTOR = {{ user.instructor.pk }}
+    {% endif %}
+    {% if submission %}
+        SUBMISSION = {{ submission.pk }}
+    {% endif %}
+
     $('document').ready(function(){
         $('table').tablesort()
     });
+
+    riot.mount('*')
 </script>
+
+{% block extra_script %}
+{% endblock %}
 
 </body>
 </html>

@@ -77,7 +77,7 @@
                                     </div>
                                     <div class="eight wide column">
                                         {% if definition %}
-                                            <a href="" class="ui button">View/Submit Homework</a>
+                                            <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk %}" class="ui button">View/Submit Homework</a>
                                             <a href="" class="ui button">View Challenge Submission</a>
                                         {% else %}
                                             No Submission!
@@ -92,23 +92,23 @@
                         </div>
                     </div>
                 {% endfor %}
-                <form class="ui form" method="post">
-                    {% csrf_token %}
-
-                    {{ form.non_field_errors }}
-
-                    {% for field in form %}
-                        <div class="field">
-                            {{ field.errors }}
-                            <span>
-                                {{ field.label_tag }}
-                                {{ field }}
-                            </span>
-                        </div>
-                    {% endfor %}
-
-                    <input type="submit" value="Submit">
-                </form>
+{#                <form class="ui form" method="post">#}
+{#                    {% csrf_token %}#}
+{##}
+{#                    {{ form.non_field_errors }}#}
+{##}
+{#                    {% for field in form %}#}
+{#                        <div class="field">#}
+{#                            {{ field.errors }}#}
+{#                            <span>#}
+{#                                {{ field.label_tag }}#}
+{#                                {{ field }}#}
+{#                            </span>#}
+{#                        </div>#}
+{#                    {% endfor %}#}
+{##}
+{#                    <input type="submit" value="Submit">#}
+{#                </form>#}
             </div>
         </div>
     </div>
