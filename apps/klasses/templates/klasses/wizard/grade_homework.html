@@ -1,4 +1,5 @@
 {% extends 'klasses/wizard/wizard_base.html' %}
+{% load homework_tags %}
 
 {% block wizard_title %}
     <h2 class="ui massive header" style="font-size: 56px;">Grade Homework</h2>
@@ -43,27 +44,47 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for sub in klass.homework_submissions.all %}
+{#                        {% for sub in klass.homework_submissions.all %}#}
+                        {% for student in klass.enrolled_students.all %}
                             <tr>
                                 <td>
                                     {{ forloop.counter }}
                                 </td>
-                                <td>{{ sub.creator.user.username }}</td>
-                                <td>{{ sub.team }}</td>
+                                <td>{{ student.user.username }}</td>
+                                <td>{{ student.team }}</td>
     {#                            <td>{{ sub.id }}</td>#}
                                 {% for homework_def in klass.homework_definitions.all %}
+                                    {% with homework_def|get_last_submission:student.user.pk as submission %}
+                                        {% with submission|get_last_grade as grade %}
+{#                                            Sub: {{ submission }}#}
+{#                                            Grade: {{ grade }}#}
 {#                                    <td>#}
-{#                                        Submission#}
-{#                                    </td>#}
-{#                                    <td>#}
-{#                                        Score#}
-{#                                    </td>#}
-                                    <td>
-                                        {{ sub.grades.last.overall_grade }}
-                                    </td>
-                                    <td>
-                                        <a href="{% url "homework:grade_homework" klass_pk=klass.pk submission_pk=sub.pk %}" class="ui button">Edit</a>
-                                    </td>
+                                            {#                                        Submission#}
+                                            {#                                    </td>#}
+                                            {#                                    <td>#}
+                                            {#                                        Score#}
+                                            {#                                    </td>#}
+                                            {% if not submission %}
+                                                <td colspan="2">No Submission</td>
+                                            {% else %}
+                                                <td>
+                                                    {#                                        {{ sub.grades.last.overall_grade }}#}
+                                                    {#                                        {{ sub|get_last_grade }}#}
+                                                    {{ grade.overall_grade }}
+                                                </td>
+                                                <td>
+{#                                                    {{ grade }}#}
+                                                    {% if not grade %}
+                                                        <a href="{% url "homework:grade_homework" klass_pk=klass.pk submission_pk=submission.pk %}"
+                                                           class="ui green button">Grade</a>
+                                                    {% else %}
+                                                        <a href="{% url "homework:edit_grade" klass_pk=klass.pk submission_pk=submission.pk grade_pk=grade.pk %}"
+                                                       class="ui yellow button">Edit Grade</a>
+                                                    {% endif %}
+                                                </td>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endwith %}
                                 {% endfor %}
                             </tr>
                         {% endfor %}

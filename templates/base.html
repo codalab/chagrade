@@ -121,6 +121,9 @@
     {% if student %}
         STUDENT = {{ student.pk }}
     {% endif %}
+    {% if grade %}
+        GRADE = {{ grade.pk }}
+    {% endif %}
 
     $('document').ready(function(){
         $('table').tablesort()

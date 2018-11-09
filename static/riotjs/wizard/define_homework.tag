@@ -151,6 +151,7 @@
         var self = this
         self.criterias = []
         self.questions = []
+        self.definition = {}
 
         self.one('mount', function () {
             //self.update_submission()

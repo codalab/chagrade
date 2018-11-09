@@ -197,11 +197,8 @@ class DefinitionEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
             raise Http404("Failed to retrieve definition")
 
 
-class GradeFormView(LoginRequiredMixin, WizardMixin, FormMixin, TemplateView):
+class GradeFormView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'homework/forms/grade_homework.html'
-    model = Grade
-    form_class = GradeForm
-    # success_url = reverse_lazy('klasses:klass_homework')
 
     def get_context_data(self, **kwargs):
         context = super(GradeFormView, self).get_context_data(**kwargs)
@@ -212,8 +209,19 @@ class GradeFormView(LoginRequiredMixin, WizardMixin, FormMixin, TemplateView):
             raise Http404("Could not find submission!")
         return context
 
-    def form_valid(self, form):
-        super(GradeFormView, self).form_valid(form)
+
+class GradeEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
+    template_name = 'homework/forms/grade_homework.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            context['submission'] = Submission.objects.get(pk=self.kwargs.get('submission_pk'))
+            context['definition'] = context['submission'].definition
+            context['grade'] = Grade.objects.get(pk=self.kwargs.get('grade_pk'))
+        except:
+            raise Http404("Could not find submission!")
+        return context
 
 
 class SubmissionOverView(LoginRequiredMixin, TemplateView):

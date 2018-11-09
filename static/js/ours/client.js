@@ -102,5 +102,11 @@ CHAGRADE.api = {
     // Grades
     create_grade: function(data) {
         return CHAGRADE.api.request('POST', URLS.API + "grades/", data)
-    }
+    },
+    get_grade: function(pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "grades/" + pk)
+    },
+    update_grade: function(pk, data) {
+        return CHAGRADE.api.request('PUT', URLS.API + 'grades/' + pk + "/", data)
+    },
 }

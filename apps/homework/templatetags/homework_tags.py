@@ -7,35 +7,20 @@ register = template.Library()
 
 
 def get_last_submission(definition, user_pk):
-    try:
-        # print("@@@@@@@@@@@@@@")
-        # print(definition)
-        # print(user_pk)
-        # print("@@@@@@@@@@@@@@")
-        # definition = Definition.objects.get(pk=definition_pk)
-        user = ChaUser.objects.get(pk=user_pk)
-        # print(user)
-        student = StudentMembership.objects.get(user=user, klass=definition.klass)
-        # print(student)
-        # print(definition.submissions.all())
-        # print(definition.submissions.first())
-        # sub = definition.submissions.all().filter(creator=student).last()
-        # Gets us the last one by pk
-        # sub = definition.submissions.filter(creator=student).first()
-        # print(definition.submissions.filter(creator=student).first())
-        # print(sub)
-        # return sub
-        print(definition.submissions.first().creator)
-        # print(definition.submissions.filter(creator=student).first())
-        return definition.submissions.filter(creator=student).first()
-    except ObjectDoesNotExist:
-        return None
+    if definition and user_pk:
+        try:
+            user = ChaUser.objects.get(pk=user_pk)
+            student = StudentMembership.objects.get(user=user, klass=definition.klass)
+            return definition.submissions.filter(creator=student).last()
+        except ObjectDoesNotExist:
+            print("Could not find an object matching that query")
+    return None
 
 
 def get_last_grade(submission):
         if submission:
             if submission.grades.count() > 0:
-                return submission.grades.first()
+                return submission.grades.last()
         return None
 
 register.filter('get_last_submission', get_last_submission)
