@@ -9,29 +9,30 @@
     <div class="ui centered grid">
         <div class="row">
             <div class="ui fourteen wide column message">
-                <form class="ui form" method="post">
-                    {% csrf_token %}
-
-                    {{ form.non_field_errors }}
-
-
-                    <div class="fields">
-
-                        {% for field in form %}
-                            {% if forloop.counter0|divisibleby:4 %}
-                                </div>
-                                <div class="fields">
-                            {% endif %}
-                            <div class="four wide field">
-                                {{ field.errors }}
-                                <span>
-                                    {{ field.label_tag }}
-                                    {{ field }}
-                                </span>
-                            </div>
-                        {% endfor %}
-                    </div>
-
+                <define-homework></define-homework>
+{#                <form class="ui form" method="post">#}
+{#                    {% csrf_token %}#}
+{##}
+{#                    {{ form.non_field_errors }}#}
+{##}
+{##}
+{#                    <div class="fields">#}
+{##}
+{#                        {% for field in form %}#}
+{#                            {% if forloop.counter0|divisibleby:4 %}#}
+{#                                </div>#}
+{#                                <div class="fields">#}
+{#                            {% endif %}#}
+{#                            <div class="four wide field">#}
+{#                                {{ field.errors }}#}
+{#                                <span>#}
+{#                                    {{ field.label_tag }}#}
+{#                                    {{ field }}#}
+{#                                </span>#}
+{#                            </div>#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+{##}
 {#                        {% for field in form %}#}
 {#                            <div class="field">#}
 {#                                {{ field.errors }}#}
@@ -41,7 +42,7 @@
 {#                                </span>#}
 {#                            </div>#}
 {#                        {% endfor %}#}
-
+{##}
 {#                        <div class="field">#}
 {##}
 {#                                <span>#}
@@ -76,7 +77,7 @@
 {#                                        value="2026">2026</option><option value="2027">2027</option></select>#}
 {#                                </span>#}
 {#                        </div>#}
-
+{##}
 {#                        <div class="three wide field">#}
 {#                            <label for="id_due_date_month">Due Date:</label>#}
 {#                            <input name="due_date" required id="id_due_date" type="text"/>#}
@@ -165,21 +166,21 @@
 {#                        </div>#}
 {##}
 {#                    </div>#}
-
-                    <define-extra-questions></define-extra-questions>
-
-                    <define-criteria></define-criteria>
-
-                    {% if is_edit_page %}
-                        <criteria-table></criteria-table>
-                        <question-table></question-table>
-                    {% endif %}
-
-                    <span>
-                        <input class="ui green button" type="submit" value="Submit">
-                        <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="ui red button">Cancel</a>
-                    </span>
-                </form>
+{##}
+{#                    <define-extra-questions></define-extra-questions>#}
+{##}
+{#                    <define-criteria></define-criteria>#}
+{##}
+{#                    {% if is_edit_page %}#}
+{#                        <criteria-table></criteria-table>#}
+{#                        <question-table></question-table>#}
+{#                    {% endif %}#}
+{##}
+{#                    <span>#}
+{#                        <input class="ui green button" type="submit" value="Submit">#}
+{#                        <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="ui red button">Cancel</a>#}
+{#                    </span>#}
+{#                </form>#}
             </div>
         </div>
     </div>

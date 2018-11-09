@@ -64,7 +64,8 @@ class CriteriaSerializer(ModelSerializer):
         ]
 
 
-class DefinitionSerializer(ModelSerializer):
+# class DefinitionSerializer(ModelSerializer):
+class DefinitionSerializer(WritableNestedModelSerializer):
     # instructor = InstructorSerializer()
 
     criterias = CriteriaSerializer(many=True)

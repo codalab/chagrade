@@ -24,8 +24,9 @@ class GradeViewSet(ModelViewSet):
         total_possible = 0
         # Average should be total points scored over total points possible
         for criteria_answer in new_obj.criteria_answers.all():
+            print(criteria_answer.criteria.upper_range)
             total_possible += criteria_answer.criteria.upper_range
-            total = criteria_answer.score
+            total += criteria_answer.score
         if total_possible == 0 or total == 0:
             print("0")
             # return 0

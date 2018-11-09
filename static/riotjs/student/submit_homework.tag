@@ -70,7 +70,7 @@
             var data = {
                 "klass": KLASS,
                 "definition": DEFINITION,
-                "creator": INSTRUCTOR,
+                "creator": STUDENT,
                 "submission_github_url": self.refs.submission_github_url.value,
                 "method_name": self.refs.method_name.value || '',
                 "method_description": self.refs.method_description.value || '',

@@ -33,6 +33,10 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
+    <link rel="stylesheet" href="{% static "css/calendar.min.css" %}">
+    <script src="{% static "js/calendar.min.js" %}"></script>
+    <script src="{% static "js/luxon.js" %}"></script>
+
     <!-- Our Riot -->
     <script src="{% static "riotjs/wizard/participants_table.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/wizard/criteria_table.tag" %}" type="riot/tag"></script>
@@ -42,6 +46,7 @@
     <script src="{% static "riotjs/wizard/define_criteria.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/student/submit_homework.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/wizard/grade_homework.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/wizard/define_homework.tag" %}" type="riot/tag"></script>
 
     {% block extra_head %}
     {% endblock %}
@@ -112,6 +117,9 @@
     {% endif %}
     {% if submission %}
         SUBMISSION = {{ submission.pk }}
+    {% endif %}
+    {% if student %}
+        STUDENT = {{ student.pk }}
     {% endif %}
 
     $('document').ready(function(){

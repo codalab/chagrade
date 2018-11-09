@@ -1,6 +1,7 @@
 
 {% extends 'base.html' %}
 {% load static %}
+{% load homework_tags %}
 
 {% block title %}Welcome{% endblock %}
 
@@ -53,44 +54,55 @@
                 </div>
                 <div class="ui header">Assignments for Class {{ klass.title }}</div>
                 {% for definition in klass.homework_definitions.all %}
-                    <div class="ui message">
-                        <div class="content">
-                            <div class="header">
-                                {{ definition.name }}
-                            </div>
-                            <hr>
-                            <h4>Due Date: {{ definition.due_date }}</h4>
-                            <p>{{ definition.description }}</p>
-                            {% if definition.team_based %}
-                                <h4>Graded as teamwork</h4>
-                            {% endif %}
-                            <div class="ui grid">
-                                <div class="row">
-                                    <div class="eight wide column">
-                                        <h4 class="ui header">Submission:</h4>
-{#                                        <p>Due Date: {{ definition.due_date }}</p>#}
-                                        {% if definition %}
-
-                                        {% else %}
-                                            No Submission yet, make one!
-                                        {% endif %}
+                    {% with definition|get_last_submission:user.pk as submission %}
+                        {% with submission|get_last_grade as grade %}
+                            <div class="ui message">
+                                <div class="content">
+                                    <div class="header">
+                                        {{ definition.name }}
                                     </div>
-                                    <div class="eight wide column">
-                                        {% if definition %}
-                                            <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk %}" class="ui button">View/Submit Homework</a>
-                                            <a href="" class="ui button">View Challenge Submission</a>
-                                        {% else %}
-                                            No Submission!
-                                        {% endif %}
+                                    <hr>
+                                    <h4>Due Date: {{ definition.due_date }}</h4>
+                                    <p>{{ definition.description }}</p>
+                                    {% if definition.team_based %}
+                                        <h4>Graded as teamwork</h4>
+                                    {% endif %}
+                                    <div class="ui grid">
+                                        <div class="row">
+                                            <div class="eight wide column">
+                                                <h4 class="ui header">Submission:</h4>
+                                                <ul class="ui relaxed celled list">
+                                                    {% if definition.ask_method_name %}<div class="item">Method Name:
+                                                        {{ submission.method_name }}</div>{% endif %}
+                                                    {% if definition.ask_method_description %}<div class="item">Method Description:
+                                                        {{ submission.method_description }}</div>{% endif %}
+                                                    {% if definition.ask_project_url %}<div class="item">Project URL:
+                                                        {{ submission.project_url }}</div>{% endif %}
+                                                    {% if definition.ask_publication_url %}<div class="item">Publication URL:
+                                                        {{ submission.publication_url }}</div>{% endif %}
+                                                </ul>
+                                            </div>
+                                            <div class="eight wide column">
+                                                {% if submission %}
+                                                    <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk %}"
+                                                       class="ui yellow button">Edit/Re-Submit Homework</a>
+                                                    <a href="" class="ui button">View Challenge Submission</a>
+                                                {% else %}
+{#                                                    No Submission!#}
+                                                    <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk %}"
+                                                       class="ui blue button">Submit Homework</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="eight wide column">Grade:</div>
+                                            <div class="eight wide column">{{ grade.overall_grade }}</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="eight wide column">Grade:</div>
-                                    <div class="eight wide column"></div>
-                                </div>
                             </div>
-                        </div>
-                    </div>
+                        {% endwith %}
+                    {% endwith %}
                 {% endfor %}
 {#                <form class="ui form" method="post">#}
 {#                    {% csrf_token %}#}

@@ -78,6 +78,12 @@ CHAGRADE.api = {
     get_definition: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + "definitions/" + pk)
     },
+    create_definition: function(data) {
+        return CHAGRADE.api.request('POST', URLS.API + 'definitions/', data)
+    },
+    update_definition: function(pk, data) {
+        return CHAGRADE.api.request('PUT', URLS.API + 'definitions/' + pk + "/", data)
+    },
     // Questions
     delete_question: function(pk) {
         return CHAGRADE.api.request('DELETE', URLS.API + "questions/" + pk + "/")
