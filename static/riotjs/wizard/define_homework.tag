@@ -5,7 +5,7 @@
         <div class="fields">
             <div class="three wide field">
                 <div class="ui calendar field required">
-                    <label>Start</label>
+                    <label>Due-Date:</label>
                     <div class="ui input left icon datepicker">
                         <i class="calendar icon"></i>
                         <input name="due_date" ref="due_date" type="text" value="{definition.due_date}">
