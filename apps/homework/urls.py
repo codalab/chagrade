@@ -11,4 +11,5 @@ urlpatterns = [
     path('grade/<int:klass_pk>/submission/<int:submission_pk>/edit/<int:grade_pk>', views.GradeEditFormView.as_view(), name='edit_grade'),
     path('overview/<int:klass_pk>/', views.SubmissionOverView.as_view(), name='overview'),
     path('submit/<int:klass_pk>/<int:definition_pk>/', views.SubmissionFormView.as_view(), name='submit_homework'),
+    path('edit_submission/<int:klass_pk>/<int:definition_pk>/<int:submission_pk>', views.SubmissionEditFormView.as_view(), name='edit_submission'),
 ]

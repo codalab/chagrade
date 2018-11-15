@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework.serializers import ModelSerializer
 
+from apps.api.serializers.homework import SubmissionSerializer
+from apps.groups.models import Team
 from apps.profiles.models import Instructor, StudentMembership
 
 # from apps.api.serializers.klasses import KlassSerializer
@@ -32,7 +34,7 @@ class StudentSerializer(ModelSerializer):
     class Meta:
         model = StudentMembership
         fields = (
-            'user',
+            # 'user',
             'klass',
             'student_id',
             'overall_grade',
@@ -40,9 +42,21 @@ class StudentSerializer(ModelSerializer):
         )
 
 
+class BasicTeamSerializer(ModelSerializer):
+
+    class Meta:
+        model = Team
+        fields = [
+            'name',
+            'description',
+        ]
+
+
 class DetailedStudentSerializer(ModelSerializer):
 
     user = ChaUserSerializer()
+    team = BasicTeamSerializer()
+    submitted_homeworks = SubmissionSerializer(many=True)
 
     class Meta:
         model = StudentMembership
@@ -52,4 +66,7 @@ class DetailedStudentSerializer(ModelSerializer):
             'student_id',
             'overall_grade',
             'date_enrolled',
+            'id',
+            'team',
+            'submitted_homeworks'
         )

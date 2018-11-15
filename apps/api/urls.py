@@ -8,6 +8,7 @@ from rest_framework.routers import SimpleRouter
 from apps.api.views.homework import DefinitionViewSet, CriteriaViewSet, QuestionViewSet, SubmissionViewSet, GradeViewSet
 from apps.api.views.profiles import ProfileViewSet, StudentViewSet
 from apps.api.views.klasses import KlassViewSet
+from apps.api.views.groups import TeamViewSet
 # from .views import competitions, profiles, search
 
 app_name = 'api'
@@ -23,6 +24,7 @@ router.register('criterias', CriteriaViewSet)
 router.register('questions', QuestionViewSet)
 router.register('submissions', SubmissionViewSet)
 router.register('grades', GradeViewSet)
+router.register('teams', TeamViewSet)
 # router.register('producers', ProducerViewSet)
 # router.register('competitions', competitions.CompetitionViewSet)
 # router.register('submissions', competitions.SubmissionViewSet)

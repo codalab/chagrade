@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework.serializers import ModelSerializer
 
+from apps.api.serializers.groups import TeamSerializer
 from apps.klasses.models import Klass
 from apps.api.serializers.profiles import DetailedStudentSerializer
 
@@ -11,6 +12,7 @@ class KlassSerializer(ModelSerializer):
     # instructor = InstructorSerializer()
 
     enrolled_students = DetailedStudentSerializer(many=True)
+    teams = TeamSerializer(many=True)
 
     class Meta:
         model = Klass
@@ -25,5 +27,6 @@ class KlassSerializer(ModelSerializer):
             'group',
             'image',
             'enrolled_students',
-            'active'
+            'active',
+            'teams'
         )

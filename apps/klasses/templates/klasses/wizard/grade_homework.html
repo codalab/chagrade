@@ -51,7 +51,7 @@
                                     {{ forloop.counter }}
                                 </td>
                                 <td>{{ student.user.username }}</td>
-                                <td>{{ student.team }}</td>
+                                <td>{{ student.team.name }}</td>
     {#                            <td>{{ sub.id }}</td>#}
                                 {% for homework_def in klass.homework_definitions.all %}
                                     {% with homework_def|get_last_submission:student.user.pk as submission %}
@@ -65,7 +65,7 @@
                                             {#                                        Score#}
                                             {#                                    </td>#}
                                             {% if not submission %}
-                                                <td colspan="2">No Submission</td>
+                                                <td colspan="2"><div class="ui red label">No Submission</div></td>
                                             {% else %}
                                                 <td>
                                                     {#                                        {{ sub.grades.last.overall_grade }}#}

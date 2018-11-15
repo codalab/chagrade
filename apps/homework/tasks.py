@@ -1,7 +1,9 @@
+# import requests
 from celery.task import task
-from django.core.exceptions import ObjectDoesNotExist
-
-from apps.homework.models import Grade
+# from django.core.exceptions import ObjectDoesNotExist
+# from django.core.files.temp import TemporaryFile
+#
+# from apps.homework.models import Grade, Submission
 
 
 @task
@@ -29,3 +31,28 @@ def calculate_new_grade(grade_pk):
         grade.save()
     except ObjectDoesNotExist:
         print("Could not compute")
+
+
+# @task
+# def post_submission(submission_pk):
+#     submission = Submission.objects.get(pk=submission_pk)
+#     # for line in urllib2.urlopen(submission.submission_github_url):
+#     # temp_file = TemporaryFile()
+#
+#
+# def download_file(url):
+#     local_filename = url.split('/')[-1]
+#     # NOTE the stream=True parameter
+#     r = requests.get(url, stream=True)
+#     # with open(local_filename, 'wb') as f:
+#     # with
+#     f = TemporaryFile()
+#     # with TemporaryFile() as f:
+#         # f.write('abcdefg')
+#         # f.seek(0)  # go back to the beginning of the file
+#         # print(f.read())
+#         for chunk in r.iter_content(chunk_size=1024):
+#             if chunk: # filter out keep-alive new chunks
+#                 f.write(chunk)
+#                 #f.flush() commented by recommendation from J.F.Sebastian
+#     # return local_filename

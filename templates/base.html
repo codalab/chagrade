@@ -47,6 +47,7 @@
     <script src="{% static "riotjs/student/submit_homework.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/wizard/grade_homework.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/wizard/define_homework.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/wizard/create_team.tag" %}" type="riot/tag"></script>
 
     {% block extra_head %}
     {% endblock %}
@@ -124,6 +125,9 @@
     {% if grade %}
         GRADE = {{ grade.pk }}
     {% endif %}
+
+    {% block extra_js_context %}
+    {% endblock %}
 
     $('document').ready(function(){
         $('table').tablesort()

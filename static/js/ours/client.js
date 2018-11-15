@@ -18,12 +18,12 @@ var CHAGRADE = {
 }
 
 CHAGRADE.api = {
-    request: function (method, url, data, csrf_token) {
+    request: function (method, url, data) {
         return $.ajax({
             type: method,
             url: url,
             data: JSON.stringify(data),
-            headers:{"X-CSRFToken": csrf_token},
+            //headers:{"X-CSRFToken": csrf_token},
             contentType: "application/json",
             dataType: 'json'
         })
@@ -64,15 +64,18 @@ CHAGRADE.api = {
     activate_klass: function(pk) {
         return CHAGRADE.api.request('POST', '/klasses/wizard/' + pk + '/activate')
     },
-    get_students: function(pk) {
-        if (pk === null) {
-            return
-        } else {
-            return CHAGRADE.api.request('GET', URLS.API + "students/?klass_pk=" + pk)
-        }
+    message_klass_students: function(pk, data) {
+        return CHAGRADE.api.request('POST', '/klasses/email_students/' + pk + '/', data)
     },
-    create_student: function(data, csrf_token) {
-        return CHAGRADE.api.request('POST', URLS.API + "students/", data, csrf_token)
+    //Students
+    create_student: function(data) {
+        return CHAGRADE.api.request('POST', URLS.API + "students/", data)
+    },
+    get_student: function(pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "students/" + pk)
+    },
+    update_student: function(pk, data) {
+        return CHAGRADE.api.request('PUT', URLS.API + 'students/' + pk + "/", data)
     },
     // Definitions
     get_definition: function(pk) {
@@ -108,5 +111,21 @@ CHAGRADE.api = {
     },
     update_grade: function(pk, data) {
         return CHAGRADE.api.request('PUT', URLS.API + 'grades/' + pk + "/", data)
+    },
+    // Teams
+    get_teams: function() {
+        return CHAGRADE.api.request('GET', URLS.API + 'teams/')
+    },
+    get_team: function(pk) {
+        return CHAGRADE.api.request('GET', URLS.API + 'teams/' + pk)
+    },
+    create_team: function(data) {
+        return CHAGRADE.api.request('POST', URLS.API + 'teams/', data)
+    },
+    update_team: function(pk, data) {
+        return CHAGRADE.api.request('PUT', URLS.API + 'teams/' + pk + "/", data)
+    },
+    delete_team: function(pk) {
+        return CHAGRADE.api.request('DELETE', URLS.API + "teams/" + pk + "/")
     },
 }

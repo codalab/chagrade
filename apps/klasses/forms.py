@@ -16,6 +16,6 @@ class KlassForm(forms.ModelForm):
             # 'created',
             # 'modified',
             # 'group',
-            # 'image',
-            # 'syllabus',
+            'image',
+            'syllabus',
         ]

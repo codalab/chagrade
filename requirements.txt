@@ -23,3 +23,5 @@ pillow
 tqdm
 termcolor
 faker
+boto3
+django-storages

@@ -65,21 +65,21 @@ class StudentViewSet(ModelViewSet):
     serializer_class = serializers.profiles.DetailedStudentSerializer
     permission_classes = ()
 
-    def get_queryset(self):
-        print("Getting queryset")
-        queryset = self.queryset
-        klass_pk = self.request.query_params.get('klass_pk', None)
-        print(self.request.query_params)
-        print(klass_pk)
-        if klass_pk is not None:
-            try:
-                klass = Klass.objects.get(pk=klass_pk)
-                if self.request.user != klass.instructor.user:
-                    raise Http404("User not allowed!")
-                queryset = queryset.filter(klass=klass)
-            except ObjectDoesNotExist:
-                raise Http404("Klass object with pk: {} not found!".format(klass_pk))
-        return queryset
+    # def get_queryset(self):
+    #     print("Getting queryset")
+    #     queryset = self.queryset
+    #     klass_pk = self.request.query_params.get('klass_pk', None)
+    #     print(self.request.query_params)
+    #     print(klass_pk)
+    #     if klass_pk is not None:
+    #         try:
+    #             klass = Klass.objects.get(pk=klass_pk)
+    #             if self.request.user != klass.instructor.user:
+    #                 raise Http404("User not allowed!")
+    #             queryset = queryset.filter(klass=klass)
+    #         except ObjectDoesNotExist:
+    #             raise Http404("Klass object with pk: {} not found!".format(klass_pk))
+    #     return queryset
 
     def create(self, request, *args, **kwargs):
 

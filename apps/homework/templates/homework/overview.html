@@ -26,7 +26,8 @@
                 <div class="ui centered grid segment">
                     <div class="row">
                         <div class="two wide column">
-                            <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
+{#                            <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">#}
+                            <img style="height: 100px; width: auto;" src="{{ klass.image.url }}">
                         </div>
                         <div class="fourteen wide column">
                             <div class="ui grid">
@@ -45,7 +46,16 @@
                                 </div>
                                 <div class="row no-padding">
                                     <div class="sixteen wide column">
-                                        Description: {{ klass.description }}
+                                        <ul class="ui relaxed list">
+                                            <div class="item">
+                                                Description: {{ klass.description }}
+                                            </div>
+                                            {% if klass.syllabus %}
+                                                <div class="item">
+                                                    <a href="{{ klass.syllabus.url }}">Syllabus</a>
+                                                </div>
+                                            {% endif %}
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
@@ -84,7 +94,7 @@
                                             </div>
                                             <div class="eight wide column">
                                                 {% if submission %}
-                                                    <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk %}"
+                                                    <a href="{% url "homework:edit_submission" klass_pk=klass.pk definition_pk=definition.pk submission_pk=submission.pk %}"
                                                        class="ui yellow button">Edit/Re-Submit Homework</a>
                                                     <a href="" class="ui button">View Challenge Submission</a>
                                                 {% else %}

@@ -49,7 +49,9 @@
 
                             {% for klass in user.instructor.klasses.all %}
                                 <tr>
-                                   <td>{{ klass.image }}</td>
+                                   <td>
+                                       {% if klass.image %}<img src="{{ klass.image.url }}" width="50">{% endif %}
+                                   </td>
                                    <td>{{ klass.title }}</td>
                                    <td>{{ klass.group }}</td>
                                    <td>{{ klass.instructor }}</td>

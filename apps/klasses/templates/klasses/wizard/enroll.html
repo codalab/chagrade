@@ -14,7 +14,7 @@
             <div class="ui fourteen wide column message">
                 <div>
                     <span>
-                        <a class="ui button">Create Student Team</a>
+                        <a href="{% url "groups:create_team" klass_pk=klass.pk %}" class="ui blue button">Create Student Team</a>
                         <a class="ui button">Upload Team CSV</a>
                     </span>
                     <h1>Teams</h1>
@@ -23,9 +23,9 @@
                         <tr>
                             <th>#</th>
                             <th>Name</th>
-                            <th>Creator</th>
+{#                            <th>Creator</th>#}
                             <th># Members</th>
-                            <th>Pending Req/Inv</th>
+{#                            <th>Pending Req/Inv</th>#}
                             <th>Status</th>
                             <th></th>
                             <th>Entries</th>
@@ -40,6 +40,9 @@
                                 <td>
                                     {{ team.name }}
                                 </td>
+{#                                <td>#}
+{#                                    {{ team.members.count }}#}
+{#                                </td>#}
                                 <td>
                                     {{ team.members.count }}
                                 </td>
