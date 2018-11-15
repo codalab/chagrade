@@ -39,7 +39,10 @@
                                     <tr>
 {#                                        <td>{{ klass.image }}</td>#}
                                         <td>
-                                            <img src="{{ klass.image.url }}" width="50">
+                                            {% if klass.image %}
+                                                <img src="{{ klass.image.url }}" width="50">
+                                            {% else %}
+                                            {% endif %}
                                         </td>
                                         <td>{{ klass.title }}</td>
                                         <td>{{ klass.group }}</td>
