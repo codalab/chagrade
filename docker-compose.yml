@@ -63,7 +63,6 @@ services:
     hostname: celery
     command: bash -c "celery -A chagrade worker --loglevel=debug"
     working_dir: /app/
-    env_file: .env
     build:
       context: .
       dockerfile: Dockerfile.celery
