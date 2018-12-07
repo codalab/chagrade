@@ -305,4 +305,4 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # =============================================================================
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'docker.for.mac.localhost'
+EMAIL_HOST = 'host.docker.internal'

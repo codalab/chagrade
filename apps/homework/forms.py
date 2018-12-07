@@ -35,11 +35,6 @@ class DefinitionForm(forms.ModelForm):
 class DefinitionEditForm(forms.ModelForm):
     criterias = forms.ModelMultipleChoiceField(queryset=Criteria.objects.all())
 
-    # def __init__(self):
-    #     super().__init__()
-    #     if self.instance:
-    #         self.fields['criterias'].queryset = self.instance.criterias
-
     class Meta:
         model = Definition
         fields = [

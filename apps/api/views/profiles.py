@@ -36,50 +36,11 @@ class ProfileViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Lis
     authentication_classes = ()
     permission_classes = ()
 
-    # def get_serializer_context(self):
-    #     context = super().get_serializer_context()
-    #     # context['producer'] = self.request.user
-    #     return context
-
-    # def get_queryset(self):
-    #     qs = ChaUser.objects.all()
-    #     # qs = qs.prefetch_related('phases', 'producer', 'admins', 'participants')
-    #     return qs
-
-    # def create(self, request, *args, **kwargs):
-    #     """Overriding this for the following reasons:
-    #
-    #     1. Returning the huge amount of HTML/etc. back by default by DRF was bad
-    #     2. We want to handle creating many competitions this way, and we do that
-    #        custom to make drf-writable-nested able to interpret everything easily"""
-    #     # Make the serializer take many competitions at once
-    #     for competition in request.data:
-    #         serializer = self.get_serializer(data=competition)
-    #         serializer.is_valid(raise_exception=True)
-    #         self.perform_create(serializer)
-    #     return Response({}, status=status.HTTP_201_CREATED)
-
 
 class StudentViewSet(ModelViewSet):
     queryset = StudentMembership.objects.all()
     serializer_class = serializers.profiles.DetailedStudentSerializer
     permission_classes = ()
-
-    # def get_queryset(self):
-    #     print("Getting queryset")
-    #     queryset = self.queryset
-    #     klass_pk = self.request.query_params.get('klass_pk', None)
-    #     print(self.request.query_params)
-    #     print(klass_pk)
-    #     if klass_pk is not None:
-    #         try:
-    #             klass = Klass.objects.get(pk=klass_pk)
-    #             if self.request.user != klass.instructor.user:
-    #                 raise Http404("User not allowed!")
-    #             queryset = queryset.filter(klass=klass)
-    #         except ObjectDoesNotExist:
-    #             raise Http404("Klass object with pk: {} not found!".format(klass_pk))
-    #     return queryset
 
     def create(self, request, *args, **kwargs):
 

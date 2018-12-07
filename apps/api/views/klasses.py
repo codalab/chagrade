@@ -28,33 +28,7 @@ User = get_user_model()
 
 
 class KlassViewSet(OwnerPermissionCheckMixin, ModelViewSet):
-    # """Updating and inserting competitions are done by Producers.
-    #
-    # request.user = Producer in this case."""
+    """Updating and inserting competitions are done by Producers."""
     queryset = Klass.objects.all()
     serializer_class = KlassSerializer
-    # authentication_classes = ()
     permission_classes = ()
-
-    # def get_serializer_context(self):
-    #     context = super().get_serializer_context()
-    #     # context['producer'] = self.request.user
-    #     return context
-
-    # def get_queryset(self):
-    #     qs = ChaUser.objects.all()
-    #     # qs = qs.prefetch_related('phases', 'producer', 'admins', 'participants')
-    #     return qs
-
-    # def create(self, request, *args, **kwargs):
-    #     """Overriding this for the following reasons:
-    #
-    #     1. Returning the huge amount of HTML/etc. back by default by DRF was bad
-    #     2. We want to handle creating many competitions this way, and we do that
-    #        custom to make drf-writable-nested able to interpret everything easily"""
-    #     # Make the serializer take many competitions at once
-    #     for competition in request.data:
-    #         serializer = self.get_serializer(data=competition)
-    #         serializer.is_valid(raise_exception=True)
-    #         self.perform_create(serializer)
-    #     return Response({}, status=status.HTTP_201_CREATED)

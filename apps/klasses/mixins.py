@@ -17,10 +17,6 @@ class WizardMixin(object):
     _current_step = None
 
     def get_context_data(self, **kwargs):
-        # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        # print(kwargs)
-        # print(self.kwargs)
-        # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         context = super().get_context_data(**kwargs)
 
 

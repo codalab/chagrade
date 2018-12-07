@@ -1,9 +1,13 @@
+from django.http import Http404
+
 from apps.klasses.models import Klass
 
 
 class OwnerPermissionCheckMixin(object):
     def get_queryset(self):
         print(self.request.user)
+        if self.request.user.is_anonymous:
+            return None
         print(dir(self.serializer_class))
         temp_model = self.serializer_class.Meta.model
         if hasattr(temp_model, 'creator') or hasattr(temp_model, 'instructor'):

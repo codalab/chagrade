@@ -23,5 +23,10 @@ def get_last_grade(submission):
                 return submission.grades.last()
         return None
 
+
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
 register.filter('get_last_submission', get_last_submission)
 register.filter('get_last_grade', get_last_grade)
+register.filter('get_item', get_item)

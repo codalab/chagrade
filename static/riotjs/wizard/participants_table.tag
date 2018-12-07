@@ -80,9 +80,9 @@
             <div class="content">
                 <i>Enter a username/email combo if the student is not registered yet. Their account will be created and waiting for them.</i>
                 <form id="student_form" class="ui form error" onsubmit="{ add_student }">
-                    <field name="Display Name" ref="user_name" input_name="user_name"
-                           error="{errors.user_name}"></field>
-                    <field name="Email" ref="user_email" input_name="user_email" error="{errors.user_email}"></field>
+                    <field name="Display Name" ref="username" input_name="username"
+                           error="{errors.username}"></field>
+                    <field name="Email" ref="email" input_name="email" error="{errors.email}"></field>
                     <field name="Student ID" ref="student_id" input_name="student_id"
                            error="{errors.student_id}"></field>
                 </form>
@@ -118,7 +118,7 @@
     </div>
 
     <script>
-
+        // TODO: RE-WRITE THIS SO THAT WE GET/QUERY FOR A STUDENT OR SOMETHING? WE NEED A CUSTOM API VIEW HERE
 
         var self = this
         self.errors = []

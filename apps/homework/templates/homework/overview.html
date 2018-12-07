@@ -100,7 +100,30 @@
                                                 {% if submission %}
                                                     <a href="{% url "homework:edit_submission" klass_pk=klass.pk definition_pk=definition.pk submission_pk=submission.pk %}"
                                                        class="ui yellow button">Edit/Re-Submit Homework</a>
-                                                    <a href="" class="ui button">View Challenge Submission</a>
+                                                    <a href="{{ submission.definition.challenge_url }}" class="ui button">View Challenge</a>
+                                                    <table>
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Status</th>
+                                                                <th>Score</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for tracker in submission.tracked_submissions.all %}
+                                                                {% with tracker.get_remote_submission_info as submission_info %}
+{#                                                                {% with tracker.get_remote_submission_info|get_item:'score' as score %}#}
+                                                                    {% if submission_info %}
+                                                                        <td>{{ submission_info|get_item:'status' }}</td>
+                                                                        <td>{{ submission_info|get_item:'score' }}</td>
+                                                                    {% else %}
+                                                                        <td>Waiting</td>
+                                                                        <td>Waiting</td>
+                                                                    {% endif %}
+{#                                                                {% endwith %}#}
+                                                                {% endwith %}
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
                                                 {% else %}
 {#                                                    No Submission!#}
                                                     <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk %}"
