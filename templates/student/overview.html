@@ -35,16 +35,24 @@
 
                         {% for membership in user.klass_memberships.all %}
                             {% with membership.klass as klass %}
-                                <tr>
-                                    <td>{{ klass.image }}</td>
-                                    <td>{{ klass.title }}</td>
-                                    <td>{{ klass.group }}</td>
-                                    <td>{{ klass.instructor }}</td>
-                                    <td><a href="{% url "homework:submit_homework" klass_pk=klass.pk %}" class="ui button">Submit Homework</a></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
+                                {% if klass.active %}
+                                    <tr>
+{#                                        <td>{{ klass.image }}</td>#}
+                                        <td>
+                                            {% if klass.image %}
+                                                <img src="{{ klass.image.url }}" width="50">
+                                            {% else %}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ klass.title }}</td>
+                                        <td>{{ klass.group }}</td>
+                                        <td>{{ klass.instructor }}</td>
+                                        <td><a href="{% url "homework:overview" klass_pk=klass.pk %}" class="ui button">View Homework</a></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                {% endif %}
                             {% endwith %}
                         {% endfor %}
 

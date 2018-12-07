@@ -1,72 +1,107 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 
 # Create your views here.
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DetailView, TemplateView
-from django.views.generic.edit import FormMixin
+from django.views.generic.edit import FormMixin, FormView, CreateView, UpdateView
 
-from apps.homework.forms import DefinitionForm, GradeForm, SubmissionForm
-from apps.homework.models import Definition, Grade, Submission
+from apps.homework.forms import DefinitionForm, GradeForm, SubmissionForm, DefinitionEditForm
+from apps.homework.models import Definition, Grade, Submission, Question, Criteria
 from apps.klasses.mixins import WizardMixin
 from apps.klasses.models import Klass
+from apps.profiles.models import Instructor
 
 
-class DefinitionFormView(LoginRequiredMixin, WizardMixin, FormMixin, TemplateView):
+class DefinitionFormView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'homework/forms/define_homework.html'
-    model = Definition
-    form_class = DefinitionForm
-    # success_url = reverse_lazy('klasses:klass_homework')
-
-    def form_valid(self, form):
-        super(DefinitionFormView, self).form_valid(form)
 
 
-class GradeFormView(LoginRequiredMixin, WizardMixin, FormMixin, TemplateView):
+class DefinitionEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
+    template_name = 'homework/forms/define_homework.html'
+
+    def get_context_data(self, **kwargs):
+        try:
+            context = super().get_context_data(**kwargs)
+            context['definition'] = Definition.objects.get(pk=self.kwargs.get('definition_pk'))
+            return context
+        except ObjectDoesNotExist:
+            raise Http404("Failed to retrieve definition")
+
+
+class GradeFormView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'homework/forms/grade_homework.html'
-    model = Grade
-    form_class = GradeForm
-    # success_url = reverse_lazy('klasses:klass_homework')
 
     def get_context_data(self, **kwargs):
         context = super(GradeFormView, self).get_context_data(**kwargs)
-        context['submission'] = Submission.objects.get(pk=kwargs.get('submission_pk'))
+        try:
+            context['submission'] = Submission.objects.get(pk=kwargs.get('submission_pk'))
+            context['definition'] = context['submission'].definition
+        except:
+            raise Http404("Could not find submission!")
         return context
 
-    def form_valid(self, form):
-        super(GradeFormView, self).form_valid(form)
 
-
-class SubmissionFormView(LoginRequiredMixin, FormMixin, TemplateView):
-    template_name = 'homework/forms/submit_homework.html'
-    model = Submission
-    form_class = SubmissionForm
-    success_url = reverse_lazy('homework:homework_overview')
+class GradeEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
+    template_name = 'homework/forms/grade_homework.html'
 
     def get_context_data(self, **kwargs):
-        context = super(SubmissionFormView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         try:
-            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+            context['submission'] = Submission.objects.get(pk=self.kwargs.get('submission_pk'))
+            context['definition'] = context['submission'].definition
+            context['grade'] = Grade.objects.get(pk=self.kwargs.get('grade_pk'))
+        except:
+            raise Http404("Could not find submission!")
+        return context
+
+
+class SubmissionOverView(LoginRequiredMixin, TemplateView):
+    template_name = 'homework/overview.html'
+    model = Submission
+
+    def get_context_data(self, **kwargs):
+        context = super(SubmissionOverView, self).get_context_data(**kwargs)
+        try:
+            klass = Klass.objects.get(pk=self.kwargs.get('klass_pk'))
             context['klass'] = klass
         except ObjectDoesNotExist:
             raise Http404('Klass object not found')
         return context
 
-    def form_valid(self, form):
-        super(SubmissionFormView, self).form_valid(form)
+
+class SubmissionFormView(LoginRequiredMixin, TemplateView):
+    template_name = 'homework/forms/submit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+            context['klass'] = klass
+            definition = Definition.objects.get(pk=kwargs.get('definition_pk'))
+            context['definition'] = definition
+            context['student'] = klass.enrolled_students.get(user=self.request.user)
+        except ObjectDoesNotExist:
+            raise Http404('Klass object not found')
+        return context
 
 
-# class HomeworkOverView(LoginRequiredMixin, TemplateView):
-#     template_name = 'homework/overview.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(HomeworkOverView, self).get_context_data(**kwargs)
-#         try:
-#             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
-#             context['klass'] = klass
-#         except ObjectDoesNotExist:
-#             raise Http404('Klass object not found')
-#         return context
+class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
+    template_name = 'homework/forms/submit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            klass = Klass.objects.get(pk=self.kwargs.get('klass_pk'))
+            submission = Submission.objects.get(pk=self.kwargs.get('submission_pk'))
+            context['submission'] = submission
+            context['klass'] = klass
+            definition = Definition.objects.get(pk=kwargs.get('definition_pk'))
+            context['definition'] = definition
+            context['student'] = klass.enrolled_students.get(user=self.request.user)
+        except ObjectDoesNotExist:
+            raise Http404('Klass object not found')
+        return context

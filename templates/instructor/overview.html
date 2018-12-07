@@ -39,7 +39,7 @@
                                 <th>Created:</th>
                                 <th>Modified:</th>
                                 <th>Edit:</th>
-                                <th>Status:</th>
+                                <th>Active:</th>
                                 <th>Grades:</th>
                                 <th>Submissions</th>
                                 <th>Delete:</th>
@@ -49,14 +49,16 @@
 
                             {% for klass in user.instructor.klasses.all %}
                                 <tr>
-                                   <td>{{ klass.image }}</td>
+                                   <td>
+                                       {% if klass.image %}<img src="{{ klass.image.url }}" width="50">{% endif %}
+                                   </td>
                                    <td>{{ klass.title }}</td>
                                    <td>{{ klass.group }}</td>
                                    <td>{{ klass.instructor }}</td>
                                    <td>{{ klass.created }}</td>
                                    <td>{{ klass.modified }}</td>
                                    <td><a href="{% url "klasses:klass_details" klass_pk=klass.pk %}" class="ui yellow mini button">Edit</a></td>
-                                   <td>{{ klass.status }}</td>
+                                   <td>{{ klass.active }}</td>
                                    <td><a href="" class="ui grey mini disabled button">Download</a></td>
                                    <td><a href="" class="ui grey mini disabled button">Download</a></td>
                                    <td><a href="" class="ui grey mini disabled button">X</a></td>

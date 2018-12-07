@@ -24,7 +24,12 @@
                 <div class="ui centered grid segment">
                     <div class="row">
                         <div class="two wide column">
-                            <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
+{#                            <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">#}
+                            {% if klass.image %}
+                                <img style="height: 100px; width: auto;" src="{{ klass.image.url }}">
+                            {% else %}
+                                <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
+                            {% endif %}
                         </div>
                         <div class="fourteen wide column">
                             <div class="ui grid">
@@ -80,7 +85,7 @@
                             <div class="description">Attach competitions to homework and define deadlines</div>
                         </div>
                     </a>
-                    <a href="" class="step">
+                    <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="step">
                         <i class="pencil alternate icon"></i>
                         <div class="content">
                             <div class="title">Grade Homework</div>

@@ -1,50 +1,164 @@
+
 {% extends 'base.html' %}
+{% load static %}
+{% load homework_tags %}
 
 {% block title %}Welcome{% endblock %}
 
-{% block content %}
+{% block extra_head %}
+    <style>
+        .condensed {
+            margin: 0.5vh 0 0 0 !important;
+            padding: 0.5vh 0 0 0 !important;
+        }
 
+        .no-padding {
+            padding: 1vh 0 0 0 !important;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
     <div class="ui centered grid">
-            <div class="row">
-                <div class="twelve wide column">
-                    <div class="ui centered grid message">
-                        <div class="row">
-                            <div class="ui center aligned container" style="margin-bottom: 5px;">
-                                <h1 class="ui massive header" style="font-size: 56px;">Homework for {{ klass.title }}</h1>
+        <div class="row">
+        <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
+            <div class="fourteen wide column">
+                <div class="ui centered grid segment">
+                    <div class="row">
+                        <div class="two wide column">
+                            {#                            <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">#}
+                            {% if klass.image %}
+                                <img style="height: 100px; width: auto;" src="{{ klass.image.url }}">
+                            {% else %}
+                                <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
+                            {% endif %}
+                        </div>
+                        <div class="fourteen wide column">
+                            <div class="ui grid">
+                                <div class="row no-padding">
+                                    <div class="twelve wide column">
+                                        <h1 class="ui header">{{klass.title}}</h1>
+                                        {% if klass.group %}
+                                            <h4 class="ui header condensed">From Group: {{ klass.group.name }}</h4>
+                                        {% endif %}
+                                        <h4 class="ui header condensed">Organized by: {{ klass.instructor.user.username }}</h4>
+                                    </div>
+                                    <div class="four wide column">
+                                        <h5 class="ui header condensed">Created: {{klass.created.date}}</h5>
+                                        <h5 class="ui header condensed">Modified: {{klass.modified.date}}</h5>
+                                    </div>
+                                </div>
+                                <div class="row no-padding">
+                                    <div class="sixteen wide column">
+                                        <ul class="ui relaxed list">
+                                            <div class="item">
+                                                Description: {{ klass.description }}
+                                            </div>
+                                            {% if klass.syllabus %}
+                                                <div class="item">
+                                                    <a href="{{ klass.syllabus.url }}">Syllabus</a>
+                                                </div>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="ui row">
-                <div class="sixteen wide center aligned column">
-                    <table class="ui center aligned sortable celled table">
-                        <thead style="background-color: #2185d0; color: white;">
-                        <tr class="black">
-                            <th>Name:</th>
-                            <th>Due Date:</th>
-                            <th>Creator:</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-
-                        {% for homework_def in klass.homework_definitions.all %}
-                                <tr>
-                                    <td>{{ homework_def.name }}</td>
-                                    <td>{{ homework_def.due_date }}</td>
-                                    <td>{{ homework_def.creator.user.username }}</td>
-                                    <td>Not Submitted</td>
-                                    <td><a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=homework_def.pk %}" class="ui button">Submit</a></td>
-                                </tr>
-                        {% endfor %}
-
-                        </tbody>
-                    </table>
-                </div>
+                <div class="ui header">Assignments for Class {{ klass.title }}</div>
+                {% for definition in klass.homework_definitions.all %}
+                    {% with definition|get_last_submission:user.pk as submission %}
+                        {% with submission|get_last_grade as grade %}
+                            <div class="ui message">
+                                <div class="content">
+                                    <div class="header">
+                                        {{ definition.name }}
+                                    </div>
+                                    <hr>
+                                    <h4>Due Date: {{ definition.due_date }}</h4>
+                                    <p>{{ definition.description }}</p>
+                                    {% if definition.team_based %}
+                                        <h4>Graded as teamwork</h4>
+                                    {% endif %}
+                                    <div class="ui grid">
+                                        <div class="row">
+                                            <div class="eight wide column">
+                                                <h4 class="ui header">Submission:</h4>
+                                                <ul class="ui relaxed celled list">
+                                                    {% if definition.ask_method_name %}<div class="item">Method Name:
+                                                        {{ submission.method_name }}</div>{% endif %}
+                                                    {% if definition.ask_method_description %}<div class="item">Method Description:
+                                                        {{ submission.method_description }}</div>{% endif %}
+                                                    {% if definition.ask_project_url %}<div class="item">Project URL:
+                                                        {{ submission.project_url }}</div>{% endif %}
+                                                    {% if definition.ask_publication_url %}<div class="item">Publication URL:
+                                                        {{ submission.publication_url }}</div>{% endif %}
+                                                </ul>
+                                            </div>
+                                            <div class="eight wide column">
+                                                {% if submission %}
+                                                    <a href="{% url "homework:edit_submission" klass_pk=klass.pk definition_pk=definition.pk submission_pk=submission.pk %}"
+                                                       class="ui yellow button">Edit/Re-Submit Homework</a>
+                                                    <a href="{{ submission.definition.challenge_url }}" class="ui button">View Challenge</a>
+                                                    <table>
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Status</th>
+                                                                <th>Score</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for tracker in submission.tracked_submissions.all %}
+                                                                {% with tracker.get_remote_submission_info as submission_info %}
+{#                                                                {% with tracker.get_remote_submission_info|get_item:'score' as score %}#}
+                                                                    {% if submission_info %}
+                                                                        <td>{{ submission_info|get_item:'status' }}</td>
+                                                                        <td>{{ submission_info|get_item:'score' }}</td>
+                                                                    {% else %}
+                                                                        <td>Waiting</td>
+                                                                        <td>Waiting</td>
+                                                                    {% endif %}
+{#                                                                {% endwith %}#}
+                                                                {% endwith %}
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                {% else %}
+{#                                                    No Submission!#}
+                                                    <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk %}"
+                                                       class="ui blue button">Submit Homework</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="eight wide column">Grade:</div>
+                                            <div class="eight wide column">{{ grade.overall_grade }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endwith %}
+                    {% endwith %}
+                {% endfor %}
+{#                <form class="ui form" method="post">#}
+{#                    {% csrf_token %}#}
+{##}
+{#                    {{ form.non_field_errors }}#}
+{##}
+{#                    {% for field in form %}#}
+{#                        <div class="field">#}
+{#                            {{ field.errors }}#}
+{#                            <span>#}
+{#                                {{ field.label_tag }}#}
+{#                                {{ field }}#}
+{#                            </span>#}
+{#                        </div>#}
+{#                    {% endfor %}#}
+{##}
+{#                    <input type="submit" value="Submit">#}
+{#                </form>#}
             </div>
         </div>
-
-
+    </div>
 {% endblock %}

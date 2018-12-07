@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework.serializers import ModelSerializer
 
+from apps.api.serializers.homework import SubmissionSerializer
+from apps.groups.models import Team
 from apps.profiles.models import Instructor, StudentMembership
 
 # from apps.api.serializers.klasses import KlassSerializer
@@ -9,9 +11,7 @@ from apps.profiles.models import Instructor, StudentMembership
 User = get_user_model()
 
 
-class BasicChaUserSerializer(ModelSerializer):
-    # from apps.api.serializers.profiles import InstructorSerializer
-
+class ChaUserSerializer(ModelSerializer):
     # instructor = InstructorSerializer()
 
     class Meta:
@@ -19,44 +19,54 @@ class BasicChaUserSerializer(ModelSerializer):
         fields = (
             'username',
             'id',
+            'first_name',
+            'last_name',
+            'email',
+            # 'instructor',
+            # 'student',
         )
 
 
-class InstructorSerializer(ModelSerializer):
+class StudentSerializer(ModelSerializer):
 
-    # user = BasicChaUserSerializer()
-
-    class Meta:
-        model = Instructor
-        fields = (
-            'university_name',
-            # 'user'
-        )
-
-
-class ChaUserSerializer(ModelSerializer):
-    instructor = InstructorSerializer()
-
-    class Meta:
-        model = User
-        fields = (
-            'username',
-            'id',
-            'instructor',
-            'student',
-        )
-
-
-class StudentMembershipSerializer(ModelSerializer):
-
-    user = ChaUserSerializer()
-    # klass = KlassSerializer()
+    # user = ChaUserSerializer()
 
     class Meta:
         model = StudentMembership
         fields = (
-            # 'klass',
-            # 'student_id',
+            # 'user',
+            'klass',
+            'student_id',
             'overall_grade',
             'date_enrolled',
+        )
+
+
+class BasicTeamSerializer(ModelSerializer):
+
+    class Meta:
+        model = Team
+        fields = [
+            'name',
+            'description',
+        ]
+
+
+class DetailedStudentSerializer(ModelSerializer):
+
+    user = ChaUserSerializer()
+    team = BasicTeamSerializer()
+    submitted_homeworks = SubmissionSerializer(many=True)
+
+    class Meta:
+        model = StudentMembership
+        fields = (
+            'user',
+            'klass',
+            'student_id',
+            'overall_grade',
+            'date_enrolled',
+            'id',
+            'team',
+            'submitted_homeworks'
         )

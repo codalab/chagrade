@@ -14,7 +14,7 @@
             <div class="ui fourteen wide column message">
                 <div>
                     <span>
-                        <a class="ui button">Create Student Team</a>
+                        <a href="{% url "groups:create_team" klass_pk=klass.pk %}" class="ui blue button">Create Student Team</a>
                         <a class="ui button">Upload Team CSV</a>
                     </span>
                     <h1>Teams</h1>
@@ -23,9 +23,9 @@
                         <tr>
                             <th>#</th>
                             <th>Name</th>
-                            <th>Creator</th>
+{#                            <th>Creator</th>#}
                             <th># Members</th>
-                            <th>Pending Req/Inv</th>
+{#                            <th>Pending Req/Inv</th>#}
                             <th>Status</th>
                             <th></th>
                             <th>Entries</th>
@@ -40,6 +40,9 @@
                                 <td>
                                     {{ team.name }}
                                 </td>
+{#                                <td>#}
+{#                                    {{ team.members.count }}#}
+{#                                </td>#}
                                 <td>
                                     {{ team.members.count }}
                                 </td>
@@ -58,63 +61,65 @@
                     </table>
                 </div>
 
-                <div class="ui divider" style="margin-top: 5vh; margin-bottom: 5vh;"></div>
+                <div class="ui divider" style=""></div>
 
-                <div style="">
-                    <span>
-                        <a class="ui button">Send Message</a>
-                        <a class="ui button">Download CSV</a>
-                    </span>
-                    <h1>Participants</h1>
-                    <table class="ui table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Display Name</th>
-                                <th>Email</th>
-                                <th>Team</th>
-                                <th>Status</th>
-                                <th></th>
-                                <th>Entries</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for student in klass.enrolled_students.all %}
-                            <tr>
-                                <td>
-                                    {{ forloop.counter }}
-                                </td>
-                                <td>
-                                    {{ student.user.first_name }}
-                                </td>
-                                <td>
-                                    {{ student.user.last_name }}
-                                </td>
-                                <td>
-                                    {{ student.user.username }}
-                                </td>
-                                <td>
-                                    {{ student.user.email }}
-                                </td>
-                                <td>
-                                    {{ student.team }}
-                                </td>
-                                <td>
-                                    Not Implemented
-                                </td>
-                                <td>
-                                    Not Implemented
-                                </td>
-                                <td>
-                                    Not Implemented
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                <participants-table></participants-table>
+
+{#                <div style="">#}
+{#                    <span>#}
+{#                        <a class="ui button">Send Message</a>#}
+{#                        <a class="ui button">Download CSV</a>#}
+{#                    </span>#}
+{#                    <h1>Participants</h1>#}
+{#                    <table class="ui table">#}
+{#                        <thead>#}
+{#                            <tr>#}
+{#                                <th>#</th>#}
+{#                                <th>First Name</th>#}
+{#                                <th>Last Name</th>#}
+{#                                <th>Display Name</th>#}
+{#                                <th>Email</th>#}
+{#                                <th>Team</th>#}
+{#                                <th>Status</th>#}
+{#                                <th></th>#}
+{#                                <th>Entries</th>#}
+{#                            </tr>#}
+{#                        </thead>#}
+{#                        <tbody>#}
+{#                        {% for student in klass.enrolled_students.all %}#}
+{#                            <tr>#}
+{#                                <td>#}
+{#                                    {{ forloop.counter }}#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    {{ student.user.first_name }}#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    {{ student.user.last_name }}#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    {{ student.user.username }}#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    {{ student.user.email }}#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    {{ student.team }}#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    Not Implemented#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    Not Implemented#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    Not Implemented#}
+{#                                </td>#}
+{#                            </tr>#}
+{#                        {% endfor %}#}
+{#                        </tbody>#}
+{#                    </table>#}
+{#                </div>#}
             </div>
         </div>
     </div>

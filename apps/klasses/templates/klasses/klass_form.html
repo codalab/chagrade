@@ -7,7 +7,7 @@
         <div class="ui center aligned grid">
             <div class="ui fourteen wide column">
 
-                <form class="ui form" method="post">
+                <form class="ui form" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
 
                     {{ form.non_field_errors }}
@@ -28,6 +28,18 @@
                         {{ form.description.errors }}
                         {{ form.description.label_tag }}
                         {{ form.description }}
+                    </div>
+
+                    <div class="field">
+                        {{ form.image.errors }}
+                        {{ form.image.label_tag }}
+                        {{ form.image }}
+                    </div>
+
+                    <div class="field">
+                        {{ form.syllabus.errors }}
+                        {{ form.syllabus.label_tag }}
+                        {{ form.syllabus }}
                     </div>
 
                     <input type="submit" value="Submit">
