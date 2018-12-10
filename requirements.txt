@@ -26,3 +26,4 @@ faker
 bpython==0.17.1
 boto3
 django-storages
+pytest
