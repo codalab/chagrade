@@ -27,7 +27,7 @@ User = get_user_model()
 #         return self.request.user
 
 
-class KlassViewSet(OwnerPermissionCheckMixin, ModelViewSet):
+class KlassViewSet(ModelViewSet):
     """Updating and inserting competitions are done by Producers."""
     queryset = Klass.objects.all()
     serializer_class = KlassSerializer
