@@ -55,7 +55,7 @@ class BasicTeamSerializer(ModelSerializer):
 class DetailedStudentSerializer(ModelSerializer):
 
     user = ChaUserSerializer()
-    team = BasicTeamSerializer()
+    team = BasicTeamSerializer(required=False)
     submitted_homeworks = SubmissionSerializer(many=True)
 
     class Meta:

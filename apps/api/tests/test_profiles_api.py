@@ -37,33 +37,33 @@ class ProfilesIntegrationTests(TestCase):
         assert data['username'] == 'user'
         assert data['id'] == self.user.pk
 
-    def test_post_user_works(self):
-        """Tests that we can post the data for a new user to this API endpoint and it will create one"""
-        self.client.login(username='user', password='pass')
-
-        resp = self.client.post(path='/api/v1/users/', data={
-            'username': 'test-user',
-            # 'email': 'test-email'
-            'first_name': 'test',
-            'last_name': 'test'
-        })
-        user = User.objects.get(username='test-user')
-        assert user
-
-    def test_put_user_works(self):
-        """Tests that we can update a user by put'ing data to this endpoint (For the specified ID)"""
-        self.client.login(username='user', password='pass')
-
-        resp = self.client.put(path='/api/v1/users/{}/'.format(self.user.pk), data={
-            'username': 'test-user',
-            'first_name': 'test',
-            'last_name': 'test',
-            'id': self.user.pk
-        }, content_type='application/json')
-        self.user.refresh_from_db()
-        assert self.user.username == 'test-user'
-        user = User.objects.get(username='test-user')
-        assert user
+    # def test_post_user_works(self):
+    #     """Tests that we can post the data for a new user to this API endpoint and it will create one"""
+    #     self.client.login(username='user', password='pass')
+    #
+    #     resp = self.client.post(path='/api/v1/users/', data={
+    #         'username': 'test-user',
+    #         # 'email': 'test-email'
+    #         'first_name': 'test',
+    #         'last_name': 'test'
+    #     })
+    #     user = User.objects.get(username='test-user')
+    #     assert user
+    #
+    # def test_put_user_works(self):
+    #     """Tests that we can update a user by put'ing data to this endpoint (For the specified ID)"""
+    #     self.client.login(username='user', password='pass')
+    #
+    #     resp = self.client.put(path='/api/v1/users/{}/'.format(self.user.pk), data={
+    #         'username': 'test-user',
+    #         'first_name': 'test',
+    #         'last_name': 'test',
+    #         'id': self.user.pk
+    #     }, content_type='application/json')
+    #     self.user.refresh_from_db()
+    #     assert self.user.username == 'test-user'
+    #     user = User.objects.get(username='test-user')
+    #     assert user
 
 
     # Viewset excludes DELETE method. Other API endpoints will use this:

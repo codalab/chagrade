@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
+from apps.api.permissions import StudentPermissionCheck, UserPermissionCheck
 from apps.api.serializers.profiles import ChaUserSerializer
 
 from apps.api import serializers
@@ -27,20 +28,19 @@ class GetMyProfile(RetrieveAPIView, GenericAPIView):
         return self.request.user
 
 
-class ProfileViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin, GenericViewSet):
+class ProfileViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     # """Updating and inserting competitions are done by Producers.
     #
     # request.user = Producer in this case."""
     queryset = ChaUser.objects.all()
     serializer_class = serializers.profiles.ChaUserSerializer
-    authentication_classes = ()
-    permission_classes = ()
+    permission_classes = (UserPermissionCheck,)
 
 
 class StudentViewSet(ModelViewSet):
     queryset = StudentMembership.objects.all()
     serializer_class = serializers.profiles.DetailedStudentSerializer
-    permission_classes = ()
+    permission_classes = (StudentPermissionCheck,)
 
     def create(self, request, *args, **kwargs):
 

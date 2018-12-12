@@ -24,7 +24,7 @@ class QuestionAnswerSerializer(ModelSerializer):
 
 class SubmissionSerializer(WritableNestedModelSerializer):
 
-    question_answers = QuestionAnswerSerializer(many=True)
+    question_answers = QuestionAnswerSerializer(many=True, required=False)
 
     class Meta:
         model = Submission
@@ -68,8 +68,8 @@ class CriteriaSerializer(ModelSerializer):
 class DefinitionSerializer(WritableNestedModelSerializer):
     # instructor = InstructorSerializer()
 
-    criterias = CriteriaSerializer(many=True)
-    custom_questions = QuestionSerializer(many=True)
+    criterias = CriteriaSerializer(many=True, required=False)
+    custom_questions = QuestionSerializer(many=True, required=False)
 
     class Meta:
         model = Definition
@@ -109,7 +109,7 @@ class CriteriaAnswerSerializer(ModelSerializer):
 
 class GradeSerializer(WritableNestedModelSerializer):
 
-    criteria_answers = CriteriaAnswerSerializer(many=True)
+    criteria_answers = CriteriaAnswerSerializer(many=True, required=False)
 
     class Meta:
         model = Grade

@@ -11,8 +11,8 @@ class KlassSerializer(ModelSerializer):
 
     # instructor = InstructorSerializer()
 
-    enrolled_students = DetailedStudentSerializer(many=True)
-    teams = TeamSerializer(many=True)
+    enrolled_students = DetailedStudentSerializer(many=True, required=False)
+    teams = TeamSerializer(many=True, required=False)
 
     class Meta:
         model = Klass

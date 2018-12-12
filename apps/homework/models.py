@@ -81,9 +81,12 @@ class SubmissionTracker(models.Model):
         )
         if score_api_resp.status_code == 200:
             data = score_api_resp.json()
-            if data.get('status') and data.get('score'):
+            if data.get('status'):
                 print("Data found for submission. Returning scores.")
-                return data.get('status'), data.get('score')
+                return {
+                    'status': data.get('status'),
+                    'score': data.get('score')
+                }
             else:
                 print("Could not retrieve complete data for submission")
                 return None
