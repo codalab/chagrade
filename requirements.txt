@@ -29,4 +29,5 @@ django-storages
 pytest
 pytest-django
 waitress
-install dj-database-url
+dj-database-url
+python-decouple
