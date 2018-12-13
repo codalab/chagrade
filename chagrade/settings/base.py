@@ -124,7 +124,7 @@ WSGI_APPLICATION = 'chagrade.wsgi.application'
 # Heroku DB Settings
 if os.environ.get('DATABASE_URL'):
     DATABASES = {
-        'default': dj_database_url.config(default=config(os.environ.gt('DATABASE_URL')))
+        'default': dj_database_url.config(default=config(os.environ.get('DATABASE_URL')))
     }
 else:
     DATABASES = {
