@@ -1,3 +1,5 @@
+import csv
+
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
@@ -10,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from apps.api.permissions import StudentPermissionCheck, UserPermissionCheck
-from apps.api.serializers.profiles import ChaUserSerializer
+from apps.api.serializers.profiles import ChaUserSerializer, StudentCreationSerializer
 
 from apps.api import serializers
 from apps.klasses.models import Klass
@@ -126,29 +128,41 @@ class StudentViewSet(ModelViewSet):
 
 @api_view(['POST'])
 def create_student(request, version):
-    if not request.data.get('email'):
-        return Response({'error':'No email given!'})
-    if not request.data.get('klass'):
-        return Response({'error': 'No class given!'})
-    klass = Klass.objects.get(pk=request.data.get('klass'))
-    try:
-        user = ChaUser.objects.get(email=request.data.get('email'))
-    except ObjectDoesNotExist:
-        user = ChaUser.objects.create(email=request.data.get('email'))
-    try:
-        student = StudentMembership.objects.get(user=user, klass=klass)
-        return Response({'response': 'Student already exists'})
-    except ObjectDoesNotExist:
-        if not request.data.get('student_id'):
-            student_id = user.username
-        else:
-            student_id = request.data.get('student_id')
-        student = StudentMembership.objects.create(user=user, klass=klass, student_id=student_id)
-        return Response({'response': 'Succesfully created student!'})
+    new_student_serializer = StudentCreationSerializer(data=request.data)
+    new_student_serializer.is_valid(raise_exception=True)
+    if new_student_serializer.errors:
+        return Response({'errors': new_student_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        new_student_serializer.create(new_student_serializer.validated_data)
+        return Response({'response': 'success'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
 def create_students_from_csv(request, version):
-    print(dir(request))
-    print(request.FILES)
-    return Response()
+    print(request.data)
+    # klass = Klass.objects.get(pk=request.data.get('klass'))
+    with open(request.FILES['file'].temporary_file_path()) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            line_count += 1
+            if len(row) > 1:
+                data = {
+                    'email': row[0],
+                    'klass': request.data.get('klass'),
+                    'student_id': row[1]
+                }
+            else:
+                data = {
+                    'email': row[0],
+                    'klass': request.data.get('klass')
+                }
+
+            new_student_serializer = StudentCreationSerializer(data=data)
+            new_student_serializer.is_valid(raise_exception=True)
+            if new_student_serializer.errors:
+                return Response({'errors': new_student_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                new_student_serializer.create(new_student_serializer.validated_data)
+        print('Processed {} lines.'.format(line_count))
+    return Response({'response': 'success'})

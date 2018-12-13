@@ -71,6 +71,9 @@ CHAGRADE.api = {
     create_student: function(data) {
         return CHAGRADE.api.request('POST', URLS.API + "students/", data)
     },
+    create_single_student: function(data) {
+        return CHAGRADE.api.request('POST', URLS.API + "create_student/", data)
+    },
     get_student: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + "students/" + pk)
     },

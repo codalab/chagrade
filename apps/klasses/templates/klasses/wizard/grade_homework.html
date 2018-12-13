@@ -16,7 +16,7 @@
                 <div>
                     <h1>Participants</h1>
                     <span>
-                        <a href="" class="ui button">Download CSV</a>
+                        <a href="{% url 'homework:get_grades_csv' klass_pk=klass.pk %}" class="ui button">Download CSV</a>
                     </span>
                     <table class="ui sortable table">
                         <thead>

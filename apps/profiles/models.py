@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
 # Require an account type to determine users vs students?
@@ -7,6 +8,18 @@ from django.db import models
 
 class ChaUser(AbstractUser):
     # instructor_profile = models.ForeignKey('InstructorProfile', related_name='user', null=True, blank=True)
+    username_validator = UnicodeUsernameValidator()
+
+    username = models.CharField(
+        max_length=150,
+        unique=False,
+        help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
+        validators=[username_validator],
+        error_messages={
+            'unique': "A user with that username already exists.",
+        },
+    )
+
     instructor = models.OneToOneField('Instructor', related_name='user', null=True, blank=True, on_delete=models.CASCADE)
 
     has_set_password = models.BooleanField(default=False, null=False, blank=False)
@@ -14,6 +27,9 @@ class ChaUser(AbstractUser):
     receive_emails_from_team = models.BooleanField(default=True)
     receive_emails_from_instructor = models.BooleanField(default=True)
     receive_emails_from_admins = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('email', 'username')
 
     def __str__(self):
         return self.username
@@ -42,6 +58,9 @@ class StudentMembership(models.Model):
     overall_grade = models.FloatField(null=True, blank=True)
 
     date_enrolled = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'klass', 'student_id')
 
     def __str__(self):
         return "{0}:{1} - {2}".format(self.user.username, self.student_id, self.klass.title)

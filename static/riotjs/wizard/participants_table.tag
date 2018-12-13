@@ -17,8 +17,12 @@
 
     <div style="">
         <span>
-            <a onclick="{ show_message_modal }" class="ui blue button">Send Message</a>
+            <!--<a onclick="{ show_message_modal }" class="ui blue button">Send Message</a>-->
             <a onclick="{download_csv}" class="ui yellow button">Download CSV</a>
+            <!--<form id="csv_form" enctype="multipart/form-data">-->
+                <a class="ui button" onclick="document.getElementById('hidden_file_input').click()">Upload CSV</a>
+                <input id="hidden_file_input" hidden type="file" onchange="{do_csv_upload}"/>
+            <!--</form>-->
             <a class="ui green icon button" onclick="{ show_student_modal }">
                 <i class="add square icon"></i> Add new student
             </a>
@@ -139,22 +143,29 @@
             //var formData = $('#csv_form').serialize();
             //var form_data = new FormData($('#csv_form'));
 
-            var file = $('#hidden_file_input').file;
+            //var files = $('#hidden_file_input').files;
+            var files = $('#hidden_file_input').prop("files")
             var form_data = new FormData();
-            form_data.append('file', file);
-            form_data.append('file_name', 'test');
+            form_data.append('file', files[0], 'students.csv');
+            form_data.append('klass', KLASS);
+            //form_data.append('filename', "students.csv");
+
+            console.log(files)
+            console.log(files[0])
 
             console.log(form_data)
+            console.log(form_data.get('file'))
 
             // Make AJAX request
             $.ajax({
                 type: 'post',
-                url: "/api/v1/create_students_from_csv",
+                url: "/api/v1/create_students_from_csv/",
                 data: form_data,
                 processData: false,
                 //headers:{"X-CSRFToken": csrf_token},
-                contentType: "multipart/form-data",
-                dataType: false
+                //contentType: "multipart/form-data",
+                contentType: false,
+                //dataType: false
             })
                 .done(function (data) {
                     toastr.success("Successfully submitted")
@@ -258,7 +269,7 @@
             console.log(data)
             console.log("@@@@@@@")*/
 
-            CHAGRADE.api.create_student(data)
+            CHAGRADE.api.create_single_student(data)
                 .done(function (data) {
                     toastr.success("Successfully saved student")
 
@@ -272,17 +283,6 @@
                         //var errors = JSON.parse(response.responseText);
                         var data = JSON.parse(response.responseText);
                         var errors = data['errors']
-                        //console.log("@@@@@@@")
-                        //console.log(errors)
-                        //console.log(errors['user_name'])
-                        //console.log("@@@@@@@")
-
-                        // Clean up errors to not be arrays but plain text
-                        /*Object.keys(errors).map(function (key, index) {
-                            if (errors[key] !== null){
-                                errors[key] = errors[key].join('; ')
-                            }
-                        })*/
 
                         self.update({errors: errors})
                     }
