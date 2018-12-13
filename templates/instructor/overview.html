@@ -59,7 +59,10 @@
                                    <td>{{ klass.modified }}</td>
                                    <td><a href="{% url "klasses:klass_details" klass_pk=klass.pk %}" class="ui yellow mini button">Edit</a></td>
                                    <td>{{ klass.active }}</td>
-                                   <td><a href="" class="ui grey mini disabled button">Download</a></td>
+                                   <td>
+{#                                       <a href="" class="ui grey mini disabled button">Download</a>#}
+                                       <a href="{% url 'homework:get_grades_csv' klass_pk=klass.pk %}" class="ui mini green button">Download</a>
+                                   </td>
                                    <td><a href="" class="ui grey mini disabled button">Download</a></td>
                                    <td><a href="" class="ui grey mini disabled button">X</a></td>
                                 </tr>
