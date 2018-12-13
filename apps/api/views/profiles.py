@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
+from rest_framework.decorators import api_view
 from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework import permissions, status
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin
@@ -42,78 +43,112 @@ class StudentViewSet(ModelViewSet):
     serializer_class = serializers.profiles.DetailedStudentSerializer
     permission_classes = (StudentPermissionCheck,)
 
-    def create(self, request, *args, **kwargs):
+    # def create(self, request, *args, **kwargs):
+    #
+    #     # We need the simple serializer to only pass a user PK
+    #     self.serializer_class = serializers.profiles.StudentSerializer
+    #
+    #     # super(StudentViewSet, self).create(request, *args, **kwargs)
+    #     # Augment the default behavior to return the secret key instead of the entire producer object
+    #
+    #     # We then display the API key to the user to forward on to the producer
+    #
+    #     data = request.data
+    #
+    #     print(data)
+    #
+    #     # Get our user if we don't pass data['user']
+    #     # If we don't pass data['user'] then try to get data['user_name'] and pop it out
+    #     # We should send klass from the form, but we should double check perms here
+    #     # if not data.get('user'):
+    #     #     print("No user")
+    #     if data.get('user_name') and data.get('user_email'):
+    #         new_user, created = ChaUser.objects.get_or_create(username=data.pop('user_name'), email=data.pop('user_email'))
+    #         if created:
+    #             print("We created a new user!")
+    #         else:
+    #             print("We found an existing user!")
+    #
+    #         if new_user:
+    #             data['user'] = new_user.pk
+    #         else:
+    #             raise Http404("Could not create or find a user")
+    #
+    #     else:
+    #         if data.get('user_name'):
+    #             print("We have a user_name")
+    #             try:
+    #                 if not data.get('user'):
+    #                     data['user'] = ChaUser.objects.get(username=data.pop('user_name')).pk
+    #                     print(data['user'])
+    #             except ObjectDoesNotExist:
+    #                 return Response({
+    #                     'errors': {'user_name': 'User not found!'}
+    #                 }, status=status.HTTP_404_NOT_FOUND)
+    #                 # raise Http404("Could not attribute a user to new student.")
+    #
+    #         # if not data.get('user'):
+    #         if data.get('user_email'):
+    #             print("We have an email")
+    #             try:
+    #                 if not data.get('user'):
+    #                     data['user'] = ChaUser.objects.get(email=data.pop('user_email')).pk
+    #                     print(data['user'])
+    #             except ObjectDoesNotExist:
+    #                 return Response({
+    #                     'errors': {'user_email': 'User not found!'}
+    #                 }, status=status.HTTP_404_NOT_FOUND)
+    #                 # raise Http404("Could not attribute a user to new student.")
+    #
+    #         print("Trying to get class")
+    #         try:
+    #             print(data.get('klass'))
+    #             klass = Klass.objects.get(pk=data.get('klass'))
+    #             if klass.instructor.user != request.user:
+    #                 raise Http404("User not allowed to make a new student for this class!")
+    #         except ObjectDoesNotExist:
+    #             # raise Http404("Klass not found")
+    #             return Response({
+    #                 'errors': {'klass': 'Klass not found!'}
+    #             }, status=status.HTTP_404_NOT_FOUND)
+    #
+    #     print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    #     serializer = self.get_serializer(data=data)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-        # We need the simple serializer to only pass a user PK
-        self.serializer_class = serializers.profiles.StudentSerializer
 
-        # super(StudentViewSet, self).create(request, *args, **kwargs)
-        # Augment the default behavior to return the secret key instead of the entire producer object
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
 
-        # We then display the API key to the user to forward on to the producer
 
-        data = request.data
-
-        print(data)
-
-        # Get our user if we don't pass data['user']
-        # If we don't pass data['user'] then try to get data['user_name'] and pop it out
-        # We should send klass from the form, but we should double check perms here
-        # if not data.get('user'):
-        #     print("No user")
-        if data.get('user_name') and data.get('user_email'):
-            new_user, created = ChaUser.objects.get_or_create(username=data.pop('user_name'), email=data.pop('user_email'))
-            if created:
-                print("We created a new user!")
-            else:
-                print("We found an existing user!")
-
-            if new_user:
-                data['user'] = new_user.pk
-            else:
-                raise Http404("Could not create or find a user")
-
+@api_view(['POST'])
+def create_student(request, version):
+    if not request.data.get('email'):
+        return Response({'error':'No email given!'})
+    if not request.data.get('klass'):
+        return Response({'error': 'No class given!'})
+    klass = Klass.objects.get(pk=request.data.get('klass'))
+    try:
+        user = ChaUser.objects.get(email=request.data.get('email'))
+    except ObjectDoesNotExist:
+        user = ChaUser.objects.create(email=request.data.get('email'))
+    try:
+        student = StudentMembership.objects.get(user=user, klass=klass)
+        return Response({'response': 'Student already exists'})
+    except ObjectDoesNotExist:
+        if not request.data.get('student_id'):
+            student_id = user.username
         else:
-            if data.get('user_name'):
-                print("We have a user_name")
-                try:
-                    if not data.get('user'):
-                        data['user'] = ChaUser.objects.get(username=data.pop('user_name')).pk
-                        print(data['user'])
-                except ObjectDoesNotExist:
-                    return Response({
-                        'errors': {'user_name': 'User not found!'}
-                    }, status=status.HTTP_404_NOT_FOUND)
-                    # raise Http404("Could not attribute a user to new student.")
+            student_id = request.data.get('student_id')
+        student = StudentMembership.objects.create(user=user, klass=klass, student_id=student_id)
+        return Response({'response': 'Succesfully created student!'})
 
-            # if not data.get('user'):
-            if data.get('user_email'):
-                print("We have an email")
-                try:
-                    if not data.get('user'):
-                        data['user'] = ChaUser.objects.get(email=data.pop('user_email')).pk
-                        print(data['user'])
-                except ObjectDoesNotExist:
-                    return Response({
-                        'errors': {'user_email': 'User not found!'}
-                    }, status=status.HTTP_404_NOT_FOUND)
-                    # raise Http404("Could not attribute a user to new student.")
 
-            print("Trying to get class")
-            try:
-                print(data.get('klass'))
-                klass = Klass.objects.get(pk=data.get('klass'))
-                if klass.instructor.user != request.user:
-                    raise Http404("User not allowed to make a new student for this class!")
-            except ObjectDoesNotExist:
-                # raise Http404("Klass not found")
-                return Response({
-                    'errors': {'klass': 'Klass not found!'}
-                }, status=status.HTTP_404_NOT_FOUND)
-
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+@api_view(['POST'])
+def create_students_from_csv(request, version):
+    print(dir(request))
+    print(request.FILES)
+    return Response()

@@ -85,7 +85,7 @@ class SubmissionTracker(models.Model):
                 print("Data found for submission. Returning scores.")
                 return {
                     'status': data.get('status'),
-                    'score': data.get('score')
+                    'score': data.get('score', None)
                 }
             else:
                 print("Could not retrieve complete data for submission")

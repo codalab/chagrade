@@ -19,7 +19,7 @@
             </div>
             <div show="{definition.ask_project_url}" class="four wide field">
                 <label>Project URL:</label>
-                <input required name="project_url" ref="project_url" type="text" value="{submission.method_name || ''}">
+                <input required name="project_url" ref="project_url" type="text" value="{submission.project_url || ''}">
             </div>
             <div show="{definition.ask_publication_url}" class="four wide field">
                 <label>Publication URL:</label>

@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from apps.homework.models import Definition, Criteria, Submission, Question
 from apps.klasses.models import Klass
 from apps.profiles.models import Instructor, StudentMembership
 
@@ -24,6 +25,33 @@ class PermissionTests(TestCase):
         self.student = StudentMembership.objects.create(user=self.student_user, klass=self.klass, student_id='test_id')
 
         self.other_user = User.objects.create_user(username='other_user', password='pass')
+
+        self.definition = Definition.objects.create(
+            klass=self.klass,
+            creator=self.instructor,
+            due_date=timezone.now(),
+            name='test',
+            description='test'
+        )
+
+        self.question = Question.objects.create(
+            definition=self.definition,
+            question='Test Question',
+            answer='Test Answer'
+        )
+
+        self.criteria = Criteria.objects.create(
+            definition=self.definition,
+            description='Test Criteria',
+            lower_range=0,
+            upper_range=10
+        )
+
+        self.submission = Submission.objects.create(
+            definition=self.definition,
+            klass=self.klass,
+            creator=self.student
+        )
 
     def test_user_permissions_as_anonymous_user(self):
         # self.client.login(username='user', password='pass')
@@ -366,34 +394,14 @@ class PermissionTests(TestCase):
         print(resp.content)
         assert resp.status_code == 401
 
-    def test_criteria_permissions_as_klass_creator(self):
-        """Tests that we can retrieve a list of users"""
+    def test_criteria_permissions_as_authenticated_user(self):
         self.client.login(username='user', password='pass')
-
         resp = self.client.get(path='/api/v1/criterias/')
         print(resp)
         print(resp.content)
-        assert resp.status_code == 200
+        assert resp.status_code == 401
 
-        # resp = self.client.post(path='/api/v1/criterias/', data={'description': 'test',
-        #                                                          'lower_range': 0,
-        #                                                          'upper_range': 10})
-        # print(resp)
-        # print(resp.content)
-        # # import pdb;
-        # # pdb.set_trace()
-        # assert resp.status_code == 201
-        #
-        # resp = self.client.put(path='/api/v1/criterias/{}/'.format(1),
-        #                        data={'description': 'test',
-        #                              'lower_range': 0,
-        #                              'upper_range': 10},
-        #                        content_type='application/json')
-        # print(resp)
-        # print(resp.content)
-        # assert resp.status_code == 200
-        #
-        # resp = self.client.delete(path='/api/v1/criterias/{}/'.format(1))
-        # print(resp)
-        # print(resp.content)
-        # assert resp.status_code == 204
+        resp = self.client.delete(path='/api/v1/criterias/{}/'.format(1))
+        print(resp)
+        print(resp.content)
+        assert resp.status_code == 401

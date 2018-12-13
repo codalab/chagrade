@@ -50,7 +50,7 @@
 
             <div class="four wide field">
                 <label>Ask project url:</label>
-                <input class="ui checkbox" type="checkbox" name="ask_project_url" ref="ask_project_url" checked="{definiton.ask_project_url}">
+                <input class="ui checkbox" type="checkbox" name="ask_project_url" ref="ask_project_url" checked="{definition.ask_project_url}">
             </div>
 
             <div class="four wide field">
@@ -282,11 +282,11 @@
                 "description": self.refs.description.value,
                 "challenge_url": self.refs.challenge_url.value,
                 "starting_kit_github_url": self.refs.starting_kit_github_url.value,
-                "ask_method_name": self.refs.ask_method_name.value || true,
-                "ask_method_description": self.refs.ask_method_description.value || true,
-                "ask_project_url": self.refs.ask_project_url.value || true,
-                "ask_publication_url": self.refs.ask_publication_url.value || true,
-                "team_based": self.refs.team_based.value || false,
+                "ask_method_name": self.refs.ask_method_name.checked,
+                "ask_method_description": self.refs.ask_method_description.checked,
+                "ask_project_url": self.refs.ask_project_url.checked,
+                "ask_publication_url": self.refs.ask_publication_url.checked,
+                "team_based": self.refs.team_based.checked,
                 "criterias": [
                     /*{
                         "description": "string",

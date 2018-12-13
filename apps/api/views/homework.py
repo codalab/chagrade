@@ -10,6 +10,7 @@ from apps.api.serializers.homework import DefinitionSerializer, QuestionSerializ
 from apps.homework.models import Definition, Question, Criteria, Submission, Grade
 
 # from apps.homework.tasks import calculate_new_grade
+from apps.homework.tasks import post_submission
 
 User = get_user_model()
 
@@ -36,8 +37,9 @@ class SubmissionViewSet(ModelViewSet):
     def perform_create(self, serializer):
         new_sub = serializer.save()
         if new_sub.pk and not new_sub.submitted_to_challenge:
-            from apps.homework.tasks import post_submission
-            post_submission.delay(new_sub.pk)
+            # from apps.homework.tasks import post_submission
+            # post_submission.delay(new_sub.pk)
+            post_submission(new_sub.pk)
 
 
 class DefinitionViewSet(ModelViewSet):

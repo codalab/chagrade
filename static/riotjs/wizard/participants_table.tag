@@ -80,8 +80,6 @@
             <div class="content">
                 <i>Enter a username/email combo if the student is not registered yet. Their account will be created and waiting for them.</i>
                 <form id="student_form" class="ui form error" onsubmit="{ add_student }">
-                    <field name="Display Name" ref="username" input_name="username"
-                           error="{errors.username}"></field>
                     <field name="Email" ref="email" input_name="email" error="{errors.email}"></field>
                     <field name="Student ID" ref="student_id" input_name="student_id"
                            error="{errors.student_id}"></field>
@@ -125,10 +123,58 @@
         self.klass = {
             'students': []
         }
+
+
         //var csrftoken = Cookies.get('csrftoken');
         self.one('mount', function () {
             self.update_klass()
         })
+
+        self.do_csv_upload = function () {
+            console.log("Doing something")
+            // Prevent form submission which refreshes page
+            //e.preventDefault();
+
+            // Serialize data
+            //var formData = $('#csv_form').serialize();
+            //var form_data = new FormData($('#csv_form'));
+
+            var file = $('#hidden_file_input').file;
+            var form_data = new FormData();
+            form_data.append('file', file);
+            form_data.append('file_name', 'test');
+
+            console.log(form_data)
+
+            // Make AJAX request
+            $.ajax({
+                type: 'post',
+                url: "/api/v1/create_students_from_csv",
+                data: form_data,
+                processData: false,
+                //headers:{"X-CSRFToken": csrf_token},
+                contentType: "multipart/form-data",
+                dataType: false
+            })
+                .done(function (data) {
+                    toastr.success("Successfully submitted")
+
+                    //self.update_klass()
+                    self.update_klass()
+
+                    $("#csv_form")[0].reset();
+                })
+                .fail(function (response) {
+                    if (response) {
+                        //var errors = JSON.parse(response.responseText);
+                        var data = JSON.parse(response.responseText);
+                        var errors = data['errors']
+
+                        self.update({errors: errors})
+                    }
+                })
+        }
+
 
         self.show_student_modal = function () {
             $("#student_form_modal").modal('show')

@@ -9,7 +9,7 @@ from requests.auth import HTTPBasicAuth
 from apps.homework.models import Grade, Submission, SubmissionTracker
 
 
-@task
+# @task
 def post_submission(submission_pk):
     # Get our URL's formatted and such
     submission = Submission.objects.get(pk=submission_pk)
@@ -33,6 +33,7 @@ def post_submission(submission_pk):
     )
     print(resp)
     print(resp.status_code)
+    print(resp.content)
     # competition/15595/submission/44798/4aba772a-a6c1-4e6f-a82b-fb9d23193cb6.zip
     submission_data = resp.json()['id']
     submission_data_split = submission_data.split('/')
@@ -59,7 +60,7 @@ def post_submission(submission_pk):
             # data=get_github_submission_and_chunk(submission.submission_github_url),
             headers={
                 # "Content-Type": "application/zip",
-                # "x-ms-blob-type": 'BlockBlob',
+                "x-ms-blob-type": 'BlockBlob',
                 # "content-name": submission_file_name,
                 "Content-Length": temp_size,
                 # "Content-Encoding": "gzip",

@@ -1,51 +1,10 @@
-# from rest_framework import permissions
-
-# from producers.models import Producer
-
-
-# class ProducerPermission(permissions.BasePermission):
-#     message = 'Only producers may modify ChaHub information.'
-#
-#     def has_permission(self, request, view):
-#         if request.method in permissions.SAFE_METHODS:
-#             return True
-#         else:
-#             # The ProducerAuthentication class sets request.user to Producer,
-#             # TODO: Check object permissions, should only be able to work on non existant objects or
-#             # objects where producer == producer!!!
-#             return isinstance(request.user, Producer)
 from rest_framework import permissions
-
-#
-# class CheckKlassInstructor(permissions.BasePermission):
-#     message = 'Only class instructors can modify classes.'
-#
-#     def has_object_permission(self, request, view, obj):
-#         if request.user.is_anonymous:
-#             return False
-#         if request.user == obj.instructor:
-#             return True
-#         else:
-#             return False
-
-# TODO: Determine if we really need to check if user is authenticated. Pretty sure DRF does this for us
 
 
 class ChagradeAuthCheckMixin(object):
 
     def has_permission(self, request, view):
-        print("were checking perms")
-        if not request.user.is_authenticated or request.user.is_anonymous:
-            print("!!!!!!!!!!!!!!!")
-            # print(request.user)
-            print(not request.user.is_authenticated)
-            print(request.user.is_anonymous)
-            print("!!!!!!!!")
-            print("false")
-            return False
-        else:
-            print("true")
-            return True
+        return request.user.is_authenticated
 
 
 class UserPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
@@ -53,13 +12,7 @@ class UserPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
     message = 'You are not allowed to use this resource.'
 
     def has_object_permission(self, request, view, obj):
-        print("CHECKING PERMISSIONS DOI")
-        if request.method in permissions.SAFE_METHODS:
-            print("Yep")
-            return True
-        else:
-            print("Nope")
-            return False
+        return request.method in permissions.SAFE_METHODS
 
 
 class StudentPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
@@ -68,14 +21,10 @@ class StudentPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission)
     message = 'You are not allowed to use this resource.'
 
     def has_object_permission(self, request, view, obj):
-        print("!!!!!!!!!!!!")
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            if request.user == obj.user or request.user == obj.klass.instructor:
-                return True
-            else:
-                return False
+            return request.user == obj.user or request.user == obj.klass.instructor.user
 
 
 class KlassPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
@@ -84,19 +33,13 @@ class KlassPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
     message = 'You are not allowed to use this resource.'
 
     def has_object_permission(self, request, view, obj):
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-        # if not request.user or not request.user.is_authenticated or request.user.is_anonymous:
-        #     return False
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
             if not request.user.instructor:
                 return False
             else:
-                if request.user.instructor == obj.instructor:
-                    return True
-                else:
-                    return False
+                return request.user.instructor == obj.instructor
 
 
 class DefinitionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
@@ -111,10 +54,7 @@ class DefinitionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermissi
             if not request.user.instructor:
                 return False
             else:
-                if request.user.instructor == obj.klass.instructor:
-                    return True
-                else:
-                    return False
+                return request.user.instructor == obj.klass.instructor
 
 
 class CriteriaPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
@@ -129,10 +69,7 @@ class CriteriaPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission
             if not request.user.instructor:
                 return False
             else:
-                if request.user.instructor == obj.definition.klass.instructor:
-                    return True
-                else:
-                    return False
+                return request.user.instructor == obj.definition.klass.instructor
 
 
 class QuestionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
@@ -147,10 +84,7 @@ class QuestionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission
             if not request.user.instructor:
                 return False
             else:
-                if request.user.instructor == obj.definition.klass.instructor:
-                    return True
-                else:
-                    return False
+                return request.user.instructor == obj.definition.klass.instructor
 
 
 class SubmissionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
@@ -162,10 +96,7 @@ class SubmissionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermissi
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            if request.user == obj.creator.user:
-                return True
-            else:
-                return False
+            return request.user == obj.creator.user
 
 
 class GradePermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
@@ -177,10 +108,7 @@ class GradePermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            if request.user == obj.evaluator:
-                return True
-            else:
-                return False
+            return request.user == obj.evaluator.user
 
 
 class TeamPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
@@ -192,7 +120,4 @@ class TeamPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            if request.user.instructor == obj.klass.instructor:
-                return True
-            else:
-                return False
+            return request.user.instructor == obj.klass.instructor
