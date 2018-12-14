@@ -39,7 +39,7 @@
 {#                                <th>Submission</th>#}
 {#                                <th>Score</th>#}
                                 <th>Grade</th>
-                                <th></th>
+                                <th>Edit</th>
                             {% endfor %}
                         </tr>
                         </thead>
@@ -56,30 +56,19 @@
                                 {% for homework_def in klass.homework_definitions.all %}
                                     {% with homework_def|get_last_submission:student.user.pk as submission %}
                                         {% with submission|get_last_grade as grade %}
-{#                                            Sub: {{ submission }}#}
-{#                                            Grade: {{ grade }}#}
-{#                                    <td>#}
-                                            {#                                        Submission#}
-                                            {#                                    </td>#}
-                                            {#                                    <td>#}
-                                            {#                                        Score#}
-                                            {#                                    </td>#}
                                             {% if not submission %}
-                                                <td colspan="2"><div class="ui red label">No Submission</div></td>
+                                                <td style="text-align: center;" colspan="2"><div class="ui red label">No Submission</div></td>
                                             {% else %}
-                                                <td>
-                                                    {#                                        {{ sub.grades.last.overall_grade }}#}
-                                                    {#                                        {{ sub|get_last_grade }}#}
+                                                <td style="text-align: center;">
                                                     {{ grade.overall_grade }}
                                                 </td>
-                                                <td>
-{#                                                    {{ grade }}#}
+                                                <td style="text-align: center;">
                                                     {% if not grade %}
                                                         <a href="{% url "homework:grade_homework" klass_pk=klass.pk submission_pk=submission.pk %}"
-                                                           class="ui green button">Grade</a>
+                                                           class="ui yellow button">Grade</a>
                                                     {% else %}
                                                         <a href="{% url "homework:edit_grade" klass_pk=klass.pk submission_pk=submission.pk grade_pk=grade.pk %}"
-                                                       class="ui yellow button">Edit Grade</a>
+                                                       class="ui green button">Edit Grade</a>
                                                     {% endif %}
                                                 </td>
                                             {% endif %}
