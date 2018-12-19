@@ -1,0 +1,58 @@
+version: 2
+jobs:
+  build:
+    environment:
+      DJANGO_SETTINGS_MODULE: chagrade.settings.base
+#      DJANGO_CONFIGURATION: Dev
+      DB_NAME: chagrade_website
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: localhost
+      POSTGRES_DB: chagrade_website
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    docker:
+      - image: circleci/python:3.6
+      - image: postgres:9.5
+    steps:
+      - checkout
+      - run:
+          name: Set ENV Vars
+#          command: export DJANGO_SETTINGS_MODULE="chagrade.settings.base" && export DJANGO_CONFIGURATION="Dev"
+          command: export DJANGO_SETTINGS_MODULE="chagrade.settings.base"
+      - run:
+          name: CHOWN Python Library Dirs
+          command: sudo chown -R $(whoami) /usr/local/
+      - run:
+          name: PIP Install Requirements
+          command: pip install -r requirements.txt
+#      - run:
+#          name: Copy settings
+#          command: cp circlec_dev_setup.py codalab/codalab/settings/local.py
+#      - run:
+#          name: Sync DB and Migrate
+#          command: cd codalab && python manage.py syncdb --migrate
+      - run:
+          name: Run PyTest
+#          command: python manage.py test
+          command: py.test
+#      - run:
+#          name: Flake8
+#          command: flake8 src/ --ignore E501
+
+
+
+#dependencies:
+#  pre:
+#    - pip install -r requirements.dev.txt
+
+
+#test:
+#  override:
+#    - python manage.py test
+#    - flake8 src/ --ignore E501
+#
+#    # Check templates and such for style= attributes
+#    - if [[ `grep -rnw src/templates/ -e 'style='` ]]; then (exit -1); fi
+#    - if [[ `grep -rnw src/static/riot -e 'style='` ]]; then (exit -1); fi
+#    - if [[ `grep -rnw src -e 'TODO'` ]]; then (exit -1); fi
