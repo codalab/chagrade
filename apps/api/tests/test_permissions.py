@@ -21,7 +21,7 @@ class PermissionTests(TestCase):
         self.main_user.save()
         self.klass = Klass.objects.create(instructor=self.instructor, course_number="1")
 
-        self.student_user = User.objects.create_user(username='student_user', password='pass')
+        self.student_user = User.objects.create_user(username='student_user', password='pass', email="test@test.com")
         self.student = StudentMembership.objects.create(user=self.student_user, klass=self.klass, student_id='test_id')
 
         self.other_user = User.objects.create_user(username='other_user', password='pass')
@@ -141,8 +141,8 @@ class PermissionTests(TestCase):
         print(resp.content)
         assert resp.status_code == 200
 
-        resp = self.client.post(path='/api/v1/students/',
-                                data={'user': self.student_user.pk, 'student_id': 'student_23', 'klass': self.klass.pk})
+        resp = self.client.post(path='/api/v1/create_student/',
+                                data={'email': self.student_user.email, 'student_id': 'student_23', 'klass': self.klass.pk})
         print(resp)
         print(resp.content)
         # import pdb;
