@@ -22,22 +22,23 @@
                     <a href="{{ definition.challenge_url }}" class="item">Link to challenge website</a>
                     <a href="{{ submission.submission_github_url }}" class="item">Link to Github repo of submission</a>
                 </div>
-{#                {{ submission.submission_github_url }}#}
+                {#                {{ submission.submission_github_url }}#}
                 <h4>Questions</h4>
                 <div class="ui relaxed celled list">
                     <ol>
-                        {% if definition.ask_method_name %}<li><b>Method Name:</b> {{ submission.method_name }}</li>{% endif %}
-                        {% if definition.ask_method_description %}<li><b>Method Description:</b> {{ submission.method_description }}</li>{% endif %}
-                        {% if definition.ask_project_url %}<li><b>Project URL:</b> {{ submission.project_url }}</li>{% endif %}
-                        {% if definition.ask_publication_url %}<li><b>Publication URL:</b> {{ submission.publication_url }}</li>{% endif %}
+                        {% if definition.ask_method_name %}
+                            <li><b>Method Name:</b> {{ submission.method_name }}</li>{% endif %}
+                        {% if definition.ask_method_description %}
+                            <li><b>Method Description:</b> {{ submission.method_description }}</li>{% endif %}
+                        {% if definition.ask_project_url %}
+                            <li><b>Project URL:</b> {{ submission.project_url }}</li>{% endif %}
+                        {% if definition.ask_publication_url %}
+                            <li><b>Publication URL:</b> {{ submission.publication_url }}</li>{% endif %}
                     </ol>
                 </div>
                 {% if definition.custom_questions.count > 0 %}
                     <h4>Other Homework Questions</h4>
                     <div class="ui relaxed celled list">
-{#                        {% for question in definition.custom_questions.all %}#}
-{#                            {{ question.question }}:#}
-{#                        {% endfor %}#}
                         <ol>
                             {% for answer in submission.question_answers.all %}
                                 <li>{{ answer.question.question }}: {{ answer.text }}</li>
@@ -45,44 +46,8 @@
                         </ol>
                     </div>
                 {% endif %}
-{#                {% if definition.criterias.count > 0 %}#}
-{#                    <h4>Grades:</h4>#}
-{#                    <div class="ui relaxed celled list">#}
-{#                        {% for criteria in submission.definition.criterias.all %}#}
-{#                            {{ criteria.type }}:#}
-{#                        {% endfor %}#}
-{#                        #}
-{#                    </div>#}
-
-{#                    THIS IS WHERE MY FORM SHOULD GO FOR THIS#}
-
-
-{#                {% endif %}#}
                 <grade-homework></grade-homework>
-{#                <form class="ui form" method="post">#}
-{#                    {% csrf_token %}#}
-{##}
-{#                    {{ form.non_field_errors }}#}
-{##}
-{#                    {% for field in form %}#}
-{#                        <div class="field">#}
-{#                            {{ field.errors }}#}
-{#                            <span>#}
-{#                                {{ field.label_tag }}#}
-{#                                {{ field }}#}
-{#                            </span>#}
-{#                        </div>#}
-{#                    {% endfor %}#}
-
-
-{#                    <span>#}
-{#                        <input class="ui green button" type="submit" value="Submit">#}
-{#                        <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="ui red button">Cancel</a>#}
-{#                    </span>#}
-                </form>
-            </div>
             </div>
         </div>
     </div>
-
 {% endblock %}

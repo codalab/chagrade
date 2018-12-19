@@ -5,10 +5,6 @@
     <h2 class="ui massive header" style="font-size: 56px;">Grade Homework</h2>
 {% endblock %}
 
-{#{% block wizard_description %}#}
-{#    <h4 class="sub header">SOMETHING</h4>#}
-{#{% endblock %}#}
-
 {% block wizard_content %}
     <div class="ui centered grid">
         <div class="row">
@@ -16,7 +12,7 @@
                 <div>
                     <h1>Participants</h1>
                     <span>
-                        <a href="{% url 'homework:get_grades_csv' klass_pk=klass.pk %}" class="ui button">Download CSV</a>
+                        <a href="{% url 'homework:get_grades_csv' klass_pk=klass.pk %}" class="ui blue button">Download CSV</a>
                     </span>
                     <table class="ui sortable table">
                         <thead>
@@ -24,7 +20,6 @@
                             <th></th>
                             <th></th>
                             <th></th>
-{#                            <th>Submission</th>#}
                             {% for homework_def in klass.homework_definitions.all %}
                                 <th colspan="2">
                                     {{ homework_def.name }}
@@ -36,15 +31,12 @@
                             <th>Name</th>
                             <th>Team</th>
                             {% for homework_def in klass.homework_definitions.all %}
-{#                                <th>Submission</th>#}
-{#                                <th>Score</th>#}
                                 <th>Grade</th>
                                 <th>Edit</th>
                             {% endfor %}
                         </tr>
                         </thead>
                         <tbody>
-{#                        {% for sub in klass.homework_submissions.all %}#}
                         {% for student in klass.enrolled_students.all %}
                             <tr>
                                 <td>
@@ -52,10 +44,9 @@
                                 </td>
                                 <td>{{ student.user.username }}</td>
                                 <td>{{ student.team.name }}</td>
-    {#                            <td>{{ sub.id }}</td>#}
                                 {% for homework_def in klass.homework_definitions.all %}
                                     {% with homework_def|get_last_submission:student.user.pk as submission %}
-                                        {% with submission|get_last_grade as grade %}
+                                        {% with submission|get_last_grade_teacher as grade %}
                                             {% if not submission %}
                                                 <td style="text-align: center;" colspan="2"><div class="ui red label">No Submission</div></td>
                                             {% else %}
@@ -65,10 +56,13 @@
                                                 <td style="text-align: center;">
                                                     {% if not grade %}
                                                         <a href="{% url "homework:grade_homework" klass_pk=klass.pk submission_pk=submission.pk %}"
-                                                           class="ui yellow button">Grade</a>
+                                                           class="ui grey button">Grade</a>
                                                     {% else %}
-                                                        <a href="{% url "homework:edit_grade" klass_pk=klass.pk submission_pk=submission.pk grade_pk=grade.pk %}"
-                                                       class="ui green button">Edit Grade</a>
+                                                        {% if grade.published %}
+                                                            <a href="{% url "homework:edit_grade" klass_pk=klass.pk submission_pk=submission.pk grade_pk=grade.pk %}" class="ui green button">Edit Grade</a>
+                                                        {% else %}
+                                                            <a href="{% url "homework:edit_grade" klass_pk=klass.pk submission_pk=submission.pk grade_pk=grade.pk %}" class="ui yellow button">Edit Grade</a>
+                                                        {% endif %}
                                                     {% endif %}
                                                 </td>
                                             {% endif %}
@@ -79,6 +73,11 @@
                         {% endfor %}
                         </tbody>
                     </table>
+                    <div class="ui horizonatal relaxed list">
+                        <div class="ui gray label">Not Graded</div>
+                        <div class="ui yellow label">Grade not published</div>
+                        <div class="ui green label">Grade published</div>
+                    </div>
                 </div>
             </div>
         </div>

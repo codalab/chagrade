@@ -131,7 +131,8 @@ def get_klass_grades_as_csv(request, klass_pk):
                 for definition in klass.homework_definitions.all():
                     last_submission = definition.submissions.filter(creator=student).last()
                     if last_submission:
-                        last_grade = last_submission.grades.last() if last_submission.grades.count() > 0 else None
+                        published_grades = last_submission.grades.filter(published=True)
+                        last_grade = published_grades.last() if published_grades.count() > 0 else None
                         temp_student_row.append(last_grade.overall_grade)
                     else:
                         temp_student_row.append(0)

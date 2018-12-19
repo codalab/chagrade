@@ -25,28 +25,24 @@
                 <i class="users icon"></i>
                 <div class="content">
                     <div class="title">Enroll Students</div>
-{#                    <div class="description">Choose your shipping options</div>#}
                 </div>
             </a>
             <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="{% if wizard_current == 'klass_homework' or wizard_current == 'define_homework' %}active {% endif %}step">
                 <i class="student icon"></i>
                 <div class="content">
                     <div class="title">Define Homework</div>
-{#                    <div class="description">Attach competitions to homework and define deadlines</div>#}
                 </div>
             </a>
             <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="{% if wizard_current == 'klass_grading' or wizard_current == 'grade_homework' %}active {% endif %}step">
                 <i class="pencil alternate icon"></i>
                 <div class="content">
                     <div class="title">Grade Homework</div>
-{#                    <div class="description">Make grades, publish them</div>#}
                 </div>
             </a>
             <a href="{% url "klasses:klass_activate" klass_pk=klass.pk %}" class="{% if klass.active %}completed {% endif %}{% if wizard_current == 'klass_activate' %}active {% endif %}step">
                 <i class="info icon"></i>
                 <div class="content">
                     <div class="title">Activate Class</div>
-{#                    <div class="description">Make class visible to students</div>#}
                 </div>
             </a>
         </div>

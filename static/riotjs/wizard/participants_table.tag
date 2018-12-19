@@ -6,12 +6,6 @@
     <div class="ui error message" show="{ opts.error }">
         <p>{ opts.error }</p>
     </div>
-    <style>
-        /* Make this component "div like" */
-        /*:scope {
-            display: block;
-        }*/
-    </style>
 </field>
 <participants-table>
 
@@ -135,26 +129,10 @@
         })
 
         self.do_csv_upload = function () {
-            console.log("Doing something")
-            // Prevent form submission which refreshes page
-            //e.preventDefault();
-
-            // Serialize data
-            //var formData = $('#csv_form').serialize();
-            //var form_data = new FormData($('#csv_form'));
-
-            //var files = $('#hidden_file_input').files;
             var files = $('#hidden_file_input').prop("files")
             var form_data = new FormData();
             form_data.append('file', files[0], 'students.csv');
             form_data.append('klass', KLASS);
-            //form_data.append('filename', "students.csv");
-
-            console.log(files)
-            console.log(files[0])
-
-            console.log(form_data)
-            console.log(form_data.get('file'))
 
             // Make AJAX request
             $.ajax({
@@ -162,10 +140,7 @@
                 url: "/api/v1/create_students_from_csv/",
                 data: form_data,
                 processData: false,
-                //headers:{"X-CSRFToken": csrf_token},
-                //contentType: "multipart/form-data",
                 contentType: false,
-                //dataType: false
             })
                 .done(function (data) {
                     toastr.success("Successfully submitted")
@@ -189,27 +164,11 @@
 
         self.show_student_modal = function () {
             $("#student_form_modal").modal('show')
-
-            // We want to unselect the existing producer, so when we save we don't try to update it
-            //self.selected_producer = {}
         }
 
         self.show_message_modal = function () {
             $("#message_form_modal").modal('show')
-
-            // We want to unselect the existing producer, so when we save we don't try to update it
-            //self.selected_producer = {}
         }
-
-        /*self.update_students = function () {
-            CHAGRADE.api.get_students(KLASS)
-                .done(function (data) {
-                    self.update({students: data})
-                })
-                .fail(function (error) {
-                    toastr.error("Error fetching students: " + error.statusText)
-                })
-        }*/
 
         self.update_klass = function () {
             CHAGRADE.api.get_klass(KLASS)
@@ -229,7 +188,6 @@
         self.submit_message = function () {
             console.log("This was called")
 
-            //var data = $("#student_form").serializeObject()
             var data = {
                 'subject': self.refs.subject.value,
                 'message': self.refs.message.value
@@ -263,11 +221,6 @@
 
             var data = $("#student_form").serializeObject()
             data['klass'] = KLASS
-            //data['csrftoken'] = csrftoken
-
-            /*console.log("@@@@@@@")
-            console.log(data)
-            console.log("@@@@@@@")*/
 
             CHAGRADE.api.create_single_student(data)
                 .done(function (data) {

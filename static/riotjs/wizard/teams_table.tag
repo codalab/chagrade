@@ -6,12 +6,6 @@
     <div class="ui error message" show="{ opts.error }">
         <p>{ opts.error }</p>
     </div>
-    <style>
-        /* Make this component "div like" */
-        /*:scope {
-            display: block;
-        }*/
-    </style>
 </field>
 <teams-table>
 
@@ -67,20 +61,9 @@
         self.klass = {
             'students': []
         }
-        //var csrftoken = Cookies.get('csrftoken');
         self.one('mount', function () {
             self.update_klass()
         })
-
-        /*self.update_students = function () {
-            CHAGRADE.api.get_students(KLASS)
-                .done(function (data) {
-                    self.update({students: data})
-                })
-                .fail(function (error) {
-                    toastr.error("Error fetching students: " + error.statusText)
-                })
-        }*/
 
         self.update_klass = function () {
             CHAGRADE.api.get_klass(KLASS)

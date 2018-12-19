@@ -47,8 +47,6 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     url('^', include(router.urls)),
-    # url('query/', search.SearchView.as_view()),
-    # url('my_profile/', profiles.GetMyProfile.as_view()),
 
     url('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 

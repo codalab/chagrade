@@ -1,7 +1,4 @@
 <activate-klass>
-
-    <!--<h1>Test and Activate</h1>-->
-    <!--<div class="ui divider"></div>-->
     <div class="ui grid" style="margin-top: 2.5vh;">
         <div class="row">
             <div class="eight wide column">
@@ -40,8 +37,6 @@
     </div>
 
     <script>
-
-
         var self = this
         self.errors = []
         var csrftoken = Cookies.get('csrftoken');

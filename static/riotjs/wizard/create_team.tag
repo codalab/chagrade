@@ -48,11 +48,9 @@
             }
 
             var temp_member_list = $('#members').val()
-            //const el = document.querySelector('#user');
 
             for (var index = 0; index < temp_member_list.length; index++) {
                 var selector_string = '#id_' + temp_member_list[index]
-                //var select_elem = $(selector_string)
                 var select_elem = document.querySelector(selector_string);
                 console.log("!!!!!!!!!!")
                 console.log(selector_string)
@@ -61,7 +59,6 @@
                     'id': temp_member_list[index],
                     'klass': KLASS,
                     'student_id': select_elem.dataset.studentId,
-                    //'user': select_elem.dataset.userId
                 }
                 obj_data['members'].push(temp_data)
             }
@@ -71,12 +68,10 @@
             CHAGRADE.api.create_team(obj_data)
                 .done(function (data) {
                     console.log(data)
-                    //self.update({klass: data})
                     window.location='/klasses/wizard/' + KLASS + '/enroll'
                 })
                 .fail(function (response) {
                     if (response) {
-                        //var errors = JSON.parse(response.responseText);
                         var data = JSON.parse(response.responseText);
                         var errors = data['errors']
 

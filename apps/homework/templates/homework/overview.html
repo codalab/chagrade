@@ -123,7 +123,6 @@
                                                         </tbody>
                                                     </table>
                                                 {% else %}
-{#                                                    No Submission!#}
                                                     <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk %}"
                                                        class="ui blue button">Submit Homework</a>
                                                 {% endif %}
@@ -135,7 +134,6 @@
                                                     <div class="ui divider"></div>
                                                     <h3 class="ui header">Grade: </h3>{{ grade.overall_grade }}
                                                 </div>
-{#                                                <div class="eight wide column">{{ grade.overall_grade }}</div>#}
                                             </div>
                                         {% endif %}
                                     </div>
@@ -144,23 +142,6 @@
                         {% endwith %}
                     {% endwith %}
                 {% endfor %}
-{#                <form class="ui form" method="post">#}
-{#                    {% csrf_token %}#}
-{##}
-{#                    {{ form.non_field_errors }}#}
-{##}
-{#                    {% for field in form %}#}
-{#                        <div class="field">#}
-{#                            {{ field.errors }}#}
-{#                            <span>#}
-{#                                {{ field.label_tag }}#}
-{#                                {{ field }}#}
-{#                            </span>#}
-{#                        </div>#}
-{#                    {% endfor %}#}
-{##}
-{#                    <input type="submit" value="Submit">#}
-{#                </form>#}
             </div>
         </div>
     </div>

@@ -88,10 +88,8 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'team_based',
             'criterias',
             'custom_questions',
-        )
-        read_only_fields = [
             'id'
-        ]
+        )
 
 
 class CriteriaAnswerSerializer(ModelSerializer):
@@ -102,9 +100,6 @@ class CriteriaAnswerSerializer(ModelSerializer):
             'score',
             'id'
         ]
-        # read_only_fields = [
-        #     'id'
-        # ]
 
 
 class GradeSerializer(WritableNestedModelSerializer):
@@ -114,12 +109,11 @@ class GradeSerializer(WritableNestedModelSerializer):
     class Meta:
         model = Grade
         fields = [
+            'id',
             'submission',
             'evaluator',
             'teacher_comments',
             'instructor_notes',
             'criteria_answers',
-        ]
-        read_only_fields = [
-            'id'
+            'published'
         ]

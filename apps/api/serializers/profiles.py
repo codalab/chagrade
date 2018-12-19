@@ -80,9 +80,6 @@ class StudentCreationSerializer(serializers.Serializer):
     klass = serializers.IntegerField(required=True)
 
     def create(self, validated_data):
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@#######################")
-        print(validated_data.get('klass'))
-        print(validated_data)
         klass = Klass.objects.get(pk=validated_data.get('klass'))
         try:
             user = ChaUser.objects.get(email=validated_data.get('email'))

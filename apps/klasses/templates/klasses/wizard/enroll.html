@@ -4,10 +4,6 @@
     <h2 class="ui massive header" style="font-size: 56px;">Enroll Students</h2>
 {% endblock %}
 
-{#{% block wizard_description %}#}
-{#    <h4 class="sub header">SOMETHING</h4>#}
-{#{% endblock %}#}
-
 {% block wizard_content %}
     <div class="ui centered grid">
         <div class="row">
@@ -23,9 +19,7 @@
                         <tr>
                             <th>#</th>
                             <th>Name</th>
-{#                            <th>Creator</th>#}
                             <th># Members</th>
-{#                            <th>Pending Req/Inv</th>#}
                             <th>Status</th>
                             <th></th>
                             <th>Entries</th>
@@ -40,9 +34,6 @@
                                 <td>
                                     {{ team.name }}
                                 </td>
-{#                                <td>#}
-{#                                    {{ team.members.count }}#}
-{#                                </td>#}
                                 <td>
                                     {{ team.members.count }}
                                 </td>
@@ -65,61 +56,6 @@
 
                 <participants-table></participants-table>
 
-{#                <div style="">#}
-{#                    <span>#}
-{#                        <a class="ui button">Send Message</a>#}
-{#                        <a class="ui button">Download CSV</a>#}
-{#                    </span>#}
-{#                    <h1>Participants</h1>#}
-{#                    <table class="ui table">#}
-{#                        <thead>#}
-{#                            <tr>#}
-{#                                <th>#</th>#}
-{#                                <th>First Name</th>#}
-{#                                <th>Last Name</th>#}
-{#                                <th>Display Name</th>#}
-{#                                <th>Email</th>#}
-{#                                <th>Team</th>#}
-{#                                <th>Status</th>#}
-{#                                <th></th>#}
-{#                                <th>Entries</th>#}
-{#                            </tr>#}
-{#                        </thead>#}
-{#                        <tbody>#}
-{#                        {% for student in klass.enrolled_students.all %}#}
-{#                            <tr>#}
-{#                                <td>#}
-{#                                    {{ forloop.counter }}#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    {{ student.user.first_name }}#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    {{ student.user.last_name }}#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    {{ student.user.username }}#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    {{ student.user.email }}#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    {{ student.team }}#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    Not Implemented#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    Not Implemented#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    Not Implemented#}
-{#                                </td>#}
-{#                            </tr>#}
-{#                        {% endfor %}#}
-{#                        </tbody>#}
-{#                    </table>#}
-{#                </div>#}
             </div>
         </div>
     </div>
