@@ -13,18 +13,23 @@ User = get_user_model()
 class DefinitionAPIEndpointsTests(TestCase):
 
     def setUp(self):
-        self.main_user = User.objects.create_user(username='user', password='pass')
-        self.instructor = Instructor.objects.create(university_name='Test')
+        self.main_user = User.objects.create_user(
+            username='user',
+            password='pass'
+        )
+        self.instructor = Instructor.objects.create(
+            university_name='Test'
+        )
         self.main_user.instructor = self.instructor
-        self.student_user = User.objects.create_user(username='student_user', password='pass')
+        self.student_user = User.objects.create_user(
+            username='student_user',
+            password='pass'
+        )
         self.main_user.save()
-        self.klass = Klass.objects.create(instructor=self.instructor, course_number="1")
-        self.definition = Definition.objects.create(
-            klass=self.klass,
-            creator=self.instructor,
-            due_date=timezone.now(),
-            name='test',
-            description='test')
+        self.klass = Klass.objects.create(
+            instructor=self.instructor,
+            course_number="1"
+        )
 
     def test_anonymous_permissions(self):
         resp = self.client.get(path=reverse(
@@ -44,14 +49,14 @@ class DefinitionAPIEndpointsTests(TestCase):
 
         resp = self.client.put(path=reverse(
             'api:definition-detail',
-            kwargs={'version': 'v1', 'pk': self.definition.pk}),
+            kwargs={'version': 'v1', 'pk': 1}),
             data={'name': 'A Different Name'},
             content_type='application/json')
         assert resp.status_code == 401
 
         resp = self.client.delete(reverse(
             'api:definition-detail',
-            kwargs={'version': 'v1', 'pk': self.definition.pk}))
+            kwargs={'version': 'v1', 'pk': 1}))
         assert resp.status_code == 401
 
     def test_authenticated_permissions(self):
@@ -69,12 +74,13 @@ class DefinitionAPIEndpointsTests(TestCase):
                   'due_date': timezone.now(),
                   'name': 'test1',
                   'description': 'test'})
+        posted_url = resp.json()['id']
         assert resp.status_code == 201
         assert resp.json()['name'] == 'test1'
 
         resp = self.client.put(path=reverse(
             'api:definition-detail',
-            kwargs={'version': 'v1', 'pk': '2'}),
+            kwargs={'version': 'v1', 'pk': posted_url}),
             data={'name': 'A Different Name',
                   'klass': self.klass.pk,
                   'creator': self.instructor.pk},
@@ -83,7 +89,7 @@ class DefinitionAPIEndpointsTests(TestCase):
 
         resp = self.client.delete(path=reverse(
             'api:definition-detail',
-            kwargs={'version': 'v1', 'pk': '2'}))
+            kwargs={'version': 'v1', 'pk': posted_url}))
         assert resp.status_code == 403
 
     def test_instructor_permissions(self):
@@ -102,12 +108,13 @@ class DefinitionAPIEndpointsTests(TestCase):
                   'name': 'test_definition',
                   'description': 'test'})
         data = resp.json()
+        posted_url = resp.json()['id']
         assert data['name'] == 'test_definition'
         assert resp.status_code == 201
 
         resp = self.client.put(path=reverse(
             'api:definition-detail',
-            kwargs={'version': 'v1', 'pk': '2'}),
+            kwargs={'version': 'v1', 'pk': posted_url}),
             data={'name': 'A Different Name',
                   'klass': self.klass.pk,
                   'creator': self.instructor.pk},
@@ -118,6 +125,6 @@ class DefinitionAPIEndpointsTests(TestCase):
 
         resp = self.client.delete(path=reverse(
             'api:definition-detail',
-            kwargs={'version': 'v1', 'pk': '2'}))
+            kwargs={'version': 'v1', 'pk': posted_url}))
         assert resp.status_code == 204
 

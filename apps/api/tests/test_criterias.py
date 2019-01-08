@@ -13,23 +13,35 @@ User = get_user_model()
 class CriteriaGETMethodTests(TestCase):
 
     def setUp(self):
-        self.main_user = User.objects.create_user(username='user', password='pass')
-        self.instructor = Instructor.objects.create(university_name='Test')
+        self.main_user = User.objects.create_user(
+            username='user',
+            password='pass')
+        self.instructor = Instructor.objects.create(
+            university_name='Test'
+        )
         self.main_user.instructor = self.instructor
-        self.student_user = User.objects.create_user(username='student_user', password='pass')
+        self.student_user = User.objects.create_user(
+            username='student_user',
+            password='pass'
+        )
         self.main_user.save()
-        self.klass = Klass.objects.create(instructor=self.instructor, course_number="1")
+        self.klass = Klass.objects.create(
+            instructor=self.instructor,
+            course_number="1"
+        )
         self.definition = Definition.objects.create(
             klass=self.klass,
             creator=self.instructor,
             due_date=timezone.now(),
             name='test',
-            description='test')
+            description='test'
+        )
         self.criteria = Criteria.objects.create(
             definition=self.definition,
             description='Test Criteria',
             lower_range=0,
-            upper_range=10)
+            upper_range=10
+        )
 
     def test_anonymous_permissions(self):
         resp = self.client.get(path=reverse(
@@ -44,6 +56,7 @@ class CriteriaGETMethodTests(TestCase):
 
     def test_authenticated_permissions(self):
         self.client.login(username='student_user', password='pass')
+
         resp = self.client.get(path=reverse(
             'api:criteria-list',
             kwargs={'version': 'v1'}))
@@ -54,8 +67,9 @@ class CriteriaGETMethodTests(TestCase):
             kwargs={'version': 'v1', 'pk': self.criteria.pk}))
         assert resp.json()['description'] == 'Test Criteria'
 
-    def test_get_method_on_list_of_criteria_and_list(self):
+    def test_get_method_on_list_of_criteria_and_specific_criteria(self):
         self.client.login(username='user', password='pass')
+
         resp = self.client.get(path=reverse(
             'api:criteria-list',
             kwargs={'version': 'v1'}))

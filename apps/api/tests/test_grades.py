@@ -12,30 +12,45 @@ User = get_user_model()
 class GradesAPIEndpointsTests(TestCase):
 
     def setUp(self):
-        self.main_user = User.objects.create_user(username='user', password='pass')
-        self.instructor = Instructor.objects.create(university_name='Test')
+        self.main_user = User.objects.create_user(
+            username='user',
+            password='pass'
+        )
+        self.instructor = Instructor.objects.create(
+            university_name='Test'
+        )
         self.main_user.instructor = self.instructor
-        self.student_user = User.objects.create_user(username='student_user', password='pass')
+        self.student_user = User.objects.create_user(
+            username='student_user',
+            password='pass'
+        )
         self.main_user.save()
-        self.klass = Klass.objects.create(instructor=self.instructor, course_number="1")
+        self.klass = Klass.objects.create(
+            instructor=self.instructor,
+            course_number="1"
+        )
         self.student = StudentMembership.objects.create(
             user=self.student_user,
             klass=self.klass,
-            student_id='test_id')
+            student_id='test_id'
+        )
         self.definition = Definition.objects.create(
             klass=self.klass,
             creator=self.instructor,
             due_date=timezone.now(),
             name='test',
             description='test',
-            challenge_url='')
+            challenge_url=''
+        )
         self.submission = Submission.objects.create(
             definition=self.definition,
             klass=self.klass,
-            creator=self.student)
+            creator=self.student
+        )
         self.grade = Grade.objects.create(
             evaluator=self.instructor,
-            submission=self.submission)
+            submission=self.submission
+        )
 
     def test_anonymous_permissions(self):
         resp = self.client.get(path=reverse(
@@ -87,9 +102,10 @@ class GradesAPIEndpointsTests(TestCase):
         assert resp.json()['instructor_notes'] == 'testnotes'
         assert resp.status_code == 201
 
+        new_grade_pk = resp.json()['id']
         resp = self.client.put(path=reverse(
             'api:grade-detail',
-            kwargs={'version': 'v1', 'pk': '2'}),
+            kwargs={'version': 'v1', 'pk': new_grade_pk}),
             data={"submission": self.submission.pk,
                   "evaluator": self.instructor.pk,
                   "teacher_comments": "",
@@ -99,7 +115,7 @@ class GradesAPIEndpointsTests(TestCase):
 
         resp = self.client.delete(path=reverse(
             'api:grade-detail',
-            kwargs={'version': 'v1', 'pk': '2'}))
+            kwargs={'version': 'v1', 'pk': new_grade_pk}))
         assert resp.status_code == 403
 
     def test_instructor_permissions(self):
@@ -120,9 +136,10 @@ class GradesAPIEndpointsTests(TestCase):
         assert resp.json()['instructor_notes'] == 'testnotes'
         assert resp.status_code == 201
 
+        new_grade_pk = resp.json()['id']
         resp = self.client.put(path=reverse(
             'api:grade-detail',
-            kwargs={'version': 'v1', 'pk': '2'}),
+            kwargs={'version': 'v1', 'pk': new_grade_pk}),
             data={"submission": self.submission.pk,
                   "evaluator": self.instructor.pk,
                   "teacher_comments": "",
@@ -133,5 +150,5 @@ class GradesAPIEndpointsTests(TestCase):
 
         resp = self.client.delete(path=reverse(
             'api:grade-detail',
-            kwargs={'version': 'v1', 'pk': '2'}))
+            kwargs={'version': 'v1', 'pk': new_grade_pk}))
         assert resp.status_code == 204

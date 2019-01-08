@@ -6,16 +6,22 @@ from apps.profiles.models import Instructor
 
 User = get_user_model()
 
+
 class UsersAPIEndpointsTests(TestCase):
 
     def setUp(self):
-        self.student_user = User.objects.create_user(username='student_user', password='pass')
-        self.main_user = User.objects.create_user(username='user', password='pass')
-        self.main_user.set_password('pass')
-        self.main_user.save()
-        self.instructor = Instructor.objects.create(university_name='Test')
+        self.student_user = User.objects.create_user(
+            username='student_user',
+            password='pass'
+        )
+        self.main_user = User.objects.create_user(
+            username='user',
+            password='pass'
+        )
+        self.instructor = Instructor.objects.create(
+            university_name='Test'
+        )
         self.main_user.instructor = self.instructor
-        self.main_user.save()
 
     def test_anonymous_permissions(self):
         resp = self.client.get(path=reverse(

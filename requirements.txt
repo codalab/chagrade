@@ -31,3 +31,4 @@ pytest-django
 waitress
 dj-database-url
 python-decouple
+responses
