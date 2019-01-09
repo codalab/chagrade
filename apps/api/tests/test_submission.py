@@ -51,7 +51,7 @@ class SubmissionAPIEndpointsTests(TestCase):
             creator=self.student
         )
 
-    def test_anonymous_permissions(self):
+    def test_anonymous_user_cannot_perform_crud_methods_on_submissions(self):
         resp = self.client.get(path=reverse(
             'api:submission-list',
             kwargs={'version': 'v1'}))
@@ -92,7 +92,7 @@ class SubmissionAPIEndpointsTests(TestCase):
         assert resp.status_code == 401
 
     @responses.activate
-    def test_authenticated_permissions(self):
+    def test_authenticated_user_can_perform_crud_methods_on_submissions(self):
         self.client.login(
             username='student_user',
             password='pass'
@@ -182,7 +182,7 @@ class SubmissionAPIEndpointsTests(TestCase):
         assert resp.status_code == 204
 
     @responses.activate
-    def test_instructor_permissions(self):
+    def test_instructor_user_can_only_perform_get_and_post_methods_on_submissions(self):
         self.client.login(username='user', password='pass')
 
         resp = self.client.get(
@@ -229,6 +229,7 @@ class SubmissionAPIEndpointsTests(TestCase):
             body=json.dumps({'id': '2'}),
             status=201
         )
+
         resp = self.client.post(
             path=reverse('api:submission-list', kwargs={'version': 'v1'}),
             data={"klass": self.klass.pk,
@@ -239,7 +240,7 @@ class SubmissionAPIEndpointsTests(TestCase):
                   "method_description": "",
                   "project_url": "",
                   "publication_url": "",
-                  "question_answers": 'http://www.example3.com/anotherexample/1'
+                  "question_answers": ''
                   }
         )
         sub_id = resp.json()['id']

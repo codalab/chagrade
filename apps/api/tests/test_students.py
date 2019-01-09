@@ -1,16 +1,14 @@
 from django.urls import reverse
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 
-from apps.homework.models import Submission, Definition
 from apps.klasses.models import Klass
 from apps.profiles.models import Instructor, StudentMembership
 
 User = get_user_model()
 
 
-class StudentsAPIEndpointTests(TestCase):
+class StudentsGETMethodTests(TestCase):
 
     def setUp(self):
         self.student_user = User.objects.create_user(
@@ -33,10 +31,12 @@ class StudentsAPIEndpointTests(TestCase):
             username='user',
             password='pass'
         )
-        self.instructor = Instructor.objects.create(university_name='Test')
+        self.instructor = Instructor.objects.create(
+            university_name='Test'
+        )
         self.main_user.instructor = self.instructor
 
-    def test_anonymous_permissions(self):
+    def test_anonymous_user_cannot_get_students(self):
         resp = self.client.get(path=reverse(
             'api:studentmembership-list',
             kwargs={'version': 'v1'}))
@@ -47,7 +47,7 @@ class StudentsAPIEndpointTests(TestCase):
             kwargs={'version': 'v1', 'pk': self.student.pk}))
         assert resp.status_code == 401
 
-    def test_authenticated_permissions(self):
+    def test_authorized_user_can_get_students(self):
         self.client.login(username='student_user', password='pass')
         resp = self.client.get(path=reverse(
             'api:studentmembership-list',
@@ -59,7 +59,7 @@ class StudentsAPIEndpointTests(TestCase):
             kwargs={'version': 'v1', 'pk': self.student.pk}))
         assert resp.status_code == 200
 
-    def test_instructor_permissions(self):
+    def test_instructor_user_can_get_students(self):
         self.client.login(username='user', password='pass')
         resp = self.client.get(path=reverse(
             'api:studentmembership-list',

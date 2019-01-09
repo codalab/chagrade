@@ -33,7 +33,7 @@ class TeamsAPIEndpointsTests(TestCase):
             student_id='test_id'
         )
 
-    def test_anonymous_permissions(self):
+    def test_anonymous_user_cannot_perform_crud_methods(self):
 
         resp = self.client.get(path=reverse(
             'api:team-list',
@@ -64,7 +64,7 @@ class TeamsAPIEndpointsTests(TestCase):
             kwargs={'version': 'v1', 'pk': 1}))
         assert resp.status_code == 401
 
-    def test_authenticated_permissions(self):
+    def test_authenticated_user_can_only_get_and_post(self):
         self.client.login(username='student_user', password='pass')
         resp = self.client.get(path=reverse(
             'api:team-list',
@@ -75,8 +75,8 @@ class TeamsAPIEndpointsTests(TestCase):
             'api:team-list',
             kwargs={'version': 'v1'}),
             data=json.dumps({"klass": self.klass.pk,
-                  "name": "testteam",
-                  "members": []}),
+                             "name": "testteam",
+                             "members": []}),
             content_type='application/json')
         assert resp.json()['name'] == 'testteam'
         assert resp.status_code == 201
@@ -98,7 +98,7 @@ class TeamsAPIEndpointsTests(TestCase):
         assert resp.json()['detail'] == "You are not allowed to use this resource."
         assert resp.status_code == 403
 
-    def test_instructor_permissions(self):
+    def test_instructor_user_can_only_get_and_post(self):
         self.client.login(
             username='user',
             password='pass'
@@ -112,8 +112,8 @@ class TeamsAPIEndpointsTests(TestCase):
             'api:team-list',
             kwargs={'version': 'v1'}),
             data=json.dumps({"klass": self.klass.pk,
-                  "name": "testteam",
-                  'members': []}),
+                             "name": "testteam",
+                             'members': []}),
             content_type='application/json')
         assert resp.json()['name'] == 'testteam'
         assert resp.status_code == 201

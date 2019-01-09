@@ -52,7 +52,7 @@ class GradesAPIEndpointsTests(TestCase):
             submission=self.submission
         )
 
-    def test_anonymous_permissions(self):
+    def test_anonymous_user_cannot_perform_crud_methods_on_grades(self):
         resp = self.client.get(path=reverse(
             'api:grade-list',
             kwargs={'version': 'v1'}))
@@ -84,7 +84,7 @@ class GradesAPIEndpointsTests(TestCase):
             kwargs={'version': 'v1', 'pk': self.grade.pk}))
         assert resp.status_code == 401
 
-    def test_authenticated_permissions(self):
+    def test_authenticated_user_can_get_and_post_grades(self):
         self.client.login(username='student_user', password='pass')
         resp = self.client.get(path=reverse(
             'api:grade-list',
@@ -98,7 +98,7 @@ class GradesAPIEndpointsTests(TestCase):
                   "evaluator": self.instructor.pk,
                   "teacher_comments": "",
                   "instructor_notes": "testnotes",
-                   "criteria_answers": ''})
+                  "criteria_answers": ''})
         assert resp.json()['instructor_notes'] == 'testnotes'
         assert resp.status_code == 201
 
@@ -118,7 +118,7 @@ class GradesAPIEndpointsTests(TestCase):
             kwargs={'version': 'v1', 'pk': new_grade_pk}))
         assert resp.status_code == 403
 
-    def test_instructor_permissions(self):
+    def test_instructor_user_can_perform_crud_methods(self):
         self.client.login(username='user', password='pass')
         resp = self.client.get(path=reverse(
             'api:grade-list',

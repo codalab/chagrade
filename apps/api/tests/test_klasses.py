@@ -33,7 +33,7 @@ class KlassesAPIEndpointTests(TestCase):
             student_id='test_id'
         )
 
-    def test_anonymous_permissions(self):
+    def test_anonymous_user_cannot_perform_crud_methods_on_klasses(self):
         resp = self.client.get(path=reverse(
             'api:klass-list',
             kwargs={'version': 'v1'}))
@@ -57,7 +57,7 @@ class KlassesAPIEndpointTests(TestCase):
             kwargs={'version': 'v1', 'pk': self.klass.pk}))
         assert resp.status_code == 401
 
-    def test_authenticated_permissions(self):
+    def test_authenticated_user_can_get_and_post_klasses(self): # Currently not working as intended
         self.client.login(username='student_user', password='pass')
         resp = self.client.get(path=reverse(
             'api:klass-list',
@@ -69,12 +69,12 @@ class KlassesAPIEndpointTests(TestCase):
             kwargs={'version': 'v1'}),
             data={'title': 'Test',
                   'instructor': self.instructor.pk,
-                  'course_number': 2})
+                  'course_number': self.klass.pk})
         # TODO: Block this
-        print('# TODO: Block this')
-        print(resp.status_code)
+
         assert resp.status_code == 201
-        new_klass_pk = resp.json()['id']
+
+        new_klass_pk = self.klass.pk + 1
         resp = self.client.put(path=reverse(
             'api:klass-detail',
             kwargs={'version': 'v1', 'pk': new_klass_pk}),
@@ -89,7 +89,7 @@ class KlassesAPIEndpointTests(TestCase):
             kwargs={'version': 'v1', 'pk': new_klass_pk}))
         assert resp.status_code == 403
 
-    def test_instructor_permissions(self):
+    def test_instructor_user_can_get_and_post_klasses(self):
         self.client.login(username='user', password='pass')
         resp = self.client.get(path=reverse(
             'api:klass-list',

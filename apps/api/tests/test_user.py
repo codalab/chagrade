@@ -23,7 +23,7 @@ class UsersAPIEndpointsTests(TestCase):
         )
         self.main_user.instructor = self.instructor
 
-    def test_anonymous_permissions(self):
+    def test_anonymous_user_cannot_perform_crud_method_on_users(self):
         resp = self.client.get(path=reverse(
             'api:chauser-list',
             kwargs={'version': 'v1'}))
@@ -47,7 +47,7 @@ class UsersAPIEndpointsTests(TestCase):
             kwargs={'version': 'v1', 'pk': self.student_user.pk}))
         assert resp.status_code == 401
 
-    def test_student_permissions(self):
+    def test_student_user_can_only_get_users(self):
         self.client.login(username='student_user', password='pass')
         resp = self.client.get(path=reverse(
             'api:chauser-list',
@@ -71,7 +71,7 @@ class UsersAPIEndpointsTests(TestCase):
             kwargs={'version': 'v1', 'pk': self.student_user.pk}))
         assert resp.status_code == 405
 
-    def test_instructor_permissions(self):
+    def test_instructor_user_can_only_get_users(self):
         self.client.login(username='user', password='pass')
         resp = self.client.get(path=reverse(
             'api:chauser-list',

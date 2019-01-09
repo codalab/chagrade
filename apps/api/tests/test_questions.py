@@ -43,7 +43,7 @@ class QuestionGETMethodTests(TestCase):
             answer='Test Answer'
         )
 
-    def test_anonymous_permissions(self):
+    def test_anonymous_user_cannot_get_questions(self):
         resp = self.client.get(path=reverse(
             'api:question-list',
             kwargs={'version': 'v1'})
@@ -56,7 +56,7 @@ class QuestionGETMethodTests(TestCase):
         )
         assert resp.status_code == 401
 
-    def test_authenticated_permissions(self):
+    def test_authenticated_user_can_get_questions(self):
         self.client.login(username='student_user', password='pass')
         resp = self.client.get(path=reverse(
             'api:question-list',
@@ -68,7 +68,7 @@ class QuestionGETMethodTests(TestCase):
             kwargs={'version': 'v1', 'pk': self.question.pk}))
         assert resp.json()['question'] == 'Test Question'
 
-    def test_instructor_permissions(self):
+    def test_instructor_user_can_get_questions(self):
         self.client.login(username='user', password='pass')
         resp = self.client.get(path=reverse(
             'api:question-list',

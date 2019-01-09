@@ -43,7 +43,7 @@ class CriteriaGETMethodTests(TestCase):
             upper_range=10
         )
 
-    def test_anonymous_permissions(self):
+    def test_anonymous_user_cannot_get_criterias(self):
         resp = self.client.get(path=reverse(
             'api:criteria-list',
             kwargs={'version': 'v1'}))
@@ -54,7 +54,7 @@ class CriteriaGETMethodTests(TestCase):
             kwargs={'version': 'v1', 'pk': self.criteria.pk}))
         assert resp.status_code == 401
 
-    def test_authenticated_permissions(self):
+    def test_student_user_can_get_criterias(self):
         self.client.login(username='student_user', password='pass')
 
         resp = self.client.get(path=reverse(
@@ -67,7 +67,7 @@ class CriteriaGETMethodTests(TestCase):
             kwargs={'version': 'v1', 'pk': self.criteria.pk}))
         assert resp.json()['description'] == 'Test Criteria'
 
-    def test_get_method_on_list_of_criteria_and_specific_criteria(self):
+    def test_instructor_user_can_get_criterias(self):
         self.client.login(username='user', password='pass')
 
         resp = self.client.get(path=reverse(
