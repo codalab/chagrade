@@ -57,64 +57,64 @@
 #
 #         self.client.logout()
 #
-#         resp = self.client.get(path='/api/v1/users/')
+#         resp = self.client.get('/api/v1/users/')
 #         assert resp.status_code == 401
 #
-#         resp = self.client.post(path='/api/v1/users/', data={'username': 'new_user'})
+#         resp = self.client.post('/api/v1/users/', data={'username': 'new_user'})
 #         assert resp.status_code == 401
 #
-#         resp = self.client.put(path='/api/v1/users/{}/'.format(self.main_user.pk), data={'username': 'new_user'},
+#         resp = self.client.put('/api/v1/users/{}/'.format(self.main_user.pk), data={'username': 'new_user'},
 #                                content_type='application/json')
 #         assert resp.status_code == 401
 #
-#         resp = self.client.delete(path='/api/v1/users/{}/'.format(self.main_user.pk))
+#         resp = self.client.delete('/api/v1/users/{}/'.format(self.main_user.pk))
 #         assert resp.status_code == 401
 #
 #     def test_user_permissions_as_authenticated_user(self):
 #         # self.client.login(username='user', password='pass')
 #         self.client.login(username='student_user', password='pass')
 #
-#         resp = self.client.get(path='/api/v1/users/')
+#         resp = self.client.get('/api/v1/users/')
 #         assert resp.status_code == 200
 #
-#         resp = self.client.post(path='/api/v1/users/', data={'username': 'new_user'})
+#         resp = self.client.post('/api/v1/users/', data={'username': 'new_user'})
 #         assert resp.status_code == 405
 #
-#         resp = self.client.put(path='/api/v1/users/{}/'.format(self.main_user.pk), data={'username': 'new_user'})
+#         resp = self.client.put('/api/v1/users/{}/'.format(self.main_user.pk), data={'username': 'new_user'})
 #         assert resp.status_code == 405
 #
-#         resp = self.client.delete(path='/api/v1/users/{}/'.format(self.main_user.pk))
+#         resp = self.client.delete('/api/v1/users/{}/'.format(self.main_user.pk))
 #         assert resp.status_code == 405
 #
 #     def test_student_permissions_as_anonymous_user(self):
 #         self.client.logout()
 #
-#         resp = self.client.get(path='/api/v1/students/')
+#         resp = self.client.get('/api/v1/students/')
 #         assert resp.status_code == 401
 #
-#         resp = self.client.post(path='/api/v1/students/', data={'username': 'new_user'})
+#         resp = self.client.post('/api/v1/students/', data={'username': 'new_user'})
 #         assert resp.status_code == 401
 #
-#         resp = self.client.put(path='/api/v1/students/{}/'.format(self.student.pk), data={'student_id': 'student_23'},
+#         resp = self.client.put('/api/v1/students/{}/'.format(self.student.pk), data={'student_id': 'student_23'},
 #                                content_type='application/json')
 #         assert resp.status_code == 401
 #
-#         resp = self.client.delete(path='/api/v1/students/{}/'.format(self.main_user.pk))
+#         resp = self.client.delete('/api/v1/students/{}/'.format(self.main_user.pk))
 #         assert resp.status_code == 401
 #
 #     def test_student_permissions_as_authenticated_user(self):
 #         self.client.login(username='student_user', password='pass')
 #
-#         resp = self.client.get(path='/api/v1/students/')
+#         resp = self.client.get('/api/v1/students/')
 #         assert resp.status_code == 200
 #
-#         resp = self.client.post(path='/api/v1/create_student/',
+#         resp = self.client.post('/api/v1/create_student/',
 #                                 data={'email': self.student_user.email, 'student_id': 'student_23', 'klass': self.klass.pk})
 #         assert resp.status_code == 404
 #
 #         # TODO: RE-VISIT PUT ON STUDENT (Fields on serializer are making it difficult)
 #
-#         resp = self.client.get(path='/api/v1/students/{}/'.format(self.student.pk))
+#         resp = self.client.get('/api/v1/students/{}/'.format(self.student.pk))
 #         assert resp.status_code == 200
 #
 #         temp_data = resp.json()
@@ -124,156 +124,156 @@
 #         print(temp_data)
 #         print("!!!!!!!")
 #
-#         resp = self.client.put(path='/api/v1/students/{}/'.format(self.student.pk), data=temp_data,
+#         resp = self.client.put('/api/v1/students/{}/'.format(self.student.pk), data=temp_data,
 #                                content_type='application/json')
 #         assert resp.status_code == 400
 #
-#         resp = self.client.delete(path='/api/v1/students/{}/'.format(self.student.pk))
+#         resp = self.client.delete('/api/v1/students/{}/'.format(self.student.pk))
 #         assert resp.status_code == 204
 #
 #     def test_klass_permissions_as_anonymous_user(self):
 #         self.client.logout()
 #
-#         resp = self.client.get(path='/api/v1/klasses/')
+#         resp = self.client.get('/api/v1/klasses/')
 #         assert resp.status_code == 401
 #
-#         resp = self.client.post(path='/api/v1/klasses/', data={'title': 'Test', 'instructor': self.instructor.pk})
+#         resp = self.client.post('/api/v1/klasses/', data={'title': 'Test', 'instructor': self.instructor.pk})
 #         assert resp.status_code == 401
 #
-#         resp = self.client.put(path='/api/v1/klasses/{}/'.format(self.klass.pk),
+#         resp = self.client.put('/api/v1/klasses/{}/'.format(self.klass.pk),
 #                                data={'title': 'A Different Name'},
 #                                content_type='application/json')
 #         assert resp.status_code == 401
 #
-#         resp = self.client.delete(path='/api/v1/klasses/{}/'.format(self.klass.pk))
+#         resp = self.client.delete('/api/v1/klasses/{}/'.format(self.klass.pk))
 #         assert resp.status_code == 401
 #
 #     def test_klass_permissions_as_klass_creator(self):
 #         self.client.login(username='user', password='pass')
 #
-#         resp = self.client.get(path='/api/v1/klasses/')
+#         resp = self.client.get('/api/v1/klasses/')
 #         assert resp.status_code == 200
 #
-#         resp = self.client.post(path='/api/v1/klasses/', data={'title': 'Test', 'instructor': self.instructor.pk, 'course_number': 2})
+#         resp = self.client.post('/api/v1/klasses/', data={'title': 'Test', 'instructor': self.instructor.pk, 'course_number': 2})
 #         assert resp.status_code == 201
 #
-#         resp = self.client.put(path='/api/v1/klasses/{}/'.format(self.klass.pk),
+#         resp = self.client.put('/api/v1/klasses/{}/'.format(self.klass.pk),
 #                                data={'title': 'A Different Name', 'instructor': self.instructor.pk, 'course_number': 1 },
 #                                content_type='application/json')
 #         assert resp.status_code == 200
 #
-#         resp = self.client.delete(path='/api/v1/klasses/{}/'.format(self.klass.pk))
+#         resp = self.client.delete('/api/v1/klasses/{}/'.format(self.klass.pk))
 #         assert resp.status_code == 204
 #
 #     def test_klass_permissions_as_klass_student(self):
 #         self.client.login(username='student_user', password='pass')
 #
-#         resp = self.client.get(path='/api/v1/klasses/')
+#         resp = self.client.get('/api/v1/klasses/')
 #         assert resp.status_code == 200
 #
-#         resp = self.client.post(path='/api/v1/klasses/', data={'title': 'Test', 'instructor': self.instructor.pk, 'course_number': 2})
+#         resp = self.client.post('/api/v1/klasses/', data={'title': 'Test', 'instructor': self.instructor.pk, 'course_number': 2})
 #         # TODO: Block this
 #         # assert resp.status_code == 401
 #
-#         resp = self.client.put(path='/api/v1/klasses/{}/'.format(self.klass.pk),
+#         resp = self.client.put('/api/v1/klasses/{}/'.format(self.klass.pk),
 #                                data={'title': 'A Different Name', 'instructor': self.instructor.pk, 'course_number': 1 },
 #                                content_type='application/json')
 #         assert resp.status_code == 403
 #
-#         resp = self.client.delete(path='/api/v1/klasses/{}/'.format(self.klass.pk))
+#         resp = self.client.delete('/api/v1/klasses/{}/'.format(self.klass.pk))
 #         assert resp.status_code == 403
 #
 #     def test_definition_permissions_as_anonymous_user(self):
 #         self.client.logout()
 #
-#         resp = self.client.get(path='/api/v1/definitions/')
+#         resp = self.client.get('/api/v1/definitions/')
 #         assert resp.status_code == 401
 #
-#         resp = self.client.post(path='/api/v1/definitions/', data={'klass': self.klass.pk,
+#         resp = self.client.post('/api/v1/definitions/', data={'klass': self.klass.pk,
 #                                                                    'creator': self.instructor.pk,
 #                                                                    'due_date': timezone.now(),
 #                                                                    'name': 'test',
 #                                                                    'description': 'test'})
 #         assert resp.status_code == 401
 #
-#         resp = self.client.put(path='/api/v1/definitions/{}/'.format(1),
+#         resp = self.client.put('/api/v1/definitions/{}/'.format(1),
 #                                data={'name': 'A Different Name'},
 #                                content_type='application/json')
 #         assert resp.status_code == 401
 #
-#         resp = self.client.delete(path='/api/v1/definitions/{}/'.format(1))
+#         resp = self.client.delete('/api/v1/definitions/{}/'.format(1))
 #         assert resp.status_code == 401
 #
 #     def test_definition_permissions_as_klass_creator(self):
 #         """Tests that we can retrieve a list of users"""
 #         self.client.login(username='user', password='pass')
 #
-#         resp = self.client.get(path='/api/v1/definitions/')
+#         resp = self.client.get('/api/v1/definitions/')
 #         assert resp.status_code == 200
 #
-#         resp = self.client.post(path='/api/v1/definitions/', data={'klass': self.klass.pk,
+#         resp = self.client.post('/api/v1/definitions/', data={'klass': self.klass.pk,
 #                                                                    'creator': self.instructor.pk,
 #                                                                    'due_date': timezone.now(),
 #                                                                    'name': 'test',
 #                                                                    'description': 'test'})
 #         assert resp.status_code == 201
 #
-#         resp = self.client.put(path='/api/v1/definitions/{}/'.format(1),
+#         resp = self.client.put('/api/v1/definitions/{}/'.format(1),
 #                                data={'name': 'A Different Name', 'klass': self.klass.pk, 'creator': self.instructor.pk},
 #                                content_type='application/json')
 #         assert resp.status_code == 200
 #
-#         resp = self.client.delete(path='/api/v1/definitions/{}/'.format(1))
+#         resp = self.client.delete('/api/v1/definitions/{}/'.format(1))
 #         assert resp.status_code == 204
 #
 #     def test_definition_permissions_as_klass_student(self):
 #         """Tests that we can retrieve a list of users"""
 #         self.client.login(username='student_user', password='pass')
 #
-#         resp = self.client.get(path='/api/v1/definitions/')
+#         resp = self.client.get('/api/v1/definitions/')
 #         assert resp.status_code == 200
 #
-#         resp = self.client.post(path='/api/v1/definitions/', data={'klass': self.klass.pk,
+#         resp = self.client.post('/api/v1/definitions/', data={'klass': self.klass.pk,
 #                                                                    'creator': self.instructor.pk,
 #                                                                    'due_date': timezone.now(),
 #                                                                    'name': 'test',
 #                                                                    'description': 'test'})
 #         assert resp.status_code == 201
 #
-#         resp = self.client.put(path='/api/v1/definitions/{}/'.format(1),
+#         resp = self.client.put('/api/v1/definitions/{}/'.format(1),
 #                                data={'name': 'A Different Name', 'klass': self.klass.pk, 'creator': self.instructor.pk},
 #                                content_type='application/json')
 #         assert resp.status_code == 403
 #
-#         resp = self.client.delete(path='/api/v1/definitions/{}/'.format(1))
+#         resp = self.client.delete('/api/v1/definitions/{}/'.format(1))
 #         assert resp.status_code == 403
 #
 #     def test_criteria_permissions_as_anonymous_user(self):
 #         """Tests that we can retrieve a list of users"""
 #         self.client.logout()
 #
-#         resp = self.client.get(path='/api/v1/criterias/')
+#         resp = self.client.get('/api/v1/criterias/')
 #         assert resp.status_code == 401
 #
-#         resp = self.client.post(path='/api/v1/criterias/', data={'description': 'test',
+#         resp = self.client.post('/api/v1/criterias/', data={'description': 'test',
 #                                                                  'lower_range': 0,
 #                                                                  'upper_range': 10})
 #         assert resp.status_code == 401
 #
-#         resp = self.client.put(path='/api/v1/criterias/{}/'.format(1),
+#         resp = self.client.put('/api/v1/criterias/{}/'.format(1),
 #                                data={'description': 'test',
 #                                      'lower_range': 0,
 #                                      'upper_range': 10},
 #                                content_type='application/json')
 #         assert resp.status_code == 401
 #
-#         resp = self.client.delete(path='/api/v1/criterias/{}/'.format(1))
+#         resp = self.client.delete('/api/v1/criterias/{}/'.format(1))
 #         assert resp.status_code == 401
 #
 #     def test_criteria_permissions_as_authenticated_user(self):
 #         self.client.login(username='user', password='pass')
-#         resp = self.client.get(path='/api/v1/criterias/')
+#         resp = self.client.get('/api/v1/criterias/')
 #         assert resp.status_code == 401
 #
-#         resp = self.client.delete(path='/api/v1/criterias/{}/'.format(1))
+#         resp = self.client.delete('/api/v1/criterias/{}/'.format(1))
 #         assert resp.status_code == 401

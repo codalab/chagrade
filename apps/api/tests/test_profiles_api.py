@@ -21,7 +21,7 @@
 #         """Tests that we can retrieve a list of users"""
 #         self.client.login(username='user', password='pass')
 #
-#         resp = self.client.get(path='/api/v1/users/')
+#         resp = self.client.get('/api/v1/users/')
 #         assert resp.status_code == 200
 #         data = resp.json()
 #         assert data[-1]['username'] == 'user'
@@ -31,7 +31,7 @@
 #         """Tests that we can retrieve our user from the API by PK"""
 #         self.client.login(username='user', password='pass')
 #
-#         resp = self.client.get(path='/api/v1/users/{}/'.format(self.user.pk))
+#         resp = self.client.get('/api/v1/users/{}/'.format(self.user.pk))
 #         assert resp.status_code == 200
 #         data = resp.json()
 #         assert data['username'] == 'user'
@@ -41,7 +41,7 @@
 #     #     """Tests that we can post the data for a new user to this API endpoint and it will create one"""
 #     #     self.client.login(username='user', password='pass')
 #     #
-#     #     resp = self.client.post(path='/api/v1/users/', data={
+#     #     resp = self.client.post('/api/v1/users/', data={
 #     #         'username': 'test-user',
 #     #         # 'email': 'test-email'
 #     #         'first_name': 'test',
@@ -54,7 +54,7 @@
 #     #     """Tests that we can update a user by put'ing data to this endpoint (For the specified ID)"""
 #     #     self.client.login(username='user', password='pass')
 #     #
-#     #     resp = self.client.put(path='/api/v1/users/{}/'.format(self.user.pk), data={
+#     #     resp = self.client.put('/api/v1/users/{}/'.format(self.user.pk), data={
 #     #         'username': 'test-user',
 #     #         'first_name': 'test',
 #     #         'last_name': 'test',
@@ -72,8 +72,8 @@
 #     #     self.client.login(username='user', password='pass')
 #     #
 #     #     # This view takes a form to update a Klass object. Fields for the object must be on the form
-#     #     # resp = self.client.put(path='/api/v1/users/{}/'.format(self.user.pk), data={
-#     #     resp = self.client.delete(path='/api/v1/users/{}/'.format(self.user.pk))
+#     #     # resp = self.client.put('/api/v1/users/{}/'.format(self.user.pk), data={
+#     #     resp = self.client.delete('/api/v1/users/{}/'.format(self.user.pk))
 #     #     print(resp.status_code)
 #     #     import pdb; pdb.set_trace()
 #     #     assert 0
