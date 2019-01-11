@@ -18,19 +18,20 @@ class TeamsAPIEndpointsTests(TestCase):
         self.klass = Klass.objects.create(instructor=self.instructor, course_number="1")
         self.student = StudentMembership.objects.create(user=self.student_user, klass=self.klass, student_id='test_id')
 
-    def test_anonymous_user_cannot_perform_crud_methods(self):
+    def test_anonymous_user_cannot_perform_crud_teams(self):
 
         resp = self.client.get(reverse('api:team-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 401
 
-        resp = self.client.post(reverse('api:team-list', kwargs={'version': 'v1'}),
-                                data={
-                                    "klass": '',
-                                    "name": "",
-                                    "description": "",
-                                    "members": ''
-                                }
-                                )
+        resp = self.client.post(
+            reverse('api:team-list', kwargs={'version': 'v1'}),
+            data={
+                "klass": '',
+                "name": "",
+                "description": "",
+                "members": ''
+            }
+        )
         assert resp.status_code == 401
 
         resp = self.client.put(
@@ -48,7 +49,7 @@ class TeamsAPIEndpointsTests(TestCase):
         resp = self.client.delete(reverse('api:team-detail', kwargs={'version': 'v1', 'pk': 1}))
         assert resp.status_code == 401
 
-    def test_authenticated_user_can_only_get_and_post(self):
+    def test_student_user_can_only_get_and_post_teams(self):
         self.client.login(username='student_user', password='pass')
         resp = self.client.get(reverse('api:team-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 200
@@ -82,7 +83,7 @@ class TeamsAPIEndpointsTests(TestCase):
         assert resp.json()['detail'] == "You are not allowed to use this resource."
         assert resp.status_code == 403
 
-    def test_instructor_user_can_only_get_and_post(self):
+    def test_instructor_user_can_only_get_and_post_teams(self):
         self.client.login(username='user', password='pass')
         resp = self.client.get(reverse('api:team-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 200
@@ -109,7 +110,6 @@ class TeamsAPIEndpointsTests(TestCase):
             }),
             content_type='application/json'
         )
-
         assert resp.json()['detail'] == 'You are not allowed to use this resource.'
         assert resp.status_code == 403
 

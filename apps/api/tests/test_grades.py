@@ -44,7 +44,7 @@ class GradesAPIEndpointsTests(TestCase):
         resp = self.client.delete(reverse('api:grade-detail', kwargs={'version': 'v1', 'pk': self.grade.pk}))
         assert resp.status_code == 401
 
-    def test_authenticated_user_can_get_and_post_grades(self):
+    def test_student_user_can_get_and_post_grades(self):
         self.client.login(username='student_user', password='pass')
 
         resp = self.client.get(reverse('api:grade-list', kwargs={'version': 'v1'}))
@@ -73,7 +73,7 @@ class GradesAPIEndpointsTests(TestCase):
         resp = self.client.delete(reverse('api:grade-detail', kwargs={'version': 'v1', 'pk': new_grade_pk}))
         assert resp.status_code == 403
 
-    def test_instructor_user_can_perform_crud_methods(self):
+    def test_instructor_user_can_perform_crud_on_grades(self):
         self.client.login(username='user', password='pass')
         resp = self.client.get(reverse('api:grade-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 200

@@ -40,7 +40,7 @@ class KlassesAPIEndpointTests(TestCase):
         resp = self.client.delete(reverse('api:klass-detail', kwargs={'version': 'v1', 'pk': self.klass.pk}))
         assert resp.status_code == 401
 
-    def test_authenticated_user_can_get_and_post_klasses(self): # Currently not working as intended
+    def test_student_user_can_get_and_post_klasses(self): # Currently not working as intended
         self.client.login(username='student_user', password='pass')
         resp = self.client.get(reverse('api:klass-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 200

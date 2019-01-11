@@ -30,7 +30,7 @@ class StudentsGETMethodTests(TestCase):
         resp = self.client.get(reverse('api:studentmembership-detail', kwargs={'version': 'v1', 'pk': self.student.pk}))
         assert resp.status_code == 401
 
-    def test_authorized_user_can_get_students(self):
+    def test_student_user_can_get_students(self):
         self.client.login(username='student_user', password='pass')
         resp = self.client.get(reverse('api:studentmembership-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 200

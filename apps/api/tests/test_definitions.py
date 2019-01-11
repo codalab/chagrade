@@ -44,7 +44,7 @@ class DefinitionAPIEndpointsTests(TestCase):
         resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': 1}))
         assert resp.status_code == 401
 
-    def test_authenticated_user_can_only_post_and_get_definitions(self):
+    def test_student_user_can_only_post_and_get_definitions(self):
         self.client.login(username='student_user', password='pass')
         resp = self.client.get(reverse('api:definition-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 200

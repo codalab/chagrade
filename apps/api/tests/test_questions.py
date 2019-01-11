@@ -39,7 +39,7 @@ class QuestionGETMethodTests(TestCase):
         resp = self.client.get(reverse('api:question-detail', kwargs={'version': 'v1', 'pk': self.question.pk}))
         assert resp.status_code == 401
 
-    def test_authenticated_user_can_get_questions(self):
+    def test_student_user_can_get_questions(self):
         self.client.login(username='student_user', password='pass')
         resp = self.client.get(reverse('api:question-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 200
