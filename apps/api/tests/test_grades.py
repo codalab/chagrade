@@ -61,7 +61,8 @@ class GradesAPIEndpointsTests(TestCase):
             }
         )
         assert resp.json()['instructor_notes'] == 'testnotes'
-        assert resp.status_code == 201
+        # TODO: Students should not be able to post grades
+        assert resp.status_code == 403
 
         new_grade_pk = resp.json()['id']
         resp = self.client.put(

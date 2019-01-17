@@ -64,7 +64,8 @@ class TeamsAPIEndpointsTests(TestCase):
             content_type='application/json'
         )
         assert resp.json()['name'] == 'testteam'
-        assert resp.status_code == 201
+        # TODO: student should not be able to post teams
+        assert resp.status_code == 401
 
         new_team_pk = resp.json()['id']
 
@@ -110,9 +111,11 @@ class TeamsAPIEndpointsTests(TestCase):
             }),
             content_type='application/json'
         )
+        # TODO: Make the delete method succeed for instructors
         assert resp.json()['detail'] == 'You are not allowed to use this resource.'
-        assert resp.status_code == 403
+        assert resp.status_code == 200
 
         resp = self.client.delete(reverse('api:team-detail', kwargs={'version': 'v1', 'pk': new_team_pk}))
-        assert resp.status_code == 403
+        # TODO: Make the delete method succeed for instructors
+        assert resp.status_code == 204
 

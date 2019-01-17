@@ -91,7 +91,7 @@ class SubmissionAPIEndpointsTests(TestCase):
             responses.POST,
             url='http://example.com/api/competition/1/submission/sas',
             body=json.dumps({
-                'id': '1',
+                'id': 'competition/15595/submission/44798/4aba772a-a6c1-4e6f-a82b-fb9d23193cb6.zip',
                 'url': 'https://github.com/Tthomas63/chagrade_test_submission'
             }),
             status=201
@@ -131,10 +131,6 @@ class SubmissionAPIEndpointsTests(TestCase):
                 "creator": self.student.pk,
                 "submission_github_url": "https://github.com/Tthomas63/chagrade_test_submission",
                 "method_name": "student method",
-                "method_description": "",
-                "project_url": "",
-                "publication_url": "",
-                "question_answers": 'http://www.example3.com/anotherexample/1'
             }
         )
 
@@ -178,7 +174,7 @@ class SubmissionAPIEndpointsTests(TestCase):
             responses.POST,
             url='http://example.com/api/competition/1/submission/sas',
             body=json.dumps({
-                'id': 'https://github.com/Tthomas63/chagrade_test_submission',
+                'id': 'competition/15595/submission/44798/4aba772a-a6c1-4e6f-a82b-fb9d23193cb6.zip',
                 'url': 'https://github.com/Tthomas63/chagrade_test_submission'
             }),
             status=201
@@ -220,10 +216,6 @@ class SubmissionAPIEndpointsTests(TestCase):
                 "creator": self.student.pk,
                 "submission_github_url": "https://github.com/Tthomas63/chagrade_test_submission",
                 "method_name": "instructor method",
-                "method_description": "",
-                "project_url": "",
-                "publication_url": "",
-                "question_answers": ''
             }
         )
         sub_id = resp.json()['id']
@@ -232,7 +224,7 @@ class SubmissionAPIEndpointsTests(TestCase):
 
         responses.add(
             responses.PUT,
-            url='http://0.0.0.0/api/v1/submissions/2/',
+            url='http://0.0.0.0/api/v1/submissions/{}/'.format(sub_id),
             status=200,
             body=json.dumps([{}])
         )

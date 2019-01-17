@@ -23,24 +23,52 @@ class CriteriaGETMethodTests(TestCase):
             klass=self.klass,
             creator=self.instructor,
             due_date=timezone.now(),
-            name='test',
+            name='setup',
             description='test'
         )
         self.criteria = Criteria.objects.create(
             definition=self.definition,
             description='Test Criteria',
             lower_range=0,
-            upper_range=10
+            upper_range=10,
         )
 
     def test_anonymous_user_cannot_get_criterias(self):
         resp = self.client.get(reverse('api:criteria-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 401
 
-        resp = self.client.get(reverse('api:criteria-detail', kwargs={'version': 'v1', 'pk': self.criteria.pk}))
+        resp = self.client.get(reverse('api:criteria-detail', kwargs={'version': 'v1', 'pk': 1}))
         assert resp.status_code == 401
 
-    def test_student_user_can_get_criterias(self):
+        resp = self.client.post(
+            reverse('api:definition-list', kwargs={'version': 'v1'}),
+            data={
+                'klass': self.klass.pk,
+                'creator': self.instructor.pk,
+                'due_date': timezone.now(),
+                'name': "test",
+                'challenge_url': "http://www.test.com/",
+                'starting_kit_github_url': "",
+                'criterias': [{
+                    "description": "string",
+                    "lower_range": 0,
+                    "upper_range": 10
+                }]
+            })
+        crit_pk = self.definition.id + 1
+        assert resp.status_code == 401
+
+        resp = self.client.put(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': crit_pk}),
+                               data={'klass': self.klass.pk,
+                                     'creator': self.instructor.pk,
+                                     'name': 'newtestname1'},
+                               content_type='application/json')
+        assert resp.status_code == 401
+
+        resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': crit_pk}))
+        assert resp.status_code == 401
+
+    def test_student_user_can_only_get_criterias(self):
         self.client.login(username='student_user', password='pass')
 
         resp = self.client.get(reverse('api:criteria-list', kwargs={'version': 'v1'}))
@@ -49,7 +77,35 @@ class CriteriaGETMethodTests(TestCase):
         resp = self.client.get(reverse('api:criteria-detail', kwargs={'version': 'v1', 'pk': self.criteria.pk}))
         assert resp.json()['description'] == 'Test Criteria'
 
-    def test_instructor_user_can_get_criterias(self):
+        resp = self.client.post(
+            reverse('api:definition-list', kwargs={'version': 'v1'}),
+            data={
+                'klass': self.klass.pk,
+                'creator': self.instructor.pk,
+                'due_date': timezone.now(),
+                'name': "test1",
+                'challenge_url': "http://www.test.com/",
+                'starting_kit_github_url': "",
+                'criterias': [{
+                    "description": "string",
+                    "lower_range": 0,
+                    "upper_range": 10
+                }]
+            })
+        crit_pk = resp.json()['id']
+        # TODO: Block this from being able to post
+        assert resp.status_code == 403
+
+        resp = self.client.put(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': crit_pk}),
+                               data={'klass': self.klass.pk,
+                                     'creator': self.instructor.pk,
+                                     'name': 'newtestname'})
+        assert resp.status_code == 403
+
+        resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': crit_pk}))
+        assert resp.status_code == 403
+
+    def test_instructor_user_can_only_get_criterias(self):
         self.client.login(username='user', password='pass')
 
         resp = self.client.get(reverse('api:criteria-list', kwargs={'version': 'v1'}))
@@ -57,3 +113,31 @@ class CriteriaGETMethodTests(TestCase):
 
         resp = self.client.get(reverse('api:criteria-detail', kwargs={'version': 'v1', 'pk': self.criteria.pk}))
         assert resp.json()['description'] == 'Test Criteria'
+
+        resp = self.client.post(
+            reverse('api:definition-list', kwargs={'version': 'v1'}),
+            data={
+                'klass': self.klass.pk,
+                'creator': self.instructor.pk,
+                'due_date': timezone.now(),
+                'name': "test",
+                'challenge_url': "http://www.test.com/",
+                'starting_kit_github_url': "",
+                'criterias': [{
+                    "description": "string",
+                    "lower_range": 0,
+                    "upper_range": 10
+                }]
+            })
+        crit_pk = resp.json()['id']
+        assert resp.status_code == 201
+
+        resp = self.client.put(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': crit_pk}),
+                               data={'klass': self.klass.pk,
+                                     'creator': self.instructor.pk,
+                                     'name': 'newtestname1'},
+                               content_type='application/json')
+        assert resp.status_code == 200
+
+        resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': crit_pk}))
+        assert resp.status_code == 204
