@@ -21,7 +21,6 @@ def post_submission(submission_pk):
     path = parsed_uri.path
     challenge_pk = path.split('/')[-1]
     site_url = "{0}://{1}".format(scheme, domain)
-    # login_url = '{0}://{1}/accounts/login/'.format(scheme, domain)
     submission_url = '{0}/api/competition/{1}/submission/sas'.format(site_url, challenge_pk)
     # Post our request to the submission SAS API endpoint
     print("Getting submission SAS info")
@@ -31,9 +30,7 @@ def post_submission(submission_pk):
             os.environ.get('CODALAB_SUBMISSION_PASSWORD')
         )
     )
-    print(resp)
     print(resp.status_code)
-    print(resp.content)
     # competition/15595/submission/44798/4aba772a-a6c1-4e6f-a82b-fb9d23193cb6.zip
     submission_data = resp.json()['id']
     submission_data_split = submission_data.split('/')
@@ -50,9 +47,7 @@ def post_submission(submission_pk):
         for chunk in repo_resp.iter_content(chunk_size=1024):
             if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
-        print(f.tell())
         temp_size = str(f.tell())
-        print(f.read())
         f.seek(0)
         storage_resp = requests.put(
             url=s3_file_url,
@@ -66,10 +61,7 @@ def post_submission(submission_pk):
                 # "Content-Encoding": "gzip",
             }
         )
-
-    print(storage_resp)
     print(storage_resp.status_code)
-    print(storage_resp.text)
     # https://competitions.codalab.org/api/competition/20616/phases/
     phases_request_url = "{0}/api/competition/{1}/phases/".format(site_url, challenge_pk)
     print("Getting phase info for competition")
@@ -78,7 +70,6 @@ def post_submission(submission_pk):
         os.environ.get('CODALAB_SUBMISSION_PASSWORD')
     ))
     phases_dict = phases_request.json()[0]['phases']
-    print(phases_dict)
     for i in range(len(phases_dict)):
         phase_id = phases_dict[i]['id']
         sub_descr = "Chagrade_Submission_{0}".format(submission.id)
@@ -94,10 +85,6 @@ def post_submission(submission_pk):
             os.environ.get('CODALAB_SUBMISSION_USERNAME'),
             os.environ.get('CODALAB_SUBMISSION_PASSWORD')
         ))
-        print(phase_final_resp)
-        print(phase_final_resp.status_code)
-        # print(phase_final_resp.text)
-        print(phase_final_resp.json())
         # If we succeed in posting to the phase, create a new tracker and store the submission info
         if phase_final_resp.status_code == 201:
             result = phase_final_resp.json()
@@ -107,5 +94,5 @@ def post_submission(submission_pk):
                 remote_id=result['id']
             )
         else:
-            print("SOMETHING FAILED")
+            print("Something went wrong making a submission to the challenge_url")
     submission.submitted_to_challenge = True

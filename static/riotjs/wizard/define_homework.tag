@@ -154,11 +154,7 @@
         self.definition = {}
 
         self.one('mount', function () {
-            //self.update_submission()
-            //self.update_definition(self.submission.definition)
             if (window.DEFINITION != undefined) {
-                console.log(window.DEFINITION)
-                console.log("Updating definition")
                self.update_definition()
             }
 
@@ -204,16 +200,6 @@
             self.update()
         }
 
-        /*self.update_questions = function () {
-            CHAGRADE.api.get_definition(DEFINITION)
-                .done(function (data) {
-                    self.update({questions: data.custom_questions})
-                })
-                .fail(function (error) {
-                    toastr.error("Error fetching definition: " + error.statusText)
-                })
-        }*/
-
         self.update_definition = function() {
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
@@ -234,7 +220,6 @@
                 CHAGRADE.api.delete_question(pk)
                 .done(function (data) {
                     toastr.success("Successfully deleted question")
-                    //self.update_questions()
                 })
                 .fail(function (response) {
                     if (response) {
@@ -305,8 +290,6 @@
 
             for (var index = 0; index < self.criterias.length; index++) {
                 var temp_data = {
-                    //'criteria': parseInt(self.refs['criteria_answer_def_' + index].value),
-                    //'score': self.refs['criteria_answer_' + index].value,
                     'description': self.refs['criteria' + '_description_' + index].value,
                     'lower_range': self.refs['criteria' + '_lower_range_' + index].value,
                     'upper_range': self.refs['criteria' + '_upper_range_' + index].value,
@@ -319,8 +302,6 @@
 
             for (var index = 0; index < self.questions.length; index++) {
                 var temp_data = {
-                    //'criteria': parseInt(self.refs['criteria_answer_def_' + index].value),
-                    //'score': self.refs['criteria_answer_' + index].value,
                     'question': self.refs['question' + '_question_' + index].value,
                     'answer': self.refs['question' + '_answer_' + index].value,
                     'has_specific_answer': self.refs['question' + '_has_specific_answer_' + index].value,
@@ -330,10 +311,6 @@
                 }
                 obj_data['custom_questions'].push(temp_data)
             }
-
-            console.log("@@@@@@@@@")
-            console.log(self.refs.due_date.value,)
-            console.log(obj_data)
 
             if (window.DEFINITION != undefined) {
                 var endpoint = CHAGRADE.api.update_definition(DEFINITION, obj_data)

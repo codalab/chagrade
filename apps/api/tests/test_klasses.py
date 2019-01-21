@@ -14,6 +14,7 @@ class KlassesAPIEndpointTests(TestCase):
         self.main_user = User.objects.create_user(username='user', password='pass')
         self.instructor = Instructor.objects.create(university_name='Test')
         self.main_user.instructor = self.instructor
+        self.main_user.save()
         self.student_user = User.objects.create_user(username='student_user', password='pass')
         self.klass = Klass.objects.create(instructor=self.instructor, course_number="1")
         self.student = StudentMembership.objects.create(user=self.student_user, klass=self.klass, student_id='test_id')
@@ -53,8 +54,7 @@ class KlassesAPIEndpointTests(TestCase):
                 'course_number': self.klass.pk
             }
         )
-        # TODO: Block this
-        assert resp.status_code == 201
+        assert resp.status_code == 403
 
         new_klass_pk = self.klass.pk + 1
         resp = self.client.put(
@@ -99,7 +99,7 @@ class KlassesAPIEndpointTests(TestCase):
             },
             content_type='application/json'
         )
-        assert resp.status_code == 403
+        assert resp.status_code == 200
 
         resp = self.client.delete(reverse('api:klass-detail', kwargs={'version': 'v1', 'pk': new_klass_pk}))
-        assert resp.status_code == 403
+        assert resp.status_code == 204

@@ -30,7 +30,6 @@
         <div each="{question, index in definition.custom_questions}" class="fields">
             <div class="sixteen wide field">
                 <input name="{'question_id_' + index}" ref="{'question_id_' + index}" type="hidden" value="{question.id}">
-                <!--<input name="{'question_answer_id_' + index}" ref="{'question_answer_id_' + index}" type="hidden" value="{question.answer_id}">-->
                 <label>{question.question}:</label>
                 <input data-question-id="" name="{'question_answer_' + index}" ref="{'question_answer_' + index}" type="text" value="{question.prev_answer || ''}">
             </div>
@@ -51,16 +50,6 @@
             'ask_method_name': false,
             'ask_method_description': false,
         }
-
-        /*self.remove_question_answer = function (index) {
-            self.question_answers.splice(index, 1)
-            self.update()
-        }
-
-        self.add_question_answer = function () {
-            self.question_answers[self.question_answers.length] = {}
-            self.update()
-        }*/
 
         self.one('mount', function () {
             self.update_definition()
@@ -92,23 +81,13 @@
                     }*/
                 ]
             }
-            // TODO: Make this ID based or something
-            /*for (var index = 0; index < self.definition.custom_questions.length; index++) {
-                data['question_answers'].push({'question': self.definition.custom_questions[index].id, 'text': self.refs['question_answer_' + index].value})
-                //Do something
-
-            }*/
 
             for (var index = 0; index < self.definition.custom_questions.length; index++) {
                 var temp_data = {
                     'question': self.refs['question_id_' + index].value,
                     'text': self.refs['question_answer_' + index].value
                 }
-                /*if (self.refs['question_answer_id_' + index].value !== ""){
-                    temp_data['id'] = self.refs['question_answer_id_' + index].value
-                }*/
                 data['question_answers'].push(temp_data)
-                //Do something
 
             }
 
@@ -125,12 +104,6 @@
         }
 
         self.update_question_answers = function() {
-            console.log("#######@#@@@@@@@@@@@@@@@@@@@@")
-            console.log(self.submission.question_answers.length)
-            console.log(self.definition.custom_questions.length)
-            //console.log(self.definition.criterias)
-
-
             var data = self.definition
 
             for (var index = 0; index < self.submission.question_answers.length; index++) {
@@ -143,9 +116,7 @@
                     }
                 }
             }
-            console.log(data)
             self.update({definition: data})
-            console.log(self.definition)
         }
 
         self.update_submission = function () {
@@ -154,9 +125,7 @@
                 .done(function (data) {
                     console.log("#########")
                     console.log(data)
-                    //self.update_definition(data.definition)
                     self.update({
-                        //questions: data.custom_questions,
                         submission: data
                     })
                     self.update_question_answers()
@@ -175,7 +144,6 @@
                 .done(function (data) {
                     console.log(data)
                     self.update({
-                        //questions: data.custom_questions,
                         definition: data
                     })
                     if (window.SUBMISSION !== undefined){

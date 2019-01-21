@@ -193,8 +193,6 @@
                 'message': self.refs.message.value
             }
 
-            console.log(data)
-
             CHAGRADE.api.message_klass_students(KLASS, data)
                 .done(function (data) {
                     toastr.success("Successfully sent email!")
@@ -217,7 +215,6 @@
 
         self.add_student = function (save_event) {
             save_event.preventDefault()
-            console.log("This was called")
 
             var data = $("#student_form").serializeObject()
             data['klass'] = KLASS

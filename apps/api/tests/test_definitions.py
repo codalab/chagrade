@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone
 
+from apps.homework.models import Definition
 from apps.klasses.models import Klass
 from apps.profiles.models import Instructor
 
@@ -15,8 +16,11 @@ class DefinitionAPIEndpointsTests(TestCase):
         self.main_user = User.objects.create_user(username='user', password='pass')
         self.instructor = Instructor.objects.create(university_name='Test')
         self.main_user.instructor = self.instructor
+        self.main_user.save()
         self.student_user = User.objects.create_user(username='student_user', password='pass')
         self.klass = Klass.objects.create(instructor=self.instructor, course_number="1")
+
+        self.definition = Definition.objects.create(klass=self.klass, creator=self.instructor, name='test_def_1', description='A simple test', due_date=timezone.now())
 
     def test_anonymous_user_cannot_perform_crud_methods_on_definitions(self):
         resp = self.client.get(reverse('api:definition-list', kwargs={'version': 'v1'}))
@@ -59,12 +63,12 @@ class DefinitionAPIEndpointsTests(TestCase):
                 'description': 'test'
             }
         )
-        posted_url = resp.json()['id']
-        assert resp.status_code == 201
-        assert resp.json()['name'] == 'test1'
+        # posted_url = resp.json()['id']
+        assert resp.status_code == 403
+        # assert resp.json()['name'] == 'test1'
 
         resp = self.client.put(
-            reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': posted_url}),
+            reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': self.definition.pk}),
             data={
                 'name': 'A Different Name',
                 'klass': self.klass.pk,
@@ -74,7 +78,7 @@ class DefinitionAPIEndpointsTests(TestCase):
         )
         assert resp.status_code == 403
 
-        resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': posted_url}))
+        resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': self.definition.pk}))
         assert resp.status_code == 403
 
     def test_instructor_user_can_get_and_post_on_definitions(self):
@@ -107,8 +111,8 @@ class DefinitionAPIEndpointsTests(TestCase):
             },
             content_type='application/json'
         )
-        assert resp.status_code == 403
+        assert resp.status_code == 200
 
         resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': d_pk}))
-        assert resp.status_code == 403
+        assert resp.status_code == 204
 

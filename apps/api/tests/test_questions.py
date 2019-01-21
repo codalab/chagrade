@@ -9,6 +9,8 @@ from apps.profiles.models import Instructor
 
 User = get_user_model()
 
+# TODO: Write POST/PUT/DELETE tests
+
 
 class QuestionGETMethodTests(TestCase):
 

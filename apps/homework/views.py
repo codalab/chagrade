@@ -2,20 +2,13 @@ import csv
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.http import Http404, HttpResponse
 
-# Create your views here.
-from django.urls import reverse_lazy
-from django.views import View
-from django.views.generic import DetailView, TemplateView
-from django.views.generic.edit import FormMixin, FormView, CreateView, UpdateView
+from django.views.generic import TemplateView
 
-from apps.homework.forms import DefinitionForm, GradeForm, SubmissionForm, DefinitionEditForm
-from apps.homework.models import Definition, Grade, Submission, Question, Criteria
+from apps.homework.models import Definition, Grade, Submission
 from apps.klasses.mixins import WizardMixin
 from apps.klasses.models import Klass
-from apps.profiles.models import Instructor
 
 
 class DefinitionFormView(LoginRequiredMixin, WizardMixin, TemplateView):

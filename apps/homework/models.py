@@ -165,8 +165,6 @@ class QuestionAnswer(models.Model):
     submission = models.ForeignKey('Submission', related_name='question_answers', on_delete=models.PROTECT)
     question = models.ForeignKey('Question', default=None, related_name='student_answers', on_delete=models.PROTECT)
 
-    # definition = models.ForeignKey('Definition', related_name='student_answers', on_delete=models.CASCADE)
-
     text = models.CharField(max_length=150, default='')
     is_correct = models.BooleanField(default=False)
 

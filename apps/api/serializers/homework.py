@@ -64,10 +64,7 @@ class CriteriaSerializer(ModelSerializer):
         ]
 
 
-# class DefinitionSerializer(ModelSerializer):
 class DefinitionSerializer(WritableNestedModelSerializer):
-    # instructor = InstructorSerializer()
-
     criterias = CriteriaSerializer(many=True, required=False)
     custom_questions = QuestionSerializer(many=True, required=False)
 

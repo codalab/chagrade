@@ -52,7 +52,6 @@ class OverView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(OverView, self).get_context_data(**kwargs)
-        print(kwargs)
         return context
 
 
@@ -61,8 +60,6 @@ class EnrollmentView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        print("!!!!!!!!!!!!!!!!")
-        print(kwargs)
         return context
 
 
@@ -74,6 +71,7 @@ class GradeHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/grade_homework.html'
 
 
+# TODO: Make this into an API point/call
 class ActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/activate_klass.html'
 
@@ -178,6 +176,7 @@ def get_klass_students_as_csv(request, klass_pk):
 #         }
 #         return JsonResponse(data, status=404)
 
+# TODO: Make this into an API point/view(?)
 class EmailKlassStudentsView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/activate_klass.html'
 

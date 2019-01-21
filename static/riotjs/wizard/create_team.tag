@@ -52,9 +52,6 @@
             for (var index = 0; index < temp_member_list.length; index++) {
                 var selector_string = '#id_' + temp_member_list[index]
                 var select_elem = document.querySelector(selector_string);
-                console.log("!!!!!!!!!!")
-                console.log(selector_string)
-                console.log(select_elem.dataset)
                 var temp_data = {
                     'id': temp_member_list[index],
                     'klass': KLASS,
@@ -62,8 +59,6 @@
                 }
                 obj_data['members'].push(temp_data)
             }
-
-            console.log(obj_data)
 
             CHAGRADE.api.create_team(obj_data)
                 .done(function (data) {
@@ -83,7 +78,6 @@
         self.update_klass = function () {
             CHAGRADE.api.get_klass(KLASS)
                 .done(function (data) {
-                    console.log(data)
                     self.update({klass: data})
                 })
                 .fail(function (error) {

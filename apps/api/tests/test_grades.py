@@ -60,18 +60,16 @@ class GradesAPIEndpointsTests(TestCase):
                 "criteria_answers": ''
             }
         )
-        assert resp.json()['instructor_notes'] == 'testnotes'
-        # TODO: Students should not be able to post grades
+
         assert resp.status_code == 403
 
-        new_grade_pk = resp.json()['id']
         resp = self.client.put(
-            reverse('api:grade-detail', kwargs={'version': 'v1', 'pk': new_grade_pk}),
+            reverse('api:grade-detail', kwargs={'version': 'v1', 'pk': self.grade.pk}),
             data={}, content_type='application/json'
         )
         assert resp.status_code == 403
 
-        resp = self.client.delete(reverse('api:grade-detail', kwargs={'version': 'v1', 'pk': new_grade_pk}))
+        resp = self.client.delete(reverse('api:grade-detail', kwargs={'version': 'v1', 'pk': self.grade.pk}))
         assert resp.status_code == 403
 
     def test_instructor_user_can_perform_crud_on_grades(self):

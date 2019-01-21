@@ -55,17 +55,16 @@ class CriteriaGETMethodTests(TestCase):
                     "upper_range": 10
                 }]
             })
-        crit_pk = self.definition.id + 1
         assert resp.status_code == 401
 
-        resp = self.client.put(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': crit_pk}),
+        resp = self.client.put(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': self.criteria.pk}),
                                data={'klass': self.klass.pk,
                                      'creator': self.instructor.pk,
                                      'name': 'newtestname1'},
                                content_type='application/json')
         assert resp.status_code == 401
 
-        resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': crit_pk}))
+        resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': self.criteria.pk}))
         assert resp.status_code == 401
 
     def test_student_user_can_only_get_criterias(self):
@@ -92,17 +91,16 @@ class CriteriaGETMethodTests(TestCase):
                     "upper_range": 10
                 }]
             })
-        crit_pk = resp.json()['id']
-        # TODO: Block this from being able to post
+
         assert resp.status_code == 403
 
-        resp = self.client.put(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': crit_pk}),
+        resp = self.client.put(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': self.criteria.pk}),
                                data={'klass': self.klass.pk,
                                      'creator': self.instructor.pk,
                                      'name': 'newtestname'})
         assert resp.status_code == 403
 
-        resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': crit_pk}))
+        resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': self.criteria.pk}))
         assert resp.status_code == 403
 
     def test_instructor_user_can_only_get_criterias(self):

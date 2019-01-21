@@ -14,7 +14,6 @@ User = get_user_model()
 
 
 class ChaUserSerializer(serializers.ModelSerializer):
-    # instructor = InstructorSerializer()
 
     class Meta:
         model = User
@@ -24,19 +23,14 @@ class ChaUserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'email',
-            # 'instructor',
-            # 'student',
         )
 
 
 class StudentSerializer(serializers.ModelSerializer):
 
-    # user = ChaUserSerializer()
-
     class Meta:
         model = StudentMembership
         fields = (
-            # 'user',
             'klass',
             'student_id',
             'overall_grade',

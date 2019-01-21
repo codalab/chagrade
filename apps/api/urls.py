@@ -26,10 +26,6 @@ router.register('questions', QuestionViewSet)
 router.register('submissions', SubmissionViewSet)
 router.register('grades', GradeViewSet)
 router.register('teams', TeamViewSet)
-# router.register('create_student', create_student)
-# router.register('producers', ProducerViewSet)
-# router.register('competitions', competitions.CompetitionViewSet)
-# router.register('submissions', competitions.SubmissionViewSet)
 
 # Documentation details
 schema_view = get_schema_view(

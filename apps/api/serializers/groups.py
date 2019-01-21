@@ -27,9 +27,6 @@ class BasicTeamSerializer(ModelSerializer):
     class Meta:
         model = Team
         fields = [
-            # 'klass',
-            # 'id',
             'name',
             'description',
-            # 'members',
         ]

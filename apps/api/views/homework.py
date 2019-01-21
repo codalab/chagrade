@@ -2,14 +2,12 @@ from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import ModelViewSet
 
-from apps.api.mixins import OwnerPermissionCheckMixin
 from apps.api.permissions import SubmissionPermissionCheck, GradePermissionCheck, DefinitionPermissionCheck, \
     QuestionPermissionCheck, CriteriaPermissionCheck
 from apps.api.serializers.homework import DefinitionSerializer, QuestionSerializer, CriteriaSerializer, \
     SubmissionSerializer, GradeSerializer
 from apps.homework.models import Definition, Question, Criteria, Submission, Grade
 
-# from apps.homework.tasks import calculate_new_grade
 from apps.homework.tasks import post_submission
 
 User = get_user_model()

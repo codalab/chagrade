@@ -7,7 +7,6 @@ from django.db import models
 
 
 class ChaUser(AbstractUser):
-    # instructor_profile = models.ForeignKey('InstructorProfile', related_name='user', null=True, blank=True)
     username_validator = UnicodeUsernameValidator()
 
     username = models.CharField(
