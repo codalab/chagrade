@@ -106,11 +106,17 @@
 
             endpoint
                 .done(function (data) {
-                    console.log(data)
                     window.location = '/klasses/wizard/' + KLASS + '/grade_homework'
                 })
-                .fail(function (error) {
-                    toastr.error("Error creating submission: " + error.statusText)
+                .fail(function (response) {
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        if (key === 'criteria_answers') {
+                            toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
+                        } else {
+                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                        }
+                    });
                 })
         }
 
@@ -126,7 +132,6 @@
                         definition: data
                     })
                     if (window.GRADE != undefined) {
-                        console.log("Updating grade")
                         self.update_grade()
                     }
                 })
@@ -149,11 +154,8 @@
         }
 
         self.update_grade = function () {
-            console.log("I GOT CALLED")
             CHAGRADE.api.get_grade(GRADE)
                 .done(function (data) {
-                    console.log("#########")
-                    console.log(data)
                     self.update({
                         grade: data
                     })

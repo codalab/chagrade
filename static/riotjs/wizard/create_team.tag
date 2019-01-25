@@ -49,6 +49,17 @@
 
             var temp_member_list = $('#members').val()
 
+            if (temp_member_list === null || temp_member_list === undefined)
+            {
+                //toastr.warning("No members selected for team")
+                var confirm_members = confirm("No members selected. Continue?")
+                if (confirm_members){
+                    temp_member_list = []
+                } else {
+                    return
+                }
+            }
+
             for (var index = 0; index < temp_member_list.length; index++) {
                 var selector_string = '#id_' + temp_member_list[index]
                 var select_elem = document.querySelector(selector_string);
@@ -62,16 +73,13 @@
 
             CHAGRADE.api.create_team(obj_data)
                 .done(function (data) {
-                    console.log(data)
                     window.location='/klasses/wizard/' + KLASS + '/enroll'
                 })
                 .fail(function (response) {
-                    if (response) {
-                        var data = JSON.parse(response.responseText);
-                        var errors = data['errors']
-
-                        self.update({errors: errors})
-                    }
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    });
                 })
         }
 

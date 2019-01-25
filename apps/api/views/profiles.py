@@ -62,24 +62,28 @@ def create_students_from_csv(request, version):
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
         for row in csv_reader:
+            if line_count == 0:
+                print("First row")
+                # line_count += 1
+            else:
+                if len(row) >= 6:
+                    data = {
+                        'first_name': row[0],
+                        'last_name': row[1],
+                        'username': row[2],
+                        'student_id': row[3],
+                        'email': row[4],
+                        # 'team': row[5],
+                        'klass': request.data.get('klass'),
+                    }
+                    new_student_serializer = StudentCreationSerializer(data=data)
+                    new_student_serializer.is_valid(raise_exception=True)
+                    if new_student_serializer.errors:
+                        return Response({'errors': new_student_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        new_student_serializer.create(new_student_serializer.validated_data)
+                else:
+                    print("Row too short to read.")
             line_count += 1
-            if len(row) > 1:
-                data = {
-                    'email': row[0],
-                    'klass': request.data.get('klass'),
-                    'student_id': row[1]
-                }
-            else:
-                data = {
-                    'email': row[0],
-                    'klass': request.data.get('klass')
-                }
-
-            new_student_serializer = StudentCreationSerializer(data=data)
-            new_student_serializer.is_valid(raise_exception=True)
-            if new_student_serializer.errors:
-                return Response({'errors': new_student_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                new_student_serializer.create(new_student_serializer.validated_data)
         print('Processed {} lines.'.format(line_count))
     return Response({'response': 'success'})

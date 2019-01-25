@@ -222,13 +222,10 @@
                     toastr.success("Successfully deleted question")
                 })
                 .fail(function (response) {
-                    if (response) {
-                        //var errors = JSON.parse(response.responseText);
-                        var data = JSON.parse(response.responseText);
-                        var errors = data['errors']
-
-                        self.update({errors: errors})
-                    }
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    });
                 })
             }
         }
@@ -242,13 +239,10 @@
                     self.update_criterias()
                 })
                 .fail(function (response) {
-                    if (response) {
-                        //var errors = JSON.parse(response.responseText);
-                        var data = JSON.parse(response.responseText);
-                        var errors = data['errors']
-
-                        self.update({errors: errors})
-                    }
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    });
                 })
             }
         }
@@ -321,11 +315,17 @@
 
             endpoint
                 .done(function (data) {
-                    console.log(data)
                     window.location='/klasses/wizard/' + KLASS + '/define_homework'
                 })
-                .fail(function (error) {
-                    toastr.error("Error creating definition: " + error.statusText)
+                .fail(function (response) {
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        if (key === 'criterias' || key === 'custom_questions') {
+                            toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
+                        } else {
+                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                        }
+                    });
                 })
         }
 

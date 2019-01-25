@@ -48,7 +48,6 @@
         self.update_klass = function () {
             CHAGRADE.api.get_klass(KLASS)
                 .done(function (data) {
-                    console.log(data)
                     self.update({klass: data})
                 })
                 .fail(function (error) {
@@ -61,24 +60,19 @@
             if (confirmed) {
                 CHAGRADE.api.activate_klass(KLASS)
                     .done(function (data) {
-                        console.log(data)
                         if (data.new_state) {
-                            toastr.success("Successfully activated klass")
+                            toastr.success("Successfully activated class")
                         } else {
-                            toastr.warning("Succesfully de-activated klass")
+                            toastr.warning("Succesfully de-activated class")
                         }
 
                         self.update_klass()
                     })
                     .fail(function (response) {
-                        if (response) {
-                            console.log(response)
-                            //var errors = JSON.parse(response.responseText);
-                            var data = JSON.parse(response.responseText);
-                            var errors = data['errors']
-
-                            self.update({errors: errors})
-                        }
+                        console.log(response)
+                        Object.keys(response.responseJSON).forEach(function (key) {
+                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                        });
                     })
             }
         }

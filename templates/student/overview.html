@@ -23,17 +23,17 @@
                         <tr class="black">
                             <th>Image:</th>
                             <th>Title:</th>
-                            <th>Group:</th>
+                            <th>Course #:</th>
                             <th>Organizer:</th>
                             <th>Next Homework</th>
                             <th>Current Grade</th>
                             <th>Download Grades</th>
-                            <th>Download Submissions</th>
+{#                            <th>Download Submissions</th>#}
                         </tr>
                         </thead>
                         <tbody>
 
-                        {% for membership in user.klass_memberships.all %}
+                        {% for membership in user.klass_memberships.all reversed %}
                             {% with membership.klass as klass %}
                                 {% if klass.active %}
                                     <tr>
@@ -41,16 +41,15 @@
                                         <td>
                                             {% if klass.image %}
                                                 <img src="{{ klass.image.url }}" width="50">
-                                            {% else %}
                                             {% endif %}
                                         </td>
                                         <td>{{ klass.title }}</td>
-                                        <td>{{ klass.group }}</td>
+                                        <td>{{ klass.course_number }}</td>
                                         <td>{{ klass.instructor }}</td>
                                         <td><a href="{% url "homework:overview" klass_pk=klass.pk %}" class="ui button">View Homework</a></td>
                                         <td></td>
                                         <td></td>
-                                        <td></td>
+{#                                        <td></td>#}
                                     </tr>
                                 {% endif %}
                             {% endwith %}

@@ -91,15 +91,19 @@
 
             }
 
-            console.log(data)
-
             CHAGRADE.api.create_submission(data)
                 .done(function (data) {
-                    console.log(data)
                     window.location='/homework/overview/' + KLASS
                 })
-                .fail(function (error) {
-                    toastr.error("Error creating submission: " + error.statusText)
+                .fail(function (response) {
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        if (key === 'question_answers') {
+                            toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
+                        } else {
+                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                        }
+                    });
                 })
         }
 
@@ -108,9 +112,7 @@
 
             for (var index = 0; index < self.submission.question_answers.length; index++) {
                 for (var question_index = 0; question_index < data.custom_questions.length; question_index++) {
-                    console.log("Testing: " + self.submission.question_answers[index].question + " and " + data.custom_questions[question_index].id + "!")
                     if (self.submission.question_answers[index].question === data.custom_questions[question_index].id) {
-                        console.log("It's a match!!!!!!!!!!!!!!")
                         data.custom_questions[question_index].prev_answer = self.submission.question_answers[index].text
                         data.custom_questions[question_index].answer_id = self.submission.question_answers[index].id
                     }
@@ -120,11 +122,8 @@
         }
 
         self.update_submission = function () {
-            console.log("I GOT CALLED")
             CHAGRADE.api.get_submission(SUBMISSION)
                 .done(function (data) {
-                    console.log("#########")
-                    console.log(data)
                     self.update({
                         submission: data
                     })
@@ -142,7 +141,6 @@
         self.update_definition = function () {
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
-                    console.log(data)
                     self.update({
                         definition: data
                     })

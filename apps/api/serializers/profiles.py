@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
@@ -70,22 +72,71 @@ class DetailedStudentSerializer(serializers.ModelSerializer):
 
 class StudentCreationSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    student_id = serializers.CharField(max_length=200, required=False, allow_blank=True)
     klass = serializers.IntegerField(required=True)
 
+    student_id = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    username = serializers.CharField(max_length=150, required=False, allow_blank=True)
+    first_name = serializers.CharField(max_length=30, required=False, allow_blank=True)
+    last_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
+    team = serializers.IntegerField(required=False, allow_null=True, default=None)
+
+    def _get_or_create_user(self, user_dict):
+        try:
+            user = ChaUser.objects.get(email=user_dict['email'])
+            return user
+        except ObjectDoesNotExist:
+            user = ChaUser.objects.create(**user_dict)
+            temp_password = user_dict['email'].split('@')[0]
+            print(f"SETTING PASSWORD TO {temp_password}")
+            user.set_password(temp_password)
+            user.save()
+            return user
+
+    def _get_or_create_student(self, student_dict):
+        try:
+            stud = StudentMembership.objects.get(klass=student_dict['klass'], user=student_dict['user'])
+            return stud
+        except ObjectDoesNotExist:
+            stud = StudentMembership.objects.create(**student_dict)
+            return stud
+
+    def _check_username(self, username):
+        try:
+            ChaUser.objects.get(username=username)
+            new_username = username + str(uuid.uuid4())[0:4]
+            return self._check_username(new_username)
+        except ObjectDoesNotExist:
+            return username
+
     def create(self, validated_data):
-        klass = Klass.objects.get(pk=validated_data.get('klass'))
         try:
-            user = ChaUser.objects.get(email=validated_data.get('email'))
+            klass = Klass.objects.get(pk=validated_data.get('klass'))
+            email = validated_data.get('email')
+            # If we weren't given a username, create a unique one from splitting the supplied email at the @ symbol
+            username = self._check_username(email.split('@')[0]) if not validated_data.get('username') else validated_data.get('username')
+            user_dict = {
+                'email': email,
+                'username': username,
+                'first_name': validated_data.get('first_name', ''),
+                'last_name': validated_data.get('last_name', '')
+            }
+            user = self._get_or_create_user(user_dict)
+            stud_dict = {
+                'user': user,
+                'klass': klass,
+                'student_id': username if not validated_data.get('student_id') else validated_data.get('student_id'),
+                # 'team__pk': None if not validated_data.get('team') else validated_data.get('team')
+            }
+            if validated_data.get('team'):
+                try:
+                    team = Team.objects.get(pk=validated_data.get('team'))
+                    stud_dict['team'] = team
+                except ObjectDoesNotExist:
+                    print(f"Could not find a team with id {validated_data.get('team')}")
+            stud = self._get_or_create_student(stud_dict)
+            print("COMPLETED SUCCESFULLY")
+            return stud
+
         except ObjectDoesNotExist:
-            user = ChaUser.objects.create(email=validated_data.get('email'))
-        try:
-            student = StudentMembership.objects.get(user=user, klass=klass)
-            return student
-        except ObjectDoesNotExist:
-            if not validated_data.get('student_id'):
-                student_id = user.email.split('@')[0]
-            else:
-                student_id = validated_data.get('student_id')
-            student = StudentMembership.objects.create(user=user, klass=klass, student_id=student_id)
-            return student
+            print("Could not find klass object for student!")
+            return None

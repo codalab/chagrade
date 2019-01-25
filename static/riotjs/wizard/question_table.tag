@@ -64,13 +64,10 @@
                     self.update_questions()
                 })
                 .fail(function (response) {
-                    if (response) {
-                        //var errors = JSON.parse(response.responseText);
-                        var data = JSON.parse(response.responseText);
-                        var errors = data['errors']
-
-                        self.update({errors: errors})
-                    }
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    });
                 })
             }
         }

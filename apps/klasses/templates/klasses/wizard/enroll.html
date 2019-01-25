@@ -18,10 +18,9 @@
                         <thead>
                         <tr>
                             <th>#</th>
+                            <th>ID</th>
                             <th>Name</th>
                             <th># Members</th>
-                            <th>Status</th>
-                            <th></th>
                             <th>Entries</th>
                         </tr>
                         </thead>
@@ -32,16 +31,13 @@
                                     {{ forloop.counter }}
                                 </td>
                                 <td>
+                                    {{ team.pk}}
+                                </td>
+                                <td>
                                     {{ team.name }}
                                 </td>
                                 <td>
                                     {{ team.members.count }}
-                                </td>
-                                <td>
-                                    Not Implemented
-                                </td>
-                                <td>
-                                    Not Implemented
                                 </td>
                                 <td>
                                     Not Implemented

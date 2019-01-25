@@ -68,7 +68,6 @@
         self.update_klass = function () {
             CHAGRADE.api.get_klass(KLASS)
                 .done(function (data) {
-                    console.log(data)
                     self.update({klass: data})
                 })
                 .fail(function (error) {

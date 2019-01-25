@@ -14,6 +14,9 @@ def post_submission(submission_pk):
     # Get our URL's formatted and such
     submission = Submission.objects.get(pk=submission_pk)
     definition = submission.definition
+    if not definition.challenge_url or not submission.submission_github_url:
+        print("Either the definition does not have a challenge URL or the submission does not have a github URL")
+        return None
     # https://competitions.codalab.org/competitions/15595
     parsed_uri = urlparse(definition.challenge_url)
     scheme = parsed_uri.scheme

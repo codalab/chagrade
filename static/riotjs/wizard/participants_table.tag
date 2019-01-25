@@ -21,7 +21,7 @@
                 <i class="add square icon"></i> Add new student
             </a>
         </span>
-        <h1>Participants</h1>
+        <h1>Students</h1>
         <table class="ui sortable table">
             <thead>
             <tr>
@@ -78,9 +78,12 @@
             <div class="content">
                 <i>Enter a username/email combo if the student is not registered yet. Their account will be created and waiting for them.</i>
                 <form id="student_form" class="ui form error" onsubmit="{ add_student }">
-                    <field name="Email" ref="email" input_name="email" error="{errors.email}"></field>
-                    <field name="Student ID" ref="student_id" input_name="student_id"
-                           error="{errors.student_id}"></field>
+                    <field name="First Name (Optional)" ref="first_name" input_name="first_name"></field>
+                    <field name="Last Name (Optional)" ref="last_name" input_name="last_name"></field>
+                    <field name="User Name (Optional)" ref="username" input_name="username"></field>
+                    <field name="Student ID (Optional)" ref="student_id" input_name="student_id"></field>
+                    <field name="Email" ref="email" input_name="email"></field>
+                    <field name="Team ID (Optional)" ref="team" input_name="team"></field>
                 </form>
             </div>
             <div class="actions">
@@ -151,13 +154,10 @@
                     $("#csv_form")[0].reset();
                 })
                 .fail(function (response) {
-                    if (response) {
-                        //var errors = JSON.parse(response.responseText);
-                        var data = JSON.parse(response.responseText);
-                        var errors = data['errors']
-
-                        self.update({errors: errors})
-                    }
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    });
                 })
         }
 
@@ -173,7 +173,6 @@
         self.update_klass = function () {
             CHAGRADE.api.get_klass(KLASS)
                 .done(function (data) {
-                    console.log(data)
                     self.update({klass: data})
                 })
                 .fail(function (error) {
@@ -186,8 +185,6 @@
         }
 
         self.submit_message = function () {
-            console.log("This was called")
-
             var data = {
                 'subject': self.refs.subject.value,
                 'message': self.refs.message.value
@@ -203,13 +200,10 @@
                     $("#message_form_modal").modal('hide')
                 })
                 .fail(function (response) {
-                    if (response) {
-                        //var errors = JSON.parse(response.responseText);
-                        var data = JSON.parse(response.responseText);
-                        var errors = data['errors']
-
-                        self.update({errors: errors})
-                    }
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    });
                 })
         }
 
@@ -218,6 +212,11 @@
 
             var data = $("#student_form").serializeObject()
             data['klass'] = KLASS
+
+            //if (data['team'] === ""){
+                data['team'] = null
+            //}
+            console.log(data)
 
             CHAGRADE.api.create_single_student(data)
                 .done(function (data) {
@@ -229,13 +228,10 @@
                     $("#student_form_modal").modal('hide')
                 })
                 .fail(function (response) {
-                    if (response) {
-                        //var errors = JSON.parse(response.responseText);
-                        var data = JSON.parse(response.responseText);
-                        var errors = data['errors']
-
-                        self.update({errors: errors})
-                    }
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    });
                 })
         }
     </script>

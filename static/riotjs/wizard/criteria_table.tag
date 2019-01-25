@@ -13,23 +13,23 @@
             </tr>
             </thead>
             <tbody>
-                <tr each="{criteria, index in criterias}">
-                    <td>
-                        {index + 1}
-                    </td>
-                    <td>
-                        { criteria.description }
-                    </td>
-                    <td>
-                        { criteria.lower_range }
-                    </td>
-                    <td>
-                        { criteria.upper_range }
-                    </td>
-                    <td>
-                        <a class="ui tiny red button" onclick="{delete_criteria.bind(this, criteria.id)}">x</a>
-                    </td>
-                </tr>
+            <tr each="{criteria, index in criterias}">
+                <td>
+                    {index + 1}
+                </td>
+                <td>
+                    { criteria.description }
+                </td>
+                <td>
+                    { criteria.lower_range }
+                </td>
+                <td>
+                    { criteria.upper_range }
+                </td>
+                <td>
+                    <a class="ui tiny red button" onclick="{delete_criteria.bind(this, criteria.id)}">x</a>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>
@@ -59,19 +59,16 @@
             var result = confirm('Are you sure you wish to delete this Criteria?')
             if (result) {
                 CHAGRADE.api.delete_criteria(pk)
-                .done(function (data) {
-                    toastr.success("Successfully deleted criteria")
-                    self.update_criterias()
-                })
-                .fail(function (response) {
-                    if (response) {
-                        //var errors = JSON.parse(response.responseText);
-                        var data = JSON.parse(response.responseText);
-                        var errors = data['errors']
-
-                        self.update({errors: errors})
-                    }
-                })
+                    .done(function (data) {
+                        toastr.success("Successfully deleted criteria")
+                        self.update_criterias()
+                    })
+                    .fail(function (response) {
+                        console.log(response)
+                        Object.keys(response.responseJSON).forEach(function (key) {
+                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                        });
+                    })
             }
         }
     </script>

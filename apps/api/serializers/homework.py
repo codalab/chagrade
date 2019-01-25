@@ -70,7 +70,7 @@ class DefinitionSerializer(WritableNestedModelSerializer):
 
     class Meta:
         model = Definition
-        fields = (
+        fields = [
             'klass',
             'creator',
             'due_date',
@@ -86,7 +86,7 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'criterias',
             'custom_questions',
             'id'
-        )
+        ]
 
 
 class CriteriaAnswerSerializer(ModelSerializer):
