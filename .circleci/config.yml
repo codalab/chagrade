@@ -25,5 +25,8 @@ jobs:
           name: PIP Install Requirements
           command: pip install -r requirements.txt
       - run:
+          name: Collect Static
+          command: python manage.py collectstatic
+      - run:
           name: Run PyTest
           command: py.test
