@@ -59,6 +59,8 @@ class Submission(models.Model):
 
     submitted_to_challenge = models.BooleanField(default=False)
 
+    team = models.ForeignKey('groups.Team', default=None, null=True, blank=True, related_name='submissions', on_delete=models.PROTECT)
+
     def __str__(self):
         return "{}".format(self.submission_github_url)
 
@@ -106,6 +108,8 @@ class Grade(models.Model):
 
     overall_grade = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
+    text_grade = models.CharField(max_length=10, null=True, blank=True, default="0/0")
+
     teacher_comments = models.CharField(max_length=400, default='', null=True, blank=True)
     instructor_notes = models.CharField(max_length=400, default='', null=True, blank=True)
 
@@ -114,28 +118,20 @@ class Grade(models.Model):
     def __str__(self):
         return "{0}:{1}".format(self.submission.submission_github_url, self.evaluator.user.username)
 
-    def calculate_grade(self):
-        # new_obj = serializer.save()
-        # grade = Grade.objects.get(pk=grade_pk)
-        total = 0
+    def get_total_score_total_possible(self):
         total_possible = 0
-        # Average should be total points scored over total points possible
+        total = 0
         for criteria_answer in self.criteria_answers.all():
-            print(criteria_answer.criteria.upper_range)
             total_possible += criteria_answer.criteria.upper_range
             total += criteria_answer.score
-        if total_possible == 0 or total == 0:
-            print("0")
-            # return 0
-            self.overall_grade = 0
-        else:
-            print("Returning an actual grade")
-            # return total / total_possible
-            self.overall_grade = total / total_possible
-            print(self.overall_grade)
-        print("Calling save")
+        return total, total_possible
+
+    def calculate_grade(self):
+        total, total_possible = self.get_total_score_total_possible()
+        self.text_grade = f"{total}/{total_possible}"
+        if total_possible != 0 and total != 0:
+            self.overall_grade = total/total_possible
         self.save()
-        print(self.overall_grade)
 
 
 class Question(models.Model):

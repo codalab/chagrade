@@ -11,7 +11,21 @@ def get_last_submission(definition, user_pk):
         try:
             user = ChaUser.objects.get(pk=user_pk)
             student = StudentMembership.objects.get(user=user, klass=definition.klass)
-            return definition.submissions.filter(creator=student).last()
+            if definition.team_based:
+                return definition.submissions.filter(team=student.team).last()
+            else:
+                return definition.submissions.filter(creator=student).last()
+        except ObjectDoesNotExist:
+            print("Could not find an object matching that query")
+    return None
+
+
+def get_last_team_submission(definition, user_pk):
+    if definition and definition.team_based and user_pk:
+        try:
+            user = ChaUser.objects.get(pk=user_pk)
+            student = StudentMembership.objects.get(user=user, klass=definition.klass)
+            return definition.submissions.filter(team=student.team).last()
         except ObjectDoesNotExist:
             print("Could not find an object matching that query")
     return None
@@ -22,6 +36,13 @@ def get_last_grade(submission):
             if submission.grades.filter(published=True).count() > 0:
                 return submission.grades.filter(published=True).last()
         return None
+
+
+# def get_last_team_grade(submission):
+#     if submission:
+#         if submission.grades.filter(published=True).count() > 0:
+#             return submission.grades.filter(published=True).last()
+#     return None
 
 
 def get_last_grade_teacher(submission):

@@ -116,10 +116,9 @@ def get_klass_students_as_csv(request, klass_pk):
             response['Content-Disposition'] = 'attachment; filename="{}"'.format(temp_filename)
 
             writer = csv.writer(response)
-            writer.writerow(['ID', 'Username', 'Student-ID', 'First-Name', 'Last-Name'])
+            writer.writerow(['First Name', 'Last Name', 'Display Name', 'Student ID', 'Email', 'Team'])
             for student in klass.enrolled_students.all():
-                writer.writerow([student.id, student.user.username, student.student_id, student.user.first_name or '-', student.user.last_name or '-'])
-
+                writer.writerow([student.user.first_name or '', student.user.last_name or '', student.user.username, student.student_id, student.user.email, student.team.name or ''])
             return response
         except ObjectDoesNotExist:
             raise Http404("Klass not found!")

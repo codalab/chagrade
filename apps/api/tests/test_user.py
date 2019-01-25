@@ -10,7 +10,7 @@ User = get_user_model()
 class UsersAPIEndpointsTests(TestCase):
 
     def setUp(self):
-        self.student_user = User.objects.create_user(username='student_user', password='pass')
+        self.student_user = User.objects.create_user(username='student_user', password='pass', email='test@email.com')
         self.main_user = User.objects.create_user(username='user', password='pass')
         self.instructor = Instructor.objects.create(university_name='Test')
         self.main_user.instructor = self.instructor

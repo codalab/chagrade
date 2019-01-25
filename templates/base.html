@@ -125,6 +125,10 @@
     {% if grade %}
         GRADE = {{ grade.pk }}
     {% endif %}
+    {% if student and definition and definition.team_based %}
+        console.log("Definition is team based")
+        USER_TEAM = {{ student.team.pk }}
+    {% endif %}
 
     {% block extra_js_context %}
     {% endblock %}

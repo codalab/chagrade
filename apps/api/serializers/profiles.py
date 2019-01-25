@@ -48,6 +48,7 @@ class BasicTeamSerializer(serializers.ModelSerializer):
         fields = [
             'name',
             'description',
+            'id'
         ]
 
 

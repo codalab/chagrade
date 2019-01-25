@@ -38,7 +38,8 @@ class SubmissionSerializer(WritableNestedModelSerializer):
             'project_url',
             'publication_url',
             'question_answers',
-            'id'
+            'id',
+            'team'
         ]
 
 

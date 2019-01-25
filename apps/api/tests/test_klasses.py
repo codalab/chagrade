@@ -11,7 +11,7 @@ class KlassesAPIEndpointTests(TestCase):
 
     def setUp(self):
 
-        self.main_user = User.objects.create_user(username='user', password='pass')
+        self.main_user = User.objects.create_user(username='user', password='pass', email='test@email.com')
         self.instructor = Instructor.objects.create(university_name='Test')
         self.main_user.instructor = self.instructor
         self.main_user.save()

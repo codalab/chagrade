@@ -1,4 +1,7 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import permissions
+
+from apps.profiles.models import StudentMembership
 
 
 class ChagradeAuthCheckMixin(object):
@@ -118,6 +121,12 @@ class SubmissionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermissi
         if request.method in permissions.SAFE_METHODS:
             return True
         else:
+            if obj.definition.team_based and obj.team:
+                try:
+                    student = StudentMembership.objects.get(klass=obj.definition.klass, user=request.user)
+                    return student in obj.team.members.all()
+                except ObjectDoesNotExist:
+                    print("Error!")
             return request.user == obj.creator.user
 
 

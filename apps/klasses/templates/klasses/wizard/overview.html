@@ -61,7 +61,7 @@
                     Class Status: NOT IMPLEMENTED
                 </div>
                 <div class="ui vertical steps" style="width: 100%">
-                    <a href="{% url "klasses:klass_enrollment" klass_pk=klass.pk %}" class="step">
+                    <a href="{% url "klasses:klass_enrollment" klass_pk=klass.pk %}" class="{% if klass.enrolled_students.count > 0 %}completed {% endif %}step">
                         <i class="users icon"></i>
                         <div class="content">
                             <div class="title">Enroll Students</div>
