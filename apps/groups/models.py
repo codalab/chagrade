@@ -19,3 +19,6 @@ class Team(models.Model):
 
     name = models.CharField(max_length=100, null=False, blank=False, unique=True)
     description = models.CharField(max_length=200, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('name', 'klass')

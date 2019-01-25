@@ -73,7 +73,7 @@ def create_students_from_csv(request, version):
                         'username': row[2],
                         'student_id': row[3],
                         'email': row[4],
-                        # 'team': row[5],
+                        'team': row[5],
                         'klass': request.data.get('klass'),
                     }
                     new_student_serializer = StudentCreationSerializer(data=data)

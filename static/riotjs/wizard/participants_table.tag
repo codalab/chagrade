@@ -151,7 +151,7 @@
                     //self.update_klass()
                     self.update_klass()
 
-                    $("#csv_form")[0].reset();
+                    //$("#csv_form")[0].reset();
                 })
                 .fail(function (response) {
                     console.log(response)

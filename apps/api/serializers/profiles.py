@@ -2,6 +2,7 @@ import uuid
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from rest_framework import serializers
 
 from apps.api.serializers.homework import SubmissionSerializer
@@ -78,7 +79,7 @@ class StudentCreationSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150, required=False, allow_blank=True)
     first_name = serializers.CharField(max_length=30, required=False, allow_blank=True)
     last_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
-    team = serializers.IntegerField(required=False, allow_null=True, default=None)
+    team = serializers.CharField(max_length=100, required=False, allow_blank=True)
 
     def _get_or_create_user(self, user_dict):
         try:
@@ -113,7 +114,8 @@ class StudentCreationSerializer(serializers.Serializer):
             klass = Klass.objects.get(pk=validated_data.get('klass'))
             email = validated_data.get('email')
             # If we weren't given a username, create a unique one from splitting the supplied email at the @ symbol
-            username = self._check_username(email.split('@')[0]) if not validated_data.get('username') else self._check_username(validated_data.get('username'))
+            username = self._check_username(email.split('@')[0]) if not validated_data.get(
+                'username') else self._check_username(validated_data.get('username'))
             user_dict = {
                 'email': email,
                 'username': username,
@@ -125,14 +127,15 @@ class StudentCreationSerializer(serializers.Serializer):
                 'user': user,
                 'klass': klass,
                 'student_id': username if not validated_data.get('student_id') else validated_data.get('student_id'),
-                # 'team__pk': None if not validated_data.get('team') else validated_data.get('team')
             }
             if validated_data.get('team'):
                 try:
-                    team = Team.objects.get(pk=validated_data.get('team'))
+                    team = Team.objects.get(name=validated_data.get('team'), klass=klass)
                     stud_dict['team'] = team
                 except ObjectDoesNotExist:
-                    print(f"Could not find a team with id {validated_data.get('team')}")
+                    # print(f"Could not find a team with id {validated_data.get('team')}")
+                    team = Team.objects.create(name=validated_data.get('team'), klass=klass)
+                    stud_dict['team'] = team
             stud = self._get_or_create_student(stud_dict)
             print("COMPLETED SUCCESFULLY")
             return stud
