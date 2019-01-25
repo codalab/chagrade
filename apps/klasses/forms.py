@@ -1,5 +1,4 @@
 from django import forms
-
 from apps.klasses.models import Klass
 
 

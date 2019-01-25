@@ -81,9 +81,12 @@ class SubmissionTracker(models.Model):
         )
         if score_api_resp.status_code == 200:
             data = score_api_resp.json()
-            if data.get('status') and data.get('score'):
+            if data.get('status'):
                 print("Data found for submission. Returning scores.")
-                return data.get('status'), data.get('score')
+                return {
+                    'status': data.get('status'),
+                    'score': data.get('score', None)
+                }
             else:
                 print("Could not retrieve complete data for submission")
                 return None
@@ -100,14 +103,13 @@ class SubmissionTracker(models.Model):
 class Grade(models.Model):
     submission = models.ForeignKey('Submission', related_name='grades', on_delete=models.CASCADE)
     evaluator = models.ForeignKey('profiles.Instructor', related_name='assigned_grades', on_delete=models.PROTECT)
-    # criteria = models.OneToOneField('Criteria', related_name='grade', on_delete=models.PROTECT)
-    # criteria = models.OneToOneField('Criteria', related_name='grade', on_delete=models.PROTECT)
 
-    # overall_grade = models.IntegerField(default=0)
     overall_grade = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
     teacher_comments = models.CharField(max_length=400, default='', null=True, blank=True)
     instructor_notes = models.CharField(max_length=400, default='', null=True, blank=True)
+
+    published = models.BooleanField(default=False)
 
     def __str__(self):
         return "{0}:{1}".format(self.submission.submission_github_url, self.evaluator.user.username)
@@ -163,16 +165,11 @@ class QuestionAnswer(models.Model):
     submission = models.ForeignKey('Submission', related_name='question_answers', on_delete=models.PROTECT)
     question = models.ForeignKey('Question', default=None, related_name='student_answers', on_delete=models.PROTECT)
 
-    # definition = models.ForeignKey('Definition', related_name='student_answers', on_delete=models.CASCADE)
-
     text = models.CharField(max_length=150, default='')
     is_correct = models.BooleanField(default=False)
 
 
 class CriteriaAnswer(models.Model):
-    # submission = models.ForeignKey('Submission', related_name='criteria_answers', on_delete=models.CASCADE)
     grade = models.ForeignKey('Grade', default=None, related_name='criteria_answers', on_delete=models.CASCADE)
     criteria = models.ForeignKey('Criteria', related_name='answers', on_delete=models.CASCADE)
-    # text = models.CharField(max_length=150, default='')
     score = models.IntegerField(default=0)
-    # evaluator = models.ForeignKey('profiles.Instructor', related_name='criteria_answers', on_delete=models.PROTECT)

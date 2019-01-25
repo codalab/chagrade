@@ -12,4 +12,5 @@ urlpatterns = [
     path('overview/<int:klass_pk>/', views.SubmissionOverView.as_view(), name='overview'),
     path('submit/<int:klass_pk>/<int:definition_pk>/', views.SubmissionFormView.as_view(), name='submit_homework'),
     path('edit_submission/<int:klass_pk>/<int:definition_pk>/<int:submission_pk>', views.SubmissionEditFormView.as_view(), name='edit_submission'),
+    path('download_grades_csv/<int:klass_pk>', views.get_klass_grades_as_csv, name='get_grades_csv'),
 ]

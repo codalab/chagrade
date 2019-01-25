@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import dj_database_url
+from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -119,16 +121,22 @@ WSGI_APPLICATION = 'chagrade.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('DB_NAME', 'chagrade_website'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
-        'HOST': os.environ.get('DB_HOST', 'postgres'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+# Heroku DB Settings
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(default=config('DATABASE_URL'))
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.environ.get('DB_NAME', 'chagrade_website'),
+            'USER': os.environ.get('DB_USER', 'postgres'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', 'postgres'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+        }
+    }
 
 
 # Password validation
@@ -172,8 +180,10 @@ SOCIAL_AUTH_CHAHUB_BASE_URL = os.environ.get('SOCIAL_AUTH_CHAHUB_BASE_URL', 'htt
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'index'
 SOCIAL_AUTH_LOGIN_URL = 'profiles:login'
-SOCIAL_AUTH_NEW_USER_REDIRECT_URL = 'profiles:set_password'
-SOCIAL_AUTH_NEW_ASSOCIATION_REDIRECT_URL = 'profiles:set_password'
+# SOCIAL_AUTH_NEW_USER_REDIRECT_URL = 'profiles:set_password'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = 'index'
+# SOCIAL_AUTH_NEW_ASSOCIATION_REDIRECT_URL = 'profiles:set_password'
+SOCIAL_AUTH_NEW_ASSOCIATION_REDIRECT_URL = 'index'
 SOCIAL_AUTH_DISCONNECT_REDIRECT_URL = 'index'
 
 LOGIN_URL = 'profiles:login'
@@ -183,53 +193,53 @@ LOGIN_REDIRECT_URL = 'index'
 # SOCIAL_AUTH_USER_MODEL = 'authenz.ClUser'
 SOCIAL_AUTH_USER_MODEL = 'profiles.ChaUser'
 
-SOCIAL_AUTH_PIPELINE = (
-    # Get the information we can about the user and return it in a simple
-    # format to create the user instance later. On some cases the details are
-    # already part of the auth response from the provider, but sometimes this
-    # could hit a provider API.
-    'social_core.pipeline.social_auth.social_details',
-
-    # Get the social uid from whichever service we're authing thru. The uid is
-    # the unique identifier of the given user in the provider.
-    'social_core.pipeline.social_auth.social_uid',
-
-    # Verifies that the current auth process is valid within the current
-    # project, this is where emails and domains whitelists are applied (if
-    # defined).
-    'social_core.pipeline.social_auth.auth_allowed',
-
-    # Checks if the current social-account is already associated in the site.
-    'social_core.pipeline.social_auth.social_user',
-
-    # Make up a username for this person, appends a random string at the end if
-    # there's any collision.
-    # 'social_core.pipeline.user.get_username',
-
-    # Send a validation email to the user to verify its email address.
-    # Disabled by default.
-    # 'social_core.pipeline.mail.mail_validation',
-
-    # Associates the current social details with another user account with
-    # a similar email address. Disabled by default.
-    'social_core.pipeline.social_auth.associate_by_email',
-
-    # Create a user account if we haven't found one yet.
-    # 'social_core.pipeline.user.create_user',
-
-    # Above pipeline fails if we have a user with that username. Using a custom re-write of that pipeline function
-    'apps.profiles.pipeline.create_or_find_user',
-
-    # Create the record that associates the social account with the user.
-    'social_core.pipeline.social_auth.associate_user',
-
-    # Populate the extra_data field in the social record with the values
-    # specified by settings (and the default ones like access_token, etc).
-    'social_core.pipeline.social_auth.load_extra_data',
-
-    # Update the user record with any changed info from the auth service.
-    'social_core.pipeline.user.user_details',
-)
+# SOCIAL_AUTH_PIPELINE = (
+#     # Get the information we can about the user and return it in a simple
+#     # format to create the user instance later. On some cases the details are
+#     # already part of the auth response from the provider, but sometimes this
+#     # could hit a provider API.
+#     'social_core.pipeline.social_auth.social_details',
+#
+#     # Get the social uid from whichever service we're authing thru. The uid is
+#     # the unique identifier of the given user in the provider.
+#     'social_core.pipeline.social_auth.social_uid',
+#
+#     # Verifies that the current auth process is valid within the current
+#     # project, this is where emails and domains whitelists are applied (if
+#     # defined).
+#     'social_core.pipeline.social_auth.auth_allowed',
+#
+#     # Checks if the current social-account is already associated in the site.
+#     'social_core.pipeline.social_auth.social_user',
+#
+#     # Make up a username for this person, appends a random string at the end if
+#     # there's any collision.
+#     # 'social_core.pipeline.user.get_username',
+#
+#     # Send a validation email to the user to verify its email address.
+#     # Disabled by default.
+#     # 'social_core.pipeline.mail.mail_validation',
+#
+#     # Associates the current social details with another user account with
+#     # a similar email address. Disabled by default.
+#     'social_core.pipeline.social_auth.associate_by_email',
+#
+#     # Create a user account if we haven't found one yet.
+#     # 'social_core.pipeline.user.create_user',
+#
+#     # Above pipeline fails if we have a user with that username. Using a custom re-write of that pipeline function
+#     'apps.profiles.pipeline.create_or_find_user',
+#
+#     # Create the record that associates the social account with the user.
+#     'social_core.pipeline.social_auth.associate_user',
+#
+#     # Populate the extra_data field in the social record with the values
+#     # specified by settings (and the default ones like access_token, etc).
+#     'social_core.pipeline.social_auth.load_extra_data',
+#
+#     # Update the user record with any changed info from the auth service.
+#     'social_core.pipeline.user.user_details',
+# )
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/

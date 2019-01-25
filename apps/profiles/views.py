@@ -1,6 +1,6 @@
 # Create your views here.
 
-from django.contrib.auth import logout
+from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
@@ -9,9 +9,7 @@ from django.views.generic import FormView, TemplateView
 
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 
-from apps.profiles.forms import InstructorProfileForm
-
-# import pdb; pdb.set_trace()
+from apps.profiles.forms import InstructorProfileForm, ChagradeCreationForm
 
 
 def logout_view(request):
@@ -37,26 +35,26 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class SetPasswordView(LoginRequiredMixin, FormView):
-    # model = ChaUser
-    template_name = 'profiles/set_password.html'
-    form_class = SetPasswordForm
-    success_url = '/'
-
-    def get_form_kwargs(self, **kwargs):
-        # data = super(ChangePassword, self).get_form_kwargs(**kwargs)
-        data = super(SetPasswordView, self).get_form_kwargs(**kwargs)
-        data['user'] = self.request.user
-        return data
-
-    def form_valid(self, form):
-        if self.request.user.has_set_password:
-            raise Http404("You already have a usable password")
-        else:
-            self.request.user.set_password(form.cleaned_data.get('new_password1'))
-            self.request.user.has_set_password = True
-            self.request.user.save()
-            return super().form_valid(form)
+# class SetPasswordView(LoginRequiredMixin, FormView):
+#     # model = ChaUser
+#     template_name = 'profiles/set_password.html'
+#     form_class = SetPasswordForm
+#     success_url = '/'
+#
+#     def get_form_kwargs(self, **kwargs):
+#         # data = super(ChangePassword, self).get_form_kwargs(**kwargs)
+#         data = super(SetPasswordView, self).get_form_kwargs(**kwargs)
+#         data['user'] = self.request.user
+#         return data
+#
+#     def form_valid(self, form):
+#         if self.request.user.has_set_password:
+#             raise Http404("You already have a usable password")
+#         else:
+#             self.request.user.set_password(form.cleaned_data.get('new_password1'))
+#             self.request.user.has_set_password = True
+#             self.request.user.save()
+#             return super().form_valid(form)
 
 
 class InstructorProfileCreationView(LoginRequiredMixin, FormView):
@@ -92,3 +90,17 @@ class StudentOverView(LoginRequiredMixin, TemplateView):
 
 class MyProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'profiles/my_profile.html'
+
+
+class SignUpView(FormView):
+    template_name = 'profiles/sign_up.html'
+    form_class = ChagradeCreationForm
+    success_url = reverse_lazy('index')
+
+    def form_valid(self, form):
+        form.save()
+        username = form.cleaned_data.get('username')
+        raw_password = form.cleaned_data.get('password1')
+        user = authenticate(username=username, password=raw_password)
+        login(self.request, user)
+        return super().form_valid(form)

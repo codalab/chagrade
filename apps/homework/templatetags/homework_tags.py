@@ -19,9 +19,16 @@ def get_last_submission(definition, user_pk):
 
 def get_last_grade(submission):
         if submission:
-            if submission.grades.count() > 0:
-                return submission.grades.last()
+            if submission.grades.filter(published=True).count() > 0:
+                return submission.grades.filter(published=True).last()
         return None
+
+
+def get_last_grade_teacher(submission):
+    if submission:
+        if submission.grades.count() > 0:
+            return submission.grades.last()
+    return None
 
 
 def get_item(dictionary, key):
@@ -29,4 +36,5 @@ def get_item(dictionary, key):
 
 register.filter('get_last_submission', get_last_submission)
 register.filter('get_last_grade', get_last_grade)
+register.filter('get_last_grade_teacher', get_last_grade_teacher)
 register.filter('get_item', get_item)

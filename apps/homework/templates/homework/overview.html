@@ -26,7 +26,6 @@
                 <div class="ui centered grid segment">
                     <div class="row">
                         <div class="two wide column">
-                            {#                            <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">#}
                             {% if klass.image %}
                                 <img style="height: 100px; width: auto;" src="{{ klass.image.url }}">
                             {% else %}
@@ -84,7 +83,7 @@
                                     <div class="ui grid">
                                         <div class="row">
                                             <div class="eight wide column">
-                                                <h4 class="ui header">Submission:</h4>
+                                                <h4 class="ui header">Submission Details:</h4>
                                                 <ul class="ui relaxed celled list">
                                                     {% if definition.ask_method_name %}<div class="item">Method Name:
                                                         {{ submission.method_name }}</div>{% endif %}
@@ -101,7 +100,7 @@
                                                     <a href="{% url "homework:edit_submission" klass_pk=klass.pk definition_pk=definition.pk submission_pk=submission.pk %}"
                                                        class="ui yellow button">Edit/Re-Submit Homework</a>
                                                     <a href="{{ submission.definition.challenge_url }}" class="ui button">View Challenge</a>
-                                                    <table>
+                                                    <table class="ui table">
                                                         <thead>
                                                             <tr>
                                                                 <th>Status</th>
@@ -111,53 +110,37 @@
                                                         <tbody>
                                                             {% for tracker in submission.tracked_submissions.all %}
                                                                 {% with tracker.get_remote_submission_info as submission_info %}
-{#                                                                {% with tracker.get_remote_submission_info|get_item:'score' as score %}#}
                                                                     {% if submission_info %}
                                                                         <td>{{ submission_info|get_item:'status' }}</td>
                                                                         <td>{{ submission_info|get_item:'score' }}</td>
                                                                     {% else %}
-                                                                        <td>Waiting</td>
-                                                                        <td>Waiting</td>
+                                                                        <td>Waiting...</td>
+                                                                        <td></td>
                                                                     {% endif %}
-{#                                                                {% endwith %}#}
                                                                 {% endwith %}
                                                             {% endfor %}
                                                         </tbody>
                                                     </table>
                                                 {% else %}
-{#                                                    No Submission!#}
                                                     <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk %}"
                                                        class="ui blue button">Submit Homework</a>
                                                 {% endif %}
                                             </div>
                                         </div>
-                                        <div class="row">
-                                            <div class="eight wide column">Grade:</div>
-                                            <div class="eight wide column">{{ grade.overall_grade }}</div>
-                                        </div>
+                                        {% if grade %}
+                                            <div class="row">
+                                                <div class="center aligned sixteen wide column">
+                                                    <div class="ui divider"></div>
+                                                    <h3 class="ui header">Grade: </h3>{{ grade.overall_grade }}
+                                                </div>
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
                         {% endwith %}
                     {% endwith %}
                 {% endfor %}
-{#                <form class="ui form" method="post">#}
-{#                    {% csrf_token %}#}
-{##}
-{#                    {{ form.non_field_errors }}#}
-{##}
-{#                    {% for field in form %}#}
-{#                        <div class="field">#}
-{#                            {{ field.errors }}#}
-{#                            <span>#}
-{#                                {{ field.label_tag }}#}
-{#                                {{ field }}#}
-{#                            </span>#}
-{#                        </div>#}
-{#                    {% endfor %}#}
-{##}
-{#                    <input type="submit" value="Submit">#}
-{#                </form>#}
             </div>
         </div>
     </div>

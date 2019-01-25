@@ -27,7 +27,7 @@ def upload_syllabus(instance, filename):
     file_split = filename.split('.')
     file_extension = file_split[len(file_split) - 1]
     print(file_extension)
-    path = "syllabuses/{0}/class_image.{1}".format(instance.id, file_extension)
+    path = "syllabuses/{0}/class_syllabus.{1}".format(instance.id, file_extension)
     return path
 
 

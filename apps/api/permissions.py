@@ -1,77 +1,153 @@
-# from rest_framework import permissions
-
-# from producers.models import Producer
-
-
-# class ProducerPermission(permissions.BasePermission):
-#     message = 'Only producers may modify ChaHub information.'
-#
-#     def has_permission(self, request, view):
-#         if request.method in permissions.SAFE_METHODS:
-#             return True
-#         else:
-#             # The ProducerAuthentication class sets request.user to Producer,
-#             # TODO: Check object permissions, should only be able to work on non existant objects or
-#             # objects where producer == producer!!!
-#             return isinstance(request.user, Producer)
 from rest_framework import permissions
 
 
-class CheckKlassInstructor(permissions.BasePermission):
-    message = 'Only class instructors can modify classes.'
+class ChagradeAuthCheckMixin(object):
+
+    def extra_permission_check(self, request):
+        return True
+
+    def has_permission(self, request, view):
+        """Must be an authenticated user, and pass extra_permission_check (True by default)"""
+        if request.method in permissions.SAFE_METHODS:
+            return request.user.is_authenticated
+        else:
+            return request.user.is_authenticated and self.extra_permission_check(request)
+
+
+class UserPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
+    """Only allow authenticated users to make get requests"""
+    message = 'You must be logged in to access Users.'
 
     def has_object_permission(self, request, view, obj):
-        if request.user.is_anonymous:
-            return False
-        if request.user == obj.instructor:
+        return request.method in permissions.SAFE_METHODS
+
+
+class StudentPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
+    """Only allow authenticated users to make get requests, and
+     allow users who match the student and teacher to make changes."""
+    message = 'You must be logged in to access Students, or an instructor to make modifications to Students'
+
+    def extra_permission_check(self, request):
+        return request.user.instructor
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            return False
+            return request.user == obj.user or request.user == obj.klass.instructor.user
 
 
-class CheckObjKlassInstructor(permissions.BasePermission):
-    message = 'Only class instructors can modify classes.'
+class KlassPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
+    """Only allow authenticated users to make get requests, only
+     allow instructors, and only allow klass instructors (creators) to modify"""
+    message = 'You must be logged in to access Classes, or an instructor to make modifications to Classes'
+
+    def extra_permission_check(self, request):
+        return request.user.instructor
 
     def has_object_permission(self, request, view, obj):
-        if request.user.is_anonymous:
-            return False
-        if request.user == obj.klass.instructor:
+        if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            return False
+            if not request.user.instructor:
+                return False
+            else:
+                return request.user.instructor == obj.instructor
 
 
-class CheckObjDefinitionKlassInstructor(permissions.BasePermission):
-    message = 'Only class instructors can modify classes.'
+class DefinitionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
+    """Only allow authenticated users to make get requests, only
+     allow instructors, and only allow klass instructors (creators) to modify"""
+    message = 'You must be logged in to access Definitions, or an instructor to make modifications to Definitions'
+
+    def extra_permission_check(self, request):
+        return request.user.instructor
 
     def has_object_permission(self, request, view, obj):
-        if request.user.is_anonymous:
-            return False
-        if request.user == obj.definition.klass.instructor:
+        if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            return False
+            if not request.user.instructor:
+                return False
+            else:
+                return request.user.instructor == obj.klass.instructor
 
 
-class CheckSubmissionOwner(permissions.BasePermission):
-    message = 'Only class instructors can modify classes.'
+class CriteriaPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
+    """Only allow authenticated users to make get requests, only
+     allow instructors, and only allow klass instructors (creators) to modify"""
+    message = 'You must be logged in to access Criterias, or an instructor to make modifications to Criterias'
+
+    def extra_permission_check(self, request):
+        return request.user.instructor
 
     def has_object_permission(self, request, view, obj):
-        if request.user.is_anonymous:
-            return False
-        if request.user == obj.creator:
+        if request.method in permissions.SAFE_METHODS:
             return True
         else:
-            return False
+            if not request.user.instructor:
+                return False
+            else:
+                return request.user.instructor == obj.definition.klass.instructor
 
 
-class CheckSubmissionKlassInstructor(permissions.BasePermission):
-    message = 'Only class instructors can modify classes.'
+class QuestionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
+    """Only allow authenticated users to make get requests, only
+     allow instructors, and only allow klass instructors (creators) to modify"""
+    message = 'You must be logged in to access Questions, or an instructor to make modifications to Questions'
+
+    def extra_permission_check(self, request):
+        return request.user.instructor
 
     def has_object_permission(self, request, view, obj):
-        if request.user.is_anonymous:
-            return False
-        if request.user == obj.submission.klass.instructor:
+        if request.method in permissions.SAFE_METHODS:
             return True
+        else:
+            if not request.user.instructor:
+                return False
+            else:
+                return request.user.instructor == obj.definition.klass.instructor
+
+
+class SubmissionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
+    """Only allow authenticated users to make get requests, only
+     allow the submission creator to modify. Anyone that's authenticated in a class can make a submission?"""
+    message = 'You must be logged in to access Submissions'
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        else:
+            return request.user == obj.creator.user
+
+
+class GradePermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
+    """Only allow authenticated users to make get requests, only
+     allow the submission creator to modify. Anyone that's authenticated in a class can make a submission?"""
+    message = 'You must be logged in to access Grades, or an instructor to make modifications to Grades'
+
+    def extra_permission_check(self, request):
+        return request.user.instructor
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        else:
+            return request.user == obj.evaluator.user
+
+
+class TeamPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
+    """Only allow authenticated users to make get requests, only
+     allow the submission creator to modify. Anyone that's authenticated in a class can make a submission?"""
+    message = 'You must be logged in to access Teams, or an instructor to make modifications to Teams'
+
+    def extra_permission_check(self, request):
+        return request.user.instructor
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        elif request.user.instructor:
+            return request.user.instructor == obj.klass.instructor
         else:
             return False

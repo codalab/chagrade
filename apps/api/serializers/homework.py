@@ -24,7 +24,7 @@ class QuestionAnswerSerializer(ModelSerializer):
 
 class SubmissionSerializer(WritableNestedModelSerializer):
 
-    question_answers = QuestionAnswerSerializer(many=True)
+    question_answers = QuestionAnswerSerializer(many=True, required=False)
 
     class Meta:
         model = Submission
@@ -64,16 +64,13 @@ class CriteriaSerializer(ModelSerializer):
         ]
 
 
-# class DefinitionSerializer(ModelSerializer):
 class DefinitionSerializer(WritableNestedModelSerializer):
-    # instructor = InstructorSerializer()
-
-    criterias = CriteriaSerializer(many=True)
-    custom_questions = QuestionSerializer(many=True)
+    criterias = CriteriaSerializer(many=True, required=False)
+    custom_questions = QuestionSerializer(many=True, required=False)
 
     class Meta:
         model = Definition
-        fields = (
+        fields = [
             'klass',
             'creator',
             'due_date',
@@ -88,8 +85,6 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'team_based',
             'criterias',
             'custom_questions',
-        )
-        read_only_fields = [
             'id'
         ]
 
@@ -102,24 +97,20 @@ class CriteriaAnswerSerializer(ModelSerializer):
             'score',
             'id'
         ]
-        # read_only_fields = [
-        #     'id'
-        # ]
 
 
 class GradeSerializer(WritableNestedModelSerializer):
 
-    criteria_answers = CriteriaAnswerSerializer(many=True)
+    criteria_answers = CriteriaAnswerSerializer(many=True, required=False)
 
     class Meta:
         model = Grade
         fields = [
+            'id',
             'submission',
             'evaluator',
             'teacher_comments',
             'instructor_notes',
             'criteria_answers',
-        ]
-        read_only_fields = [
-            'id'
+            'published'
         ]

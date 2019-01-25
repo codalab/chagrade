@@ -6,29 +6,33 @@
     <div class="ui vertical masthead center aligned segment">
         <div class="ui center aligned grid">
             <div class="ui twelve wide column message">
-                <h1 class="ui header">Your Profile</h1>
-                <div class="ui form">
+                <h1 class="ui dividing header">Your Profile</h1>
+                <div style="margin-top: 5vh;" class="ui form">
                     <div class="field">
                         <span>
-                            Username: {{ user.username }}
+                            <b>Username:</b> {{ user.username }}
                         </span>
                     </div>
                     <div class="field">
                         <span>
-                            Email: {{ user.email }}
+                            <b>Email:</b> {{ user.email }}
                         </span>
                     </div>
                     <div class="field">
                         <span>
-                            First Name: {{ user.first_name }}
+                            <b>First Name:</b> {{ user.first_name }}
                         </span>
                     </div>
                     <div class="field">
                         <span>
-                            Last Name: {{ user.last_name }}
+                            <b>Last Name:</b> {{ user.last_name }}
                         </span>
                     </div>
                 </div>
+                <a style="margin-top: 5vh;" href="{% url "profiles:change_password" %}" class="ui yellow icon button">
+                    <i class="ui wrench icon"></i>
+                    Change Password
+                </a>
             </div>
         </div>
     </div>

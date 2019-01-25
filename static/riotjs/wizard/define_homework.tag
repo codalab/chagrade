@@ -50,7 +50,7 @@
 
             <div class="four wide field">
                 <label>Ask project url:</label>
-                <input class="ui checkbox" type="checkbox" name="ask_project_url" ref="ask_project_url" checked="{definiton.ask_project_url}">
+                <input class="ui checkbox" type="checkbox" name="ask_project_url" ref="ask_project_url" checked="{definition.ask_project_url}">
             </div>
 
             <div class="four wide field">
@@ -154,11 +154,7 @@
         self.definition = {}
 
         self.one('mount', function () {
-            //self.update_submission()
-            //self.update_definition(self.submission.definition)
             if (window.DEFINITION != undefined) {
-                console.log(window.DEFINITION)
-                console.log("Updating definition")
                self.update_definition()
             }
 
@@ -204,16 +200,6 @@
             self.update()
         }
 
-        /*self.update_questions = function () {
-            CHAGRADE.api.get_definition(DEFINITION)
-                .done(function (data) {
-                    self.update({questions: data.custom_questions})
-                })
-                .fail(function (error) {
-                    toastr.error("Error fetching definition: " + error.statusText)
-                })
-        }*/
-
         self.update_definition = function() {
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
@@ -234,16 +220,12 @@
                 CHAGRADE.api.delete_question(pk)
                 .done(function (data) {
                     toastr.success("Successfully deleted question")
-                    //self.update_questions()
                 })
                 .fail(function (response) {
-                    if (response) {
-                        //var errors = JSON.parse(response.responseText);
-                        var data = JSON.parse(response.responseText);
-                        var errors = data['errors']
-
-                        self.update({errors: errors})
-                    }
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    });
                 })
             }
         }
@@ -257,13 +239,10 @@
                     self.update_criterias()
                 })
                 .fail(function (response) {
-                    if (response) {
-                        //var errors = JSON.parse(response.responseText);
-                        var data = JSON.parse(response.responseText);
-                        var errors = data['errors']
-
-                        self.update({errors: errors})
-                    }
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    });
                 })
             }
         }
@@ -282,11 +261,11 @@
                 "description": self.refs.description.value,
                 "challenge_url": self.refs.challenge_url.value,
                 "starting_kit_github_url": self.refs.starting_kit_github_url.value,
-                "ask_method_name": self.refs.ask_method_name.value || true,
-                "ask_method_description": self.refs.ask_method_description.value || true,
-                "ask_project_url": self.refs.ask_project_url.value || true,
-                "ask_publication_url": self.refs.ask_publication_url.value || true,
-                "team_based": self.refs.team_based.value || false,
+                "ask_method_name": self.refs.ask_method_name.checked,
+                "ask_method_description": self.refs.ask_method_description.checked,
+                "ask_project_url": self.refs.ask_project_url.checked,
+                "ask_publication_url": self.refs.ask_publication_url.checked,
+                "team_based": self.refs.team_based.checked,
                 "criterias": [
                     /*{
                         "description": "string",
@@ -305,8 +284,6 @@
 
             for (var index = 0; index < self.criterias.length; index++) {
                 var temp_data = {
-                    //'criteria': parseInt(self.refs['criteria_answer_def_' + index].value),
-                    //'score': self.refs['criteria_answer_' + index].value,
                     'description': self.refs['criteria' + '_description_' + index].value,
                     'lower_range': self.refs['criteria' + '_lower_range_' + index].value,
                     'upper_range': self.refs['criteria' + '_upper_range_' + index].value,
@@ -319,8 +296,6 @@
 
             for (var index = 0; index < self.questions.length; index++) {
                 var temp_data = {
-                    //'criteria': parseInt(self.refs['criteria_answer_def_' + index].value),
-                    //'score': self.refs['criteria_answer_' + index].value,
                     'question': self.refs['question' + '_question_' + index].value,
                     'answer': self.refs['question' + '_answer_' + index].value,
                     'has_specific_answer': self.refs['question' + '_has_specific_answer_' + index].value,
@@ -331,10 +306,6 @@
                 obj_data['custom_questions'].push(temp_data)
             }
 
-            console.log("@@@@@@@@@")
-            console.log(self.refs.due_date.value,)
-            console.log(obj_data)
-
             if (window.DEFINITION != undefined) {
                 var endpoint = CHAGRADE.api.update_definition(DEFINITION, obj_data)
             }
@@ -344,11 +315,17 @@
 
             endpoint
                 .done(function (data) {
-                    console.log(data)
                     window.location='/klasses/wizard/' + KLASS + '/define_homework'
                 })
-                .fail(function (error) {
-                    toastr.error("Error creating definition: " + error.statusText)
+                .fail(function (response) {
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        if (key === 'criterias' || key === 'custom_questions') {
+                            toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
+                        } else {
+                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                        }
+                    });
                 })
         }
 

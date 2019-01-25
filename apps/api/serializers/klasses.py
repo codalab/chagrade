@@ -7,19 +7,13 @@ from apps.api.serializers.profiles import DetailedStudentSerializer
 
 
 class KlassSerializer(ModelSerializer):
-    # from apps.api.serializers.profiles import InstructorSerializer
-
-    # instructor = InstructorSerializer()
-
-    enrolled_students = DetailedStudentSerializer(many=True)
-    teams = TeamSerializer(many=True)
+    enrolled_students = DetailedStudentSerializer(many=True, required=False)
+    teams = TeamSerializer(many=True, required=False)
 
     class Meta:
         model = Klass
         fields = (
             'instructor',
-            # 'students',
-            # 'teacher_assistants',
             'title',
             'course_number',
             'created',

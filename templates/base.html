@@ -71,10 +71,10 @@
                             <a class="item" href="{% url "profiles:logout" %}">Logout</a>
                             <a class="item" href="{% url "profiles:my_profile" %}">Profile</a>
                         {% else %}
-                            <a class="item" href="{% url "social:begin" "chahub" %}">Sign-In</a>
+                            <a class="item" href="{% url "profiles:sign_up" %}">Sign-Up</a>
                             <a class="item" href="{% url "profiles:login" %}">Login</a>
                         {% endif %}
-                        <a class="item">Help</a>
+                        <a href="https://github.com/codalab/chagrade/wiki" class="item">Help</a>
                 </div>
             </nav>
         </header>

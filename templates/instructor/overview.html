@@ -34,7 +34,7 @@
                             <tr class="black">
                                 <th>Image:</th>
                                 <th>Title:</th>
-                                <th>Group:</th>
+                                <th>Course #:</th>
                                 <th>Organizer:</th>
                                 <th>Created:</th>
                                 <th>Modified:</th>
@@ -53,13 +53,16 @@
                                        {% if klass.image %}<img src="{{ klass.image.url }}" width="50">{% endif %}
                                    </td>
                                    <td>{{ klass.title }}</td>
-                                   <td>{{ klass.group }}</td>
+                                   <td>{{ klass.course_number }}</td>
                                    <td>{{ klass.instructor }}</td>
                                    <td>{{ klass.created }}</td>
                                    <td>{{ klass.modified }}</td>
-                                   <td><a href="{% url "klasses:klass_details" klass_pk=klass.pk %}" class="ui yellow mini button">Edit</a></td>
+                                   <td><a href="{% url "klasses:klass_details" klass_pk=klass.pk %}" class="ui blue mini button">View</a></td>
                                    <td>{{ klass.active }}</td>
-                                   <td><a href="" class="ui grey mini disabled button">Download</a></td>
+                                   <td>
+{#                                       <a href="" class="ui grey mini disabled button">Download</a>#}
+                                       <a href="{% url 'homework:get_grades_csv' klass_pk=klass.pk %}" class="ui mini green button">Download</a>
+                                   </td>
                                    <td><a href="" class="ui grey mini disabled button">Download</a></td>
                                    <td><a href="" class="ui grey mini disabled button">X</a></td>
                                 </tr>

@@ -19,13 +19,8 @@ class WizardMixin(object):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-
-        # BECAUSE APPARENTLY DJANGO DECIDED YOU CAN'T HANDLE THIS THE SAME EVERYWHERE
-        # FOR SHAME DJANGO
         if not kwargs.get('klass_pk'):
-            print("We're a form view apparently, gotta set KWARGS differently. Thanks Django for being consistent")
             kwargs['klass_pk'] = self.kwargs.get('klass_pk')
-            print(kwargs)
 
         # Almost every view uses this
         try:
