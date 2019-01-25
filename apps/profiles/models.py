@@ -7,18 +7,6 @@ from django.db import models
 
 
 class ChaUser(AbstractUser):
-    username_validator = UnicodeUsernameValidator()
-
-    username = models.CharField(
-        max_length=150,
-        unique=False,
-        help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
-        validators=[username_validator],
-        error_messages={
-            'unique': "A user with that username already exists.",
-        },
-    )
-
     instructor = models.OneToOneField('Instructor', related_name='user', null=True, blank=True, on_delete=models.CASCADE)
 
     has_set_password = models.BooleanField(default=False, null=False, blank=False)
