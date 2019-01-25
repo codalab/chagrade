@@ -113,7 +113,7 @@ class StudentCreationSerializer(serializers.Serializer):
             klass = Klass.objects.get(pk=validated_data.get('klass'))
             email = validated_data.get('email')
             # If we weren't given a username, create a unique one from splitting the supplied email at the @ symbol
-            username = self._check_username(email.split('@')[0]) if not validated_data.get('username') else validated_data.get('username')
+            username = self._check_username(email.split('@')[0]) if not validated_data.get('username') else self._check_username(validated_data.get('username'))
             user_dict = {
                 'email': email,
                 'username': username,

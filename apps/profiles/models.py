@@ -7,6 +7,7 @@ from django.db import models
 
 
 class ChaUser(AbstractUser):
+    email = models.EmailField(blank=True, unique=True, verbose_name='email address')
     instructor = models.OneToOneField('Instructor', related_name='user', null=True, blank=True, on_delete=models.CASCADE)
 
     has_set_password = models.BooleanField(default=False, null=False, blank=False)
