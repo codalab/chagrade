@@ -33,7 +33,7 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         self.request.user.set_password(form.cleaned_data['new_password1'])
         self.request.user.save()
-        user = authenticate(self.request, email=self.request.user.email, password=form.cleaned_data['new_password1'])
+        user = authenticate(email=self.request.user.email, password=form.cleaned_data['new_password1'])
         login(self.request, user, backend="apps.profiles.auth_backends.EmailBackend")
         return super().form_valid(form)
 
@@ -44,7 +44,7 @@ class LoginView(FormView):
     success_url = reverse_lazy('index')
 
     def form_valid(self, form):
-        user = authenticate(self.request, email=form.cleaned_data['email'], password=form.cleaned_data['password'])
+        user = authenticate(email=form.cleaned_data['email'], password=form.cleaned_data['password'])
         login(self.request, user, backend="apps.profiles.auth_backends.EmailBackend")
         return super().form_valid(form)
 
