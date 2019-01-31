@@ -21,7 +21,7 @@
 
     <div class="ui centered grid wizard-steps">
         <div class="ui mini steps">
-            <a href="{% url "klasses:klass_enrollment" klass_pk=klass.pk %}" class="{% if wizard_current == 'klass_enrollment' %}active {% endif %}step">
+            <a href="{% url "klasses:klass_enrollment" klass_pk=klass.pk %}" class="{% if klass.enrolled_students.count > 0 %}completed {% endif %}{% if wizard_current == 'klass_enrollment' %}active {% endif %}step">
                 <i class="users icon"></i>
                 <div class="content">
                     <div class="title">Enroll Students</div>

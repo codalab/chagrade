@@ -1,4 +1,4 @@
-
+{# TODO: Replace all the context/templatefilter/templatetag with proper context variables #}
 {% extends 'base.html' %}
 {% load static %}
 {% load homework_tags %}
@@ -67,6 +67,7 @@
                 </div>
                 <div class="ui header">Assignments for Class {{ klass.title }}</div>
                 {% for definition in klass.homework_definitions.all %}
+{#                    {% if definition.team_based %}#}
                     {% with definition|get_last_submission:user.pk as submission %}
                         {% with submission|get_last_grade as grade %}
                             <div class="ui message">
@@ -78,7 +79,7 @@
                                     <h4>Due Date: {{ definition.due_date }}</h4>
                                     <p>{{ definition.description }}</p>
                                     {% if definition.team_based %}
-                                        <h4>Graded as teamwork</h4>
+                                        <div style="margin-top: 1vh; margin-bottom: 2.5vh;" class="ui red label">Graded as teamwork</div>
                                     {% endif %}
                                     <div class="ui grid">
                                         <div class="row">
@@ -131,7 +132,8 @@
                                             <div class="row">
                                                 <div class="center aligned sixteen wide column">
                                                     <div class="ui divider"></div>
-                                                    <h3 class="ui header">Grade: </h3>{{ grade.overall_grade }}
+{#                                                    <h3 class="ui header">Grade: </h3>{{ grade.overall_grade }}#}
+                                                    <h3 class="ui header">Grade: </h3>{{ grade.text_grade }}
                                                 </div>
                                             </div>
                                         {% endif %}

@@ -9,7 +9,7 @@ from django.views.generic import FormView, TemplateView
 
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 
-from apps.profiles.forms import InstructorProfileForm, ChagradeCreationForm
+from apps.profiles.forms import InstructorProfileForm, ChagradeCreationForm, ChagradeUserLoginForm
 
 
 def logout_view(request):
@@ -23,15 +23,37 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
     # model = ChaUser
     template_name = 'profiles/change_password.html'
     form_class = PasswordChangeForm
-    success_url = 'index'
+    success_url = reverse_lazy('index')
 
     def get_form_kwargs(self, **kwargs):
-        # data = super(ChangePassword, self).get_form_kwargs(**kwargs)
-        data = super(ChangePasswordView, self).get_form_kwargs(**kwargs)
+        data = super().get_form_kwargs(**kwargs)
         data['user'] = self.request.user
         return data
 
     def form_valid(self, form):
+        self.request.user.set_password(form.cleaned_data['new_password1'])
+        self.request.user.save()
+        user = authenticate(request=self.request, email=self.request.user.email, password=form.cleaned_data['new_password1'])
+        if not user:
+            form.add_error(field=None,
+                           error="Incorrect email/password combination. Please double check your credentials.")
+            return super().form_invalid(form)
+        login(self.request, user, backend="apps.profiles.auth_backends.EmailBackend")
+        return super().form_valid(form)
+
+
+class LoginView(FormView):
+    template_name = 'profiles/login.html'
+    form_class = ChagradeUserLoginForm
+    success_url = reverse_lazy('index')
+
+    def form_valid(self, form):
+        user = authenticate(request=self.request, email=form.cleaned_data['email'], password=form.cleaned_data['password'])
+        if not user:
+            form.add_error(field=None,
+                           error="Incorrect email/password combination. Please double check your credentials.")
+            return super().form_invalid(form)
+        login(self.request, user, backend="apps.profiles.auth_backends.EmailBackend")
         return super().form_valid(form)
 
 

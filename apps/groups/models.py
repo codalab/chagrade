@@ -17,7 +17,7 @@ class Team(models.Model):
     klass = models.ForeignKey('klasses.Klass', related_name='teams', null=True, blank=True, on_delete=models.PROTECT)
     # members = models.ManyToManyField('profiles.ChaUser', through='KlassTeamMembership')
 
-    name = models.CharField(max_length=100, null=False, blank=False, unique=True)
+    name = models.CharField(max_length=100, null=False, blank=False)
     description = models.CharField(max_length=200, null=True, blank=True)
 
     class Meta:

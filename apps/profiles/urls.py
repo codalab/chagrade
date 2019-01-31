@@ -8,7 +8,8 @@ app_name = 'profiles'
 
 urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
-    path('login/', auth_views.LoginView.as_view(template_name='profiles/login.html'), name='login'),
+    # path('login/', auth_views.LoginView.as_view(template_name='profiles/login.html'), name='login'),
+    path('login/', views.LoginView.as_view(), name='login'),
     path('sign_up/', views.SignUpView.as_view(), name='sign_up'),
     path('change_password/', views.ChangePasswordView.as_view(), name='change_password'),
     # path('set_password/', views.SetPasswordView.as_view(), name='set_password'),

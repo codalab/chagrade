@@ -11,7 +11,7 @@ User = get_user_model()
 class StudentsGETMethodTests(TestCase):
 
     def setUp(self):
-        self.student_user = User.objects.create_user(username='student_user', password='pass')
+        self.student_user = User.objects.create_user(username='student_user', password='pass', email='test@email.com')
         self.instructor = Instructor.objects.create(university_name='Test')
         self.klass = Klass.objects.create(instructor=self.instructor, course_number="1")
         self.student = StudentMembership.objects.create(

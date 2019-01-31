@@ -2,7 +2,7 @@ import csv
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 
 from django.views.generic import TemplateView
 
@@ -92,11 +92,14 @@ class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
         try:
             klass = Klass.objects.get(pk=self.kwargs.get('klass_pk'))
             submission = Submission.objects.get(pk=self.kwargs.get('submission_pk'))
+            student = klass.enrolled_students.get(user=self.request.user)
+            if not submission.creator == student or not student in submission.team.members.all():
+                raise Http404("You do not have permission to view this")
             context['submission'] = submission
             context['klass'] = klass
             definition = Definition.objects.get(pk=kwargs.get('definition_pk'))
             context['definition'] = definition
-            context['student'] = klass.enrolled_students.get(user=self.request.user)
+            context['student'] = student
         except ObjectDoesNotExist:
             raise Http404('Klass object not found')
         return context
@@ -122,11 +125,15 @@ def get_klass_grades_as_csv(request, klass_pk):
             for student in klass.enrolled_students.all():
                 temp_student_row = [student.student_id, student.user.email]
                 for definition in klass.homework_definitions.all():
-                    last_submission = definition.submissions.filter(creator=student).last()
+                    if definition.team_based:
+                        last_submission = definition.submissions.filter(team=student.team).last()
+                    else:
+                        last_submission = definition.submissions.filter(creator=student).last()
                     if last_submission:
                         published_grades = last_submission.grades.filter(published=True)
                         last_grade = published_grades.last() if published_grades.count() > 0 else None
-                        temp_student_row.append(last_grade.overall_grade)
+                        # temp_student_row.append(last_grade.overall_grade)
+                        temp_student_row.append(last_grade.text_grade)
                     else:
                         temp_student_row.append(0)
                 writer.writerow(temp_student_row)

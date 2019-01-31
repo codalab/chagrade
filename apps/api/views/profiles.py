@@ -1,4 +1,5 @@
 import csv
+import uuid
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
@@ -12,9 +13,11 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from apps.api.permissions import StudentPermissionCheck, UserPermissionCheck
-from apps.api.serializers.profiles import ChaUserSerializer, StudentCreationSerializer
+# from apps.api.serializers.profiles import ChaUserSerializer, StudentCreationSerializer, TestStudentSerializer
+from apps.api.serializers.profiles import ChaUserSerializer, TestStudentSerializer
 
 from apps.api import serializers
+from apps.groups.models import Team
 from apps.klasses.models import Klass
 
 from apps.profiles.models import ChaUser, StudentMembership
@@ -43,21 +46,13 @@ class StudentViewSet(ModelViewSet):
     permission_classes = (StudentPermissionCheck,)
 
 
-@api_view(['POST'])
-def create_student(request, version):
-    new_student_serializer = StudentCreationSerializer(data=request.data)
-    new_student_serializer.is_valid(raise_exception=True)
-    if new_student_serializer.errors:
-        return Response({'errors': new_student_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        new_student_serializer.create(new_student_serializer.validated_data)
-        return Response({'response': 'success'}, status=status.HTTP_201_CREATED)
+class TestStudentViewSet(ModelViewSet):
+    queryset = StudentMembership.objects.all()
+    serializer_class = serializers.profiles.TestStudentSerializer
 
 
 @api_view(['POST'])
 def create_students_from_csv(request, version):
-    print(request.data)
-    # klass = Klass.objects.get(pk=request.data.get('klass'))
     with open(request.FILES['file'].temporary_file_path()) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
@@ -68,20 +63,25 @@ def create_students_from_csv(request, version):
             else:
                 if len(row) >= 6:
                     data = {
-                        'first_name': row[0],
-                        'last_name': row[1],
-                        'username': row[2],
+                        'user': {
+                            'first_name': row[0],
+                            'last_name': row[1],
+                            'username': row[2],
+                            'email': row[4],
+                        },
                         'student_id': row[3],
-                        'email': row[4],
-                        'team': row[5],
+                        'team': {
+                            'name': row[5],
+                            'klass': request.data.get('klass')
+                        },
                         'klass': request.data.get('klass'),
                     }
-                    new_student_serializer = StudentCreationSerializer(data=data)
+                    new_student_serializer = TestStudentSerializer(data=data)
                     new_student_serializer.is_valid(raise_exception=True)
                     if new_student_serializer.errors:
                         return Response({'errors': new_student_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
                     else:
-                        new_student_serializer.create(new_student_serializer.validated_data)
+                        new_student_serializer.save()
                 else:
                     print("Row too short to read.")
             line_count += 1

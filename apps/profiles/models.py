@@ -16,9 +16,6 @@ class ChaUser(AbstractUser):
     receive_emails_from_instructor = models.BooleanField(default=True)
     receive_emails_from_admins = models.BooleanField(default=True)
 
-    class Meta:
-        unique_together = ('email', 'username')
-
     def __str__(self):
         return self.username
 
@@ -48,7 +45,7 @@ class StudentMembership(models.Model):
     date_enrolled = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'klass', 'student_id')
+        unique_together = ('user', 'klass')
 
     def __str__(self):
         return "{0}:{1} - {2}".format(self.user.username, self.student_id, self.klass.title)

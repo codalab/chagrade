@@ -1,22 +1,16 @@
-import uuid
-
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
+from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 
 from apps.api.serializers.homework import SubmissionSerializer
+from apps.api.utils import get_unique_username
 from apps.groups.models import Team
-from apps.klasses.models import Klass
-from apps.profiles.models import Instructor, StudentMembership, ChaUser
-
-# from apps.api.serializers.klasses import KlassSerializer
-
+from apps.profiles.models import StudentMembership, ChaUser
 
 User = get_user_model()
 
 
-class ChaUserSerializer(serializers.ModelSerializer):
+class ChaUserSerializer(WritableNestedModelSerializer):
 
     class Meta:
         model = User
@@ -27,6 +21,30 @@ class ChaUserSerializer(serializers.ModelSerializer):
             'last_name',
             'email',
         )
+        extra_kwargs = {
+            'username': {'validators': [], 'required': False, 'allow_blank': True},
+            'email': {'validators': []},
+        }
+
+    def validate(self, attrs):
+        if 'username' not in attrs or not attrs['username']:
+            username = attrs['email'].split("@")[0]
+        else:
+            username = attrs['username']
+        attrs['username'] = get_unique_username(username, attrs['email'])
+        return attrs
+
+    def create(self, validated_data):
+        try:
+            user = ChaUser.objects.get(email=validated_data['email'])
+            return super().update(user, validated_data)
+        except ChaUser.DoesNotExist:
+            # When we create a new user, set their password
+            # return super().create(validated_data)
+            new_user = super().create(validated_data)
+            new_user.set_password(validated_data['email'].split('@')[0])
+            new_user.save()
+            return new_user
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -41,17 +59,36 @@ class StudentSerializer(serializers.ModelSerializer):
         )
 
 
-class BasicTeamSerializer(serializers.ModelSerializer):
+class BasicTeamSerializer(WritableNestedModelSerializer):
 
     class Meta:
         model = Team
         fields = [
             'name',
             'description',
+            'klass',
+            'id'
         ]
+        extra_kwargs = {
+            'name': {'validators': [], 'allow_blank': True},
+            # 'name': {'validators': []},
+        }
+
+    def get_unique_together_validators(self):
+        '''
+        Overriding method to disable unique together checks
+        '''
+        return []
+
+    def create(self, validated_data):
+        try:
+            team = Team.objects.get(klass=validated_data['klass'], name=validated_data['name'])
+            return super().update(team, validated_data)
+        except Team.DoesNotExist:
+            return super().create(validated_data)
 
 
-class DetailedStudentSerializer(serializers.ModelSerializer):
+class DetailedStudentSerializer(WritableNestedModelSerializer):
 
     user = ChaUserSerializer()
     team = BasicTeamSerializer(required=False)
@@ -71,75 +108,36 @@ class DetailedStudentSerializer(serializers.ModelSerializer):
         )
 
 
-class StudentCreationSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-    klass = serializers.IntegerField(required=True)
+class TestStudentSerializer(WritableNestedModelSerializer):
+    user = ChaUserSerializer(required=True)
+    team = BasicTeamSerializer(required=False, allow_null=True)
 
-    student_id = serializers.CharField(max_length=200, required=False, allow_blank=True)
-    username = serializers.CharField(max_length=150, required=False, allow_blank=True)
-    first_name = serializers.CharField(max_length=30, required=False, allow_blank=True)
-    last_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
-    team = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    class Meta:
+        model = StudentMembership
+        fields = (
+            'user',
+            'klass',
+            'student_id',
+            'id',
+            'team',
+        )
+        extra_kwargs = {
+            #'team': {'validators': []},
+            'student_id': {'validators': [], 'required': False, 'allow_blank': True},
+        }
 
-    def _get_or_create_user(self, user_dict):
-        try:
-            user = ChaUser.objects.get(email=user_dict['email'])
-            return user
-        except ObjectDoesNotExist:
-            user = ChaUser.objects.create(**user_dict)
-            temp_password = user_dict['email'].split('@')[0]
-            print(f"SETTING PASSWORD TO {temp_password}")
-            user.set_password(temp_password)
-            user.save()
-            return user
-
-    def _get_or_create_student(self, student_dict):
-        try:
-            stud = StudentMembership.objects.get(klass=student_dict['klass'], user=student_dict['user'])
-            return stud
-        except ObjectDoesNotExist:
-            stud = StudentMembership.objects.create(**student_dict)
-            return stud
-
-    def _check_username(self, username):
-        try:
-            ChaUser.objects.get(username=username)
-            new_username = username + str(uuid.uuid4())[0:4]
-            return self._check_username(new_username)
-        except ObjectDoesNotExist:
-            return username
+    def validate(self, attrs):
+        if 'student_id' not in attrs or not attrs['student_id']:
+            student_id = attrs['user']['email'].split("@")[0]
+        else:
+            student_id = attrs['student_id']
+        attrs['student_id'] = get_unique_username(student_id, attrs['user']['email'])
+        return attrs
 
     def create(self, validated_data):
         try:
-            klass = Klass.objects.get(pk=validated_data.get('klass'))
-            email = validated_data.get('email')
-            # If we weren't given a username, create a unique one from splitting the supplied email at the @ symbol
-            username = self._check_username(email.split('@')[0]) if not validated_data.get(
-                'username') else self._check_username(validated_data.get('username'))
-            user_dict = {
-                'email': email,
-                'username': username,
-                'first_name': validated_data.get('first_name', ''),
-                'last_name': validated_data.get('last_name', '')
-            }
-            user = self._get_or_create_user(user_dict)
-            stud_dict = {
-                'user': user,
-                'klass': klass,
-                'student_id': username if not validated_data.get('student_id') else validated_data.get('student_id'),
-            }
-            if validated_data.get('team'):
-                try:
-                    team = Team.objects.get(name=validated_data.get('team'), klass=klass)
-                    stud_dict['team'] = team
-                except ObjectDoesNotExist:
-                    # print(f"Could not find a team with id {validated_data.get('team')}")
-                    team = Team.objects.create(name=validated_data.get('team'), klass=klass)
-                    stud_dict['team'] = team
-            stud = self._get_or_create_student(stud_dict)
-            print("COMPLETED SUCCESFULLY")
-            return stud
+            student = StudentMembership.objects.get(klass=validated_data.get('klass'), user__email=validated_data['user']['email'])
+            return super().update(student, validated_data)
+        except StudentMembership.DoesNotExist:
+            return super().create(validated_data)
 
-        except ObjectDoesNotExist:
-            print("Could not find klass object for student!")
-            return None

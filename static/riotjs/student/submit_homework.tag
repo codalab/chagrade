@@ -82,6 +82,10 @@
                 ]
             }
 
+            if (window.USER_TEAM !== undefined) {
+                data['team'] = window.USER_TEAM
+            }
+
             for (var index = 0; index < self.definition.custom_questions.length; index++) {
                 var temp_data = {
                     'question': self.refs['question_id_' + index].value,
