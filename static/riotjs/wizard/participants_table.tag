@@ -136,9 +136,6 @@
         //var csrftoken = Cookies.get('csrftoken');
         self.one('mount', function () {
             self.update_klass()
-
-
-            console.log(self)
         })
 
         self.do_csv_upload = function () {
@@ -158,10 +155,7 @@
                 .done(function (data) {
                     toastr.success("Successfully submitted")
 
-                    //self.update_klass()
                     self.update_klass()
-
-                    //$("#csv_form")[0].reset();
                 })
                 .fail(function (response) {
                     console.log(response)

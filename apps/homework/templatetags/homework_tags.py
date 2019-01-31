@@ -38,13 +38,6 @@ def get_last_grade(submission):
         return None
 
 
-# def get_last_team_grade(submission):
-#     if submission:
-#         if submission.grades.filter(published=True).count() > 0:
-#             return submission.grades.filter(published=True).last()
-#     return None
-
-
 def get_last_grade_teacher(submission):
     if submission:
         if submission.grades.count() > 0:

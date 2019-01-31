@@ -108,7 +108,6 @@ class TeamsAPIEndpointsTests(TestCase):
             }),
             content_type='application/json'
         )
-        # import pdb; pdb.set_trace()
         assert resp.status_code == 200
 
         resp = self.client.delete(reverse('api:team-detail', kwargs={'version': 'v1', 'pk': new_team_pk}))
