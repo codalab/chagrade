@@ -161,7 +161,7 @@ AUTH_USER_MODEL = 'profiles.ChaUser'
 
 AUTHENTICATION_BACKENDS = (
     # "apps.chahub_auth.oauth_backends.ChahubOAuth2",
-    # "django.contrib.auth.backends.ModelBackend",
+    "django.contrib.auth.backends.ModelBackend",
     "apps.profiles.auth_backends.EmailBackend",
 )
 
