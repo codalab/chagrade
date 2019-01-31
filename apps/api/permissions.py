@@ -123,12 +123,13 @@ class SubmissionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermissi
         except ObjectDoesNotExist:
             print("Error! Could not find matching student for user!")
             student = None
-        if request.user.instructor:
-            if request.user.instructor == obj.definition.klass.instructor:
-                return True
+        # if request.user.instructor:
+        #     if request.user.instructor == obj.definition.klass.instructor:
+        #         return True
         if student:
-            if student in obj.team.members.all():
-                return True
+            if obj.team:
+                if student in obj.team.members.all():
+                    return True
             if student == obj.creator:
                 return True
         return False
