@@ -37,7 +37,7 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
         if not user:
             form.add_error(field=None,
                            error="Incorrect email/password combination. Please double check your credentials.")
-            return super().form_invalid()
+            return super().form_invalid(form)
         login(self.request, user, backend="apps.profiles.auth_backends.EmailBackend")
         return super().form_valid(form)
 
@@ -52,7 +52,7 @@ class LoginView(FormView):
         if not user:
             form.add_error(field=None,
                            error="Incorrect email/password combination. Please double check your credentials.")
-            return super().form_invalid()
+            return super().form_invalid(form)
         login(self.request, user, backend="apps.profiles.auth_backends.EmailBackend")
         return super().form_valid(form)
 
