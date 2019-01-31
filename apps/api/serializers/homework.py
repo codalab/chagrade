@@ -3,10 +3,6 @@ from rest_framework.serializers import ModelSerializer
 from drf_writable_nested import WritableNestedModelSerializer
 
 from apps.homework.models import Definition, Criteria, Question, Submission, QuestionAnswer, Grade, CriteriaAnswer
-from apps.profiles.models import Instructor, StudentMembership
-
-# from apps.api.serializers.klasses import KlassSerializer
-
 
 User = get_user_model()
 

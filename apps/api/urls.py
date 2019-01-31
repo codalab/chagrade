@@ -7,7 +7,8 @@ from rest_framework.routers import SimpleRouter
 
 # from apps.api.views.producers import ProducerViewSet
 from apps.api.views.homework import DefinitionViewSet, CriteriaViewSet, QuestionViewSet, SubmissionViewSet, GradeViewSet
-from apps.api.views.profiles import ProfileViewSet, StudentViewSet, create_student, create_students_from_csv
+from apps.api.views.profiles import ProfileViewSet, StudentViewSet, create_students_from_csv, \
+    TestStudentViewSet
 from apps.api.views.klasses import KlassViewSet
 from apps.api.views.groups import TeamViewSet
 # from .views import competitions, profiles, search
@@ -19,6 +20,7 @@ API_PREFIX = "v1"
 router = SimpleRouter()
 router.register('users', ProfileViewSet)
 router.register('students', StudentViewSet)
+router.register('test_students', TestStudentViewSet)
 router.register('klasses', KlassViewSet)
 router.register('definitions', DefinitionViewSet)
 router.register('criterias', CriteriaViewSet)
@@ -51,7 +53,7 @@ urlpatterns = [
     url(r'^$', schema_view.with_ui('swagger', cache_timeout=None), name='docs'),
 
     # Custom API point for handling student creation
-    path('create_student/', create_student, name='create_student'),
+    # path('create_student/', create_student, name='create_student'),
     path('create_students_from_csv/', create_students_from_csv, name='create_students_from_csv')
 
     # Optionally, use "redoc" style

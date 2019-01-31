@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UsernameField, UserCreationForm
+from django.contrib.auth.forms import UsernameField, UserCreationForm, AuthenticationForm
 from django.forms import EmailField, CharField
 
 from apps.profiles.models import Instructor, ChaUser
@@ -27,3 +27,12 @@ class ChagradeCreationForm(UserCreationForm):
             "first_name": CharField,
             "last_name": CharField
         }
+
+
+class ChagradeUserLoginForm(forms.Form):
+    email = EmailField(widget=forms.TextInput(attrs={'autofocus': True}))
+    password = forms.CharField(
+        label="Password",
+        strip=False,
+        widget=forms.PasswordInput,
+    )

@@ -3,10 +3,9 @@ from rest_framework.serializers import ModelSerializer
 
 from apps.groups.models import Team
 
-from apps.api.serializers.profiles import StudentSerializer, DetailedStudentSerializer
+from apps.api.serializers.profiles import StudentSerializer
 
 
-# class TeamSerializer(ModelSerializer):
 class TeamSerializer(WritableNestedModelSerializer):
 
     members = StudentSerializer(many=True)

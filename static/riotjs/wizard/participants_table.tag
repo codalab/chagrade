@@ -6,6 +6,13 @@
     <div class="ui error message" show="{ opts.error }">
         <p>{ opts.error }</p>
     </div>
+    <script>
+        var self = this
+
+        self.get_value = function() {
+            return self.refs.input.value
+        }
+    </script>
 </field>
 <participants-table>
 
@@ -77,34 +84,34 @@
             <div class="header">Add Student</div>
             <div class="content">
                 <i>Enter a username/email combo if the student is not registered yet. Their account will be created and waiting for them.</i>
-                <form id="student_form" class="ui form error" onsubmit="{ add_student }">
-                    <field name="First Name (Optional)" ref="first_name" input_name="first_name"></field>
-                    <field name="Last Name (Optional)" ref="last_name" input_name="last_name"></field>
-                    <field name="User Name (Optional)" ref="username" input_name="username"></field>
-                    <field name="Student ID (Optional)" ref="student_id" input_name="student_id"></field>
-                    <field name="Email" ref="email" input_name="email"></field>
-                    <field name="Team ID (Optional)" ref="team" input_name="team"></field>
+                <form id="student_form" class="ui form error">
+                    <field name="First Name (Optional)" ref="first_name"></field>
+                    <field name="Last Name (Optional)" ref="last_name"></field>
+                    <field name="User Name (Optional)" ref="username"></field>
+                    <field name="Student ID (Optional)" ref="student_id"></field>
+                    <field name="Email" ref="email"></field>
+                    <field name="Team Name (Optional)" ref="team_name"></field>
                 </form>
             </div>
-            <div class="actions">
-                <input type="submit" class="ui blue button" form="student_form" value="Save"/>
+            <!--<div class="actions">-->
+                <a class="ui blue button" onclick="{add_student}">Add Student</a>
                 <div class="ui cancel button">Cancel</div>
-            </div>
+            <!--</div>-->
         </div>
 
-        <div id="message_form_modal" class="ui modal">
+        <!--<div id="message_form_modal" class="ui modal">
             <div class="header">Send Message to all Students</div>
             <div class="content">
                 <form method="post" id="message_form" class="ui form error" onsubmit="{ add_student }">
                     <!--<field name="Subject" ref="subject" input_name="subject" error="{errors.subject}"></field>
-                    <field name="Message" ref="message" input_name="message" error="{errors.message}"></field>-->
+                    <field name="Message" ref="message" input_name="message" error="{errors.message}"></field>
                         <div class="sixteen wide field">
                             <label>Subject</label>
                             <input type="text" name="subject" ref="subject">
                         </div>
                         <div class="field">
                             <label>Message</label>
-                            <!--<input type="text" name="{ opts.input_name }" ref="input">-->
+                            <!--<input type="text" name="{ opts.input_name }" ref="input">
                             <textarea name="message" ref="message"></textarea>
                         </div>
                 </form>
@@ -113,7 +120,7 @@
                 <div onclick="{submit_message}" class="ui blue button">Submit</div>
                 <div class="ui cancel button">Cancel</div>
             </div>
-        </div>
+        </div>-->
     </div>
 
     <script>
@@ -129,6 +136,9 @@
         //var csrftoken = Cookies.get('csrftoken');
         self.one('mount', function () {
             self.update_klass()
+
+
+            console.log(self)
         })
 
         self.do_csv_upload = function () {
@@ -207,16 +217,27 @@
                 })
         }
 
-        self.add_student = function (save_event) {
-            save_event.preventDefault()
+        self.add_student = function () {
+            var data = {
+                "user": {
+                    "username": self.refs.username.get_value() || "",
+                    "first_name": self.refs.first_name.get_value() || "",
+                    "last_name": self.refs.last_name.get_value() || "",
+                    "email": self.refs.email.get_value() || ""
+                },
+                "klass": KLASS,
+                "student_id": self.refs.student_id.get_value() || "",
+            }
 
-            var data = $("#student_form").serializeObject()
-            data['klass'] = KLASS
-
-            //if (data['team'] === ""){
-                data['team'] = null
-            //}
-            console.log(data)
+            if (self.refs.team_name.get_value() === null) {
+                alert("Team cannot be null")
+                return
+            } else {
+                data['team'] = {
+                    "name": self.refs.team_name.get_value() || "",
+                    "klass": KLASS
+                }
+            }
 
             CHAGRADE.api.create_single_student(data)
                 .done(function (data) {
