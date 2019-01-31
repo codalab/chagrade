@@ -3,7 +3,7 @@ from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 
 from apps.api.serializers.homework import SubmissionSerializer
-from apps.api.tasks import get_unique_username
+from apps.api.utils import get_unique_username
 from apps.groups.models import Team
 from apps.profiles.models import StudentMembership, ChaUser
 
