@@ -46,9 +46,9 @@ class Definition(models.Model):
 
 
 class Submission(models.Model):
-    klass = models.ForeignKey('klasses.Klass', default=None, related_name='homework_submissions', on_delete=models.PROTECT)
-    definition = models.ForeignKey('Definition', default=None, related_name='submissions', on_delete=models.PROTECT)
-    creator = models.ForeignKey('profiles.StudentMembership', related_name='submitted_homeworks', on_delete=models.PROTECT)
+    klass = models.ForeignKey('klasses.Klass', default=None, related_name='homework_submissions', on_delete=models.CASCADE)
+    definition = models.ForeignKey('Definition', default=None, related_name='submissions', on_delete=models.CASCADE)
+    creator = models.ForeignKey('profiles.StudentMembership', related_name='submitted_homeworks', on_delete=models.CASCADE)
 
     submission_github_url = models.URLField(default=None, null=True, blank=True)
 
@@ -59,7 +59,7 @@ class Submission(models.Model):
 
     submitted_to_challenge = models.BooleanField(default=False)
 
-    team = models.ForeignKey('groups.Team', default=None, null=True, blank=True, related_name='submissions', on_delete=models.PROTECT)
+    team = models.ForeignKey('groups.Team', default=None, null=True, blank=True, related_name='submissions', on_delete=models.SET_NULL)
 
     def __str__(self):
         return "{}".format(self.submission_github_url)
@@ -104,7 +104,7 @@ class SubmissionTracker(models.Model):
 
 class Grade(models.Model):
     submission = models.ForeignKey('Submission', related_name='grades', on_delete=models.CASCADE)
-    evaluator = models.ForeignKey('profiles.Instructor', related_name='assigned_grades', on_delete=models.PROTECT)
+    evaluator = models.ForeignKey('profiles.Instructor', related_name='assigned_grades', on_delete=models.CASCADE)
 
     overall_grade = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
@@ -158,8 +158,8 @@ class Criteria(models.Model):
 
 
 class QuestionAnswer(models.Model):
-    submission = models.ForeignKey('Submission', related_name='question_answers', on_delete=models.PROTECT)
-    question = models.ForeignKey('Question', default=None, related_name='student_answers', on_delete=models.PROTECT)
+    submission = models.ForeignKey('Submission', related_name='question_answers', on_delete=models.CASCADE)
+    question = models.ForeignKey('Question', default=None, related_name='student_answers', on_delete=models.CASCADE)
 
     text = models.CharField(max_length=150, default='')
     is_correct = models.BooleanField(default=False)
