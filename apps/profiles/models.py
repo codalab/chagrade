@@ -35,7 +35,7 @@ class Instructor(models.Model):
 class StudentMembership(models.Model):
     user = models.ForeignKey('ChaUser', related_name='klass_memberships', null=False, blank=False, on_delete=models.CASCADE)
     klass = models.ForeignKey('klasses.Klass', related_name='enrolled_students', null=False, blank=False, on_delete=models.CASCADE)
-    team = models.ForeignKey('groups.Team', related_name='members', null=True, blank=True, on_delete=models.PROTECT)
+    team = models.ForeignKey('groups.Team', related_name='members', null=True, blank=True, on_delete=models.SET_NULL)
 
     student_id = models.CharField(null=False, blank=False, max_length=25)
 

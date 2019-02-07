@@ -29,7 +29,7 @@ class WizardMixin(object):
         except ObjectDoesNotExist:
             raise Http404('Klass object not found')
 
-        # If we don't have a current_step set try to set one automatically
+        # If we don't have a current_step set try to set one automatically based on our requests URL
         if not self._current_step:
             self._current_step = resolve(self.request.path_info).url_name
         context['wizard_current'] = self._current_step

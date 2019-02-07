@@ -81,6 +81,9 @@ CHAGRADE.api = {
     update_student: function(pk, data) {
         return CHAGRADE.api.request('PUT', URLS.API + 'students/' + pk + "/", data)
     },
+    delete_student: function(pk) {
+        return CHAGRADE.api.request('DELETE', URLS.API + 'students/' + pk + "/")
+    },
     // Definitions
     get_definition: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + "definitions/" + pk)
@@ -117,8 +120,8 @@ CHAGRADE.api = {
         return CHAGRADE.api.request('PUT', URLS.API + 'grades/' + pk + "/", data)
     },
     // Teams
-    get_teams: function() {
-        return CHAGRADE.api.request('GET', URLS.API + 'teams/')
+    get_teams: function(KLASS) {
+        return CHAGRADE.api.request('GET', URLS.API + 'teams/?klass=' + KLASS)
     },
     get_team: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + 'teams/' + pk)

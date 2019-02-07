@@ -19,3 +19,14 @@ from apps.profiles.models import StudentMembership
 
 class TeamCreateView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'groups/forms/team_form.html'
+
+
+class TeamEditView(LoginRequiredMixin, WizardMixin, TemplateView):
+    template_name = 'groups/forms/team_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        team = self.request.kwargs.get('team', None)
+        if team:
+            context['team'] = team
+        return context

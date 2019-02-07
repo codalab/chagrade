@@ -19,6 +19,7 @@ class TeamSerializer(WritableNestedModelSerializer):
             'description',
             'members',
         ]
+        read_only_fields = ['submissions']
 
 
 class BasicTeamSerializer(ModelSerializer):

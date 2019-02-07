@@ -15,15 +15,57 @@
     </script>
 </field>
 <participants-table>
+    <div>
+        <span>
+            <!--<a href="" class="ui blue button">Create Student Team</a>-->
+            <a onclick="{goto_create_team}" class="ui blue button">Create Student Team</a>
+            <a class="ui button">Upload Team CSV</a>
+        </span>
+        <h1>Teams</h1>
+        <table class="ui sortable table">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th># Members</th>
+                <th></th>
+                <th>Entries</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr each="{team, index in teams}">
+                    <td>
+                        {index + 1}
+                    </td>
+                    <td>
+                        {team.id}
+                    </td>
+                    <td>
+                        {team.name}
+                    </td>
+                    <td>
+                        {team.members.length}
+                    </td>
+                    <td class="center aligned">
+                        <div onclick="{delete_team.bind(this, team.id)}" class="ui mini red button">x</div>
+                    </td>
+                    <td>
+                        {team.submissions.length}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="ui divider" style=""></div>
 
     <div style="">
         <span>
-            <!--<a onclick="{ show_message_modal }" class="ui blue button">Send Message</a>-->
             <a onclick="{download_csv}" class="ui yellow button">Download CSV</a>
-            <!--<form id="csv_form" enctype="multipart/form-data">-->
-                <a class="ui button" onclick="document.getElementById('hidden_file_input').click()">Upload CSV</a>
-                <input id="hidden_file_input" hidden type="file" onchange="{do_csv_upload}"/>
-            <!--</form>-->
+            <a class="ui blue button"
+               onclick="document.getElementById('hidden_file_input').click()">Upload CSV</a>
+            <input id="hidden_file_input" hidden type="file" onchange="{do_csv_upload}"/>
             <a class="ui green icon button" onclick="{ show_student_modal }">
                 <i class="add square icon"></i> Add new student
             </a>
@@ -70,6 +112,7 @@
                     <!--<td>
                     </td>-->
                     <td>
+                        <div onclick="{delete_student.bind(this, student.id)}" class="ui mini red button">x</div>
                     </td>
                     <td>
                         { student.submitted_homeworks.length }
@@ -136,7 +179,64 @@
         //var csrftoken = Cookies.get('csrftoken');
         self.one('mount', function () {
             self.update_klass()
+            self.update_teams()
         })
+
+        self.goto_create_team = function() {
+                window.location='/groups/create/' + KLASS + '/'
+        }
+
+        self.delete_team = function(pk) {
+            var result = confirm("Are you sure you wish to delete this team?")
+            if (!result) {
+                return
+            } else {
+                CHAGRADE.api.delete_team(pk)
+                .done(function (data) {
+                    toastr.success("Successfully deleted team")
+                    self.update_teams()
+                    self.update_klass()
+                })
+                .fail(function (response) {
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    });
+                })
+            }
+
+        }
+
+        self.delete_student = function(pk) {
+            var result = confirm("Are you sure you wish to remove this student?")
+            if (!result) {
+                return
+            } else {
+                CHAGRADE.api.delete_student(pk)
+                .done(function (data) {
+                    toastr.success("Successfully removed student")
+                    self.update_teams()
+                    self.update_klass()
+                })
+                .fail(function (response) {
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    });
+                })
+            }
+
+        }
+
+        self.update_teams = function() {
+            CHAGRADE.api.get_teams(KLASS)
+                .done(function (data) {
+                    self.update({teams: data})
+                })
+                .fail(function (error) {
+                    toastr.error("Error fetching teams: " + error.statusText)
+                })
+        }
 
         self.do_csv_upload = function () {
             var files = $('#hidden_file_input').prop("files")
@@ -154,8 +254,8 @@
             })
                 .done(function (data) {
                     toastr.success("Successfully submitted")
-
                     self.update_klass()
+                    self.update_teams()
                 })
                 .fail(function (response) {
                     console.log(response)
@@ -238,6 +338,7 @@
                     toastr.success("Successfully saved student")
 
                     self.update_klass()
+                    self.update_teams()
 
                     $("#student_form")[0].reset();
                     $("#student_form_modal").modal('hide')
