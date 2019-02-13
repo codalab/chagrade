@@ -5,6 +5,7 @@ services:
   # --------------------------------------------------------------------------
   django:
     build: .
+    restart: unless-stopped
     hostname: django
     command: /usr/local/bin/gunicorn chagrade.wsgi:application -w 2 -b :8000 --reload
     env_file: .env
@@ -28,6 +29,7 @@ services:
   # --------------------------------------------------------------------------
   postgres:
     image: postgres:9.5
+    restart: unless-stopped
     environment:
       - PGDATA=/app/var/lib/postgresql/data/pgdata
       - POSTGRES_DB=${DB_NAME}
@@ -47,6 +49,7 @@ services:
   #-----------------------------------------------
   rabbitmq:
     image: rabbitmq:3-management
+    restart: unless-stopped
     container_name: rabbit
     hostname: rabbit
     env_file: .env
@@ -60,6 +63,7 @@ services:
   #-----------------------------------------------
   celery:
     container_name: celery
+    restart: unless-stopped
     hostname: celery
     command: bash -c "celery -A chagrade worker --loglevel=debug"
     working_dir: /app/
@@ -79,6 +83,7 @@ services:
   #-----------------------------------------------
   flower:
     container_name: flower
+    restart: unless-stopped
     hostname: flower
     env_file: .env
     build:
