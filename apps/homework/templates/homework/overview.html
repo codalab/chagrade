@@ -21,7 +21,7 @@
 {% block content %}
     <div class="ui centered grid">
         <div class="row">
-        <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
+            <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
             <div class="fourteen wide column">
                 <div class="ui centered grid segment">
                     <div class="row">
@@ -36,15 +36,16 @@
                             <div class="ui grid">
                                 <div class="row no-padding">
                                     <div class="twelve wide column">
-                                        <h1 class="ui header">{{klass.title}}</h1>
+                                        <h1 class="ui header">{{ klass.title }}</h1>
                                         {% if klass.group %}
                                             <h4 class="ui header condensed">From Group: {{ klass.group.name }}</h4>
                                         {% endif %}
-                                        <h4 class="ui header condensed">Organized by: {{ klass.instructor.user.username }}</h4>
+                                        <h4 class="ui header condensed">Organized
+                                            by: {{ klass.instructor.user.username }}</h4>
                                     </div>
                                     <div class="four wide column">
-                                        <h5 class="ui header condensed">Created: {{klass.created.date}}</h5>
-                                        <h5 class="ui header condensed">Modified: {{klass.modified.date}}</h5>
+                                        <h5 class="ui header condensed">Created: {{ klass.created.date }}</h5>
+                                        <h5 class="ui header condensed">Modified: {{ klass.modified.date }}</h5>
                                     </div>
                                 </div>
                                 <div class="row no-padding">
@@ -67,7 +68,7 @@
                 </div>
                 <div class="ui header">Assignments for Class {{ klass.title }}</div>
                 {% for definition in klass.homework_definitions.all %}
-{#                    {% if definition.team_based %}#}
+                    {#                    {% if definition.team_based %}#}
                     {% with definition|get_last_submission:user.pk as submission %}
                         {% with submission|get_last_grade as grade %}
                             <div class="ui message">
@@ -79,51 +80,63 @@
                                     <h4>Due Date: {{ definition.due_date }}</h4>
                                     <p>{{ definition.description }}</p>
                                     {% if definition.starting_kit_github_url %}
-                                        <a href="{{definition.starting_kit_github_url}}" class="">Goto Starting Kit</a><br>
+                                        <a href="{{ definition.starting_kit_github_url }}" class="">Goto Starting
+                                            Kit</a><br>
                                     {% endif %}
                                     {% if definition.team_based %}
-                                        <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;" class="ui red label">Graded as teamwork</div>
+                                        <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
+                                             class="ui red label">Graded as teamwork
+                                        </div>
                                     {% endif %}
                                     <div class="ui grid">
                                         <div class="row">
                                             <div class="eight wide column">
                                                 <h4 class="ui header">Submission Details:</h4>
                                                 <ul class="ui relaxed celled list">
-                                                    <div class="item"><a href="{{ submission.submission_github_url }}" class="">Github URL for Submission</a></div>
-                                                    {% if definition.ask_method_name %}<div class="item">Method Name:
-                                                        {{ submission.method_name }}</div>{% endif %}
-                                                    {% if definition.ask_method_description %}<div class="item">Method Description:
-                                                        {{ submission.method_description }}</div>{% endif %}
-                                                    {% if definition.ask_project_url %}<div class="item">Project URL:
-                                                        {{ submission.project_url }}</div>{% endif %}
-                                                    {% if definition.ask_publication_url %}<div class="item">Publication URL:
-                                                        {{ submission.publication_url }}</div>{% endif %}
+                                                    <div class="item"><a href="{{ submission.submission_github_url }}"
+                                                                         class="">Github URL for Submission</a></div>
+                                                    {% if definition.ask_method_name %}
+                                                        <div class="item">Method Name:
+                                                            {{ submission.method_name }}</div>{% endif %}
+                                                    {% if definition.ask_method_description %}
+                                                        <div class="item">Method Description:
+                                                            {{ submission.method_description }}</div>{% endif %}
+                                                    {% if definition.ask_project_url %}
+                                                        <div class="item">Project URL:
+                                                            {{ submission.project_url }}</div>{% endif %}
+                                                    {% if definition.ask_publication_url %}
+                                                        <div class="item">Publication URL:
+                                                            {{ submission.publication_url }}</div>{% endif %}
                                                 </ul>
                                             </div>
                                             <div class="eight wide column">
                                                 {% if submission %}
                                                     <a href="{% url "homework:edit_submission" klass_pk=klass.pk definition_pk=definition.pk submission_pk=submission.pk %}"
                                                        class="ui yellow button">Edit/Re-Submit Homework</a>
-                                                    <a href="{{ submission.get_challenge_url }}" class="ui green button">View Challenge</a>
+                                                    <a href="{{ submission.get_challenge_url }}"
+                                                       class="ui green button">View Challenge</a>
                                                     <table class="ui table">
                                                         <thead>
-                                                            <tr>
-                                                                <th>Status</th>
-                                                                <th>Score</th>
-                                                            </tr>
+                                                        <tr>
+                                                            <th>ID</th>
+                                                            <th>Status</th>
+                                                            <th>Score</th>
+                                                            <th>Phase</th>
+                                                        </tr>
                                                         </thead>
                                                         <tbody>
-                                                            {% for tracker in submission.tracked_submissions.all %}
-                                                                {% with tracker.get_remote_submission_info as submission_info %}
-                                                                    {% if submission_info %}
-                                                                        <td>{{ submission_info|get_item:'status' }}</td>
-                                                                        <td>{{ submission_info|get_item:'score' }}</td>
-                                                                    {% else %}
-                                                                        <td>Waiting...</td>
-                                                                        <td></td>
-                                                                    {% endif %}
-                                                                {% endwith %}
-                                                            {% endfor %}
+                                                        {% for tracker in submission.tracked_submissions.all %}
+                                                            {% with tracker.get_remote_submission_info as submission_info %}
+                                                                {% if submission_info %}
+                                                                    <td>{{ tracker.remote_id }}</td>
+                                                                    <td>{{ submission_info|get_item:'status' }}</td>
+                                                                    <td>{{ submission_info|get_item:'score' }}</td>
+                                                                    <td>{{ tracker.remote_phase }}</td>
+                                                                {% else %}
+                                                                    <td>Waiting...</td>
+                                                                {% endif %}
+                                                            {% endwith %}
+                                                        {% endfor %}
                                                         </tbody>
                                                     </table>
                                                 {% else %}

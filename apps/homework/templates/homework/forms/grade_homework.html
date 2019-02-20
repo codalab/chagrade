@@ -1,4 +1,5 @@
 {% extends 'klasses/wizard/wizard_base.html' %}
+{% load homework_tags %}
 
 {% block wizard_title %}
     <h2 class="ui massive header" style="font-size: 56px;">Grade Homework</h2>
@@ -16,6 +17,15 @@
                     <div class="item">Username: {{ submission.creator.user.username }}</div>
                     <div class="item">Email: {{ submission.creator.user.email }}</div>
                     <div class="item">Team Leader: {{ submission.team.leader }}</div>
+                    {% for tracker in submission.tracked_submissions.all %}
+                        {% with tracker.get_remote_submission_info as submission_info %}
+                            {% if submission_info %}
+                                <div class="item">Submission Info: ID - {{ tracker.remote_id }}; Score - {{ submission_info|get_item:'score' }}; Status - {{ submission_info|get_item:'status' }}; Phase - {{ tracker.remote_phase }}</div>
+                            {% else %}
+                                <div class="item">Waiting...</div>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
                 </div>
                 <h4 class="ui header">Challenge Rules</h4>
                 <div class="ui relaxed celled list">
