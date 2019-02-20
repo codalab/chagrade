@@ -19,7 +19,7 @@
         <span>
             <!--<a href="" class="ui blue button">Create Student Team</a>-->
             <a onclick="{goto_create_team}" class="ui blue button">Create Student Team</a>
-            <a class="ui button">Upload Team CSV</a>
+            <!--<a class="ui button">Upload Team CSV</a>-->
         </span>
         <h1>Teams</h1>
         <table class="ui sortable table">
@@ -29,6 +29,7 @@
                 <th>ID</th>
                 <th>Name</th>
                 <th># Members</th>
+                <!--<th>Challenge URL</th>-->
                 <th></th>
                 <th>Entries</th>
             </tr>
@@ -47,8 +48,12 @@
                     <td>
                         {team.members.length}
                     </td>
+                    <!--<td>
+                        {team.challenge_url}
+                    </td>-->
                     <td class="center aligned">
                         <div onclick="{delete_team.bind(this, team.id)}" class="ui mini red button">x</div>
+                        <div onclick="{edit_team.bind(this, team.id)}" class="ui mini yellow icon button"><i class="wrench icon"></i></div>
                     </td>
                     <td>
                         {team.submissions.length}
@@ -182,8 +187,12 @@
             self.update_teams()
         })
 
-        self.goto_create_team = function() {
-                window.location='/groups/create/' + KLASS + '/'
+        self.goto_create_team = function () {
+            window.location = '/groups/create/' + KLASS + '/'
+        }
+
+        self.edit_team = function(pk) {
+            window.location='/groups/edit/' + KLASS + '/' + pk + '/'
         }
 
         self.delete_team = function(pk) {

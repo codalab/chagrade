@@ -20,5 +20,7 @@ class Team(models.Model):
     name = models.CharField(max_length=100, null=False, blank=False)
     description = models.CharField(max_length=200, null=True, blank=True)
 
+    challenge_url = models.URLField(default=None, null=True, blank=True)
+
     class Meta:
         unique_together = ('name', 'klass')

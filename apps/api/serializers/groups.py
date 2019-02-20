@@ -18,6 +18,7 @@ class TeamSerializer(WritableNestedModelSerializer):
             'name',
             'description',
             'members',
+            'challenge_url'
         ]
         read_only_fields = ['submissions']
 

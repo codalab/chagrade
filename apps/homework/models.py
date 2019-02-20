@@ -64,6 +64,24 @@ class Submission(models.Model):
     def __str__(self):
         return "{}".format(self.submission_github_url)
 
+    @property
+    def get_challenge_url(self):
+        if not self.definition.challenge_url or not self.submission_github_url:
+            print("No challenge URL or submission github URL given.")
+            return
+        if self.definition.team_based:
+            if not self.team:
+                print("Team not set")
+                return
+            custom_urls = self.team.challenge_urls.filter(definition=self.definition)
+            if not custom_urls:
+                print("No custom URL found, returning definition challenge url")
+                return self.definition.challenge_url
+            else:
+                print("Returning found custom url")
+                return custom_urls.first().challenge_url
+        else:
+            return self.definition.challenge_url
 
 class SubmissionTracker(models.Model):
     submission = models.ForeignKey('Submission', related_name='tracked_submissions', null=True, blank=True, on_delete=models.CASCADE)
@@ -169,3 +187,9 @@ class CriteriaAnswer(models.Model):
     grade = models.ForeignKey('Grade', default=None, related_name='criteria_answers', on_delete=models.CASCADE)
     criteria = models.ForeignKey('Criteria', related_name='answers', on_delete=models.CASCADE)
     score = models.IntegerField(default=0)
+
+
+class TeamCustomChallengeURL(models.Model):
+    team = models.ForeignKey('groups.Team', related_name='challenge_urls', on_delete=models.CASCADE)
+    definition = models.ForeignKey(Definition, related_name='custom_challenge_urls', on_delete=models.CASCADE)
+    challenge_url = models.URLField()

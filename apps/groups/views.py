@@ -26,7 +26,7 @@ class TeamEditView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        team = self.request.kwargs.get('team', None)
+        team = self.kwargs.get('team_pk', None)
         if team:
             context['team'] = team
         return context

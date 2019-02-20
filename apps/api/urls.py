@@ -6,7 +6,8 @@ from rest_framework import permissions
 from rest_framework.routers import SimpleRouter
 
 # from apps.api.views.producers import ProducerViewSet
-from apps.api.views.homework import DefinitionViewSet, CriteriaViewSet, QuestionViewSet, SubmissionViewSet, GradeViewSet
+from apps.api.views.homework import DefinitionViewSet, CriteriaViewSet, QuestionViewSet, SubmissionViewSet, \
+    GradeViewSet, CustomChallengeURLViewSet
 from apps.api.views.profiles import ProfileViewSet, StudentViewSet, create_students_from_csv, \
     TestStudentViewSet
 from apps.api.views.klasses import KlassViewSet
@@ -28,6 +29,7 @@ router.register('questions', QuestionViewSet)
 router.register('submissions', SubmissionViewSet)
 router.register('grades', GradeViewSet)
 router.register('teams', TeamViewSet)
+router.register('custom_challenge_urls', CustomChallengeURLViewSet)
 
 # Documentation details
 schema_view = get_schema_view(

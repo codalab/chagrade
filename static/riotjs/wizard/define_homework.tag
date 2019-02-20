@@ -64,6 +64,21 @@
             </div>
         </div>
 
+        <!-- Team Challenge URL -->
+
+        <div style="width: 100%;" class="ui styled accordion">
+            <virtual each="{team in definition.teams}">
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    {team.name}
+                </div>
+                <div class="content">
+                    <label>Challenge URL:</label>
+                    <input type="text" data-custom-challenge-id="{team.custom_challenge_id}" name="team_challenge_url" ref="team_{team.id}_challenge_url" value="{team.custom_challenge_url}">
+                </div>
+            </virtual>
+        </div>
+
         <!-- Custom Questions + Criteria -->
 
         <div class="ui divider"></div>
@@ -155,8 +170,14 @@
 
         self.one('mount', function () {
             if (window.DEFINITION != undefined) {
-               self.update_definition()
+                self.update_definition()
+            } else {
+                self.update_teams()
             }
+
+            $('.ui.accordion')
+                .accordion()
+            ;
 
             $('.datepicker').calendar({
                 type: 'date',
@@ -173,6 +194,19 @@
             })
 
         })
+
+        self.update_teams = function() {
+            CHAGRADE.api.get_teams(KLASS)
+            .done(function (data) {
+                    //self.update({definition['teams']: data})
+                    console.log(data)
+                    self.definition.teams = data
+                    self.update()
+                })
+                .fail(function (error) {
+                    toastr.error("Error fetching teams: " + error.statusText)
+                })
+        }
 
         self.remove_question = function (index) {
             if (self.refs['question' + '_id_' + index].value !== ""){
@@ -203,11 +237,21 @@
         self.update_definition = function() {
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
+                    data.teams.forEach(function (team) {
+                        data.custom_challenge_urls.forEach(function (custom_url) {
+                            if (team.id === custom_url.team)
+                            {
+                                team.custom_challenge_url = custom_url.challenge_url,
+                                team.custom_challenge_id = custom_url.id
+                            }
+                        })
+                    })
                     self.update({
                         definition: data,
                         questions: data.custom_questions,
                         criterias: data.criterias
                     })
+                    console.log(data)
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching definition: " + error.statusText)
@@ -253,6 +297,8 @@
 
         self.submit_form = function() {
 
+            //self.submit_team_changes()
+
             var obj_data = {
                 "klass": KLASS,
                 "creator": INSTRUCTOR,
@@ -273,6 +319,7 @@
                         "upper_range": 0
                     }*/
                 ],
+                "custom_challenge_urls": [],
                 "custom_questions": [
                     /*{
                         "has_specific_answer": true,
@@ -306,12 +353,30 @@
                 obj_data['custom_questions'].push(temp_data)
             }
 
+            self.definition.teams.forEach(function (team) {
+                if (self.refs["team_" + team.id + "_challenge_url"].value !== '')
+                {
+                    temp_data = {
+                        //'definition': self.definition.id,
+                        'team': team.id,
+                        'challenge_url': self.refs["team_" + team.id + "_challenge_url"].value
+                    }
+                    if (self.refs["team_" + team.id + "_challenge_url"].dataset.customChallengeId !== undefined){
+                        temp_data['id'] = self.refs["team_" + team.id + "_challenge_url"].dataset.customChallengeId
+                    }
+                    //console.log(temp_data)
+                    obj_data['custom_challenge_urls'].push(temp_data)
+                }
+            })
+
             if (window.DEFINITION != undefined) {
                 var endpoint = CHAGRADE.api.update_definition(DEFINITION, obj_data)
             }
             else {
                 var endpoint = CHAGRADE.api.create_definition(obj_data)
             }
+
+            console.log(obj_data)
 
             endpoint
                 .done(function (data) {

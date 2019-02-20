@@ -14,11 +14,29 @@ def post_submission(submission_pk):
     # Get our URL's formatted and such
     submission = Submission.objects.get(pk=submission_pk)
     definition = submission.definition
-    if not definition.challenge_url or not submission.submission_github_url:
-        print("Either the definition does not have a challenge URL or the submission does not have a github URL")
-        return None
+    # if definition.team_based:
+    #     if not submission.team:
+    #         print("No team for a team based submission")
+    #         return
+    #     else:
+    #         custom_urls = submission.team.challenge_urls.filter(definition=definition, team=submission.team)
+    #     # if not submission.team.challenge_url:
+    #     if not custom_urls:
+    #         if not definition.challenge_url:
+    #             print("No challenge URL for either the team or the definition. Abandoning")
+    #             return
+    # if not submission.submission_github_url:
+    #     print("No github url was provided")
+    #     return
+    # if not definition.challenge_url:
+    #     print("No challenge url was provided")
+    #     return
     # https://competitions.codalab.org/competitions/15595
-    parsed_uri = urlparse(definition.challenge_url)
+    # if definition.team_based:
+    #     parsed_uri = urlparse(custom_urls.first().challenge_url) if custom_urls else urlparse(definition.challenge_url)
+    # else:
+    #     parsed_uri = urlparse(definition.challenge_url)
+    parsed_uri = urlparse(submission.get_challenge_url)
     scheme = parsed_uri.scheme
     domain = parsed_uri.netloc
     path = parsed_uri.path

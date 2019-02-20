@@ -1,12 +1,11 @@
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import ModelViewSet
 
 from apps.api.permissions import SubmissionPermissionCheck, GradePermissionCheck, DefinitionPermissionCheck, \
-    QuestionPermissionCheck, CriteriaPermissionCheck
+    QuestionPermissionCheck, CriteriaPermissionCheck, CustomChallengeURLPermissionCheck
 from apps.api.serializers.homework import DefinitionSerializer, QuestionSerializer, CriteriaSerializer, \
-    SubmissionSerializer, GradeSerializer
-from apps.homework.models import Definition, Question, Criteria, Submission, Grade
+    SubmissionSerializer, GradeSerializer, TeamCustomChallengeURLSerializer
+from apps.homework.models import Definition, Question, Criteria, Submission, Grade, TeamCustomChallengeURL
 
 from apps.homework.tasks import post_submission
 
@@ -56,3 +55,9 @@ class CriteriaViewSet(ModelViewSet):
     queryset = Criteria.objects.all()
     serializer_class = CriteriaSerializer
     permission_classes = (CriteriaPermissionCheck, )
+
+
+class CustomChallengeURLViewSet(ModelViewSet):
+    queryset = TeamCustomChallengeURL.objects.all()
+    serializer_class = TeamCustomChallengeURLSerializer
+    permission_classes = (CustomChallengeURLPermissionCheck, )

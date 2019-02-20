@@ -1,8 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework.serializers import ModelSerializer
 from drf_writable_nested import WritableNestedModelSerializer
-
-from apps.homework.models import Definition, Criteria, Question, Submission, QuestionAnswer, Grade, CriteriaAnswer
+from apps.groups.models import Team
+from apps.homework.models import Definition, Criteria, Question, Submission, QuestionAnswer, Grade, CriteriaAnswer, \
+    TeamCustomChallengeURL
 
 User = get_user_model()
 
@@ -35,6 +36,7 @@ class SubmissionSerializer(WritableNestedModelSerializer):
             'publication_url',
             'question_answers',
             'id',
+            # 'get_challenge_url',
             'team'
         ]
 
@@ -61,9 +63,32 @@ class CriteriaSerializer(ModelSerializer):
         ]
 
 
+class TeamCustomChallengeURLSerializer(WritableNestedModelSerializer):
+    class Meta:
+        model = TeamCustomChallengeURL
+        fields = [
+            # 'definition',
+            'team',
+            'challenge_url',
+            'id'
+        ]
+
+
+class BasicTeamSerializer(ModelSerializer):
+    class Meta:
+        model = Team
+        fields = [
+            'name',
+            'description',
+            'id'
+        ]
+
+
 class DefinitionSerializer(WritableNestedModelSerializer):
     criterias = CriteriaSerializer(many=True, required=False)
     custom_questions = QuestionSerializer(many=True, required=False)
+    custom_challenge_urls = TeamCustomChallengeURLSerializer(many=True, required=False)
+    teams = BasicTeamSerializer(source='klass.teams', many=True, required=False, default=[], read_only=True)
 
     class Meta:
         model = Definition
@@ -82,6 +107,8 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'team_based',
             'criterias',
             'custom_questions',
+            'custom_challenge_urls',
+            'teams',
             'id'
         ]
 

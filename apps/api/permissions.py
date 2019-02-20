@@ -123,9 +123,11 @@ class SubmissionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermissi
         except ObjectDoesNotExist:
             print("Error! Could not find matching student for user!")
             student = None
-        # if request.user.instructor:
-        #     if request.user.instructor == obj.definition.klass.instructor:
-        #         return True
+        # If we're a teacher attempting to get the submission, allow it, but not for modification/deleting
+        if request.method in permissions.SAFE_METHODS and request.user.instructor:
+            if request.user.instructor == obj.definition.klass.instructor:
+                return True
+        # If we're a student, and there's teams, allow students in the team, or the creator
         if student:
             if obj.team:
                 if student in obj.team.members.all():
@@ -163,5 +165,22 @@ class TeamPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
             return True
         elif request.user.instructor:
             return request.user.instructor == obj.klass.instructor
+        else:
+            return False
+
+
+class CustomChallengeURLPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermission):
+    """Only allow authenticated users to make get requests, only
+     allow the submission creator to modify. Anyone that's authenticated in a class can make a submission?"""
+    message = 'You must be logged in to access ChallengeURLS, or an instructor to make modifications to Teams'
+
+    def extra_permission_check(self, request):
+        return request.user.instructor
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        elif request.user.instructor:
+            return request.user.instructor == obj.definition.klass.instructor
         else:
             return False

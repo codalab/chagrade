@@ -4,11 +4,15 @@
         <div class="fields">
             <div class="six wide field">
                 <label>Name:</label>
-                <input name="name" ref="name" type="text">
+                <input name="name" ref="name" type="text" value="{team.name}">
             </div>
-            <div class="ten wide field">
+            <div class="six wide field">
                 <label>Description:</label>
-                <input name="description" ref="description" type="text">
+                <input name="description" ref="description" type="text" value="{team.description}">
+            </div>
+            <div class="six wide field">
+                <label>Challenge URL:</label>
+                <input name="challenge_url" ref="challenge_url" type="text" value="{team.challenge_url}">
             </div>
         </div>
         <div class="fields">
@@ -16,7 +20,7 @@
                 <label>Members:</label>
                 <select id="members" multiple name="members" ref="members">
                     <option value="">-- None --</option>
-                    <option each="{student, index in klass.enrolled_students}" value="{student.id}" id="{'id_' + student.id}" data-user-id="{student.user.id}" data-username="{student.user.username}" data-student-id="{student.student_id}">{student.user.username}</option>
+                    <option each="{student, index in klass.enrolled_students}" selected="{student.selected}" value="{student.id}" id="{'id_' + student.id}" data-user-id="{student.user.id}" data-username="{student.user.username}" data-student-id="{student.student_id}">{student.user.username}</option>
                 </select>
             </div>
         </div>
@@ -29,8 +33,12 @@
         self.errors = {
             'message': 'Test'
         }
+        self.team = {}
 
         self.one('mount', function () {
+            if (window.TEAM != undefined) {
+               self.update_team()
+            }
             self.update_klass()
         })
 
@@ -44,6 +52,7 @@
                 'klass': KLASS,
                 'name': self.refs.name.value,
                 'description': self.refs.description.value,
+                'challenge_url': self.refs.challenge_url.value,
                 'members': []
             }
 
@@ -71,7 +80,14 @@
                 obj_data['members'].push(temp_data)
             }
 
-            CHAGRADE.api.create_team(obj_data)
+            if (window.TEAM != undefined) {
+                var endpoint = CHAGRADE.api.update_team(TEAM, obj_data)
+            }
+            else {
+                var endpoint = CHAGRADE.api.create_team(obj_data)
+            }
+
+            endpoint
                 .done(function (data) {
                     window.location='/klasses/wizard/' + KLASS + '/enroll'
                 })
@@ -83,9 +99,29 @@
                 })
         }
 
+        self.update_team = function () {
+            CHAGRADE.api.get_team(TEAM)
+                .done(function (data) {
+                    self.update({team: data})
+                })
+                .fail(function (error) {
+                    toastr.error("Error fetching team: " + error.statusText)
+                })
+        }
+
         self.update_klass = function () {
             CHAGRADE.api.get_klass(KLASS)
                 .done(function (data) {
+                    if (window.TEAM != undefined) {
+                        data.enrolled_students.forEach(function (student) {
+                            console.log(student)
+                            if (student.team.id === self.team.id) {
+                                student.selected = true
+                                console.log(student.selected)
+                            }
+                        })
+                    }
+                    console.log(data)
                     self.update({klass: data})
                 })
                 .fail(function (error) {

@@ -31,7 +31,7 @@
         <a onclick="{submit_form.bind(this, true)}" class="ui green button">Save and Publish</a>
         <a onclick="{submit_form.bind(this, false)}" class="ui yellow button">Save and Un-Publish</a>
         <a onclick="{cancel_button}" class="ui red button">Cancel</a>
-    </span>
+    </span><br>
     <span>Note: Students can view published grades, students cannot view un-published grades</span>
 
     <script>
@@ -73,8 +73,8 @@
             var obj_data = {
                 "submission": SUBMISSION,
                 "evaluator": INSTRUCTOR,
-                "teacher_comments": self.refs.teacher_comments.value || '',
-                "instructor_notes": self.refs.instructor_notes.value || '',
+                "teacher_comments": self.refs.teacher_comments.value,
+                "instructor_notes": self.refs.instructor_notes.value,
                 "criteria_answers": [
                     /*{
                         "criteria": 0,
