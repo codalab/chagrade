@@ -1,24 +1,17 @@
 import csv
-import uuid
 
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404
 from rest_framework.decorators import api_view
 from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework import permissions, status
-from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, ListModelMixin
-from rest_framework.permissions import IsAdminUser
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from apps.api.permissions import StudentPermissionCheck, UserPermissionCheck
-# from apps.api.serializers.profiles import ChaUserSerializer, StudentCreationSerializer, TestStudentSerializer
 from apps.api.serializers.profiles import ChaUserSerializer, TestStudentSerializer
 
 from apps.api import serializers
-from apps.groups.models import Team
-from apps.klasses.models import Klass
 
 from apps.profiles.models import ChaUser, StudentMembership
 

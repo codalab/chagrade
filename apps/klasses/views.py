@@ -4,21 +4,17 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.http import Http404, JsonResponse, HttpResponse
-from django.shortcuts import render
 
 # Create your views here.
 from django.urls import reverse_lazy
-from django.views import View
 from django.views.generic import DetailView, TemplateView, FormView, UpdateView
-from django.views.generic.base import ContextMixin
-from django.views.generic.edit import FormMixin
-from rest_framework import status
-from rest_framework.response import Response
 
 from apps.klasses.forms import KlassForm
 from apps.klasses.models import Klass
 
 from apps.klasses.mixins import WizardMixin
+
+# Todo: Replace Http404's with correct resposne for forbidden (Besides not found?)
 
 
 class CreationView(LoginRequiredMixin, FormView):
@@ -111,17 +107,21 @@ def get_klass_students_as_csv(request, klass_pk):
 
         try:
             klass = Klass.objects.get(pk=klass_pk)
-            response = HttpResponse(content_type='text/csv')
-            temp_filename = 'class_{0}_students.csv'.format(klass_pk)
-            response['Content-Disposition'] = 'attachment; filename="{}"'.format(temp_filename)
-
-            writer = csv.writer(response)
-            writer.writerow(['First Name', 'Last Name', 'Display Name', 'Student ID', 'Email', 'Team'])
-            for student in klass.enrolled_students.all():
-                writer.writerow([student.user.first_name or '', student.user.last_name or '', student.user.username, student.student_id, student.user.email, student.team.name or ''])
-            return response
-        except ObjectDoesNotExist:
+            if not request.user.instructor:
+                return Http404("Not allowed")
+            if not request.user.instructor == klass.instructor:
+                return Http404("Not allowed")
+        except Klass.DoesNotExist:
             raise Http404("Klass not found!")
+        response = HttpResponse(content_type='text/csv')
+        temp_filename = 'class_{0}_students.csv'.format(klass_pk)
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(temp_filename)
+
+        writer = csv.writer(response)
+        writer.writerow(['First Name', 'Last Name', 'Display Name', 'Student ID', 'Email', 'Team'])
+        for student in klass.enrolled_students.all():
+            writer.writerow([student.user.first_name or '', student.user.last_name or '', student.user.username, student.student_id, student.user.email, student.team.name or ''])
+        return response
     else:
         raise Http404("Only HTTP method GET is allowed.")
 

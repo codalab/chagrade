@@ -10,10 +10,6 @@
                 <label>Description:</label>
                 <input name="description" ref="description" type="text" value="{team.description}">
             </div>
-            <div class="six wide field">
-                <label>Challenge URL:</label>
-                <input name="challenge_url" ref="challenge_url" type="text" value="{team.challenge_url}">
-            </div>
         </div>
         <div class="fields">
             <div class="sixteen wide field">

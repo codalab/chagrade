@@ -1,5 +1,4 @@
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
 # Require an account type to determine users vs students?
@@ -57,3 +56,7 @@ class AssistantMembership(models.Model):
 
     def __str__(self):
         return "{0} - {1}".format(self.instructor.user.username, self.klass.title)
+
+
+class PasswordResetRequest(models.Model):
+    user = models.ForeignKey('ChaUser', related_name='password_reset_requests', null=True, blank=True, on_delete=models.CASCADE)

@@ -5,11 +5,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
+from django.views import View
 from django.views.generic import FormView, TemplateView
 
-from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
+from django.contrib.auth.forms import PasswordChangeForm
 
 from apps.profiles.forms import InstructorProfileForm, ChagradeCreationForm, ChagradeUserLoginForm
+from apps.profiles.models import ChaUser, PasswordResetRequest
 
 
 def logout_view(request):
@@ -40,6 +42,45 @@ class ChangePasswordView(LoginRequiredMixin, FormView):
             return super().form_invalid(form)
         login(self.request, user, backend="apps.profiles.auth_backends.EmailBackend")
         return super().form_valid(form)
+
+
+class RequestResetView(TemplateView):
+    template_name = 'profiles/request_password_reset.html'
+
+    def post(self, request, *args, **kwargs):
+        if not request.method == 'POST':
+            return Http404("Wrong method")
+        if self.request.POST.get('email'):
+            try:
+                user = ChaUser.objects.get(email=self.request.POST.get('email'))
+                if not PasswordResetRequest.objects.filter(user=user):
+                    PasswordResetRequest.objects.create(user=user)
+                else:
+                    print("Password reset request already exists")
+            except ChaUser.DoesNotExist:
+                print("Could not create password reset request for non-existant user")
+        return HttpResponseRedirect(reverse_lazy('index'))
+
+
+class ResetUserPasswordView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.is_staff or not self.request.user.is_superuser:
+            return Http404("Not allowed")
+        user = ChaUser.objects.get(pk=self.kwargs.get('user_pk'))
+        user.set_password(user.email.split('@')[0])
+        user.save()
+        # Clear any password requests for user
+        PasswordResetRequest.objects.filter(user=user).delete()
+        return HttpResponseRedirect(reverse('index'))
+
+
+class DeletePasswordResetRequestsView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.is_staff or not self.request.user.is_superuser:
+            return Http404("Not allowed")
+        user = ChaUser.objects.get(pk=self.kwargs.get('user_pk'))
+        PasswordResetRequest.objects.filter(user=user).delete()
+        return HttpResponseRedirect(reverse('index'))
 
 
 class LoginView(FormView):
@@ -126,3 +167,7 @@ class SignUpView(FormView):
         user = authenticate(username=username, password=raw_password)
         login(self.request, user)
         return super().form_valid(form)
+
+
+class PasswordRequestsOverView(LoginRequiredMixin, TemplateView):
+    template_name = 'profiles/password_reset_overview.html'

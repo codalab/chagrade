@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from apps.klasses import views
 
 app_name = 'klasses'
 
@@ -13,5 +13,5 @@ urlpatterns = [
     path('wizard/<int:klass_pk>/grade_homework', views.GradeHomeworkView.as_view(), name='klass_grading'),
     path('wizard/<int:klass_pk>/activate', views.ActivateView.as_view(), name='klass_activate'),
     path('download_student_csv/<int:klass_pk>', views.get_klass_students_as_csv, name='klass_get_student_csv'),
-    path('email_students/<int:klass_pk>/', views.EmailKlassStudentsView.as_view(), name='klass_emaiL_students'),
+    # path('email_students/<int:klass_pk>/', views.EmailKlassStudentsView.as_view(), name='klass_emaiL_students'),
 ]

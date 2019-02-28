@@ -140,4 +140,3 @@ class TestStudentSerializer(WritableNestedModelSerializer):
             return super().update(student, validated_data)
         except StudentMembership.DoesNotExist:
             return super().create(validated_data)
-

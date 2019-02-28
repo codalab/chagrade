@@ -17,9 +17,7 @@
 <participants-table>
     <div>
         <span>
-            <!--<a href="" class="ui blue button">Create Student Team</a>-->
             <a onclick="{goto_create_team}" class="ui blue button">Create Student Team</a>
-            <!--<a class="ui button">Upload Team CSV</a>-->
         </span>
         <h1>Teams</h1>
         <table class="ui sortable table">
@@ -29,7 +27,6 @@
                 <th>ID</th>
                 <th>Name</th>
                 <th># Members</th>
-                <!--<th>Challenge URL</th>-->
                 <th></th>
                 <th>Entries</th>
             </tr>
@@ -48,9 +45,6 @@
                     <td>
                         {team.members.length}
                     </td>
-                    <!--<td>
-                        {team.challenge_url}
-                    </td>-->
                     <td class="center aligned">
                         <div onclick="{delete_team.bind(this, team.id)}" class="ui mini red button">x</div>
                         <div onclick="{edit_team.bind(this, team.id)}" class="ui mini yellow icon button"><i class="wrench icon"></i></div>
@@ -86,7 +80,6 @@
                 <th>Student ID</th>
                 <th>Email</th>
                 <th>Team</th>
-                <!--<th>Status</th>-->
                 <th></th>
                 <th>Entries</th>
             </tr>
@@ -114,8 +107,6 @@
                     <td>
                         { student.team.name || '' }
                     </td>
-                    <!--<td>
-                    </td>-->
                     <td>
                         <div onclick="{delete_student.bind(this, student.id)}" class="ui mini red button">x</div>
                     </td>
@@ -123,9 +114,6 @@
                         { student.submitted_homeworks.length }
                     </td>
                 </tr>
-                <!--<tr style="background-color: #21ba45;">-->
-                <!--<tr style="background-color: rgba(33, 186, 69, 0.25);">-->
-                <!--</tr>-->
             </tbody>
         </table>
         <div id="student_form_modal" class="ui modal">
@@ -141,10 +129,8 @@
                     <field name="Team Name (Optional)" ref="team_name"></field>
                 </form>
             </div>
-            <!--<div class="actions">-->
                 <a class="ui blue button" onclick="{add_student}">Add Student</a>
                 <div class="ui cancel button">Cancel</div>
-            <!--</div>-->
         </div>
 
         <!--<div id="message_form_modal" class="ui modal">
@@ -177,7 +163,8 @@
         var self = this
         self.errors = []
         self.klass = {
-            'students': []
+            'students': [],
+            'password_reset_requests': []
         }
 
 

@@ -5,14 +5,12 @@ from drf_yasg import openapi
 from rest_framework import permissions
 from rest_framework.routers import SimpleRouter
 
-# from apps.api.views.producers import ProducerViewSet
 from apps.api.views.homework import DefinitionViewSet, CriteriaViewSet, QuestionViewSet, SubmissionViewSet, \
     GradeViewSet, CustomChallengeURLViewSet
 from apps.api.views.profiles import ProfileViewSet, StudentViewSet, create_students_from_csv, \
     TestStudentViewSet
 from apps.api.views.klasses import KlassViewSet
 from apps.api.views.groups import TeamViewSet
-# from .views import competitions, profiles, search
 
 app_name = 'api'
 API_PREFIX = "v1"

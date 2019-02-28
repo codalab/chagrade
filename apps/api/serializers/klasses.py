@@ -21,5 +21,5 @@ class KlassSerializer(ModelSerializer):
             'image',
             'enrolled_students',
             'active',
-            'teams'
+            'teams',
         )

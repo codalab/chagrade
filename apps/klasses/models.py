@@ -1,6 +1,5 @@
 import uuid
 
-from django.contrib.auth.models import AbstractUser
 from django.core.files.base import ContentFile
 from django.db import models
 
@@ -14,19 +13,15 @@ from django.utils import timezone
 
 
 def upload_image(instance, filename):
-    # path = "images/{0}/{1}_{2}".format(instance.id, filename, uuid.uuid4())
     file_split = filename.split('.')
     file_extension = file_split[len(file_split) - 1]
-    print(file_extension)
     path = "images/{0}/class_image.{1}".format(instance.id, file_extension)
     return path
 
 
 def upload_syllabus(instance, filename):
-    # path = "images/{0}/{1}_{2}".format(instance.id, filename, uuid.uuid4())
     file_split = filename.split('.')
     file_extension = file_split[len(file_split) - 1]
-    print(file_extension)
     path = "syllabuses/{0}/class_syllabus.{1}".format(instance.id, file_extension)
     return path
 
@@ -51,8 +46,6 @@ class Klass(models.Model):
     syllabus = models.FileField(null=True, blank=True, upload_to=upload_syllabus)
 
     active = models.BooleanField(default=False)
-
-    # status = models.CharField(max_length=60,)
 
     def __str__(self):
         return "{0} by {1}".format(self.course_number, self.instructor.user.username)
@@ -81,7 +74,6 @@ class Klass(models.Model):
         # new_klass = self.save()
         new_klass.save()
         return new_klass
-        # return new_klass
 
     def save(self, *args, **kwargs):
         ''' On save, update timestamps '''

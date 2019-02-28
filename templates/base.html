@@ -66,16 +66,24 @@
             </div>
 
             <nav>
-                <div class="ui fluid four item menu">
+                <div class="ui fluid menu">
                         <a class="item" href="{% url "index" %}">Home</a>
+                        <a href="https://github.com/codalab/chagrade/wiki" class="item">Help</a>
+                        <div class="right menu">
                         {% if user.is_authenticated %}
                             <a class="item" href="{% url "profiles:logout" %}">Logout</a>
                             <a class="item" href="{% url "profiles:my_profile" %}">Profile</a>
+                            {% if user.is_staff or user.is_superuser %}
+                                <a class="item" href="{% url "profiles:password_reset_requests" %}">
+                                    Password Reset Requests
+                                    {% if password_reset_requests.count > 0 %}<div class="floating ui red label">{{ password_reset_requests.count }}</div>{% endif %}
+                                </a>
+                            {% endif %}
                         {% else %}
                             <a class="item" href="{% url "profiles:sign_up" %}">Sign-Up</a>
                             <a class="item" href="{% url "profiles:login" %}">Login</a>
                         {% endif %}
-                        <a href="https://github.com/codalab/chagrade/wiki" class="item">Help</a>
+                        </div>
                 </div>
             </nav>
         </header>
