@@ -1,8 +1,12 @@
+import uuid
+
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 # Require an account type to determine users vs students?
 # Or should we abstract two seperate sub-models from this one?
+from django.urls import reverse
 
 
 class ChaUser(AbstractUser):
@@ -60,3 +64,8 @@ class AssistantMembership(models.Model):
 
 class PasswordResetRequest(models.Model):
     user = models.ForeignKey('ChaUser', related_name='password_reset_requests', null=True, blank=True, on_delete=models.CASCADE)
+    key = models.UUIDField(default=uuid.uuid4)
+
+    @property
+    def reset_link(self):
+        return '{0}{1}'.format(settings.SITE_DOMAIN, reverse('profiles:reset_password_by_email', kwargs={'reset_key': self.key}))

@@ -94,4 +94,3 @@ services:
     depends_on:
       - celery
       - rabbitmq
-
