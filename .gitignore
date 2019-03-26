@@ -67,6 +67,7 @@ Desktop.ini
 *.backup
 *.unused
 .env
+.envrc
 
 .idea/
 var/

@@ -49,6 +49,7 @@
     <script src="{% static "riotjs/wizard/grade_homework.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/wizard/define_homework.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/wizard/create_team.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/show_stats.tag" %}" type="riot/tag"></script>
 
     {% block extra_head %}
     {% endblock %}
@@ -56,51 +57,51 @@
 </head>
 
 <body class="main-background">
+
 <div class="ui container">
-        <header class="ui center aligned container bottom20" style="margin-bottom: 5vh;">
-            <div id="logo" class="" style="margin: 2vh 0 2vh 0;">
-                <h1><a href="/">Chagrade</a><sup>
-                    <small>(beta)</small>
-                </sup></h1>
-                <h4 class="ui sub header">Machine Learning Classes Management</h4>
-            </div>
+    <header class="ui center aligned container bottom20" style="margin-bottom: 5vh;">
+        <div id="logo" class="" style="margin: 2vh 0">
+            <h1><a href="/">Chagrade</a><sup>
+                <small>(beta)</small>
+            </sup></h1>
+            <h4 class="ui sub header">Machine Learning Classes Management</h4>
+        </div>
 
-            <nav>
-                <div class="ui fluid menu">
-                        <a class="item" href="{% url "index" %}">Home</a>
-                        <a href="https://github.com/codalab/chagrade/wiki" class="item">Help</a>
-                        <div class="right menu">
-                        {% if user.is_authenticated %}
-                            <a class="item" href="{% url "profiles:logout" %}">Logout</a>
-                            <a class="item" href="{% url "profiles:my_profile" %}">Profile</a>
-                            {% if user.is_staff or user.is_superuser %}
-                                {% if password_reset_requests %}
-                                    <a class="item" href="{% url "profiles:password_reset_requests" %}">
-                                        Password Reset Requests
-                                        {% if password_reset_requests.count > 0 %}
-                                            <div class="floating ui red label">{{ password_reset_requests.count }}</div>{% endif %}
-                                    </a>
-                                {% endif %}
+        <nav>
+            <div class="ui fluid menu">
+                <a class="item" href="{% url "index" %}">Home</a>
+                <a href="https://github.com/codalab/chagrade/wiki" class="item">Help</a>
+                <div class="right menu">
+                    {% if user.is_authenticated %}
+                        <a class="item" href="{% url "profiles:logout" %}">Logout</a>
+                        <a class="item" href="{% url "profiles:my_profile" %}">Profile</a>
+                        {% if user.is_staff or user.is_superuser %}
+                            {% if password_reset_requests %}
+                                <a class="item" href="{% url "profiles:password_reset_requests" %}">
+                                    Password Reset Requests
+                                    {% if password_reset_requests.count > 0 %}
+                                        <div class="floating ui red label">{{ password_reset_requests.count }}</div>{% endif %}
+                                </a>
                             {% endif %}
-                        {% else %}
-                            <a class="item" href="{% url "profiles:sign_up" %}">Sign-Up</a>
-                            <a class="item" href="{% url "profiles:login" %}">Login</a>
                         {% endif %}
-                        </div>
+                    {% else %}
+                        <a class="item" href="{% url "profiles:sign_up" %}">Sign-Up</a>
+                        <a class="item" href="{% url "profiles:login" %}">Login</a>
+                    {% endif %}
                 </div>
-            </nav>
-        </header>
+            </div>
+        </nav>
+    </header>
 
-        <div class="app">
-            <div class="ui segment">
-                <div class="module container-padding">
-                    {% block content %}
-                    {% endblock %}
-                </div>
+    <div class="app">
+        <div class="ui segment hide-border">
+            <div class="module container-padding">
+                {% block content %}
+                {% endblock %}
             </div>
         </div>
+    </div>
     <footer class="ui footer segment">
-
         <div class="ui horizontal link list">
             <a class="item" href="https://github.com/codalab/chagrade/issues">
                 <i class="github icon"></i>
@@ -149,7 +150,7 @@
     {% block extra_js_context %}
     {% endblock %}
 
-    $('document').ready(function(){
+    $('document').ready(function () {
         $('table').tablesort()
     });
 

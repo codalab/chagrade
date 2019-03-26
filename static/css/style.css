@@ -1,44 +1,112 @@
 /*.main-background {*/
-    /*!*width: 100%;*!*/
-    /*!*min-height: 100%;*!*/
-    /*!*!*background-attachment:scroll;*!*!*/
-    /*!*background: linear-gradient(to top,*!*/
-    /*!*rgba(30, 87, 153, 0.85) 40%,*!*/
-    /*!*rgba(255, 255, 255, 0.85) 100%),*!*/
-    /*!*url(../images/dark-triangles.png) 1% center no-repeat; !* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ *!*!*/
-    /*!*!*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e5799', endColorstr='#007db9e8', GradientType=0); !* IE6-9 *!*!*!*/
-    /*!*background-size: cover;*!*/
+/*!*width: 100%;*!*/
+/*!*min-height: 100%;*!*/
+/*!*!*background-attachment:scroll;*!*!*/
+/*!*background: linear-gradient(to top,*!*/
+/*!*rgba(30, 87, 153, 0.85) 40%,*!*/
+/*!*rgba(255, 255, 255, 0.85) 100%),*!*/
+/*!*url(../images/dark-triangles.png) 1% center no-repeat; !* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ *!*!*/
+/*!*!*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e5799', endColorstr='#007db9e8', GradientType=0); !* IE6-9 *!*!*!*/
+/*!*background-size: cover;*!*/
 
-    /*background: linear-gradient(rgba(30, 87, 153, 0.85), white, transparent), url('../images/dark-triangles.png') no-repeat center;*/
-    /*background-size: cover;*/
-    /*box-shadow: 0px 10px 20px -5px rgba(0, 0, 0, 0.8);*/
+/*background: linear-gradient(rgba(30, 87, 153, 0.85), white, transparent), url('../images/dark-triangles.png') no-repeat center;*/
+/*background-size: cover;*/
+/*box-shadow: 0px 10px 20px -5px rgba(0, 0, 0, 0.8);*/
 /*}*/
 
 /*.main-background {*/
-    /*background: #1e5799;*/
-    /*background: -moz-linear-gradient(top, #1e5799 0%, #7db9e8 100%);*/
-    /*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1e5799), color-stop(100%, #7db9e8));*/
-    /*background: -webkit-linear-gradient(top, #1e5799 0%, #7db9e8 100%);*/
-    /*background: -o-linear-gradient(top, #1e5799 0%, #7db9e8 100%);*/
-    /*background: -ms-linear-gradient(top, #1e5799 0%, #7db9e8 100%);*/
-    /*background: linear-gradient(to bottom, #1e5799 0%, #7db9e8 100%);*/
-    /*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e5799', endColorstr='#7db9e8', GradientType=0);*/
-    /*background-attachment: fixed;*/
+/*background: #1e5799;*/
+/*background: -moz-linear-gradient(top, #1e5799 0%, #7db9e8 100%);*/
+/*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1e5799), color-stop(100%, #7db9e8));*/
+/*background: -webkit-linear-gradient(top, #1e5799 0%, #7db9e8 100%);*/
+/*background: -o-linear-gradient(top, #1e5799 0%, #7db9e8 100%);*/
+/*background: -ms-linear-gradient(top, #1e5799 0%, #7db9e8 100%);*/
+/*background: linear-gradient(to bottom, #1e5799 0%, #7db9e8 100%);*/
+/*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e5799', endColorstr='#7db9e8', GradientType=0);*/
+/*background-attachment: fixed;*/
 /*}*/
 
 
 /*body {*/
-    /*background: #1e5799;*/
-    /*background: -moz-linear-gradient(top, #1e5799 0%, lightgrey 100%);*/
-    /*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1e5799), color-stop(100%, lightgrey));*/
-    /*background: -webkit-linear-gradient(top, #1e5799 0%, lightgrey 100%);*/
-    /*background: -o-linear-gradient(top, #1e5799 0%, lightgrey 100%);*/
-    /*background: -ms-linear-gradient(top, #1e5799 0%, lightgrey 100%);*/
-    /*background: linear-gradient(to top, #1e5799 0%, lightgrey 100%), url('../images/dark-triangles.png');*/
-    /*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e5799', endColorstr='lightgrey', GradientType=0);*/
-    /*background-attachment: fixed;*/
+/*background: #1e5799;*/
+/*background: -moz-linear-gradient(top, #1e5799 0%, lightgrey 100%);*/
+/*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1e5799), color-stop(100%, lightgrey));*/
+/*background: -webkit-linear-gradient(top, #1e5799 0%, lightgrey 100%);*/
+/*background: -o-linear-gradient(top, #1e5799 0%, lightgrey 100%);*/
+/*background: -ms-linear-gradient(top, #1e5799 0%, lightgrey 100%);*/
+/*background: linear-gradient(to top, #1e5799 0%, lightgrey 100%), url('../images/dark-triangles.png');*/
+/*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e5799', endColorstr='lightgrey', GradientType=0);*/
+/*background-attachment: fixed;*/
 /*}*/
 
 body {
-    background-color: #1e5799;
+
+}
+
+.app {
+    margin-bottom: 3em;
+}
+
+.hide-border {
+    border: none !important;
+    margin: -2em -1em !important;
+    box-shadow: none !important;
+}
+
+#logo {
+    text-align: left;
+}
+
+.segment-container {
+    padding: 0 !important;
+    height: 100%;
+    text-align: left;
+}
+
+.recent-activity {
+    display: flex;
+}
+
+.segment-container > .header {
+    font-size: 1em !important;
+    text-align: left !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    background-color: #F2FAFF;
+    padding: 10px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom: solid 1px gainsboro;
+}
+
+.container-content {
+    margin: 10px;
+}
+
+#about-container .container-content .center.aligned.column {
+    padding: 3em;
+}
+
+.list-tile {
+    font-size: 0.75em;
+    color: #a0a0a0;
+}
+
+.list-tile a {
+    font-size: 10px;
+}
+
+#about-container {
+    margin: 1em;
+    width: 100%;
+}
+
+.flex-container {
+    width: 100%;
+}
+
+.eight.wide.flex-container {
+    text-align: center;
+    align-self: flex-end;
+    width: 85%;
 }

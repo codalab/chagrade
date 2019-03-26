@@ -8,65 +8,121 @@
 
         <div class="ui centered grid">
             <div class="row">
-                <div class="twelve wide column">
-                    <div class="ui centered grid message">
-                        <div class="row">
-                            <div class="ui center aligned container" style="margin-bottom: 5px;">
-                                <h1 class="ui massive header" style="font-size: 56px;">Welcome to Chagrade</h1>
-                                <h2 class="sub header">
-                                    Here you can create <b>and grade classes attached to challenges</b>
-                                </h2>
-                            </div>
+                <div class="six wide column">
+                    <div class="segment-container ui segment sixteen wide">
+                        <div class="ui header">
+                            Students
                         </div>
-                        <div class="row">
-                            <div class="center aligned six wide column">
-                                <a class="ui large yellow button" href="{% url "profiles:student_overview" %}" role="button">I'm a Student</a>
-                            </div>
-                            <div class="center aligned six wide column">
-                                <a class="ui large green button" href="{% url "profiles:instructor_overview" %}" role="button">I'm an Instructor</a>
+                        <div class="container-content">
+                            <div class="recent-activity sixteen wide column">
+                                <div class="flex-container">
+                                    <h4>Upcoming Homework</h4>
+                                    <div class="list-tile">
+                                        <a href="#">Competition: Finding relevant data on ice floes</a>
+                                        <div class="date-complete">Homework Due: 03/01/2018</div>
+                                    </div>
+                                    <div class="list-tile">
+                                        <a href="#">Submission: Pathfinding in the dark</a>
+                                        <div class="date-complete">Homework Due: 03/01/2018</div>
+                                    </div>
+                                    <div class="list-tile">
+                                        <a href="#">Dataset: Handwriting</a>
+                                        <div class="date-complete">Homework Due: 03/01/2018</div>
+                                    </div>
+                                </div>
+                                <div class="eight wide column flex-container">
+                                    <a class="ui large yellow button" href="{% url "profiles:student_overview" %}"
+                                       role="button">Student View</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="six wide column">
+                    <div class="segment-container ui segment column">
+                        <div class="ui header">
+                            Instructors
+                        </div>
+                        <div class="eight wide column container-content">
+                            <div class="recent-activity sixteen wide column">
+                                <div class="flex-container">
+                                    <h4>Activity</h4>
+                                    <div class="list-tile">
+                                        <a href="#">Competition: Finding relevant data on ice floes</a>
+                                        <div class="date-complete">Competition ended 03/01/2018</div>
+                                    </div>
+                                    <div class="list-tile">
+                                        <a href="#">Submission: Pathfinding in the dark</a>
+                                        <div class="date-complete">Submitted 03/01/2018</div>
+                                    </div>
+                                    <div class="list-tile">
+                                        <a href="#">Dataset: Handwriting</a>
+                                        <div class="date-complete">Submitted 03/01/2018</div>
+                                    </div>
+                                </div>
+                                <div class="eight wide column flex-container">
+                                    <a class="ui large green button" href="{% url "profiles:instructor_overview" %}"
+                                       role="button">Instructor View</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="four wide column">
+                    <div class="segment-container ui segment sixteen wide">
+                        <div class="ui header">
+                            By the Numbers...
+                        </div>
+                        <div class="container-content">
+                            <show-stats></show-stats>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="ui three column row">
-                <div class="center aligned column">
-                    <h3 class="ui icon header">
-                        <i class="student icon"></i>
-                        <div class="content">
+
+            <div id="about-container" class="segment-container ui segment sixteen wide">
+                <div class="ui header">
+                    About Chagrade
+                </div>
+                <div class="container-content ui grid three column">
+                    <div class="center aligned column">
+                        <h3 class="ui icon header">
+                            <i class="student icon"></i>
                             Learning By Doing
+                        </h3>
+                        <div>
+                            <p>Challenges make great projects. Students learn by solving actual machine learning
+                                problems.
+                                They can submit code, which is automatically evaluated by the challenge
+                                platform.</p>
                         </div>
-                    </h3>
-                    <div style="">
-                        <p>Challenges make great projects. Students learn by solving actual machine learning problems.
-                            They can submit code, which is automatically evaluated by the challenge platform.</p>
                     </div>
-                </div>
-                <div class="center aligned column">
-                    <h3 class="ui icon header">
-                        <i class="users icon"></i>
-                        <div class="content">
+                    <div class="center aligned column">
+                        <h3 class="ui icon header">
+                            <i class="users icon"></i>
                             Collaborating
+                        </h3>
+                        <div>
+                            <p>Students can work individually or in teams. A class can mix individual and team
+                                homework.
+                                Homework can include questions on top of challenge performance.</p>
                         </div>
-                    </h3>
-                    <div style="">
-                        <p>Students can work individually or in teams. A class can mix individual and team homework.
-                            Homework can include questions on top of challenge performance.</p>
                     </div>
-                </div>
-                <div class="center aligned column">
-                    <h3 class="ui icon header">
-                        <i class="square github icon"></i>
-                        <div class="content">
+                    <div class="center aligned column">
+                        <h3 class="ui icon header">
+                            <i style="font-size: 3em;" class="square github icon"></i>
                             Gaining Visibility
+                        </h3>
+                        <div>
+                            <p>Teachers can provide a starting kit in a github repo that students can clone and
+                                modify.
+                                They
+                                can start building a portfolio of their project in Github.</p>
                         </div>
-                    </h3>
-                    <div style="">
-                        <p>Teachers can provide a starting kit in a github repo that students can clone and modify. They
-                            can start building a portfolio of their project in Github.</p>
                     </div>
                 </div>
             </div>
+
         </div>
 
     {% else %}
@@ -86,50 +142,51 @@
                         <div class="row">
                             <div class="center aligned twelve wide column">
                                 <a class="ui large green button" href="{% url "profiles:sign_up" %}" role="button">Sign-Up</a>
-                                <a class="ui large yellow button" href="{% url "profiles:login" %}" role="button">Login</a>
+                                <a class="ui large yellow button" href="{% url "profiles:login" %}"
+                                   role="button">Login</a>
                             </div>
-{#                            <div class="center aligned six wide column">#}
-{#                                <a class="ui large blue button" href="{% url "profiles:login" %}" role="button">Login</a>#}
-{#                            </div>#}
+                            {#                            <div class="center aligned six wide column">#}
+                            {#                                <a class="ui large blue button" href="{% url "profiles:login" %}" role="button">Login</a>#}
+                            {#                            </div>#}
                         </div>
                     </div>
                 </div>
             </div>
-{#            <div class="ui three column row">#}
-{#                <div class="center aligned column">#}
-{#                    <h3 class="ui icon header">#}
-{#                        <i class="student icon"></i>#}
-{#                        <div class="content">#}
-{#                            Learning By Doing#}
-{#                        </div>#}
-{#                    </h3>#}
-{#                    <div style="">#}
-{#                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>#}
-{#                    </div>#}
-{#                </div>#}
-{#                <div class="center aligned column">#}
-{#                    <h3 class="ui icon header">#}
-{#                        <i class="users icon"></i>#}
-{#                        <div class="content">#}
-{#                            Learning By Doing#}
-{#                        </div>#}
-{#                    </h3>#}
-{#                    <div style="">#}
-{#                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>#}
-{#                    </div>#}
-{#                </div>#}
-{#                <div class="center aligned column">#}
-{#                    <h3 class="ui icon header">#}
-{#                        <i class="square github icon"></i>#}
-{#                        <div class="content">#}
-{#                            Learning By Doing#}
-{#                        </div>#}
-{#                    </h3>#}
-{#                    <div style="">#}
-{#                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
+            {#            <div class="ui three column row">#}
+            {#                <div class="center aligned column">#}
+            {#                    <h3 class="ui icon header">#}
+            {#                        <i class="student icon"></i>#}
+            {#                        <div class="content">#}
+            {#                            Learning By Doing#}
+            {#                        </div>#}
+            {#                    </h3>#}
+            {#                    <div style="">#}
+            {#                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {#                <div class="center aligned column">#}
+            {#                    <h3 class="ui icon header">#}
+            {#                        <i class="users icon"></i>#}
+            {#                        <div class="content">#}
+            {#                            Learning By Doing#}
+            {#                        </div>#}
+            {#                    </h3>#}
+            {#                    <div style="">#}
+            {#                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {#                <div class="center aligned column">#}
+            {#                    <h3 class="ui icon header">#}
+            {#                        <i class="square github icon"></i>#}
+            {#                        <div class="content">#}
+            {#                            Learning By Doing#}
+            {#                        </div>#}
+            {#                    </h3>#}
+            {#                    <div style="">#}
+            {#                        <p>As a student, manage enrolled classes, make Homework Submissions, and view grades.</p>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {#            </div>#}
             <div class="ui three column row">
                 <div class="center aligned column">
                     <h3 class="ui icon header">
