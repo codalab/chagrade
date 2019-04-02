@@ -57,41 +57,67 @@
 </head>
 
 <body class="main-background">
-
-<div class="ui container">
-    <header class="ui center aligned container bottom20" style="margin-bottom: 5vh;">
-        <div id="logo" class="" style="margin: 2vh 0">
-            <h1><a href="/">Chagrade</a><sup>
-                <small>(beta)</small>
-            </sup></h1>
-            <h4 class="ui sub header">Machine Learning Classes Management</h4>
+<header class="center aligned header-container">
+    <div id="logo">
+        <div class="button-suite">
+            {% if user.is_authenticated %}
+                <span class="ui button">Profile</span>
+                <span class="ui button">Logout</span>
+                {% if user.is_staff or user.is_superuser %}
+                    {% if password_reset_requests %}
+                        <a class="item" href="{% url "profiles:password_reset_requests" %}">
+                            Password Reset Requests
+                            {% if password_reset_requests.count > 0 %}
+                                <div class="floating ui red label">{{ password_reset_requests.count }}</div>{% endif %}
+                        </a>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                <a class="ui button" href="{% url "profiles:sign_up" %}">Sign-Up</a>
+                <a class="ui button" href="{% url "profiles:login" %}">Login</a>
+            {% endif %}
+        </div>
+        <div class="logo" onclick="menu_transition()">C
+            <nav class="button-transition">
+                <a href="/"><span class="ui button btn1 hidden-btn" href="/">Chagrade</span></a>
+                <a href="https://www.chahub.org/"><span class="ui button btn2 hidden-btn">Chahub</span></a>
+                <a href="http://www.codalab.org/"><span class="ui button btn3 hidden-btn">Codalab</span></a>
+                <a href="#"><span class="ui button btn4 hidden-btn">Chagle</span></a>
+            </nav>
         </div>
 
-        <nav>
-            <div class="ui fluid menu">
-                <a class="item" href="{% url "index" %}">Home</a>
-                <a href="https://github.com/codalab/chagrade/wiki" class="item">Help</a>
-                <div class="right menu">
-                    {% if user.is_authenticated %}
-                        <a class="item" href="{% url "profiles:logout" %}">Logout</a>
-                        <a class="item" href="{% url "profiles:my_profile" %}">Profile</a>
-                        {% if user.is_staff or user.is_superuser %}
-                            {% if password_reset_requests %}
-                                <a class="item" href="{% url "profiles:password_reset_requests" %}">
-                                    Password Reset Requests
-                                    {% if password_reset_requests.count > 0 %}
-                                        <div class="floating ui red label">{{ password_reset_requests.count }}</div>{% endif %}
-                                </a>
-                            {% endif %}
+        <h4 class="ui sub header">Machine Learning Classes Management</h4>
+
+    </div>
+
+
+    <nav>
+        <div class="ui center aligned container menu">
+            <a class="item" href="{% url "index" %}">Home</a>
+            <a href="https://github.com/codalab/chagrade/wiki" class="item">Help</a>
+            <div class="right menu">
+                {% if user.is_authenticated %}
+                    <a class="item" href="{% url "profiles:logout" %}">Logout</a>
+                    <a class="item" href="{% url "profiles:my_profile" %}">Profile</a>
+                    {% if user.is_staff or user.is_superuser %}
+                        {% if password_reset_requests %}
+                            <a class="item" href="{% url "profiles:password_reset_requests" %}">
+                                Password Reset Requests
+                                {% if password_reset_requests.count > 0 %}
+                                    <div class="floating ui red label">{{ password_reset_requests.count }}</div>{% endif %}
+                            </a>
                         {% endif %}
-                    {% else %}
-                        <a class="item" href="{% url "profiles:sign_up" %}">Sign-Up</a>
-                        <a class="item" href="{% url "profiles:login" %}">Login</a>
                     {% endif %}
-                </div>
+                {% else %}
+                    <a class="item" href="{% url "profiles:sign_up" %}">Sign-Up</a>
+                    <a class="item" href="{% url "profiles:login" %}">Login</a>
+                {% endif %}
             </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
+</header>
+<div class="ui container">
+
 
     <div class="app">
         <div class="ui segment hide-border">
@@ -151,8 +177,29 @@
     {% endblock %}
 
     $('document').ready(function () {
-        $('table').tablesort()
+        $('table').tablesort();
     });
+
+    function menu_transition() {
+        if (this.transition) {
+            $('.btn1, .btn2, .btn3, .btn4').css({
+                'transform': 'translateY(-60px)',
+                'opacity': '0',
+                'transition': 'ease-out 550ms'
+            });
+            this.transition = false;
+        } else {
+            $('.btn1, .btn2, .btn3, .btn4').css({
+                'transform': 'translateY(0)',
+                'opacity': '1',
+                'transition': 'ease-out 250ms'
+            });
+            $('.btn2').css({'transition': 'ease-in 400ms'});
+            $('.btn3').css({'transition': 'ease-in 600ms'});
+            $('.btn4').css({'transition': 'ease-in 750ms'});
+            this.transition = true;
+        }
+    }
 
     riot.mount('*')
 </script>

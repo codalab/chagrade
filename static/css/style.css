@@ -40,7 +40,7 @@
 /*}*/
 
 body {
-
+    background-color: #f6f8fa;
 }
 
 .app {
@@ -51,10 +51,48 @@ body {
     border: none !important;
     margin: -2em -1em !important;
     box-shadow: none !important;
+    background-color: transparent !important;
 }
 
-#logo {
+.header-container {
+    margin-bottom: 3em;
+    background-color: rgb(42, 68, 88);
+    padding: 1em;
+}
+
+.ui.button {
+    z-index: 1000;
+    margin-top: 10px;
+    color: #e2e2e2;
+    background-color: rgba(255, 255, 255, 0.15);
+    font-weight: 100;
+}
+
+.hidden-btn {
+    opacity: 0;
+    transform: translateY(-60px);
+}
+
+.button-suite {
+    float: right;
+}
+
+.logo {
     text-align: left;
+    padding: 10px;
+    width: 30px;
+    height: 30px;
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.button-transition {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 100px;
 }
 
 .segment-container {
