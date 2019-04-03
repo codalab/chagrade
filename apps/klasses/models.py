@@ -30,7 +30,7 @@ class Klass(models.Model):
     # COMPLETE = 'complete'
     # INCOMPLETE = 'incomplete'
 
-    instructor = models.ForeignKey('profiles.Instructor', related_name='klasses', on_delete=models.PROTECT)
+    instructor = models.ForeignKey('profiles.Instructor', related_name='klasses', on_delete=models.CASCADE)
 
     title = models.CharField(max_length=60, null=False, blank=False, default="New Course")
     course_number = models.SlugField(max_length=60, null=False, blank=False, unique=True, default=None)
@@ -40,7 +40,7 @@ class Klass(models.Model):
     modified = models.DateTimeField(default=timezone.now, null=True, blank=True)
 
     # Don't like this related name but we already used .klasses
-    group = models.ForeignKey('groups.Group', related_name='klasses', null=True, blank=True, on_delete=models.PROTECT)
+    group = models.ForeignKey('groups.Group', related_name='klasses', null=True, blank=True, on_delete=models.SET_NULL)
 
     image = models.ImageField(null=True, blank=True, upload_to=upload_image)
     syllabus = models.FileField(null=True, blank=True, upload_to=upload_syllabus)

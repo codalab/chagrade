@@ -12,11 +12,18 @@
             </div>
         </div>
         <div class="fields">
-            <div class="sixteen wide field">
+            <div class="eight wide field">
                 <label>Members:</label>
                 <select id="members" multiple name="members" ref="members">
                     <option value="">-- None --</option>
-                    <option each="{student, index in klass.enrolled_students}" selected="{student.selected}" value="{student.id}" id="{'id_' + student.id}" data-user-id="{student.user.id}" data-username="{student.user.username}" data-student-id="{student.student_id}">{student.user.username}</option>
+                    <option each="{student, index in klass.enrolled_students}" selected="{student.selected}" value="{student.id}" id="{'id_' + student.id}" data-user-id="{student.user.id}" data-username="{student.user.username}" data-student-id="{student.student_id}">{student.user.username} - {student.team.name}</option>
+                </select>
+            </div>
+            <div class="eight wide field">
+                <label>Leader:</label>
+                <select id="leader" name="leader" ref="leader">
+                    <option value="">-- None --</option>
+                    <option each="{student, index in klass.enrolled_students}" selected="{student.leader}" value="{student.id}" id="{'id_leader_' + student.id}" data-user-id="{student.user.id}" data-username="{student.user.username}" data-student-id="{student.student_id}">{student.user.username} - {student.team.name}</option>
                 </select>
             </div>
         </div>
@@ -48,8 +55,17 @@
                 'klass': KLASS,
                 'name': self.refs.name.value,
                 'description': self.refs.description.value,
-                'challenge_url': self.refs.challenge_url.value,
                 'members': []
+            }
+
+            if (self.refs.leader.value !== '') {
+                var selector_string = '#id_leader_' + self.refs.leader.value
+                var select_elem = document.querySelector(selector_string);
+                obj_data['leader'] = {
+                    'id': self.refs.leader.value,
+                    'klass': KLASS,
+                    'student_id': select_elem.dataset.studentId
+                }
             }
 
             var temp_member_list = $('#members').val()
@@ -110,10 +126,13 @@
                 .done(function (data) {
                     if (window.TEAM != undefined) {
                         data.enrolled_students.forEach(function (student) {
-                            console.log(student)
                             if (student.team.id === self.team.id) {
                                 student.selected = true
-                                console.log(student.selected)
+                            }
+                            if (self.team.leader !== null) {
+                                if (student.id === self.team.leader.id) {
+                                    student.leader = true
+                                }
                             }
                         })
                     }

@@ -16,3 +16,10 @@ class KlassViewSet(ModelViewSet):
     queryset = Klass.objects.all()
     serializer_class = KlassSerializer
     permission_classes = (KlassPermissionCheck,)
+
+    def get_queryset(self):
+        # self.queryset = self.queryset.filter(instructor__user=self.request.user)
+        instructor_pk = self.request.query_params.get('instructor', None)
+        if instructor_pk is not None:
+            self.queryset = self.queryset.filter(instructor__pk=instructor_pk)
+        return self.queryset

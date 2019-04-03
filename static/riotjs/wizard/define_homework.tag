@@ -26,7 +26,7 @@
         <!-- URL Fields -->
         <div class="fields">
             <div class="eight wide field">
-                <label>Challenge url:</label>
+                <label>Default Challenge url:</label>
                 <input type="url" name="challenge_url" maxlength="200" ref="challenge_url" value="{definition.challenge_url}">
             </div>
 
@@ -89,7 +89,7 @@
             <div style="margin-top: 2.5vh; margin-bottom: 0.5vh;" each="{question, index in questions}">
                 <h4 style="margin-bottom: 2.5vh" class="ui dividing header">Question {index + 1}</h4>
                 <div class="three inline fields">
-                    <div class="four wide inline field">
+                    <div class="six wide inline field">
                         <input type="hidden" name="{'question' + '_id_' + index}" ref="{'question' + '_id_' + index}"
                                value="{question.id}">
                         <label>Question:</label>
@@ -97,18 +97,18 @@
                                ref="{'question' + '_question_' + index}" value="{question.question}">
                     </div>
 
-                    <div class="four wide inline field">
+                    <div class="six wide inline field">
                         <label>Answer:</label>
                         <input type="text" name="{'question' + '_answer_' + index}" maxlength="200"
                                ref="{'question' + '_answer_' + index}" value="{question.answer}">
                     </div>
 
-                    <div class="four wide inline field">
+                    <!--<div class="four wide inline field">
                         <label>Has Answer:</label>
                         <input class="ui checkbox" type="checkbox" name="{'question' + '_has_specific_answer_' + index}"
                                ref="{'question' + '_has_specific_answer_' + index}" checked="{question.has_specific_answer}">
-                    </div>
-                    <div class="four wide inline field">
+                    </div>-->
+                    <div class="six wide inline field">
                         <a onclick="{remove_question.bind(this, index)}" class="ui red button">X</a>
                     </div>
                 </div>
@@ -124,7 +124,7 @@
             <h4 class="ui header">Criteria</h4>
 
             <div style="margin-top: 2.5vh; margin-bottom: 0.5vh;" each="{criteria, index in criterias}">
-                <h4 style="margin-bottom: 2.5vh" class="ui dividing header">Crtieria {index + 1}</h4>
+                <h4 style="margin-bottom: 2.5vh" class="ui dividing header">Criterion {index + 1}</h4>
                 <div class="three inline fields">
                     <div class="four wide inline field">
                         <input type="hidden" name="{'criteria' + '_id_' + index}" ref="{'criteria' + '_id_' + index}"
@@ -151,7 +151,7 @@
                 </div>
             </div>
 
-            <a class="ui blue button" onclick="{add_criteria}">Add Criteria</a>
+            <a class="ui blue button" onclick="{add_criteria}">Add Criterion</a>
 
         </div>
 

@@ -74,7 +74,11 @@ def create_students_from_csv(request, version):
                     if new_student_serializer.errors:
                         return Response({'errors': new_student_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
                     else:
-                        new_student_serializer.save()
+                        new_student = new_student_serializer.save()
+                        # If there's something in the student leader column
+                        if len(row) == 7:
+                            new_student.team.leader = new_student
+                            new_student.team.save()
                 else:
                     print("Row too short to read.")
             line_count += 1

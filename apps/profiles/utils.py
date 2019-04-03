@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.core.mail import send_mail, send_mass_mail
 
+import sendgrid
+
 
 def send_chagrade_mail(users, subject, message, html_message):
     emails = [user.email for user in users]
