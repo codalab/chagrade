@@ -60,6 +60,38 @@ body {
     padding: 1em;
 }
 
+.grid.message {
+    background-color: #fff;
+}
+
+.signup-btn {
+    background-color: white !important;
+    border: solid 2px #2f2f2f !important;
+    color: #2f2f2f !important;
+    transition: all 30ms;
+}
+
+.signup-btn:hover {
+    background-color: #ffffff !important;
+    border: solid 2px #63e1ff !important;
+    color: #63e1ff !important;
+    transition: all 30ms;
+}
+
+.login-btn {
+    background-color: #2f2f2f !important;
+    border: solid 2px #2f2f2f !important;
+    color: #fff !important;
+    transition: all 30ms;
+}
+
+.login-btn:hover {
+    background-color: #1b1b1b !important;
+    border: solid 2px #63e1ff !important;
+    color: #63e1ff !important;
+    transition: all 30ms;
+}
+
 .ui.button {
     z-index: 1000;
     margin-top: 10px;
@@ -88,11 +120,25 @@ body {
     z-index: 1;
 }
 
+.logo:hover {
+    color: #912a1b;
+}
+
+#logo .ui.sub.header {
+    color: rgba(190, 190, 190, 0.76);
+    transition: all ease 100ms;
+}
+
+#logo .ui.sub.header:hover {
+    color: rgb(238, 238, 238);
+    transition: all ease 100ms;
+}
+
 .button-transition {
     display: flex;
     position: absolute;
-    top: 0;
-    left: 100px;
+    top: 6px;
+    left: 180px;
 }
 
 .segment-container {
