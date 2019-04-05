@@ -345,7 +345,7 @@
                 var temp_data = {
                     'question': self.refs['question' + '_question_' + index].value,
                     'answer': self.refs['question' + '_answer_' + index].value,
-                    'has_specific_answer': self.refs['question' + '_has_specific_answer_' + index].value,
+                    //'has_specific_answer': self.refs['question' + '_has_specific_answer_' + index].value,
                 }
                 if (self.refs['question' + '_id_' + index].value !== ""){
                     temp_data['id'] = self.refs['question' + '_id_' + index].value
