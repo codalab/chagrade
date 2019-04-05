@@ -13,6 +13,7 @@ def post_submission(submission_pk):
     # Get our URL's formatted and such
     submission = Submission.objects.get(pk=submission_pk)
     parsed_uri = urlparse(submission.get_challenge_url)
+    print(submission.get_challenge_url)
     scheme = parsed_uri.scheme
     domain = parsed_uri.netloc
     path = parsed_uri.path
