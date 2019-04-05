@@ -5,6 +5,8 @@
         except /static
     }
 
+    tls off
+
     header / {
         # Don't show Caddy/Gunicorn as server header.
         -Server
@@ -14,13 +16,13 @@
 
         # Only send Referer header to same origin.
         # Django CSRF protection is incompatible with referrer policy set to none.
-        # Referrer-Policy "same-origin"
+        Referrer-Policy "same-origin"
 
         # Enable cross-site filter (XSS) and tell browser to block detected attacks.
-        # X-XSS-Protection "1; mode=block"
+        X-XSS-Protection "1; mode=block"
 
         # Prevent some browsers from MIME-sniffing a response away from the declared Content-Type
-        # X-Content-Type-Options "nosniff"
+        X-Content-Type-Options "nosniff"
 
         # Enable a strict content security policy.
         # Edit this if you need external sources on your site.
@@ -29,7 +31,7 @@
 
         # Don't allow resources to load within a frame/iframe.
         # This is handled with frame-ancestors 'none' in the content security policy. But not yet supported by older browsers.
-        # X-Frame-Options "DENY"
+        X-Frame-Options "DENY"
     }
 
     # The email address to use to generate a certificate with Letsencrypt.
