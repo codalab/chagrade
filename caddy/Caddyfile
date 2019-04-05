@@ -5,8 +5,6 @@
         except /static
     }
 
-    tls off
-
     header / {
         # Don't show Caddy/Gunicorn as server header.
         -Server
