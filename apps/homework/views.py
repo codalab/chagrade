@@ -93,8 +93,14 @@ class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
             klass = Klass.objects.get(pk=self.kwargs.get('klass_pk'))
             submission = Submission.objects.get(pk=self.kwargs.get('submission_pk'))
             student = klass.enrolled_students.get(user=self.request.user)
-            if not submission.creator == student or not student in submission.team.members.all():
-                raise Http404("You do not have permission to view this")
+
+            if submission.team:
+                if not submission.creator == student or not student in submission.team.members.all():
+                    raise Http404("You do not have permission to view this")
+            else:
+                if not submission.creator == student:
+                    raise Http404("You do not have permission to view this")
+
             context['submission'] = submission
             context['klass'] = klass
             definition = Definition.objects.get(pk=kwargs.get('definition_pk'))
