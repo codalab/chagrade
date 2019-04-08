@@ -10,7 +10,7 @@
 
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.4/themes/smoothness/jquery-ui.css">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/particlesjs/2.2.3/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.css">
 
@@ -59,7 +59,8 @@
 </head>
 
 <body class="main-background">
-<header class="center aligned header-container" id="particles-js" style="height: 160px;">
+<div id="particles-js"></div>
+<header class="center aligned header-container">
     <div id="logo">
         <div class="button-suite">
             {% if user.is_authenticated %}
@@ -75,49 +76,26 @@
                     {% endif %}
                 {% endif %}
             {% else %}
-                <a class="ui button" href="{% url "profiles:sign_up" %}">Sign-Up</a>
+                <a class="ui button" href="{% url "profiles:sign_up" %}">Sign Up</a>
                 <a class="ui button" href="{% url "profiles:login" %}">Login</a>
             {% endif %}
         </div>
-        <div class="logo" onclick="menu_transition()">Chagrade
-            <nav class="button-transition">
-                <a href="/"><span class="ui button btn1 hidden-btn" href="/">Chagrade</span></a>
-                <a href="https://www.chahub.org/"><span class="ui button btn2 hidden-btn">Chahub</span></a>
-                <a href="http://www.codalab.org/"><span class="ui button btn3 hidden-btn">Codalab</span></a>
-                <a href="#"><span class="ui button btn4 hidden-btn">Chagle</span></a>
-            </nav>
+
+        <img class="logo" onmouseenter="menu_transition()" onclick="location.href='/'" alt="chagrade_logo" src="{% static 'images/chagrade_logo.png' %}">
+        <nav class="button-transition">
+            <span class="ui tiny button btn1 hidden-btn" onclick="location.href='/'">Chagrade</span>
+            <span class="ui tiny button btn2 hidden-btn" onclick="location.href='https://www.chahub.org/';">Chahub</span>
+            <span class="ui tiny button btn3 hidden-btn" onclick="location.href='http://www.codalab.org';">Codalab</span>
+            <span class="ui tiny button btn4 hidden-btn" onclick="location.href='#';">Chagle</span>
+        </nav>
+
+        <div class="subheader-container">
+            <a href=".">
+                <h4 class="ui sub header">Machine Learning Classes Management</h4>
+            </a>
         </div>
-
-        <a href="." style="padding: 20px;"><h4 class="ui sub header">Machine Learning Classes Management</h4></a>
-
     </div>
 
-
-    <!-- <nav>
-        <div class="ui center aligned container menu">
-            <a class="item" href="{% url "index" %}">Home</a>
-            <a href="https://github.com/codalab/chagrade/wiki" class="item">Help</a>
-            <div class="right menu">
-                {% if user.is_authenticated %}
-                    <a class="item" href="{% url "profiles:logout" %}">Logout</a>
-                    <a class="item" href="{% url "profiles:my_profile" %}">Profile</a>
-                    {% if user.is_staff or user.is_superuser %}
-                        {% if password_reset_requests %}
-                            <a class="item" href="{% url "profiles:password_reset_requests" %}">
-                                Password Reset Requests
-                                {% if password_reset_requests.count > 0 %}
-                                    <div class="floating ui red label">{{ password_reset_requests.count }}</div>
-    {% endif %}
-                            </a>
-                        {% endif %}
-                    {% endif %}
-                {% else %}
-                    <a class="item" href="{% url "profiles:sign_up" %}">Sign-Up</a>
-                    <a class="item" href="{% url "profiles:login" %}">Login</a>
-                {% endif %}
-            </div>
-        </div>
-    </nav> -->
 </header>
 <div class="ui container">
 
@@ -183,21 +161,25 @@
     $('document').ready(function () {
         $('table').tablesort();
 
+        particlesJS.load('particles-js', "{% static 'particles/particles.json' %}", function () {
+            console.log('callback - particles.js config loaded');
+        })
     });
 
     function menu_transition() {
         if (this.transition) {
             $('.btn1, .btn2, .btn3, .btn4').css({
-                'transform': 'translateY(-60px)',
+                'transform': 'translateY(0)',
                 'opacity': '0',
-                'transition': 'ease-out 550ms'
+                'transition': 'ease-out 550ms',
+                'top': '-60px'
             });
             this.transition = false;
         } else {
             $('.btn1, .btn2, .btn3, .btn4').css({
-                'transform': 'translateY(0)',
+                'transform': 'translateY(60px)',
                 'opacity': '1',
-                'transition': 'transform ease-in 300ms'
+                'transition': 'transform ease-in 300ms',
             });
             $('.btn2').css({'transition': 'transform ease-in-out 450ms'});
             $('.btn3').css({'transition': 'transform ease-in-out 600ms'});

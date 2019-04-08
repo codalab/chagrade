@@ -62,13 +62,31 @@
             font-size: 0.95em;
         }
 
+        .ui.two.column.grid {
+            margin: 10px;
+        }
+
         .sub.blue.header {
-            margin-bottom: 1em;
+            margin-bottom: -1em;
         }
 
         .ui.statistics > .statistic {
             flex: 1 1 auto;
             font-size: 0.6em;
+        }
+
+        .ui.tiny.statistic > .value,
+        .ui.tiny.statistics .statistic > .value {
+            color: #565656  !important;
+            font-weight: 700;
+        }
+
+        .ui.statistic > .label,
+        .ui.statistics .statistic > .label {
+            color: #565656 !important;
+            font-size: 13px !important;
+            line-height: 1.1em !important;
+            font-weight: 100 !important;
         }
     </style>
 </show-stats>
