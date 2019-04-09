@@ -5,17 +5,16 @@
 {% block content %}
 
     {% if user.is_authenticated %}
-
         <div class="ui centered grid">
             <div class="row">
                 <div class="six wide column">
                     <div class="segment-container ui segment sixteen wide">
                         <div class="ui header">
-                            Students
+                            Announcements
                         </div>
                         <div class="container-content">
                             <div class="recent-activity sixteen wide column">
-                                <div class="flex-container">
+                                <div class="">
                                     <div class="list-tile">
                                         <a href="#">Competition: Finding relevant data on ice floes</a>
                                         <div class="date-complete">Homework Due: 03/01/2018</div>
@@ -36,10 +35,6 @@
                                         <a href="#">Dataset: Handwriting</a>
                                         <div class="date-complete">Homework Due: 03/01/2018</div>
                                     </div>
-                                </div>
-                                <div class="eight wide column flex-container">
-                                    <a class="ui button hover-btn" href="{% url "profiles:student_overview" %}"
-                                       role="button">Student View</a>
                                 </div>
                             </div>
                         </div>
@@ -48,35 +43,27 @@
                 <div class="six wide column">
                     <div class="segment-container ui segment column">
                         <div class="ui header">
-                            Instructors
+                            Students and Instructors
                         </div>
                         <div class="eight wide column container-content">
-                            <div class="recent-activity sixteen wide column">
-                                <div class="flex-container">
-                                    <div class="list-tile">
-                                        <a href="#">Competition: Finding relevant data on ice floes</a>
-                                        <div class="date-complete">Competition ended 03/01/2018</div>
-                                    </div>
-                                    <div class="list-tile">
-                                        <a href="#">Submission: Pathfinding in the dark</a>
-                                        <div class="date-complete">Submitted 03/01/2018</div>
-                                    </div>
-                                    <div class="list-tile">
-                                        <a href="#">Dataset: Handwriting</a>
-                                        <div class="date-complete">Submitted 03/01/2018</div>
-                                    </div>
-                                    <div class="list-tile">
-                                        <a href="#">Submission: Pathfinding in the dark</a>
-                                        <div class="date-complete">Homework Due: 03/01/2018</div>
-                                    </div>
-                                    <div class="list-tile">
-                                        <a href="#">Dataset: Handwriting</a>
-                                        <div class="date-complete">Homework Due: 03/01/2018</div>
-                                    </div>
+                            <div class="sixteen wide column">
+                                <div class="ui row">
+                                    <p style="color: #909090; font-size: 1em; margin-bottom: 3em;">
+                                        The Student and Instructor portals will allow you to assign and turn in
+                                        homework. Anyone can create and complete assignments! Instructors can easily
+                                        create homework with the homework wizard in the Instructor View and students can
+                                        turn in homework in the Student View.
+                                    </p>
                                 </div>
-                                <div class="eight wide column flex-container">
-                                    <a class="ui button hover-btn" href="{% url "profiles:instructor_overview" %}"
-                                       role="button">Instructor View</a>
+                                <div class="ui row student-instructor-flex ">
+                                    <div class="eight wide column">
+                                        <a class="ui button view-btn" href="{% url "profiles:student_overview" %}"
+                                           role="button">Student View</a>
+                                    </div>
+                                    <div class="eight wide column">
+                                        <a class="ui button view-btn" href="{% url "profiles:instructor_overview" %}"
+                                           role="button">Instructor View</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

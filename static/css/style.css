@@ -68,8 +68,8 @@ body {
 .login-container .form-submit,
 .hover-btn {
     background-color: white !important;
-    border: solid 1px #4183c4 !important;
-    color: #4183c4 !important;
+    border: solid 1px #038acb !important;
+    color: #038acb !important;
     transition: all 30ms;
 
 }
@@ -77,22 +77,23 @@ body {
 .signup-btn:hover,
 .login-container .form-submit:hover,
 .hover-btn:hover {
-    background-color: #ffffff !important;
-    border: solid 1px #294f78 !important;
-    color: #294f78 !important;
+    background-color: #f2faff !important;
+    border: solid 1px #03A9F4 !important;
+    color: #03A9F4 !important;
     transition: all 30ms;
 }
 
-.login-btn {
-    background-color: #4183c4 !important;
-    border: solid 1px #4183c4 !important;
-    color: #fff !important;
+.login-btn, .view-btn {
+    margin-top: 0 !important;
+    background-color: #038acb !important;
+    border: solid 1px #038acb !important;
+    color: #f2faff !important;
     transition: all 30ms;
 }
 
-.login-btn:hover {
-    border: solid 1px #294f78 !important;
-    background-color: #294f78 !important;
+.login-btn:hover, .view-btn:hover {
+    border: solid 1px #03A9F4 !important;
+    background-color: #03A9F4 !important;
     transition: all 30ms;
 }
 
@@ -172,10 +173,6 @@ body {
     text-align: left;
 }
 
-.recent-activity {
-    display: flex;
-}
-
 .segment-container > .header {
     font-size: 1.25em !important;
     text-align: left !important;
@@ -197,17 +194,12 @@ body {
 }
 
 .list-tile {
-    font-size: 0.85em;
+    font-size: 1em;
     color: #a0a0a0;
     margin-bottom: 5px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.list-tile a {
-    font-size: 12px;
-    line-height: 1em;
 }
 
 .list-tile .date-complete {
@@ -259,4 +251,15 @@ body {
 
 #about-container p {
     color: #999;
+}
+
+.ui.mini.steps {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.student-instructor-flex {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
 }
