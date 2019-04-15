@@ -60,6 +60,10 @@ body {
     height: 150px;
 }
 
+.subheader-container {
+    display: flex;
+}
+
 .grid.message {
     background-color: #fff;
 }
