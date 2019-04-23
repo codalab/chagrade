@@ -15,45 +15,67 @@
                 </div>
             </div>
         </div>
-
     </div>
 
 
     <script>
         var self = this
-        self.producer_stats = {}
+        self.producer_stats = []
 
         self.on("mount", function () {
-            self.update({
-                producer_stats: [
-                    {label: "Teachers", count: 59},
-                    {label: "Students", count: 1031},
-                    {label: "Homework Assigned", count: 201},
-                    {label: "Homework Submitted", count: 16401},
-                ],
-            })
-        })
+            self.get_chagrade_stats()
+            self.update(self.producer_stats)
+        });
 
-        /* var self = this
-        self.producer_stats = {}
+        self.get_chagrade_stats = function () {
+            CHAGRADE.api.students_list()
+                .done(function (data) {
+                    self.producer_stats.push({
+                        label: "Students", count: data.length
+                    });
+                    self.update()
+                }).fail(function () {
+                console.log('Students not found.')
+            });
+            CHAGRADE.api.teams_list()
+                .done(function (data) {
+                    self.producer_stats.push({
+                        label: "Teams", count: data.length
+                    });
+                    self.update()
+                }).fail(function () {
+                console.log('Teams not found.')
+            });
+            CHAGRADE.api.submissions_list()
+                .done(function (data) {
+                    self.producer_stats.push({
+                        label: "Submissions", count: data.length
+                    });
+                    self.update()
+                }).fail(function () {
+                console.log('Submissons not found')
+            });
+            CHAGRADE.api.klasses_list()
+                .done(function (data) {
+                    self.producer_stats.push({
+                        label: "Classes", count: data.length
+                    });
+                    self.update()
+                }).fail(function () {
+                console.log('Classes not found')
+            });
+            CHAGRADE.api.questions_list()
+                .done(function (data) {
+                    self.producer_stats.push({
+                        label: "Questions", count: data.length
+                    });
+                    self.update()
+                }).fail(function () {
+                console.log('Questions not found')
+            });
 
-        self.on("mount", function () {
-            self.get_general_stats()
-        })
-
-        self.get_general_stats = function () {
-            self.update({
-                producer_stats: [
-                    {label: "Competitions", count: num_formatter(data.competition_count, 1)},
-                    {label: "Datasets", count: num_formatter(data.dataset_count, 1)},
-                    {label: "Participants", count: num_formatter(data.participant_count, 1)},
-                    {label: "Submissions", count: num_formatter(data.submission_count, 1)},
-                    {label: "Users", count: num_formatter(data.user_count, 1)},
-                    {label: "Organizers", count: num_formatter(data.organizer_count, 1)},
-                ],
-            })
         }
-*/
+
     </script>
 
     <style>
@@ -77,7 +99,7 @@
 
         .ui.tiny.statistic > .value,
         .ui.tiny.statistics .statistic > .value {
-            color: #565656  !important;
+            color: #565656 !important;
             font-weight: 700;
         }
 

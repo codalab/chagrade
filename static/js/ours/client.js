@@ -58,8 +58,8 @@ CHAGRADE.api = {
     get_klass: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + 'klasses/' + pk)
     },
-    get_klasses: function() {
-        return CHAGRADE.api.request('GET', URLS.API + 'klasses/')
+    klasses_list: function(data) {
+        return CHAGRADE.api.request('GET', URLS.API + 'klasses/', data)
     },
     activate_klass: function(pk) {
         return CHAGRADE.api.request('POST', '/klasses/wizard/' + pk + '/activate')
@@ -68,6 +68,9 @@ CHAGRADE.api = {
         return CHAGRADE.api.request('POST', '/klasses/email_students/' + pk + '/', data)
     },
     //Students
+    students_list: function(data) {
+        return CHAGRADE.api.request('GET', URLS.API + "students/", data)
+    },
     create_student: function(data) {
         return CHAGRADE.api.request('POST', URLS.API + "students/", data)
     },
@@ -95,6 +98,9 @@ CHAGRADE.api = {
         return CHAGRADE.api.request('PUT', URLS.API + 'definitions/' + pk + "/", data)
     },
     // Questions
+    questions_list: function(data) {
+        return CHAGRADE.api.request('GET', URLS.API + "questions/", data)
+    },
     delete_question: function(pk) {
         return CHAGRADE.api.request('DELETE', URLS.API + "questions/" + pk + "/")
     },
@@ -103,6 +109,9 @@ CHAGRADE.api = {
         return CHAGRADE.api.request('DELETE', URLS.API + "criterias/" + pk + "/")
     },
     // Submissions
+    submissions_list: function(data){
+        return CHAGRADE.api.request('GET', URLS.API + "submissions/", data)
+    },
     create_submission: function(data) {
         return CHAGRADE.api.request('POST', URLS.API + "submissions/", data)
     },
@@ -122,6 +131,9 @@ CHAGRADE.api = {
     // Teams
     get_teams: function(KLASS) {
         return CHAGRADE.api.request('GET', URLS.API + 'teams/?klass=' + KLASS)
+    },
+    teams_list: function(data){
+        return CHAGRADE.api.request('GET', URLS.API + 'teams/', data)
     },
     get_team: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + 'teams/' + pk)

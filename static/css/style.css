@@ -267,3 +267,11 @@ body {
     justify-content: space-around;
     align-items: flex-end;
 }
+
+.ui.sortable.table thead th:hover {
+    background-color: #f2faff;
+}
+
+.ui.message {
+    background-color: white;
+}
