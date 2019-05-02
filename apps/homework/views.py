@@ -114,9 +114,6 @@ class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
 def get_klass_grades_as_csv(request, klass_pk):
     if request.method == 'GET':
         # Create the HttpResponse object with the appropriate CSV header.
-
-        print(request)
-
         try:
             klass = Klass.objects.get(pk=klass_pk)
             response = HttpResponse(content_type='text/csv')
@@ -139,7 +136,10 @@ def get_klass_grades_as_csv(request, klass_pk):
                         published_grades = last_submission.grades.filter(published=True)
                         last_grade = published_grades.last() if published_grades.count() > 0 else None
                         # temp_student_row.append(last_grade.overall_grade)
-                        temp_student_row.append(last_grade.text_grade)
+                        if last_grade:
+                            temp_student_row.append(last_grade.text_grade)
+                        else:
+                            temp_student_row.append('N/A')
                     else:
                         temp_student_row.append(0)
                 writer.writerow(temp_student_row)

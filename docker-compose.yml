@@ -10,7 +10,7 @@ services:
     env_file: .env
     volumes:
       - ./caddy/Caddyfile:/etc/Caddyfile
-      - ./staticfiles:/var/www/chagrade/static
+      - ./static:/var/www/chagrade/static
     ports:
       - "80:80"
       - "443:443"

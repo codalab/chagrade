@@ -17,11 +17,6 @@ def post_submission(submission_pk):
     scheme = parsed_uri.scheme
     domain = parsed_uri.netloc
     path = parsed_uri.path
-    print("!!!!!!!!!!")
-    print(path)
-    print(path.split('/'))
-    print(path.split('/')[-1])
-    print("!!!!!!!!!!")
     challenge_pk = path.split('/')[-1]
     site_url = "{0}://{1}".format(scheme, domain)
     submission_url = '{0}/api/competition/{1}/submission/sas'.format(site_url, challenge_pk)
