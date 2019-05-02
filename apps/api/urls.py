@@ -11,6 +11,7 @@ from apps.api.views.profiles import ProfileViewSet, StudentViewSet, create_stude
     TestStudentViewSet
 from apps.api.views.klasses import KlassViewSet
 from apps.api.views.groups import TeamViewSet
+from apps.api.views.stats import chagrade_general_stats
 
 app_name = 'api'
 API_PREFIX = "v1"
@@ -54,7 +55,8 @@ urlpatterns = [
 
     # Custom API point for handling student creation
     # path('create_student/', create_student, name='create_student'),
-    path('create_students_from_csv/', create_students_from_csv, name='create_students_from_csv')
+    path('create_students_from_csv/', create_students_from_csv, name='create_students_from_csv'),
+    path('chagrade_general_stats/', chagrade_general_stats, name='chagrade_general_stats')
 
     # Optionally, use "redoc" style
     # url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=None), name='schema-redoc'),

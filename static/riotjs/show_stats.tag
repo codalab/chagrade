@@ -2,14 +2,42 @@
     <div class="content">
         <h4 class="ui sub blue header">Chagrade brings together</h4>
         <div class="ui two column grid">
-            <div class="column" each="{ stat in producer_stats }" no-reorder>
-                <div class="ui six tiny statistics">
+            <div class="column" no-reorder>
+                <div class="ui two tiny statistics">
                     <div class="statistic">
                         <div class="value">
-                            { stat.count }
+                            { stats.students }
                         </div>
                         <div class="label">
-                            { stat.label }
+                            Students
+                        </div>
+                    </div>
+                    <div class="statistic">
+                        <div class="value">
+                            { stats.users }
+                        </div>
+                        <div class="label">
+                            Users
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column" no-reorder>
+                <div class="ui two tiny statistics">
+                    <div class="statistic">
+                        <div class="value">
+                            { stats.submissions }
+                        </div>
+                        <div class="label">
+                            Submissions
+                        </div>
+                    </div>
+                    <div class="statistic">
+                        <div class="value">
+                            { stats.klasses }
+                        </div>
+                        <div class="label">
+                            Classes
                         </div>
                     </div>
                 </div>
@@ -20,62 +48,26 @@
 
     <script>
         var self = this
-        self.producer_stats = []
+        self.stats = {
+            students: 0,
+            users: 0,
+            submissions: 0,
+            klasses: 0,
+        }
 
         self.on("mount", function () {
             self.get_chagrade_stats()
-            self.update(self.producer_stats)
         });
 
         self.get_chagrade_stats = function () {
-            CHAGRADE.api.students_list()
+            CHAGRADE.api.get_general_stats()
                 .done(function (data) {
-                    self.producer_stats.push({
-                        label: "Students", count: data.length
-                    });
+                    self.stats = data
                     self.update()
                 }).fail(function () {
                 console.log('Students not found.')
             });
-            CHAGRADE.api.teams_list()
-                .done(function (data) {
-                    self.producer_stats.push({
-                        label: "Teams", count: data.length
-                    });
-                    self.update()
-                }).fail(function () {
-                console.log('Teams not found.')
-            });
-            CHAGRADE.api.submissions_list()
-                .done(function (data) {
-                    self.producer_stats.push({
-                        label: "Submissions", count: data.length
-                    });
-                    self.update()
-                }).fail(function () {
-                console.log('Submissons not found')
-            });
-            CHAGRADE.api.klasses_list()
-                .done(function (data) {
-                    self.producer_stats.push({
-                        label: "Classes", count: data.length
-                    });
-                    self.update()
-                }).fail(function () {
-                console.log('Classes not found')
-            });
-            CHAGRADE.api.questions_list()
-                .done(function (data) {
-                    self.producer_stats.push({
-                        label: "Questions", count: data.length
-                    });
-                    self.update()
-                }).fail(function () {
-                console.log('Questions not found')
-            });
-
         }
-
     </script>
 
     <style>
@@ -109,6 +101,10 @@
             font-size: 13px !important;
             line-height: 1.1em !important;
             font-weight: 100 !important;
+        }
+
+        .ui.two.statistics .statistic {
+            margin: 0 0 3em !important;
         }
     </style>
 </show-stats>

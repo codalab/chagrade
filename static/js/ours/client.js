@@ -28,37 +28,10 @@ CHAGRADE.api = {
             dataType: 'json'
         })
     },
-    // search: function (filters) {
-    //     // get existing params and update them with the filters
-    //     var params = route.query()
-    //     Object.assign(params, filters)
-    //     // Remove any unused params so our URL stays pretty
-    //     dict_remove_empty_values(params)
-    //     // Add query params to URL
-    //     // This causes bugs with repeating the query params over and over, so we just replaceState now
-    //     //route('?' + $.param(params))
-    //     window.history.replaceState("", "", `?${$.param(params)}`);
-    //
-    //     return CHAGRADE.api.request('GET', URLS.API + "query/?" + $.param(params))
-    // },
-    // ------------------------------------------------------------------------
-    // // Producers
-    // get_producers: function() {
-    //     return CHAGRADE.api.request('GET', URLS.API + "producers/")
-    // },
-    // create_producer: function(data) {
-    //     return CHAGRADE.api.request('POST', URLS.API + "producers/", data)
-    // },
-    // update_producer: function(pk, data) {
-    //     return CHAGRADE.api.request('PUT', URLS.API + "producers/" + pk + "/", data)
-    // },
-    // delete_producer: function(pk) {
-    //     return CHAGRADE.api.request('DELETE', URLS.API + "producers/" + pk + "/")
-    // }
     get_klass: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + 'klasses/' + pk)
     },
-    klasses_list: function(data) {
+    get_klasses: function(data) {
         return CHAGRADE.api.request('GET', URLS.API + 'klasses/', data)
     },
     activate_klass: function(pk) {
@@ -68,9 +41,6 @@ CHAGRADE.api = {
         return CHAGRADE.api.request('POST', '/klasses/email_students/' + pk + '/', data)
     },
     //Students
-    students_list: function(data) {
-        return CHAGRADE.api.request('GET', URLS.API + "students/", data)
-    },
     create_student: function(data) {
         return CHAGRADE.api.request('POST', URLS.API + "students/", data)
     },
@@ -98,9 +68,6 @@ CHAGRADE.api = {
         return CHAGRADE.api.request('PUT', URLS.API + 'definitions/' + pk + "/", data)
     },
     // Questions
-    questions_list: function(data) {
-        return CHAGRADE.api.request('GET', URLS.API + "questions/", data)
-    },
     delete_question: function(pk) {
         return CHAGRADE.api.request('DELETE', URLS.API + "questions/" + pk + "/")
     },
@@ -109,9 +76,6 @@ CHAGRADE.api = {
         return CHAGRADE.api.request('DELETE', URLS.API + "criterias/" + pk + "/")
     },
     // Submissions
-    submissions_list: function(data){
-        return CHAGRADE.api.request('GET', URLS.API + "submissions/", data)
-    },
     create_submission: function(data) {
         return CHAGRADE.api.request('POST', URLS.API + "submissions/", data)
     },
@@ -132,9 +96,6 @@ CHAGRADE.api = {
     get_teams: function(KLASS) {
         return CHAGRADE.api.request('GET', URLS.API + 'teams/?klass=' + KLASS)
     },
-    teams_list: function(data){
-        return CHAGRADE.api.request('GET', URLS.API + 'teams/', data)
-    },
     get_team: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + 'teams/' + pk)
     },
@@ -146,5 +107,9 @@ CHAGRADE.api = {
     },
     delete_team: function(pk) {
         return CHAGRADE.api.request('DELETE', URLS.API + "teams/" + pk + "/")
+    },
+    // General Stats
+    get_general_stats: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_general_stats/")
     },
 }
