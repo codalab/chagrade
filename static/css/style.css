@@ -223,8 +223,13 @@ body {
 
 .student-instructor-flex {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: flex-end;
+    margin: 1.5em
+}
+
+.student-instructor-flex .ui.button {
+    margin: 0 1.5em;
 }
 
 .ui.sortable.table thead th:hover {
@@ -233,4 +238,12 @@ body {
 
 .ui.message {
     background-color: white;
+}
+
+.student-instructor {
+    color: #909090;
+    font-size: 1em;
+    max-width: 600px;
+    text-align: justify;
+    margin: 2em auto !important;
 }
