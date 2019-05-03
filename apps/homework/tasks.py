@@ -1,42 +1,19 @@
 import os
-from tempfile import TemporaryFile, NamedTemporaryFile
+from tempfile import TemporaryFile
 from urllib.parse import urlparse
 import requests
-from celery.task import task
-from django.core.exceptions import ObjectDoesNotExist
-# from django.core.files.temp import TemporaryFile
 from requests.auth import HTTPBasicAuth
-from apps.homework.models import Grade, Submission, SubmissionTracker
+from apps.homework.models import Submission, SubmissionTracker
+
+# TODO: Clean this up and possibly have a flag between running this as a task vs actually calling it? (Heroku vs Docker)
 
 
 # @task
 def post_submission(submission_pk):
     # Get our URL's formatted and such
     submission = Submission.objects.get(pk=submission_pk)
-    definition = submission.definition
-    # if definition.team_based:
-    #     if not submission.team:
-    #         print("No team for a team based submission")
-    #         return
-    #     else:
-    #         custom_urls = submission.team.challenge_urls.filter(definition=definition, team=submission.team)
-    #     # if not submission.team.challenge_url:
-    #     if not custom_urls:
-    #         if not definition.challenge_url:
-    #             print("No challenge URL for either the team or the definition. Abandoning")
-    #             return
-    # if not submission.submission_github_url:
-    #     print("No github url was provided")
-    #     return
-    # if not definition.challenge_url:
-    #     print("No challenge url was provided")
-    #     return
-    # https://competitions.codalab.org/competitions/15595
-    # if definition.team_based:
-    #     parsed_uri = urlparse(custom_urls.first().challenge_url) if custom_urls else urlparse(definition.challenge_url)
-    # else:
-    #     parsed_uri = urlparse(definition.challenge_url)
     parsed_uri = urlparse(submission.get_challenge_url)
+    print(submission.get_challenge_url)
     scheme = parsed_uri.scheme
     domain = parsed_uri.netloc
     path = parsed_uri.path
@@ -60,9 +37,25 @@ def post_submission(submission_pk):
     print("Posting github submission to storage")
 
     with TemporaryFile() as f:
-        # f = TemporaryFile()
-        # https://github.com/Tthomas63/partspolls/archive/master.zip
-        repo_url = "{}/archive/master.zip".format(submission.submission_github_url)
+        # repo_url = "{}/archive/master.zip".format(submission.submission_github_url)
+
+        # https://github.com/codalab/chalab/raw/develop/chalab/static/chalab/resource/iris.zip
+        # FROM
+        # https://github.com/codalab/chalab/blob/develop/chalab/static/chalab/resource/iris.zip
+
+        parsed_repo_uri = urlparse(submission.submission_github_url)
+        repo_scheme = parsed_repo_uri.scheme
+        repo_loc = parsed_repo_uri.netloc
+        repo_path = parsed_repo_uri.path
+        # path_components = repo_path.split('/')
+        path_components = [component if component != 'blob' else 'raw' for component in repo_path.split('/')]
+        new_path = ""
+        for index, component in enumerate(path_components):
+            if index != len(path_components) - 1:
+                new_path += component + '/'
+            else:
+                new_path += component
+        repo_url = '{scheme}://{domain}{path}'.format(scheme=repo_scheme, domain=repo_loc, path=new_path)
         print(repo_url)
         repo_resp = requests.get(repo_url, stream=True)
         for chunk in repo_resp.iter_content(chunk_size=1024):
@@ -96,10 +89,12 @@ def post_submission(submission_pk):
         sub_descr = "Chagrade_Submission_{0}".format(submission.id)
         finalize_url = "{0}/api/competition/{1}/submission?description={2}&phase_id={3}".format(site_url, challenge_pk,
                                                                                                 sub_descr, phase_id)
+        custom_filename = "{username}_{date}.zip".format(username=submission.creator.user.username, date=submission.created)
         print("Finalizing submission for phase: {}".format(phase_id))
         phase_final_resp = requests.post(finalize_url, data={
             'id': submission_data,
-            'name': 'master.zip',
+            # 'name': 'master.zip',
+            'name': custom_filename,
             'type': 'application/zip',
             # 'size': ?
         }, auth=HTTPBasicAuth(

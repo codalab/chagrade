@@ -8,6 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('profiles', '0010_auto_20190131_0059'),
+        ('groups', '0005_auto_20181102_2156'),
     ]
 
     operations = [

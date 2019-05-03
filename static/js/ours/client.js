@@ -34,6 +34,9 @@ CHAGRADE.api = {
     get_klasses: function(data) {
         return CHAGRADE.api.request('GET', URLS.API + 'klasses/', data)
     },
+    get_my_klasses: function(instructor) {
+        return CHAGRADE.api.request('GET', URLS.API + 'klasses/?instructor=' + instructor)
+    },
     activate_klass: function(pk) {
         return CHAGRADE.api.request('POST', '/klasses/wizard/' + pk + '/activate')
     },
@@ -93,8 +96,8 @@ CHAGRADE.api = {
         return CHAGRADE.api.request('PUT', URLS.API + 'grades/' + pk + "/", data)
     },
     // Teams
-    get_teams: function(KLASS) {
-        return CHAGRADE.api.request('GET', URLS.API + 'teams/?klass=' + KLASS)
+    get_teams: function(klass) {
+        return CHAGRADE.api.request('GET', URLS.API + 'teams/?klass=' + klass)
     },
     get_team: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + 'teams/' + pk)

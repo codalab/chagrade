@@ -8,10 +8,12 @@ from django.db import models
 # Or should we abstract two seperate sub-models from this one?
 from requests.auth import HTTPBasicAuth
 
+from apps.homework.validators import validate_submission_github_url
+
 
 class Definition(models.Model):
-    klass = models.ForeignKey('klasses.Klass', related_name='homework_definitions', on_delete=models.PROTECT)
-    creator = models.ForeignKey('profiles.Instructor', related_name='created_homework_defintions', on_delete=models.PROTECT)
+    klass = models.ForeignKey('klasses.Klass', related_name='homework_definitions', on_delete=models.CASCADE)
+    creator = models.ForeignKey('profiles.Instructor', related_name='created_homework_defintions', on_delete=models.CASCADE)
 
     due_date = models.DateTimeField(default=None)
 
@@ -50,12 +52,14 @@ class Submission(models.Model):
     definition = models.ForeignKey('Definition', default=None, related_name='submissions', on_delete=models.CASCADE)
     creator = models.ForeignKey('profiles.StudentMembership', related_name='submitted_homeworks', on_delete=models.CASCADE)
 
-    submission_github_url = models.URLField(default=None, null=True, blank=True)
+    submission_github_url = models.URLField(default=None, null=True, blank=True, validators=[validate_submission_github_url])
 
     method_name = models.CharField(max_length=100, default='', null=True, blank=True)
     method_description = models.CharField(max_length=300, default='', null=True, blank=True)
     project_url = models.URLField(max_length=200, default='', null=True, blank=True)
     publication_url = models.URLField(max_length=200, default='', null=True, blank=True)
+
+    created = models.DateTimeField(auto_now_add=True)
 
     submitted_to_challenge = models.BooleanField(default=False)
 

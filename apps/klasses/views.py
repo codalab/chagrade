@@ -102,9 +102,6 @@ class ActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
 def get_klass_students_as_csv(request, klass_pk):
     if request.method == 'GET':
         # Create the HttpResponse object with the appropriate CSV header.
-
-        print(request)
-
         try:
             klass = Klass.objects.get(pk=klass_pk)
             if not request.user.instructor:
@@ -129,17 +126,6 @@ def get_klass_students_as_csv(request, klass_pk):
 # def email_klass_students(request, klass_pk):
 #     if request.method == 'POST':
 #         # Create the HttpResponse object with the appropriate CSV header.
-#
-#         print(request)
-#         # print(request.data)
-#         # print(request.validated_data)
-#         print("@@@@@@@@@@@@@@@")
-#         print(request.POST)
-#         print(request.body)
-#         data = request.POST
-#         print(data)
-#         print(request.POST.get('message'))
-#         print("@@@@@@@@@@@@@@@")
 #
 #         try:
 #             subject = request.POST.get('subject')
@@ -182,18 +168,6 @@ class EmailKlassStudentsView(LoginRequiredMixin, WizardMixin, TemplateView):
     # Post view should just return some JSON with the new state, or an error message.
     def post(self, request, *args, **kwargs):
         # Create the HttpResponse object with the appropriate CSV header.
-
-        print(request)
-        # print(request.data)
-        # print(request.validated_data)
-        print("@@@@@@@@@@@@@@@")
-        print(request.POST)
-        # print(request.body)
-        data = request.POST
-        print(data)
-        print(request.POST.get('message'))
-        print("@@@@@@@@@@@@@@@")
-
         try:
             subject = request.POST.get('subject')
             message = request.POST.get('message')

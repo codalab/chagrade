@@ -4,8 +4,10 @@
         <!-- Important information -->
         <div class="fields">
             <div class="three wide field">
-                <div class="ui calendar field required">
-                    <label>Due-Date:</label>
+                <div class="ui required calendar field">
+                    <label>
+                        Due-Date:
+                    </label>
                     <div class="ui input left icon datepicker">
                         <i class="calendar icon"></i>
                         <input name="due_date" ref="due_date" type="text" value="{definition.due_date}">
@@ -13,25 +15,37 @@
                 </div>
             </div>
 
-            <div class="three wide field">
+            <div class="three wide required field">
                 <label>Name:</label>
                 <input type="text" name="name" maxlength="100" required ref="name" value="{definition.name}">
             </div>
 
             <div class="ten wide field">
                 <label>Description:</label>
-                <input type="text" name="description" maxlength="300" ref="description" value="{definition.description}">
+                <input type="text" name="description" maxlength="300" ref="description"
+                       value="{definition.description}">
             </div>
         </div>
         <!-- URL Fields -->
         <div class="fields">
-            <div class="eight wide field">
-                <label>Challenge url:</label>
-                <input type="url" name="challenge_url" maxlength="200" ref="challenge_url" value="{definition.challenge_url}">
+            <div class="eight wide required field">
+                <label>
+                    <i class="pop-up question blue circle icon"
+                       data-title="A URL to a challenge. Chagrade compatible features should be enabled."
+                       data-content="Ex: http://competitions.codalab.org/competitions/1"></i>
+                    Default Challenge url:
+                </label>
+                <input type="url" name="challenge_url" maxlength="200" ref="challenge_url"
+                       value="{definition.challenge_url}">
             </div>
 
             <div class="eight wide field">
-                <label>Starting kit github url:</label>
+                <label>
+                    <i class="pop-up question blue circle icon"
+                       data-title="A direct link for a starting kit file"
+                       data-content="Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip"></i>
+                    Starting kit github url:
+                </label>
                 <input type="url" name="starting_kit_github_url" maxlength="200"
                        ref="starting_kit_github_url" value="{definition.starting_kit_github_url}">
             </div>
@@ -40,27 +54,32 @@
         <div class="fields">
             <div class="four wide field">
                 <label>Ask method name:</label>
-                <input class="ui checkbox" type="checkbox" name="ask_method_name" ref="ask_method_name" checked="{definition.ask_method_name}">
+                <input class="ui checkbox" type="checkbox" name="ask_method_name" ref="ask_method_name"
+                       checked="{definition.ask_method_name}">
             </div>
 
             <div class="four wide field">
                 <label>Ask method description:</label>
-                <input class="ui checkbox" type="checkbox" name="ask_method_description" ref="ask_method_description" checked="{definition.ask_method_description}">
+                <input class="ui checkbox" type="checkbox" name="ask_method_description" ref="ask_method_description"
+                       checked="{definition.ask_method_description}">
             </div>
 
             <div class="four wide field">
                 <label>Ask project url:</label>
-                <input class="ui checkbox" type="checkbox" name="ask_project_url" ref="ask_project_url" checked="{definition.ask_project_url}">
+                <input class="ui checkbox" type="checkbox" name="ask_project_url" ref="ask_project_url"
+                       checked="{definition.ask_project_url}">
             </div>
 
             <div class="four wide field">
                 <label>Ask publication url:</label>
-                <input class="ui checkbox" type="checkbox" name="ask_publication_url" ref="ask_publication_url" checked="{definition.ask_publication_url}">
+                <input class="ui checkbox" type="checkbox" name="ask_publication_url" ref="ask_publication_url"
+                       checked="{definition.ask_publication_url}">
             </div>
 
             <div class="four wide field">
                 <label>Team based:</label>
-                <input class="ui checkbox" type="checkbox" name="team_based" ref="team_based" checked="{definition.team_based}">
+                <input class="ui checkbox" type="checkbox" name="team_based" ref="team_based"
+                       checked="{definition.team_based}">
             </div>
         </div>
 
@@ -73,8 +92,14 @@
                     {team.name}
                 </div>
                 <div class="content">
-                    <label>Challenge URL:</label>
-                    <input type="text" data-custom-challenge-id="{team.custom_challenge_id}" name="team_challenge_url" ref="team_{team.id}_challenge_url" value="{team.custom_challenge_url}">
+                    <label>
+                        <i class="pop-up question blue circle icon"
+                           data-title="A URL to a challenge. Overrides the default for a team."
+                           data-content="Ex: http://competitions.codalab.org/competitions/2"></i>
+                        Challenge URL:
+                    </label>
+                    <input type="text" data-custom-challenge-id="{team.custom_challenge_id}" name="team_challenge_url"
+                           ref="team_{team.id}_challenge_url" value="{team.custom_challenge_url}">
                 </div>
             </virtual>
         </div>
@@ -89,7 +114,7 @@
             <div style="margin-top: 2.5vh; margin-bottom: 0.5vh;" each="{question, index in questions}">
                 <h4 style="margin-bottom: 2.5vh" class="ui dividing header">Question {index + 1}</h4>
                 <div class="three inline fields">
-                    <div class="four wide inline field">
+                    <div class="six wide inline field">
                         <input type="hidden" name="{'question' + '_id_' + index}" ref="{'question' + '_id_' + index}"
                                value="{question.id}">
                         <label>Question:</label>
@@ -97,18 +122,18 @@
                                ref="{'question' + '_question_' + index}" value="{question.question}">
                     </div>
 
-                    <div class="four wide inline field">
+                    <div class="six wide inline field">
                         <label>Answer:</label>
                         <input type="text" name="{'question' + '_answer_' + index}" maxlength="200"
                                ref="{'question' + '_answer_' + index}" value="{question.answer}">
                     </div>
 
-                    <div class="four wide inline field">
+                    <!--<div class="four wide inline field">
                         <label>Has Answer:</label>
                         <input class="ui checkbox" type="checkbox" name="{'question' + '_has_specific_answer_' + index}"
                                ref="{'question' + '_has_specific_answer_' + index}" checked="{question.has_specific_answer}">
-                    </div>
-                    <div class="four wide inline field">
+                    </div>-->
+                    <div class="six wide inline field">
                         <a onclick="{remove_question.bind(this, index)}" class="ui red button">X</a>
                     </div>
                 </div>
@@ -124,7 +149,7 @@
             <h4 class="ui header">Criteria</h4>
 
             <div style="margin-top: 2.5vh; margin-bottom: 0.5vh;" each="{criteria, index in criterias}">
-                <h4 style="margin-bottom: 2.5vh" class="ui dividing header">Crtieria {index + 1}</h4>
+                <h4 style="margin-bottom: 2.5vh" class="ui dividing header">Criterion {index + 1}</h4>
                 <div class="three inline fields">
                     <div class="four wide inline field">
                         <input type="hidden" name="{'criteria' + '_id_' + index}" ref="{'criteria' + '_id_' + index}"
@@ -151,13 +176,14 @@
                 </div>
             </div>
 
-            <a class="ui blue button" onclick="{add_criteria}">Add Criteria</a>
+            <a class="ui blue button" onclick="{add_criteria}">Add Criterion</a>
 
         </div>
 
         <div class="ui divider"></div>
 
-        <span><a onclick="{submit_form}" class="ui green button">Submit</a><a onclick="{cancel_button}" class="ui red button">Cancel</a></span>
+        <span><a onclick="{submit_form}" class="ui green button">Submit</a><a onclick="{cancel_button}"
+                                                                              class="ui red button">Cancel</a></span>
 
     </form>
 
@@ -193,11 +219,16 @@
                 }
             })
 
+            $('.pop-up').popup({
+                inline: true,
+                position: 'top left',
+            });
+
         })
 
-        self.update_teams = function() {
+        self.update_teams = function () {
             CHAGRADE.api.get_teams(KLASS)
-            .done(function (data) {
+                .done(function (data) {
                     //self.update({definition['teams']: data})
                     console.log(data)
                     self.definition.teams = data
@@ -209,7 +240,7 @@
         }
 
         self.remove_question = function (index) {
-            if (self.refs['question' + '_id_' + index].value !== ""){
+            if (self.refs['question' + '_id_' + index].value !== "") {
                 self.delete_question(self.refs['question' + '_id_' + index].value)
             }
             self.questions.splice(index, 1)
@@ -222,7 +253,7 @@
         }
 
         self.remove_criteria = function (index) {
-            if (self.refs['criteria' + '_id_' + index].value !== ""){
+            if (self.refs['criteria' + '_id_' + index].value !== "") {
                 self.delete_criteria(self.refs['criteria' + '_id_' + index].value)
             }
             self.criterias.splice(index, 1)
@@ -234,15 +265,14 @@
             self.update()
         }
 
-        self.update_definition = function() {
+        self.update_definition = function () {
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
                     data.teams.forEach(function (team) {
                         data.custom_challenge_urls.forEach(function (custom_url) {
-                            if (team.id === custom_url.team)
-                            {
+                            if (team.id === custom_url.team) {
                                 team.custom_challenge_url = custom_url.challenge_url,
-                                team.custom_challenge_id = custom_url.id
+                                    team.custom_challenge_id = custom_url.id
                             }
                         })
                     })
@@ -251,6 +281,10 @@
                         questions: data.custom_questions,
                         criterias: data.criterias
                     })
+                    $('.pop-up').popup({
+                        inline: true,
+                        position: 'top left',
+                    });
                     console.log(data)
                 })
                 .fail(function (error) {
@@ -262,15 +296,15 @@
             var result = confirm('Are you sure you wish to delete this Question?')
             if (result) {
                 CHAGRADE.api.delete_question(pk)
-                .done(function (data) {
-                    toastr.success("Successfully deleted question")
-                })
-                .fail(function (response) {
-                    console.log(response)
-                    Object.keys(response.responseJSON).forEach(function (key) {
-                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
-                    });
-                })
+                    .done(function (data) {
+                        toastr.success("Successfully deleted question")
+                    })
+                    .fail(function (response) {
+                        console.log(response)
+                        Object.keys(response.responseJSON).forEach(function (key) {
+                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                        });
+                    })
             }
         }
 
@@ -278,24 +312,24 @@
             var result = confirm('Are you sure you wish to delete this Criteria?')
             if (result) {
                 CHAGRADE.api.delete_criteria(pk)
-                .done(function (data) {
-                    toastr.success("Successfully deleted criteria")
-                    self.update_criterias()
-                })
-                .fail(function (response) {
-                    console.log(response)
-                    Object.keys(response.responseJSON).forEach(function (key) {
-                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
-                    });
-                })
+                    .done(function (data) {
+                        toastr.success("Successfully deleted criteria")
+                        self.update_criterias()
+                    })
+                    .fail(function (response) {
+                        console.log(response)
+                        Object.keys(response.responseJSON).forEach(function (key) {
+                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                        });
+                    })
             }
         }
 
-        self.cancel_button = function() {
-            window.location='/klasses/wizard/' + KLASS + '/define_homework'
+        self.cancel_button = function () {
+            window.location = '/klasses/wizard/' + KLASS + '/define_homework'
         }
 
-        self.submit_form = function() {
+        self.submit_form = function () {
 
             //self.submit_team_changes()
 
@@ -314,18 +348,18 @@
                 "team_based": self.refs.team_based.checked,
                 "criterias": [
                     /*{
-                        "description": "string",
-                        "lower_range": 0,
-                        "upper_range": 0
-                    }*/
+                     "description": "string",
+                     "lower_range": 0,
+                     "upper_range": 0
+                     }*/
                 ],
                 "custom_challenge_urls": [],
                 "custom_questions": [
                     /*{
-                        "has_specific_answer": true,
-                        "question": "string",
-                        "answer": "string"
-                    }*/
+                     "has_specific_answer": true,
+                     "question": "string",
+                     "answer": "string"
+                     }*/
                 ]
             }
 
@@ -335,7 +369,7 @@
                     'lower_range': self.refs['criteria' + '_lower_range_' + index].value,
                     'upper_range': self.refs['criteria' + '_upper_range_' + index].value,
                 }
-                if (self.refs['criteria' + '_id_' + index].value !== ""){
+                if (self.refs['criteria' + '_id_' + index].value !== "") {
                     temp_data['id'] = self.refs['criteria' + '_id_' + index].value
                 }
                 obj_data['criterias'].push(temp_data)
@@ -345,23 +379,22 @@
                 var temp_data = {
                     'question': self.refs['question' + '_question_' + index].value,
                     'answer': self.refs['question' + '_answer_' + index].value,
-                    'has_specific_answer': self.refs['question' + '_has_specific_answer_' + index].value,
+                    //'has_specific_answer': self.refs['question' + '_has_specific_answer_' + index].value,
                 }
-                if (self.refs['question' + '_id_' + index].value !== ""){
+                if (self.refs['question' + '_id_' + index].value !== "") {
                     temp_data['id'] = self.refs['question' + '_id_' + index].value
                 }
                 obj_data['custom_questions'].push(temp_data)
             }
 
             self.definition.teams.forEach(function (team) {
-                if (self.refs["team_" + team.id + "_challenge_url"].value !== '')
-                {
+                if (self.refs["team_" + team.id + "_challenge_url"].value !== '') {
                     temp_data = {
                         //'definition': self.definition.id,
                         'team': team.id,
                         'challenge_url': self.refs["team_" + team.id + "_challenge_url"].value
                     }
-                    if (self.refs["team_" + team.id + "_challenge_url"].dataset.customChallengeId !== undefined){
+                    if (self.refs["team_" + team.id + "_challenge_url"].dataset.customChallengeId !== undefined) {
                         temp_data['id'] = self.refs["team_" + team.id + "_challenge_url"].dataset.customChallengeId
                     }
                     //console.log(temp_data)
@@ -380,7 +413,7 @@
 
             endpoint
                 .done(function (data) {
-                    window.location='/klasses/wizard/' + KLASS + '/define_homework'
+                    window.location = '/klasses/wizard/' + KLASS + '/define_homework'
                 })
                 .fail(function (response) {
                     console.log(response)

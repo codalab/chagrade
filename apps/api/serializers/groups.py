@@ -9,6 +9,7 @@ from apps.api.serializers.profiles import StudentSerializer
 class TeamSerializer(WritableNestedModelSerializer):
 
     members = StudentSerializer(many=True)
+    leader = StudentSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Team
@@ -18,7 +19,7 @@ class TeamSerializer(WritableNestedModelSerializer):
             'name',
             'description',
             'members',
-            'challenge_url'
+            'leader',
         ]
         read_only_fields = ['submissions']
 

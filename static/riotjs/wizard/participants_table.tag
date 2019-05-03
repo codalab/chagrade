@@ -26,6 +26,7 @@
                 <th>#</th>
                 <th>ID</th>
                 <th>Name</th>
+                <th>Leader Student ID</th>
                 <th># Members</th>
                 <th></th>
                 <th>Entries</th>
@@ -41,6 +42,9 @@
                     </td>
                     <td>
                         {team.name}
+                    </td>
+                    <td>
+                        {team.leader.student_id}
                     </td>
                     <td>
                         {team.members.length}

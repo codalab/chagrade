@@ -56,6 +56,7 @@ class StudentSerializer(serializers.ModelSerializer):
             'student_id',
             'overall_grade',
             'date_enrolled',
+            'id',
         )
 
 
