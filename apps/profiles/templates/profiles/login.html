@@ -6,32 +6,36 @@
     <div class="ui vertical masthead center aligned segment">
         <div class="ui center aligned grid">
             <div class="row">
-                <div class="ui six wide column message">
+                <div class="segment-container ui segment ten wide column">
+                    <div class="ui header">
+                        Login Here
+                    </div>
+                    <div class="container-content login-container ui twelve wide">
+                        <form class="ui form" method="post">
+                            {% csrf_token %}
 
-                    <form class="ui form" method="post">
-                        {% csrf_token %}
+                            {{ form.non_field_errors }}
 
-                        {{ form.non_field_errors }}
+                            <div class="field">
+                                {{ form.email.errors }}
+                                {{ form.email.label_tag }}
+                                {{ form.email }}
+                            </div>
 
-                        <div class="field">
-                            {{ form.email.errors }}
-                            {{ form.email.label_tag }}
-                            {{ form.email }}
-                        </div>
+                            <div class="field">
+                                {{ form.password.errors }}
+                                {{ form.password.label_tag }}
+                                {{ form.password }}
+                            </div>
 
-                        <div class="field">
-                            {{ form.password.errors }}
-                            {{ form.password.label_tag }}
-                            {{ form.password }}
-                        </div>
-
-                        <input type="submit" value="Login">
-                        <input type="hidden" name="next" value="/"/>
-                    </form>
+                            <input class="ui button form-submit" type="submit" value="Login">
+                            <input type="hidden" name="next" value="/"/>
+                        </form>
+                    </div>
                 </div>
             </div>
             <div class="row">
-                <div class="ui eight wide yellow column message">
+                <div class="ui eight wide info column message">
                     <p>
                         Don't have an account? Create one <a href="{% url "profiles:sign_up" %}">here</a>!
                     </p>

@@ -6,60 +6,64 @@
     <div class="ui vertical masthead center aligned segment">
         <div class="ui center aligned grid">
             <div class="row">
-                <div class="ui six wide column message">
+                <div class="segment-container ui segment ten wide column">
+                    <div class="ui header">
+                        Create an Account
+                    </div>
+                    <div class="container-content login-container ui twelve wide">
+                        <form class="ui form" method="post">
+                            {% csrf_token %}
 
-                    <form class="ui form" method="post">
-                        {% csrf_token %}
+                            {{ form.non_field_errors }}
 
-                        {{ form.non_field_errors }}
+                            <div class="field">
+                                {{ form.username.errors }}
+                                {{ form.username.label_tag }}
+                                {{ form.username }}
+                            </div>
 
-                        <div class="field">
-                            {{ form.username.errors }}
-                            {{ form.username.label_tag }}
-                            {{ form.username }}
-                        </div>
+                            <div class="field">
+                                {{ form.email.errors }}
+                                {{ form.email.label_tag }}
+                                {{ form.email }}
+                            </div>
 
-                        <div class="field">
-                            {{ form.email.errors }}
-                            {{ form.email.label_tag }}
-                            {{ form.email }}
-                        </div>
+                            <div class="field">
+                                {{ form.first_name.errors }}
+                                {{ form.first_name.label_tag }}
+                                {{ form.first_name }}
+                            </div>
 
-                        <div class="field">
-                            {{ form.first_name.errors }}
-                            {{ form.first_name.label_tag }}
-                            {{ form.first_name }}
-                        </div>
+                            <div class="field">
+                                {{ form.last_name.errors }}
+                                {{ form.last_name.label_tag }}
+                                {{ form.last_name }}
+                            </div>
 
-                        <div class="field">
-                            {{ form.last_name.errors }}
-                            {{ form.last_name.label_tag }}
-                            {{ form.last_name }}
-                        </div>
+                            <div class="field">
+                                {{ form.password1.errors }}
+                                {{ form.password1.label_tag }}
+                                {{ form.password1 }}
+                            </div>
 
-                        <div class="field">
-                            {{ form.password1.errors }}
-                            {{ form.password1.label_tag }}
-                            {{ form.password1 }}
-                        </div>
+                            <div class="field">
+                                {{ form.password2.errors }}
+                                {{ form.password2.label_tag }}
+                                {{ form.password2 }}
+                            </div>
 
-                        <div class="field">
-                            {{ form.password2.errors }}
-                            {{ form.password2.label_tag }}
-                            {{ form.password2 }}
-                        </div>
-
-                        <input type="submit" value="Sign-Up">
-                        <input type="hidden" name="next" value="/"/>
-                    </form>
+                            <input class="signup-btn ui button" type="submit" value="Sign-Up">
+                            <input type="hidden" name="next" value="/"/>
+                        </form>
+                    </div>
                 </div>
             </div>
             <div class="row">
-{#                <div class="ui eight wide yellow column message">#}
-{#                    <p>#}
-{#                        Don't have a Chahub account? Create on at <a href="chahub.org">Chahub.org</a> and then <a class="item" href="{% url "social:begin" "chahub" %}">Sign-In</a>#}
-{#                    </p>#}
-{#                </div>#}
+                {#                <div class="ui eight wide yellow column message">#}
+                {#                    <p>#}
+                {#                        Don't have a Chahub account? Create on at <a href="chahub.org">Chahub.org</a> and then <a class="item" href="{% url "social:begin" "chahub" %}">Sign-In</a>#}
+                {#                    </p>#}
+                {#                </div>#}
             </div>
         </div>
     </div>

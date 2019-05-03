@@ -1,44 +1,249 @@
-/*.main-background {*/
-    /*!*width: 100%;*!*/
-    /*!*min-height: 100%;*!*/
-    /*!*!*background-attachment:scroll;*!*!*/
-    /*!*background: linear-gradient(to top,*!*/
-    /*!*rgba(30, 87, 153, 0.85) 40%,*!*/
-    /*!*rgba(255, 255, 255, 0.85) 100%),*!*/
-    /*!*url(../images/dark-triangles.png) 1% center no-repeat; !* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ *!*!*/
-    /*!*!*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e5799', endColorstr='#007db9e8', GradientType=0); !* IE6-9 *!*!*!*/
-    /*!*background-size: cover;*!*/
-
-    /*background: linear-gradient(rgba(30, 87, 153, 0.85), white, transparent), url('../images/dark-triangles.png') no-repeat center;*/
-    /*background-size: cover;*/
-    /*box-shadow: 0px 10px 20px -5px rgba(0, 0, 0, 0.8);*/
-/*}*/
-
-/*.main-background {*/
-    /*background: #1e5799;*/
-    /*background: -moz-linear-gradient(top, #1e5799 0%, #7db9e8 100%);*/
-    /*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1e5799), color-stop(100%, #7db9e8));*/
-    /*background: -webkit-linear-gradient(top, #1e5799 0%, #7db9e8 100%);*/
-    /*background: -o-linear-gradient(top, #1e5799 0%, #7db9e8 100%);*/
-    /*background: -ms-linear-gradient(top, #1e5799 0%, #7db9e8 100%);*/
-    /*background: linear-gradient(to bottom, #1e5799 0%, #7db9e8 100%);*/
-    /*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e5799', endColorstr='#7db9e8', GradientType=0);*/
-    /*background-attachment: fixed;*/
-/*}*/
-
-
-/*body {*/
-    /*background: #1e5799;*/
-    /*background: -moz-linear-gradient(top, #1e5799 0%, lightgrey 100%);*/
-    /*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1e5799), color-stop(100%, lightgrey));*/
-    /*background: -webkit-linear-gradient(top, #1e5799 0%, lightgrey 100%);*/
-    /*background: -o-linear-gradient(top, #1e5799 0%, lightgrey 100%);*/
-    /*background: -ms-linear-gradient(top, #1e5799 0%, lightgrey 100%);*/
-    /*background: linear-gradient(to top, #1e5799 0%, lightgrey 100%), url('../images/dark-triangles.png');*/
-    /*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e5799', endColorstr='lightgrey', GradientType=0);*/
-    /*background-attachment: fixed;*/
-/*}*/
-
 body {
-    background-color: #1e5799;
+    background-color: #f6f8fa;
+}
+
+.app {
+    margin-bottom: 3em;
+}
+
+.hide-border {
+    border: none !important;
+    margin: -2em -1em !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+}
+
+.header-container {
+    margin-bottom: 3em;
+    padding: 1em;
+    height: 150px;
+}
+
+.subheader-container {
+    display: flex;
+}
+
+.grid.message {
+    background-color: #fff;
+}
+
+.signup-btn,
+.login-container .form-submit,
+.hover-btn {
+    background-color: white !important;
+    border: solid 1px #038acb !important;
+    color: #038acb !important;
+    transition: all 30ms;
+
+}
+
+.signup-btn:hover,
+.login-container .form-submit:hover,
+.hover-btn:hover {
+    background-color: #f2faff !important;
+    border: solid 1px #03A9F4 !important;
+    color: #03A9F4 !important;
+    transition: all 30ms;
+}
+
+.login-btn, .view-btn {
+    margin-top: 0 !important;
+    background-color: #038acb !important;
+    border: solid 1px #038acb !important;
+    color: #f2faff !important;
+    transition: all 30ms;
+}
+
+.login-btn:hover, .view-btn:hover {
+    border: solid 1px #03A9F4 !important;
+    background-color: #03A9F4 !important;
+    transition: all 30ms;
+}
+
+.ui.button {
+    z-index: 1000;
+    margin-top: 10px;
+    color: #e2e2e2;
+    background-color: rgba(255, 255, 255, 0.15);
+    font-weight: 100;
+    cursor: pointer !important;
+}
+
+.hidden-btn {
+    position: relative;
+    top: -60px;
+    background: transparent !important;
+    text-transform: uppercase !important;
+}
+
+.hidden-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #e2e2e2 !important;
+}
+
+.button-suite {
+    float: right;
+}
+
+#particles-js {
+    height: 150px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: rgb(42, 68, 88);
+    z-index: -1
+}
+
+.logo {
+    text-align: left;
+    color: white;
+    cursor: pointer;
+    z-index: 5;
+    display: inline-block;
+    transition: filter 100ms;
+    width: 180px;
+    margin: 0.5em 1em;
+}
+
+.logo:hover {
+    filter: invert(20%);
+    transition: filter 100ms;
+}
+
+#logo .ui.sub.header {
+    color: rgba(190, 190, 190, 0.76);
+    transition: all ease 100ms;
+    width: auto;
+    margin: 1em;
+}
+
+#logo .ui.sub.header:hover {
+    color: rgb(238, 238, 238);
+    transition: all ease 100ms;
+}
+
+.button-transition {
+    display: flex;
+    position: absolute;
+    top: 14px;
+    left: 230px;
+}
+
+.segment-container {
+    padding: 0 !important;
+    height: 100%;
+    text-align: left;
+}
+
+.segment-container > .header {
+    font-size: 1.25em !important;
+    text-align: left !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    background-color: #F2FAFF;
+    padding: 10px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom: solid 1px gainsboro;
+}
+
+.container-content {
+    margin: 10px;
+}
+
+#about-container .container-content .center.aligned.column {
+    padding: 3em;
+}
+
+.list-tile {
+    font-size: 1em;
+    color: #a0a0a0;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.list-tile .date-complete {
+    line-height: 0.9em !important;
+}
+
+#about-container {
+    margin: 1em;
+    width: 100%;
+}
+
+.flex-container {
+    width: 60%;
+}
+
+.flex-container h4 {
+    margin-bottom: 0.5em;
+}
+
+.eight.wide.flex-container {
+    text-align: center;
+    align-self: flex-end;
+    width: 85%;
+}
+
+.login-container {
+    text-align: center;
+}
+
+.login-container .field {
+    text-align: left;
+}
+
+.login-container form {
+    margin: 3em 150px;
+}
+
+.login-container .form-submit {
+    box-shadow: none !important;
+}
+
+#about-container .icon.header {
+    color: #565656
+}
+
+#about-container .icon i {
+    color: #373f4f !important;
+}
+
+#about-container p {
+    color: #999;
+}
+
+.ui.mini.steps {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.student-instructor-flex {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    margin: 1.5em
+}
+
+.student-instructor-flex .ui.button {
+    margin: 0 1.5em;
+}
+
+.ui.sortable.table thead th:hover {
+    background-color: #f2faff;
+}
+
+.ui.message {
+    background-color: white;
+}
+
+.student-instructor {
+    color: #909090;
+    font-size: 1em;
+    max-width: 600px;
+    text-align: justify;
+    margin: 2em auto !important;
 }

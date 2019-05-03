@@ -28,38 +28,11 @@ CHAGRADE.api = {
             dataType: 'json'
         })
     },
-    // search: function (filters) {
-    //     // get existing params and update them with the filters
-    //     var params = route.query()
-    //     Object.assign(params, filters)
-    //     // Remove any unused params so our URL stays pretty
-    //     dict_remove_empty_values(params)
-    //     // Add query params to URL
-    //     // This causes bugs with repeating the query params over and over, so we just replaceState now
-    //     //route('?' + $.param(params))
-    //     window.history.replaceState("", "", `?${$.param(params)}`);
-    //
-    //     return CHAGRADE.api.request('GET', URLS.API + "query/?" + $.param(params))
-    // },
-    // ------------------------------------------------------------------------
-    // // Producers
-    // get_producers: function() {
-    //     return CHAGRADE.api.request('GET', URLS.API + "producers/")
-    // },
-    // create_producer: function(data) {
-    //     return CHAGRADE.api.request('POST', URLS.API + "producers/", data)
-    // },
-    // update_producer: function(pk, data) {
-    //     return CHAGRADE.api.request('PUT', URLS.API + "producers/" + pk + "/", data)
-    // },
-    // delete_producer: function(pk) {
-    //     return CHAGRADE.api.request('DELETE', URLS.API + "producers/" + pk + "/")
-    // }
     get_klass: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + 'klasses/' + pk)
     },
-    get_klasses: function() {
-        return CHAGRADE.api.request('GET', URLS.API + 'klasses/')
+    get_klasses: function(data) {
+        return CHAGRADE.api.request('GET', URLS.API + 'klasses/', data)
     },
     get_my_klasses: function(instructor) {
         return CHAGRADE.api.request('GET', URLS.API + 'klasses/?instructor=' + instructor)
@@ -137,5 +110,9 @@ CHAGRADE.api = {
     },
     delete_team: function(pk) {
         return CHAGRADE.api.request('DELETE', URLS.API + "teams/" + pk + "/")
+    },
+    // General Stats
+    get_general_stats: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_general_stats/")
     },
 }
