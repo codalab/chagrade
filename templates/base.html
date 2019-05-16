@@ -1,4 +1,5 @@
 {% load static %}
+{% load admin_urls %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -62,8 +63,38 @@
     <div id="logo">
         <div class="button-suite">
             {% if user.is_authenticated %}
-                <a class="item" href="{% url "profiles:my_profile" %}"><span class="ui button">Profile</span></a>
-                <a class="item" href="{% url "profiles:logout" %}"><span class="ui button">Logout</span></a>
+                <span class="ui login-button dropdown button item">
+                <span class="text">
+                    <i class="icon user outline"></i>
+                    {{ user.username }}
+                </span>
+                <i class="dropdown icon"></i>
+                <span class="menu">
+                {% if user.is_staff or user.is_superuser %}
+                    <div class="header">Django Admin</div>
+                    <a class="item" href="{% url 'admin:index' %}">Index</a>
+                    <a class="item" href="{% url 'admin:index' %}homework/">Homework</a>
+                    <a class="item" href="{% url 'admin:index' %}klasses/">Classes</a>
+                    <a class="item" href="{% url 'admin:index' %}profiles/">Profiles</a>
+                {% endif %}
+                    <div class="ui divider"></div>
+                    <div class="header">Chasuite</div>
+                        <a class="item" href="https://competitions.codalab.org/">Codalab</a>
+                        <a class="item" href="https://chagrade.lri.fr/">Chagrade</a>
+                        <a class="item" href="https://chalab.lri.fr/">Chalab</a>
+                        <a class="item" href="#">Chagle</a>
+                    <div class="ui divider"></div>
+                    <div class="header">My Account</div>
+                    <a class="item" href="/profiles/my_profile">
+                        <i class="icon user"></i>
+                        My profile
+                    </a>
+                    <a class="item" href="/accounts/logout/">
+                        <i class="icon sign out"></i>
+                        Logout
+                    </a>
+                </span>
+            </span>
                 {% if user.is_staff or user.is_superuser %}
                     {% if password_reset_requests %}
                         <a class="item" href="{% url "profiles:password_reset_requests" %}">
@@ -74,24 +105,21 @@
                     {% endif %}
                 {% endif %}
             {% else %}
-                <a class="ui button" href="{% url "profiles:sign_up" %}">Sign Up</a>
+                <span class="ui login-button chasuite dropdown button item">
+                Chasuite
+                <i class="dropdown icon"></i>
+                <span class="menu">
+                    <a class="item" href="https://competitions.codalab.org/">Codalab</a>
+                        <a class="item" href="https://chagrade.lri.fr/">Chagrade</a>
+                        <a class="item" href="https://chalab.lri.fr/">Chalab</a>
+                        <a class="item" href="#">Chagle</a>
+                </span>
+            </span>
                 <a class="ui button" href="{% url "profiles:login" %}">Login</a>
             {% endif %}
         </div>
 
-        <img class="logo" onmouseenter="menu_transition()" onclick="location.href='/'" alt="chagrade_logo" src="{% static 'images/chagrade_logo.png' %}">
-        <nav class="button-transition">
-            <span class="ui tiny button btn1 hidden-btn" onclick="location.href='/'">Chagrade</span>
-            <span class="ui tiny button btn2 hidden-btn" onclick="location.href='https://www.chahub.org/';">Chahub</span>
-            <span class="ui tiny button btn3 hidden-btn" onclick="location.href='http://www.codalab.org';">Codalab</span>
-            <span class="ui tiny button btn4 hidden-btn" onclick="location.href='#';">Chagle</span>
-        </nav>
-
-        <div class="subheader-container">
-            <a href=".">
-                <h4 class="ui sub header">Machine Learning Classes Management</h4>
-            </a>
-        </div>
+        <img class="logo" onclick="location.href='/'" alt="chagrade_logo" src="{% static 'images/chagrade_logo.png' %}">
     </div>
 
 </header>
@@ -158,33 +186,12 @@
 
     $('document').ready(function () {
         $('table').tablesort();
+        $('.dropdown').dropdown();
 
         particlesJS.load('particles-js', "{% static 'particles/particles.json' %}", function () {
             console.log('callback - particles.js config loaded');
         })
     });
-
-    function menu_transition() {
-        if (this.transition) {
-            $('.btn1, .btn2, .btn3, .btn4').css({
-                'transform': 'translateY(0)',
-                'opacity': '0',
-                'transition': 'ease-out 550ms',
-                'top': '-60px'
-            });
-            this.transition = false;
-        } else {
-            $('.btn1, .btn2, .btn3, .btn4').css({
-                'transform': 'translateY(60px)',
-                'opacity': '1',
-                'transition': 'transform ease-in 300ms',
-            });
-            $('.btn2').css({'transition': 'transform ease-in-out 450ms'});
-            $('.btn3').css({'transition': 'transform ease-in-out 600ms'});
-            $('.btn4').css({'transition': 'transform ease-in-out 750ms'});
-            this.transition = true;
-        }
-    }
 
     riot.mount('*')
 </script>
