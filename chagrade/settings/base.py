@@ -140,11 +140,25 @@ AUTHENTICATION_BACKENDS = (
     # "apps.chahub_auth.oauth_backends.ChahubOAuth2",
     "django.contrib.auth.backends.ModelBackend",
     "apps.profiles.auth_backends.EmailBackend",
+    "social_core.backends.github.GithubOAuth2",
+
 )
 
 # =========================================================================
 # Social Auth
 # =========================================================================
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.social_user',
+    #'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    # 'social_core.pipeline.social_auth.load_extra_data',
+    # 'social_core.pipeline.user.user_details',
+    # 'social_core.pipeline.social_auth.associate_by_email',
+    'apps.profiles.pipeline.user_details',
+)
 
 # Generic
 SOCIAL_AUTH_STRATEGY = 'social_django.strategy.DjangoStrategy'
@@ -166,6 +180,11 @@ SOCIAL_AUTH_DISCONNECT_REDIRECT_URL = 'index'
 
 LOGIN_URL = 'profiles:login'
 LOGIN_REDIRECT_URL = 'index'
+
+# Github
+SOCIAL_AUTH_GITHUB_KEY = os.environ.get('SOCIAL_AUTH_GITHUB_KEY')
+SOCIAL_AUTH_GITHUB_SECRET = os.environ.get('SOCIAL_AUTH_GITHUB_SECRET')
+SOCIAL_AUTH_GITHUB_SCOPE = ['user']
 
 # User Models
 # SOCIAL_AUTH_USER_MODEL = 'authenz.ClUser'
