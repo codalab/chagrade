@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from .models import GithubUserInfo
+from apps.profiles.models import GithubUserInfo
 
 USER_FIELDS = ['username', 'email']
 
