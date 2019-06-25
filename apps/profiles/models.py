@@ -1,4 +1,6 @@
 import uuid
+import requests
+import json
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -14,6 +16,7 @@ class ChaUser(AbstractUser):
     instructor = models.OneToOneField('Instructor', related_name='user', null=True, blank=True, on_delete=models.CASCADE)
 
     has_set_password = models.BooleanField(default=False, null=False, blank=False)
+
     github_info = models.OneToOneField('GithubUserInfo', related_name='user', null=True, blank=True, on_delete=models.CASCADE)
 
     receive_emails_from_team = models.BooleanField(default=True)
@@ -25,6 +28,30 @@ class ChaUser(AbstractUser):
 
     def is_instructor(self):
         return True if self.instructor else False
+
+    @property
+    def github_repos(self):
+        try:
+            return self.__dict__['github_repos']
+        except KeyError:
+            resp = requests.get(self.github_info.repos_url)
+            repos = json.loads(resp.content)
+            relevant_repo_data = []
+            for r in repos:
+                resp = requests.get(r['branches_url'].split('{')[0])
+                branches = json.loads(resp.content)
+
+                relevant_repo_data.append({
+                    'name': r['name'],
+                    'url': r['html_url'],
+                    'branches': branches
+                })
+
+            self.__dict__['github_repos'] = relevant_repo_data
+            return relevant_repo_data
+
+
+
 
 
 class Instructor(models.Model):
