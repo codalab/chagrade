@@ -20,10 +20,12 @@ class ChaUserSerializer(WritableNestedModelSerializer):
             'first_name',
             'last_name',
             'email',
+            'github_repos'
         )
         extra_kwargs = {
             'username': {'validators': [], 'required': False, 'allow_blank': True},
             'email': {'validators': []},
+            'github_repos': {'read_only': True}
         }
 
     def validate(self, attrs):

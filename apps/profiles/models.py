@@ -34,20 +34,22 @@ class ChaUser(AbstractUser):
         try:
             return self.__dict__['github_repos']
         except KeyError:
-            resp = requests.get(self.github_info.repos_url)
-            repos = json.loads(resp.content)
-            relevant_repo_data = []
-            for r in repos:
-                resp = requests.get(r['branches_url'].split('{')[0])
-                branches = json.loads(resp.content)
+            relevant_repo_data = None
+            if self.github_info:
+                relevant_repo_data = []
+                access_token = self.github_info.access_token
+                resp = requests.get(self.github_info.repos_url, headers={'Authorization': 'token ' + access_token})
+                repos = json.loads(resp.content)
+                for r in repos:
+                    resp = requests.get(r['branches_url'].split('{')[0], headers={'Authorization': 'token ' + access_token})
+                    branches = json.loads(resp.content)
 
-                relevant_repo_data.append({
-                    'name': r['name'],
-                    'url': r['html_url'],
-                    'branches': branches
-                })
-
-            self.__dict__['github_repos'] = relevant_repo_data
+                    relevant_repo_data.append({
+                        'name': r['name'],
+                        'url': r['html_url'],
+                        'branches': branches
+                    })
+                self.__dict__['github_repos'] = relevant_repo_data
             return relevant_repo_data
 
 
@@ -114,6 +116,7 @@ class GithubUserInfo(models.Model):
     location = models.CharField(max_length=120, null=True, blank=True)
     created_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(null=True, blank=True)
+    access_token = models.CharField(max_length=100, null=True, blank=True)
 
     # API Info
     node_id = models.CharField(unique=True, max_length=50, default='')

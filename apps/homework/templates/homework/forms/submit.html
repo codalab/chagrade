@@ -55,7 +55,11 @@
                         </div>
                     </div>
                 </div>
-            <submit-homework></submit-homework>
+            {% if github %}
+                <submit-homework-github pk="{{ request.user.id }}"></submit-homework-github>
+            {% else %}
+                <submit-homework></submit-homework>
+            {% endif %}
             </div>
         </div>
     </div>

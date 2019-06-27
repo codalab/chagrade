@@ -49,7 +49,8 @@ GITHUB_FIELDS = [
     'organizations_url',
     'repos_url',
     'events_url',
-    'received_events_url'
+    'received_events_url',
+    'access_token',
 ]
 
 
@@ -65,8 +66,8 @@ def _create_user_data(user, response, backend_name):
             user.github_info = new_github_info
         else:
             # Only update if they're the same remote id
-            if user.github_info.uid == data['uid']:
-                GithubUserInfo.objects.filter(uid=data['uid']).update(**data)
+            if str(user.github_info.uid) == str(data['uid']):
+                GithubUserInfo.objects.filter(uid=str(data['uid'])).update(**data)
     user.save()
 
 

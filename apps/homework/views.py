@@ -74,6 +74,8 @@ class SubmissionFormView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
+            if self.request.user.github_info:
+                context['github'] = True
             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
             context['klass'] = klass
             definition = Definition.objects.get(pk=kwargs.get('definition_pk'))
@@ -81,6 +83,7 @@ class SubmissionFormView(LoginRequiredMixin, TemplateView):
             context['student'] = klass.enrolled_students.get(user=self.request.user)
         except ObjectDoesNotExist:
             raise Http404('Klass object not found')
+        print(context)
         return context
 
 

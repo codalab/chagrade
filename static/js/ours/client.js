@@ -51,6 +51,9 @@ CHAGRADE.api = {
         //return CHAGRADE.api.request('POST', URLS.API + "create_student/", data)
         return CHAGRADE.api.request('POST', URLS.API + "test_students/", data)
     },
+    get_cha_user: function(pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "users/" + pk)
+    },
     get_student: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + "students/" + pk)
     },
