@@ -76,6 +76,7 @@ class SubmissionFormView(LoginRequiredMixin, TemplateView):
         try:
             if self.request.user.github_info:
                 context['github'] = True
+
             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
             context['klass'] = klass
             definition = Definition.objects.get(pk=kwargs.get('definition_pk'))

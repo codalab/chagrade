@@ -14,18 +14,19 @@ class ChaUserSerializer(WritableNestedModelSerializer):
 
     class Meta:
         model = User
+        depth = 2
         fields = (
             'username',
             'id',
             'first_name',
             'last_name',
             'email',
-            'github_repos'
+            'github_info',
         )
         extra_kwargs = {
             'username': {'validators': [], 'required': False, 'allow_blank': True},
             'email': {'validators': []},
-            'github_repos': {'read_only': True}
+            'github_info': {'read_only': True}
         }
 
     def validate(self, attrs):

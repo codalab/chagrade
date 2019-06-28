@@ -1,9 +1,35 @@
 <submit-homework-github>
     <style>
+        .commit {
+            width: 70%;
+        }
+
+        .commit-header {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .sha {
+            color: #70c4ff;
+            font-weight: bold;
+            width: 15%;
+        }
+
+        .commit-message {
+            color: #636363;
+            width: 80%;
+        }
+
+        .commit-date {
+            color: #999999;
+        }
+
         /* this will only style the popup if inline is true */
         .popup {
 {#            color: #FF0000 !important;#}
         }
+
     </style>
 
     <div class="ui form" style="margin-bottom: 2.5vh;">
@@ -37,11 +63,33 @@
                             <div each="{branch in github_branches}" class="item">{ branch.name }</div>
                         </div>
                     </div>
+                </div>
+                <div class="ui horizontal divider"></div>
+                <div class="sixteen wide row">
                     <div class="ui search selection dropdown commit">
                         <div class="default text">Commit</div>
                         <i class="dropdown icon"></i>
                         <div class="menu">
-                            <div each="{commit in github_commits}" class="item">{ commit.name }</div>
+                            <div each="{commit in github_commits}" class="item">
+                                <div class="ui container"
+                                    <div class="ui row">
+                                        <div class="commit-header">
+                                            <div class='sha'>
+                                                { commit.sha.slice(0,8) }
+                                            </div>
+                                            <div class='commit-message'>
+                                                { commit.commit.message }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ui horizontal divider"></div>
+                                    <div class="ui row">
+                                        <div class='commit-date'>
+                                            { commit.commit.committer.date.slice(0,10) }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -119,8 +167,33 @@
             });
             $('.ui.dropdown.repository', self.root).dropdown({
                 onChange: function(value, text, $selectedItem) {
-                    self.github_branches = self.github_repositories[parseInt(value)].branches
-                    self.update()
+                    self.github_repo = self.github_repositories[parseInt(value)]
+                    $.ajax({
+                        type: 'GET',
+                        url: self.github_repo.branches_url.split('{')[0],
+                        data: JSON.stringify(null),
+                        headers:{"Authorization": 'token ' + self.github_information.access_token},
+                        contentType: "application/json",
+                        dataType: 'json'
+                    })
+                    .done(function (branch_data) {
+                        console.log(branch_data)
+                        self.github_branches = branch_data
+                        self.update()
+                    })
+                    $.ajax({
+                        type: 'GET',
+                        url: self.github_repo.commits_url.split('{')[0],
+                        data: JSON.stringify(null),
+                        headers:{"Authorization": 'token ' + self.github_information.access_token},
+                        contentType: "application/json",
+                        dataType: 'json'
+                    })
+                    .done(function (commit_data) {
+                        console.log(commit_data)
+                        self.github_commits = commit_data
+                        self.update()
+                    })
                     $('.ui.dropdown.branch', self.root).dropdown('restore defaults')
                 }
             })
@@ -129,6 +202,7 @@
             $('.ui.dropdown.commit', self.root).dropdown({
             })
         })
+
 
 
         self.submit_form = function () {
@@ -175,7 +249,6 @@
                     window.location = '/homework/overview/' + KLASS
                 })
                 .fail(function (response) {
-                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         if (key === 'question_answers') {
                             toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
@@ -224,8 +297,8 @@
             }
 
             CHAGRADE.api.get_definition(DEFINITION)
-                .done(function (d) {
-                        self.definition = d
+                .done(function (data) {
+                        self.definition = data
                         self.update()
                 })
                 .fail(function (error) {
@@ -233,13 +306,27 @@
                 })
 
             CHAGRADE.api.get_cha_user(self.opts.pk)
-                .done(function (d) {
-                    self.github_repositories = d.github_repos
-                    self.update()
+                .done(function (data) {
+                    self.github_information = data.github_info
+
+                    $.ajax({
+                        type: 'GET',
+                        url: self.github_information.repos_url,
+                        data: JSON.stringify(null),
+                        headers:{"Authorization": 'token ' + self.github_information.access_token},
+                        contentType: "application/json",
+                        dataType: 'json'
+                    })
+                    .done(function (repo_data) {
+                        console.log(repo_data)
+                        self.github_repositories = repo_data
+                        self.update()
+                    })
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching user: " + error.statusText)
                 })
+
 
             if (window.SUBMISSION !== undefined) {
                 self.update_submission()

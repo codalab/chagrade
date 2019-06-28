@@ -29,31 +29,10 @@ class ChaUser(AbstractUser):
     def is_instructor(self):
         return True if self.instructor else False
 
-    @property
-    def github_repos(self):
-        try:
-            return self.__dict__['github_repos']
-        except KeyError:
-            relevant_repo_data = None
-            if self.github_info:
-                relevant_repo_data = []
-                access_token = self.github_info.access_token
-                resp = requests.get(self.github_info.repos_url, headers={'Authorization': 'token ' + access_token})
-                repos = json.loads(resp.content)
-                for r in repos:
-                    resp = requests.get(r['branches_url'].split('{')[0], headers={'Authorization': 'token ' + access_token})
-                    branches = json.loads(resp.content)
-
-                    relevant_repo_data.append({
-                        'name': r['name'],
-                        'url': r['html_url'],
-                        'branches': branches
-                    })
-                self.__dict__['github_repos'] = relevant_repo_data
-            return relevant_repo_data
-
-
-
+#    @property
+#    def github_access_token(self):
+#        if self.github_info:
+#            return self.github_info.access_token
 
 
 class Instructor(models.Model):
