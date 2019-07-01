@@ -19,8 +19,8 @@
                         Submission Github URL:
                     </label>
                 </span>
-                <input name="submission_github_url" ref="submission_github_url" type="text"
-                       value="{submission.submission_github_url || ''}">
+                <input name="github_url" ref="github_url" type="text"
+                       value="{submission.github_url || ''}">
             </div>
         </div>
         <div class="fields">
@@ -83,7 +83,7 @@
             'method_description': '',
             'project_url': '',
             'publication_url': '',
-            'submission_github_url': '',
+            'github_url': '',
         }
 
         self.one('mount', function () {
@@ -109,7 +109,7 @@
                 "klass": KLASS,
                 "definition": DEFINITION,
                 "creator": STUDENT,
-                "submission_github_url": self.refs.submission_github_url.value,
+                "github_url": self.refs.github_url.value,
                 "method_name": self.refs.method_name.value || '',
                 "method_description": self.refs.method_description.value || '',
                 "project_url": self.refs.project_url.value || '',

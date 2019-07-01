@@ -71,10 +71,10 @@ class SubmissionOverView(LoginRequiredMixin, TemplateView):
 class SubmissionFormView(LoginRequiredMixin, TemplateView):
     template_name = 'homework/forms/submit.html'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, use_github=0, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            if self.request.user.github_info:
+            if use_github and self.request.user.github_info:
                 context['github'] = True
 
             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
@@ -91,7 +91,7 @@ class SubmissionFormView(LoginRequiredMixin, TemplateView):
 class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
     template_name = 'homework/forms/submit.html'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, use_github=0, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
             klass = Klass.objects.get(pk=self.kwargs.get('klass_pk'))
@@ -104,6 +104,9 @@ class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
             else:
                 if not submission.creator == student:
                     raise Http404("You do not have permission to view this")
+
+            if use_github and self.request.user.github_info:
+                context['github'] = True
 
             context['submission'] = submission
             context['klass'] = klass

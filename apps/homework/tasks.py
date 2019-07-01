@@ -43,7 +43,7 @@ def post_submission(submission_pk):
         # FROM
         # https://github.com/codalab/chalab/blob/develop/chalab/static/chalab/resource/iris.zip
 
-        parsed_repo_uri = urlparse(submission.submission_github_url)
+        parsed_repo_uri = urlparse(submission.github_url)
         repo_scheme = parsed_repo_uri.scheme
         repo_loc = parsed_repo_uri.netloc
         repo_path = parsed_repo_uri.path

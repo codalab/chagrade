@@ -49,28 +49,31 @@
                 </div>
                 <div class="ui horizontal divider"></div>
                 <div class="row">
-                    <div class="ui search selection dropdown repository">
-                        <div class="default text">Repository</div>
+                    <div class="ui search selection dropdown repository" ref="github_repo">
+                        <!--<div class="default text">Repository</div>-->
+                        <div class="default text">{ submission.github_repo_name}</div>
                         <i class="dropdown icon"></i>
                         <div class="menu">
-                            <div each="{repository, r in github_repositories}" class="item" data-value="{r}">{ repository.name }</div>
+                            <div each="{repository, r in github_repositories}" class="item" data-value="{r}" data-text="{ repository.name }">{ repository.name }</div>
                         </div>
                     </div>
-                    <div class="ui search selection dropdown branch">
-                        <div class="default text">Branch</div>
+                    <div class="ui search selection dropdown branch" ref="github_branch">
+                        <!--<div class="default text">Branch</div>-->
+                        <div class="default text">{ submission.github_branch_name}</div>
                         <i class="dropdown icon"></i>
                         <div class="menu">
-                            <div each="{branch in github_branches}" class="item">{ branch.name }</div>
+                            <div each="{branch in github_branches}" class="item" data-text="{ branch.name }">{ branch.name }</div>
                         </div>
                     </div>
                 </div>
                 <div class="ui horizontal divider"></div>
                 <div class="sixteen wide row">
-                    <div class="ui search selection dropdown commit">
-                        <div class="default text">Commit</div>
+                    <div class="ui search selection dropdown commit" ref="github_commit_hash">
+                        <!--<div class="default text">Commit</div>-->
                         <i class="dropdown icon"></i>
+                        <div class="default text">{ submission.github_commit_hash}</div>
                         <div class="menu">
-                            <div each="{commit in github_commits}" class="item">
+                            <div each="{commit in github_commits}" class="item" data-text="{ commit.sha }">
                                 <div class="ui container"
                                     <div class="ui row">
                                         <div class="commit-header">
@@ -155,7 +158,10 @@
             'method_description': '',
             'project_url': '',
             'publication_url': '',
-            'submission_github_url': '',
+            'github_url': '',
+            'github_repo_name': '',
+            'github_branch_name': '',
+            'github_commit_hash': '',
         }
 
         self.one('mount', function () {
@@ -177,6 +183,7 @@
                         dataType: 'json'
                     })
                     .done(function (branch_data) {
+                        console.log('branch_data')
                         console.log(branch_data)
                         self.github_branches = branch_data
                         self.update()
@@ -190,11 +197,13 @@
                         dataType: 'json'
                     })
                     .done(function (commit_data) {
+                        console.log('commit_data')
                         console.log(commit_data)
                         self.github_commits = commit_data
                         self.update()
                     })
                     $('.ui.dropdown.branch', self.root).dropdown('restore defaults')
+                    $('.ui.dropdown.commit', self.root).dropdown('restore defaults')
                 }
             })
             $('.ui.dropdown.branch', self.root).dropdown({
@@ -218,7 +227,10 @@
                 "klass": KLASS,
                 "definition": DEFINITION,
                 "creator": STUDENT,
-                "submission_github_url": self.refs.submission_github_url.value,
+                "github_url": 'https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip', //self.refs.github_url,
+                "github_repo_name": $(self.refs.github_repo).dropdown('get text'),
+                "github_branch_name": $(self.refs.github_branch).dropdown('get text'),
+                "github_commit_hash": $(self.refs.github_commit_hash).dropdown('get text'),
                 "method_name": self.refs.method_name.value || '',
                 "method_description": self.refs.method_description.value || '',
                 "project_url": self.refs.project_url.value || '',
@@ -230,6 +242,9 @@
                      }*/
                 ]
             }
+
+            console.log('post data')
+            console.log(data)
 
             if (window.USER_TEAM !== undefined) {
                 data['team'] = window.USER_TEAM
@@ -276,9 +291,10 @@
         self.update_submission = function () {
             CHAGRADE.api.get_submission(SUBMISSION)
                 .done(function (data) {
-                    self.update({
-                        submission: data
-                    })
+                    self.submission = data
+                    console.log('submission')
+                    console.log(data)
+                    self.update()
                     self.update_question_answers()
                 })
                 .fail(function (error) {
@@ -291,11 +307,6 @@
         }
 
         self.update_definition = function () {
-            let data = {
-                definition: null,
-                github_repositories: null,
-            }
-
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
                         self.definition = data
@@ -307,6 +318,7 @@
 
             CHAGRADE.api.get_cha_user(self.opts.pk)
                 .done(function (data) {
+                    console.log(data)
                     self.github_information = data.github_info
 
                     $.ajax({
@@ -318,6 +330,7 @@
                         dataType: 'json'
                     })
                     .done(function (repo_data) {
+                        console.log('repo_data')
                         console.log(repo_data)
                         self.github_repositories = repo_data
                         self.update()

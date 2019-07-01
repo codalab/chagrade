@@ -52,7 +52,10 @@ class Submission(models.Model):
     definition = models.ForeignKey('Definition', default=None, related_name='submissions', on_delete=models.CASCADE)
     creator = models.ForeignKey('profiles.StudentMembership', related_name='submitted_homeworks', on_delete=models.CASCADE)
 
-    submission_github_url = models.URLField(default=None, null=True, blank=True, validators=[validate_submission_github_url])
+    github_url = models.URLField(default=None, null=True, blank=True, validators=[validate_submission_github_url])
+    github_repo_name = models.CharField(max_length=150, default='', blank=True)
+    github_branch_name = models.CharField(max_length=150, default='', blank=True)
+    github_commit_hash = models.CharField(max_length=50, default='', blank=True)
 
     method_name = models.CharField(max_length=100, default='', null=True, blank=True)
     method_description = models.CharField(max_length=300, default='', null=True, blank=True)
@@ -66,11 +69,11 @@ class Submission(models.Model):
     team = models.ForeignKey('groups.Team', default=None, null=True, blank=True, related_name='submissions', on_delete=models.SET_NULL)
 
     def __str__(self):
-        return "{}".format(self.submission_github_url)
+        return "{}".format(self.github_url)
 
     @property
     def get_challenge_url(self):
-        if not self.definition.challenge_url or not self.submission_github_url:
+        if not self.definition.challenge_url or not self.github_url:
             print("No challenge URL or submission github URL given.")
             return
         if self.definition.team_based:

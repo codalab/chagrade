@@ -29,11 +29,6 @@ class ChaUser(AbstractUser):
     def is_instructor(self):
         return True if self.instructor else False
 
-#    @property
-#    def github_access_token(self):
-#        if self.github_info:
-#            return self.github_info.access_token
-
 
 class Instructor(models.Model):
     university_name = models.CharField(max_length=200, null=True, blank=True)
