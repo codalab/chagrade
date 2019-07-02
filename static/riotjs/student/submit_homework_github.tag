@@ -96,6 +96,28 @@
                         </div>
                     </div>
                 </div>
+                <div class="ui horizontal divider"></div>
+                <div class="sixteen wide row">
+                    <div class="ui search selection dropdown file" ref="github_file">
+                        <i class="dropdown icon"></i>
+                        <div class="default text">{ submission.github_file_name}</div>
+                        <div class="menu root">
+                            <div each='{file in github_files}' class='item' data-text='{ file.name }' id="level_file.name">
+                                <div class='text'>
+                                    { file.name }
+                                </div>
+                                <div if={ file.type === 'dir' }>
+                                    <i class='dropdown icon'></i>
+                                    <div class='text'>
+                                        { file.name }
+                                    </div>
+                                    <div class='menu'>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="fields">
@@ -204,11 +226,31 @@
                     })
                     $('.ui.dropdown.branch', self.root).dropdown('restore defaults')
                     $('.ui.dropdown.commit', self.root).dropdown('restore defaults')
+
+                    let github_root_content_url = self.github_repo.branches_url.slice(0,23) + 'repos/' + self.github_repo.full_name + '/contents/'
+                    console.log('github_root_content_url')
+                    console.log(github_root_content_url)
+                    $.ajax({
+                        type: 'GET',
+                        url: github_root_content_url,
+                        data: JSON.stringify(null),
+                        headers:{"Authorization": 'token ' + self.github_information.access_token},
+                        contentType: "application/json",
+                        dataType: 'json'
+                    })
+                    .done(function (repo_files) {
+                        console.log('repo_files')
+                        console.log(repo_files)
+                        self.github_files = repo_files
+                        self.update()
+                    })
                 }
             })
             $('.ui.dropdown.branch', self.root).dropdown({
             })
             $('.ui.dropdown.commit', self.root).dropdown({
+            })
+            $('.ui.dropdown.file', self.root).dropdown({
             })
         })
 
