@@ -50,16 +50,16 @@
                 <div class="ui horizontal divider"></div>
                 <div class="row">
                     <div class="ui search selection dropdown repository" ref="github_repo">
-                        <!--<div class="default text">Repository</div>-->
-                        <div class="default text">{ submission.github_repo_name}</div>
+                        <div if="{ submission.github_repo_name }" class="default text">{ submission.github_repo_name }</div>
+                        <div if="{ !submission.github_repo_name }" class="default text">Repository</div>
                         <i class="dropdown icon"></i>
                         <div class="menu">
                             <div each="{repository, r in github_repositories}" class="item" data-value="{r}" data-text="{ repository.name }">{ repository.name }</div>
                         </div>
                     </div>
                     <div class="ui search selection dropdown branch" ref="github_branch">
-                        <!--<div class="default text">Branch</div>-->
-                        <div class="default text">{ submission.github_branch_name}</div>
+                        <div if="{ submission.github_branch_name }" class="default text">{ submission.github_branch_name }</div>
+                        <div if="{ !submission.github_branch_name }" class="default text">Branch</div>
                         <i class="dropdown icon"></i>
                         <div class="menu">
                             <div each="{branch in github_branches}" class="item" data-text="{ branch.name }">{ branch.name }</div>
@@ -69,12 +69,12 @@
                 <div class="ui horizontal divider"></div>
                 <div class="sixteen wide row">
                     <div class="ui search selection dropdown commit" ref="github_commit_hash">
-                        <!--<div class="default text">Commit</div>-->
                         <i class="dropdown icon"></i>
-                        <div class="default text">{ submission.github_commit_hash}</div>
+                        <div if="{ submission.github_commit_hash }" class="default text">{ submission.github_commit_hash }</div>
+                        <div if="{ !submission.github_commit_hash }" class="default text">Commit</div>
                         <div class="menu">
                             <div each="{commit in github_commits}" class="item" data-text="{ commit.sha }">
-                                <div class="ui container"
+                                <div class="ui container">
                                     <div class="ui row">
                                         <div class="commit-header">
                                             <div class='sha'>
@@ -97,25 +97,9 @@
                     </div>
                 </div>
                 <div class="ui horizontal divider"></div>
-                <div class="sixteen wide row">
-                    <div class="ui search selection dropdown file" ref="github_file">
-                        <i class="dropdown icon"></i>
-                        <div class="default text">{ submission.github_file_name}</div>
-                        <div class="menu root">
-                            <div each='{file in github_files}' class='item' data-text='{ file.name }' id="level_file.name">
-                                <div class='text'>
-                                    { file.name }
-                                </div>
-                                <div if={ file.type === 'dir' }>
-                                    <i class='dropdown icon'></i>
-                                    <div class='text'>
-                                        { file.name }
-                                    </div>
-                                    <div class='menu'>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="twelve wide row">
+                    <div class="ui styled accordion">
+                        <accordion-file-tree each="{ file in github_file_tree }" file="{file}" class="{ file.type === 'dir' ? "styled accordion" : "" }"></accordion-file-tree>
                     </div>
                 </div>
             </div>
@@ -186,6 +170,8 @@
             'github_commit_hash': '',
         }
 
+        self.github_requests = 0
+
         self.one('mount', function () {
             self.update_definition()
 
@@ -196,31 +182,15 @@
             $('.ui.dropdown.repository', self.root).dropdown({
                 onChange: function(value, text, $selectedItem) {
                     self.github_repo = self.github_repositories[parseInt(value)]
-                    $.ajax({
-                        type: 'GET',
-                        url: self.github_repo.branches_url.split('{')[0],
-                        data: JSON.stringify(null),
-                        headers:{"Authorization": 'token ' + self.github_information.access_token},
-                        contentType: "application/json",
-                        dataType: 'json'
-                    })
-                    .done(function (branch_data) {
-                        console.log('branch_data')
-                        console.log(branch_data)
+                    self.github_request(self.github_repo.branches_url.split('{')[0], function (branch_data) {
+                        //console.log('branch_data')
+                        //console.log(branch_data)
                         self.github_branches = branch_data
                         self.update()
                     })
-                    $.ajax({
-                        type: 'GET',
-                        url: self.github_repo.commits_url.split('{')[0],
-                        data: JSON.stringify(null),
-                        headers:{"Authorization": 'token ' + self.github_information.access_token},
-                        contentType: "application/json",
-                        dataType: 'json'
-                    })
-                    .done(function (commit_data) {
-                        console.log('commit_data')
-                        console.log(commit_data)
+                    self.github_request(self.github_repo.commits_url.split('{')[0], function (commit_data) {
+                        //console.log('commit_data')
+                        //console.log(commit_data)
                         self.github_commits = commit_data
                         self.update()
                     })
@@ -228,22 +198,9 @@
                     $('.ui.dropdown.commit', self.root).dropdown('restore defaults')
 
                     let github_root_content_url = self.github_repo.branches_url.slice(0,23) + 'repos/' + self.github_repo.full_name + '/contents/'
-                    console.log('github_root_content_url')
-                    console.log(github_root_content_url)
-                    $.ajax({
-                        type: 'GET',
-                        url: github_root_content_url,
-                        data: JSON.stringify(null),
-                        headers:{"Authorization": 'token ' + self.github_information.access_token},
-                        contentType: "application/json",
-                        dataType: 'json'
-                    })
-                    .done(function (repo_files) {
-                        console.log('repo_files')
-                        console.log(repo_files)
-                        self.github_files = repo_files
-                        self.update()
-                    })
+                    //console.log('github_root_content_url')
+                    //console.log(github_root_content_url)
+                    create_github_file_tree(github_root_content_url)
                 }
             })
             $('.ui.dropdown.branch', self.root).dropdown({
@@ -252,9 +209,63 @@
             })
             $('.ui.dropdown.file', self.root).dropdown({
             })
+
         })
 
+        self.github_request = (url, done_function) => {
+            $.ajax({
+                type: 'GET',
+                url: url,
+                data: JSON.stringify(null),
+                headers:{"Authorization": 'token ' + self.github_information.access_token},
+                contentType: "application/json",
+                dataType: 'json',
+            })
+            .done(done_function)
+        }
 
+        function print_g_files () {
+            console.info('github file tree', self.github_file_tree)
+        }
+
+        function create_github_file_tree (root_url) {
+            console.info('github root in file tree funciton', root_url)
+            function create_tree(files, tracker) {
+                for (let i = 0; i < files.length; i++) {
+                    if (files[i].type == 'dir') {
+                        console.info(files[i].name, 'is dir')
+                        self.github_requests++
+                        console.info('github requests', self.github_requests)
+                        self.github_request(files[i].url, function (data) {
+                            files[i].files = data
+                            create_tree(files[i].files, tracker + 1)
+                            self.github_requests--
+                            console.info('github requests', self.github_requests)
+                            if (self.github_requests == 0) {
+                                print_g_files()
+                                $('.ui.accordion').accordion('close others')
+                                self.update()
+                                console.log('****************************** accordion updated ******************************')
+                            }
+                        })
+                    }
+                }
+            }
+
+            setTimeout(function () {
+                $('.ui.accordion').accordion('close others')
+                self.update()
+                console.log('****************************** accordion updated ******************************')
+                print_g_files()
+            }, 500)
+
+            self.github_request(root_url, function (repo_files) {
+                    console.log('repo_files')
+                    console.log(repo_files)
+                    self.github_file_tree = repo_files
+                    create_tree(self.github_file_tree)
+                })
+        }
 
         self.submit_form = function () {
 
@@ -360,20 +371,12 @@
 
             CHAGRADE.api.get_cha_user(self.opts.pk)
                 .done(function (data) {
-                    console.log(data)
+//                    console.log(data)
                     self.github_information = data.github_info
 
-                    $.ajax({
-                        type: 'GET',
-                        url: self.github_information.repos_url,
-                        data: JSON.stringify(null),
-                        headers:{"Authorization": 'token ' + self.github_information.access_token},
-                        contentType: "application/json",
-                        dataType: 'json'
-                    })
-                    .done(function (repo_data) {
-                        console.log('repo_data')
-                        console.log(repo_data)
+                    self.github_request(self.github_information.repos_url, function (repo_data) {
+//                        console.log('repo_data')
+//                        console.log(repo_data)
                         self.github_repositories = repo_data
                         self.update()
                     })
