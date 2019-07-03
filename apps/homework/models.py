@@ -73,8 +73,11 @@ class Submission(models.Model):
 
     @property
     def get_challenge_url(self):
-        if not self.definition.challenge_url or not self.github_url:
-            print("No challenge URL or submission github URL given.")
+        if not self.definition.challenge_url:
+            print("No challenge URL given.")
+            return
+        if not self.github_url:
+            print("No submission github URL given.")
             return
         if self.definition.team_based:
             if not self.team:
