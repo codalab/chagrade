@@ -129,7 +129,7 @@ class SubmissionAPIEndpointsTests(TestCase):
                 "klass": self.klass.pk,
                 "definition": self.definition.pk,
                 "creator": self.student.pk,
-                "github_url": "https://github.com/Tthomas63/chagrade_test_submission",
+                "github_url": "https://github.com/Tthomas63/chagrade_test_submission/archive/master.zip",
                 "method_name": "student method",
             }
         )
@@ -214,10 +214,11 @@ class SubmissionAPIEndpointsTests(TestCase):
                 "klass": self.klass.pk,
                 "definition": self.definition.pk,
                 "creator": self.student.pk,
-                "github_url": "https://github.com/Tthomas63/chagrade_test_submission",
+                "github_url": "https://github.com/Tthomas63/chagrade_test_submission/archive/master.zip",
                 "method_name": "instructor method",
             }
         )
+
         sub_id = resp.json()['id']
         assert resp.json()['method_name'] == 'instructor method'
         assert resp.status_code == 201
