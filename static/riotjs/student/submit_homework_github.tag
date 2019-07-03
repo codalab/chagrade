@@ -30,6 +30,7 @@
 {#            color: #FF0000 !important;#}
         }
 
+
     </style>
 
     <div class="ui form" style="margin-bottom: 2.5vh;">
@@ -198,8 +199,8 @@
                     $('.ui.dropdown.commit', self.root).dropdown('restore defaults')
 
                     let github_root_content_url = self.github_repo.branches_url.slice(0,23) + 'repos/' + self.github_repo.full_name + '/contents/'
-                    //console.log('github_root_content_url')
-                    //console.log(github_root_content_url)
+                    console.log('github_root_content_url')
+                    console.log(github_root_content_url)
                     create_github_file_tree(github_root_content_url)
                 }
             })
@@ -208,6 +209,14 @@
             $('.ui.dropdown.commit', self.root).dropdown({
             })
             $('.ui.dropdown.file', self.root).dropdown({
+            })
+
+            $(document).on('click', '.title', function (e) {
+                let file_element = $(e.target)
+                self.github_url = file_element.attr('data-url')
+                console.info('title click', file_element.attr('data-url'))
+                $('.title').removeClass('selected-file')
+                file_element.addClass('selected-file')
             })
 
         })
@@ -233,14 +242,14 @@
             function create_tree(files, tracker) {
                 for (let i = 0; i < files.length; i++) {
                     if (files[i].type == 'dir') {
-                        console.info(files[i].name, 'is dir')
+//                        console.info(files[i].name, 'is dir')
                         self.github_requests++
-                        console.info('github requests', self.github_requests)
+//                        console.info('github requests', self.github_requests)
                         self.github_request(files[i].url, function (data) {
                             files[i].files = data
                             create_tree(files[i].files, tracker + 1)
                             self.github_requests--
-                            console.info('github requests', self.github_requests)
+//                            console.info('github requests', self.github_requests)
                             if (self.github_requests == 0) {
                                 print_g_files()
                                 $('.ui.accordion').accordion('close others')
@@ -280,7 +289,7 @@
                 "klass": KLASS,
                 "definition": DEFINITION,
                 "creator": STUDENT,
-                "github_url": 'https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip', //self.refs.github_url,
+                "github_url": self.github_url,
                 "github_repo_name": $(self.refs.github_repo).dropdown('get text'),
                 "github_branch_name": $(self.refs.github_branch).dropdown('get text'),
                 "github_commit_hash": $(self.refs.github_commit_hash).dropdown('get text'),
@@ -371,12 +380,9 @@
 
             CHAGRADE.api.get_cha_user(self.opts.pk)
                 .done(function (data) {
-//                    console.log(data)
                     self.github_information = data.github_info
 
                     self.github_request(self.github_information.repos_url, function (repo_data) {
-//                        console.log('repo_data')
-//                        console.log(repo_data)
                         self.github_repositories = repo_data
                         self.update()
                     })
