@@ -184,31 +184,30 @@
                 onChange: function(value, text, $selectedItem) {
                     self.github_repo = self.github_repositories[parseInt(value)]
                     self.github_request(self.github_repo.branches_url.split('{')[0], function (branch_data) {
-                        //console.log('branch_data')
-                        //console.log(branch_data)
                         self.github_branches = branch_data
                         self.update()
                     })
                     self.github_request(self.github_repo.commits_url.split('{')[0], function (commit_data) {
-                        //console.log('commit_data')
-                        //console.log(commit_data)
                         self.github_commits = commit_data
                         self.update()
                     })
                     $('.ui.dropdown.branch', self.root).dropdown('restore defaults')
                     $('.ui.dropdown.commit', self.root).dropdown('restore defaults')
 
-                    let github_root_content_url = self.github_repo.branches_url.slice(0,23) + 'repos/' + self.github_repo.full_name + '/contents/'
-                    console.log('github_root_content_url')
-                    console.log(github_root_content_url)
-                    create_github_file_tree(github_root_content_url)
+                    load_github_file_tree()
                 }
             })
             $('.ui.dropdown.branch', self.root).dropdown({
+                onChange: function(value, text, $selecteditem) {
+                        self.github_ref = text
+                        load_github_file_tree()
+                },
             })
             $('.ui.dropdown.commit', self.root).dropdown({
-            })
-            $('.ui.dropdown.file', self.root).dropdown({
+                onChange: function(value, text, $selecteditem) {
+                        self.github_ref = text
+                        load_github_file_tree()
+                },
             })
 
             $(document).on('click', '.title', function (e) {
@@ -237,40 +236,39 @@
             console.info('github file tree', self.github_file_tree)
         }
 
-        function create_github_file_tree (root_url) {
-            console.info('github root in file tree funciton', root_url)
+        function load_github_file_tree () {
             function create_tree(files, tracker) {
                 for (let i = 0; i < files.length; i++) {
                     if (files[i].type == 'dir') {
-//                        console.info(files[i].name, 'is dir')
                         self.github_requests++
-//                        console.info('github requests', self.github_requests)
                         self.github_request(files[i].url, function (data) {
                             files[i].files = data
                             create_tree(files[i].files, tracker + 1)
                             self.github_requests--
-//                            console.info('github requests', self.github_requests)
                             if (self.github_requests == 0) {
                                 print_g_files()
                                 $('.ui.accordion').accordion('close others')
                                 self.update()
-                                console.log('****************************** accordion updated ******************************')
                             }
                         })
                     }
                 }
             }
 
+            let root_url = self.github_repo.branches_url.slice(0,23) + 'repos/' + self.github_repo.full_name + '/contents/'
+            if (!!self.github_ref) {
+                root_url += '?ref=' + self.github_ref
+            }
+
+            console.info('github root in file tree function', root_url)
+
             setTimeout(function () {
                 $('.ui.accordion').accordion('close others')
                 self.update()
-                console.log('****************************** accordion updated ******************************')
                 print_g_files()
             }, 500)
 
             self.github_request(root_url, function (repo_files) {
-                    console.log('repo_files')
-                    console.log(repo_files)
                     self.github_file_tree = repo_files
                     create_tree(self.github_file_tree)
                 })
@@ -354,8 +352,13 @@
             CHAGRADE.api.get_submission(SUBMISSION)
                 .done(function (data) {
                     self.submission = data
-                    console.log('submission')
-                    console.log(data)
+                    if (!!self.submission.github_commit_hash) {
+                        self.github_ref = self.submission.github_commit_hash
+                    } else if (!!self.submission.github_branch_name) {
+                        self.github_ref = self.submission.github_branch_name
+                    } else {
+                        self.github_ref = null
+                    }
                     self.update()
                     self.update_question_answers()
                 })
