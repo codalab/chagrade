@@ -51,7 +51,7 @@ class SubmissionAPIEndpointsTests(TestCase):
                 "klass": '',
                 "definition": '',
                 "creator": '',
-                "submission_github_url": "",
+                "github_url": "",
                 "method_name": "",
                 "method_description": "",
                 "project_url": "",
@@ -66,7 +66,7 @@ class SubmissionAPIEndpointsTests(TestCase):
                 "klass": '',
                 "definition": '',
                 "creator": '',
-                "submission_github_url": "",
+                "github_url": "",
                 "method_name": "",
                 "method_description": "",
                 "project_url": "",
@@ -129,7 +129,7 @@ class SubmissionAPIEndpointsTests(TestCase):
                 "klass": self.klass.pk,
                 "definition": self.definition.pk,
                 "creator": self.student.pk,
-                "submission_github_url": "https://github.com/Tthomas63/chagrade_test_submission",
+                "github_url": "https://github.com/Tthomas63/chagrade_test_submission",
                 "method_name": "student method",
             }
         )
@@ -214,7 +214,7 @@ class SubmissionAPIEndpointsTests(TestCase):
                 "klass": self.klass.pk,
                 "definition": self.definition.pk,
                 "creator": self.student.pk,
-                "submission_github_url": "https://github.com/Tthomas63/chagrade_test_submission",
+                "github_url": "https://github.com/Tthomas63/chagrade_test_submission",
                 "method_name": "instructor method",
             }
         )
