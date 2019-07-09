@@ -1,6 +1,6 @@
 import csv
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 
@@ -54,25 +54,74 @@ class GradeEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
         return context
 
 
-class SubmissionOverView(LoginRequiredMixin, TemplateView):
+class HomeworkOverView(LoginRequiredMixin, TemplateView):
     template_name = 'homework/overview.html'
     model = Submission
 
     def get_context_data(self, **kwargs):
-        context = super(SubmissionOverView, self).get_context_data(**kwargs)
+        context = super(HomeworkOverView, self).get_context_data(**kwargs)
         klass_pk = self.kwargs.get('klass_pk')
         try:
             klass = Klass.objects.get(pk=klass_pk)
             context['klass'] = klass
         except ObjectDoesNotExist:
             raise Http404('Klass object not found')
-        try:
-            submissions = Submission.objects.filter(klass__pk=klass_pk)
-            context['submissions'] = submissions
-        except ObjectDoesNotExist:
-            raise Http404('Klass object not found')
         return context
 
+class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = 'homework/submission_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SubmissionListView, self).get_context_data(**kwargs)
+        definition_pk = self.kwargs.get('definition_pk')
+        submissions = None
+        try:
+            definition = Definition.objects.get(pk=definition_pk)
+            context['definition'] = definition
+        except ObjectDoesNotExist:
+            raise Http404('Definition object not found')
+
+        # if user is instructor of the class
+        if self.request.user.instructor:
+            if self.request.user.instructor == definition.klass.instructor:
+                try:
+                    submissions = Submission.objects.filter(definition=definition)
+                    context['instructor_view'] = True
+                except ObjectDoesNotExist:
+                    raise Http404('Submission object not found')
+
+        # if user is member of the class
+        else:
+            try:
+                student_membership = self.user.student_memberships.get(klass__pk=definition.klass.pk)
+            except ObjectDoesNotExist:
+                raise Http404('Student Membership object not found')
+            try:
+                if definition.team_based:
+                    team = student_membership.team
+                    submissions = Submission.objects.filter(definition=definition, team=team)
+                    context['team'] = team
+                else:
+                    submissions = Submission.objects.filter(definition=definition, creator=student_membership)
+            except ObjectDoesNotExist:
+                raise Http404('Submission object not found')
+        context['submissions'] = submissions
+        return context
+
+    def test_func(self):
+        definition_pk = self.kwargs.get('definition_pk')
+        try:
+            definition = Definition.objects.get(pk=definition_pk)
+        except ObjectDoesNotExist:
+            raise Http404('Definition object not found')
+        if self.request.user.instructor:
+            if self.request.user.instructor == definition.klass.instructor:
+                print('User is instructor of class.')
+                return True
+        if self.request.user.student_membership.get(klass__pk=definition.klass.pk):
+            print('User is student of class.')
+            return True
+        return False
 
 class SubmissionFormView(LoginRequiredMixin, TemplateView):
     template_name = 'homework/forms/submit.html'

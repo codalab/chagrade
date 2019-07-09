@@ -81,8 +81,8 @@
                                     <p>{{ definition.description }}</p>
                                     <a href="{{ submission.get_challenge_url }}"
                                        class="ui green button">View Challenge</a>
-                                    <a href="{% url "homework:edit_submission" klass_pk=klass.pk definition_pk=definition.pk submission_pk=submission.pk use_github=1%}"
-                                       class="ui yellow button">Submit Homework</a>
+                                    <a href="{% url "homework:submission_list" definition_pk=definition.pk %}"
+                                       class="ui blue button">View Submissions</a>
                                     {% if definition.starting_kit_github_url %}
                                         <a href="{{ definition.starting_kit_github_url }}" class="ui blue button">Goto Starting
                                             Kit</a><br>
@@ -94,8 +94,33 @@
                                     {% endif %}
                                     <div class="ui grid">
                                         <div class="row">
-                                            {% if submissions %}
-                                                <div class="sixteen wide column">
+                                            <div class="eight wide column">
+                                                {% if submission %}
+                                                    <div class="ui divider"></div>
+                                                    <h4 class="ui header">Submission Details:</h4>
+                                                    <ul class="ui relaxed celled list">
+                                                        <div class="item"><a
+                                                                href="{{ submission.github_url }}"
+                                                                class="">Github URL for Submission</a></div>
+                                                        {% if definition.ask_method_name %}
+                                                            <div class="item">Method Name:
+                                                                {{ submission.method_name }}</div>{% endif %}
+                                                        {% if definition.ask_method_description %}
+                                                            <div class="item">Method Description:
+                                                                {{ submission.method_description }}</div>{% endif %}
+                                                        {% if definition.ask_project_url %}
+                                                            <div class="item">Project URL:
+                                                                {{ submission.project_url }}</div>{% endif %}
+                                                        {% if definition.ask_publication_url %}
+                                                            <div class="item">Publication URL:
+                                                                {{ submission.publication_url }}</div>{% endif %}
+                                                    </ul>
+                                                {% endif %}
+                                            </div>
+                                            <div class="eight wide column">
+                                                {% if submission %}
+                                                    <a href="{% url "homework:edit_submission" klass_pk=klass.pk definition_pk=definition.pk submission_pk=submission.pk use_github=1%}"
+                                                       class="ui yellow button">Edit/Re-Submit Homework</a>
                                                     <table class="ui table">
                                                         <thead>
                                                         <tr>
@@ -103,69 +128,28 @@
                                                             <th>Status</th>
                                                             <th>Score</th>
                                                             <th>Phase</th>
-                                                            <th>Repo</th>
-                                                            <th>Branch</th>
-                                                            <th>Commit</th>
                                                         </tr>
                                                         </thead>
-                                                        {% for submission in submissions %}
-{#                                                <div class="eight wide column">#}
-{#                                                    <div class="ui divider"></div>#}
-{#                                                    <h4 class="ui header">Submission Details:</h4>#}
-{#                                                    <ul class="ui relaxed celled list">#}
-{#                                                        <div class="item"><a#}
-{#                                                                href="{{ submission.github_url }}"#}
-{#                                                                class="">Github URL for Submission</a></div>#}
-{##}
-{#                                                        {% if submission.github_repo_name %}#}
-{#                                                            <div class="item">Repository:#}
-{#                                                                {{ submission.github_repo_name }}</div>{% endif %}#}
-{#                                                        {% if submission.github_branch_name %}#}
-{#                                                            <div class="item">Branch:#}
-{#                                                                {{ submission.github_branch_name }}</div>{% endif %}#}
-{#                                                        {% if definition.ask_method_name %}#}
-{#                                                            <div class="item">Method Name:#}
-{#                                                                {{ submission.method_name }}</div>{% endif %}#}
-{#                                                        {% if definition.ask_method_description %}#}
-{#                                                            <div class="item">Method Description:#}
-{#                                                                {{ submission.method_description }}</div>{% endif %}#}
-{#                                                        {% if definition.ask_project_url %}#}
-{#                                                            <div class="item">Project URL:#}
-{#                                                                {{ submission.project_url }}</div>{% endif %}#}
-{#                                                        {% if definition.ask_publication_url %}#}
-{#                                                            <div class="item">Publication URL:#}
-{#                                                                {{ submission.publication_url }}</div>{% endif %}#}
-{#                                                    </ul>#}
-{#                                                </div>#}
-                                                            <tbody>
-                                                                {% for tracker in submission.tracked_submissions.all %}
-                                                                    {% with tracker.get_remote_submission_info as submission_info %}
-                                                                        {% if submission_info %}
-                                                                            <td>{{ tracker.remote_id }}</td>
-                                                                            <td>{{ submission_info|get_item:'status' }}</td>
-                                                                            <td>{{ submission_info|get_item:'score' }}</td>
-                                                                            <td>{{ tracker.remote_phase }}</td>
-                                                                            <td></td>
-                                                                        {% else %}
-                                                                            <td>Waiting...</td>
-                                                                        {% endif %}
-                                                                    {% endwith %}
-                                                                {% endfor %}
-                                                                <td>{{ submission.github_repo_name }}</td>
-                                                                <td>{{ submission.github_branch_name }}</td>
-                                                                <td>{{ submission.github_commit_hash|slice:'7' }}</td>
-                                                            </tbody>
+                                                        <tbody>
+                                                        {% for tracker in submission.tracked_submissions.all %}
+                                                            {% with tracker.get_remote_submission_info as submission_info %}
+                                                                {% if submission_info %}
+                                                                    <td>{{ tracker.remote_id }}</td>
+                                                                    <td>{{ submission_info|get_item:'status' }}</td>
+                                                                    <td>{{ submission_info|get_item:'score' }}</td>
+                                                                    <td>{{ tracker.remote_phase }}</td>
+                                                                {% else %}
+                                                                    <td>Waiting...</td>
+                                                                {% endif %}
+                                                            {% endwith %}
                                                         {% endfor %}
+                                                        </tbody>
                                                     </table>
-                                                </div>
-                                            {% else %}
-                                                <div class="eight wide column">
-                                                </div>
-                                                <div class="eight wide column">
+                                                {% else %}
                                                     <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk use_github=1 %}"
                                                        class="ui blue button">Submit Homework</a>
-                                                </div>
-                                            {% endif %}
+                                                {% endif %}
+                                            </div>
                                         </div>
                                         {% if grade %}
                                             <div class="row">

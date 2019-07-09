@@ -93,6 +93,9 @@ class Submission(models.Model):
         else:
             return self.definition.challenge_url
 
+    def filename(self):
+        return self.github_url.split('/')[-1]
+
 class SubmissionTracker(models.Model):
     submission = models.ForeignKey('Submission', related_name='tracked_submissions', null=True, blank=True, on_delete=models.CASCADE)
 

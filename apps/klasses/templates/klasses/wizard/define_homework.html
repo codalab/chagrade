@@ -21,6 +21,7 @@
                             <th>Creator</th>
                             <th>Last Modified</th>
                             <th>Due Date</th>
+                            <th>Submissions</th>
                             <th></th>
                             <th>Entries</th>
                             <th>Avg. Grade</th>
@@ -36,6 +37,9 @@
                                 <td>{{ homework_def.creator }}</td>
                                 <td>{{ homework_def.modified }}</td>
                                 <td>{{ homework_def.due_date }}</td>
+                                <td>
+                                    <a class="ui mini blue button" href="{% url "homework:submission_list" definition_pk=homework_def.pk %}">Submissions</a>
+                                </td>
                                 <td>
                                     <a class="ui mini yellow button" href="{% url "homework:edit_homework_def" klass_pk=klass.pk definition_pk=homework_def.pk %}">Edit</a>
                                 </td>
