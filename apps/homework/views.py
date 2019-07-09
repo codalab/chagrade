@@ -60,9 +60,15 @@ class SubmissionOverView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SubmissionOverView, self).get_context_data(**kwargs)
+        klass_pk = self.kwargs.get('klass_pk')
         try:
-            klass = Klass.objects.get(pk=self.kwargs.get('klass_pk'))
+            klass = Klass.objects.get(pk=klass_pk)
             context['klass'] = klass
+        except ObjectDoesNotExist:
+            raise Http404('Klass object not found')
+        try:
+            submissions = Submission.objects.filter(klass__pk=klass_pk)
+            context['submissions'] = submissions
         except ObjectDoesNotExist:
             raise Http404('Klass object not found')
         return context

@@ -210,14 +210,13 @@
                 },
             })
 
-            $(document).on('click', '.title', function (e) {
+            $(document).on('click', '.file.title', function (e) {
                 let file_element = $(e.target)
                 self.github_url = file_element.attr('data-url')
                 console.info('title click', file_element.attr('data-url'))
                 $('.title').removeClass('selected-file')
                 file_element.addClass('selected-file')
             })
-
         })
 
         self.github_request = (url, done_function) => {
@@ -316,7 +315,6 @@
                     'text': self.refs['question_answer_' + index].value
                 }
                 data['question_answers'].push(temp_data)
-
             }
 
             CHAGRADE.api.create_submission(data)
