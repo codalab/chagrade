@@ -102,6 +102,7 @@
                                                             {% if submission.github_url %}
                                                                 <th>Submission File</th>
                                                             {% endif %}
+                                                            <th>Details</th>
                                                             <th>Repo</th>
                                                             <th>Branch</th>
                                                             <th>Commit</th>
@@ -143,6 +144,9 @@
                                                                     <a class="ui mini blue button" href="{{ submission.github_url }}">{{ submission.filename }}</a>
                                                                 </td>
                                                             {% endif %}
+                                                            <td>
+                                                                <a class="ui mini blue button" href="{% url "homework:submission_detail" submission_pk=submission.pk %}">Details</a>
+                                                            </td>
                                                             <td>{{ submission.github_repo_name }}</td>
                                                             <td>{{ submission.github_branch_name }}</td>
                                                             <td>{{ submission.github_commit_hash|slice:'7' }}</td>

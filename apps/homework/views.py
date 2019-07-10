@@ -68,6 +68,38 @@ class HomeworkOverView(LoginRequiredMixin, TemplateView):
             raise Http404('Klass object not found')
         return context
 
+class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
+    template_name = 'homework/submission_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SubmissionDetailView, self).get_context_data(**kwargs)
+        submission_pk = self.kwargs.get('submission_pk')
+        try:
+            submission = Submission.objects.get(pk=submission_pk)
+            context['submission'] = submission
+            context['definition'] = submission.definition
+        except ObjectDoesNotExist:
+            raise Http404('Definition object not found')
+        return context
+
+    def test_func(self):
+        submission_pk = self.kwargs.get('submission_pk')
+        try:
+            submission = Submission.objects.get(pk=submission_pk)
+        except ObjectDoesNotExist:
+            raise Http404('Definition object not found')
+        if self.request.user.instructor:
+            if self.request.user.instructor == submission.definition.klass.instructor:
+                print('User is instructor of class.')
+                return True
+        try:
+            if self.request.user.student_membership.get(klass__pk=submission.definition.klass.pk):
+                print('User is student of class.')
+                return True
+        except ObjectDoesNotExist:
+            return False
+        return False
+
 class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'homework/submission_list.html'
 
@@ -118,9 +150,12 @@ class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             if self.request.user.instructor == definition.klass.instructor:
                 print('User is instructor of class.')
                 return True
-        if self.request.user.student_membership.get(klass__pk=definition.klass.pk):
-            print('User is student of class.')
-            return True
+        try:
+            if self.request.user.student_membership.get(klass__pk=definition.klass.pk):
+                print('User is student of class.')
+                return True
+        except ObjectDoesNotExist:
+            return False
         return False
 
 class SubmissionFormView(LoginRequiredMixin, TemplateView):
