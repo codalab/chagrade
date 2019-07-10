@@ -20,6 +20,7 @@
 
         self.one('mount', function () {
             self.update_submission()
+            console.log('mounted')
         })
 
         self.github_request = (url, done_function) => {
@@ -32,10 +33,18 @@
                 dataType: 'json',
             })
             .done(done_function)
+            .fail(function (error) {
+                console.log(error)
+                toastr.error("Github API Error: " + error.statusText)
+            })
+        }
+
+        self.cancel_button = function () {
+            window.location = '/homework/overview/' + KLASS
         }
 
         self.update_submission = function () {
-            CHAGRADE.api.get_submission(SUBMISSION)
+            CHAGRADE.api.get_submission(self.opts.submission_pk)
                 .done(function (data) {
                     self.submission = data
                     if (!!self.submission.github_commit_hash) {
@@ -46,25 +55,21 @@
                         self.github_ref = null
                     }
                     self.update()
-                    self.update_question_answers()
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching submission: " + error.statusText)
                 })
-        }
 
-        self.cancel_button = function () {
-            window.location = '/homework/overview/' + KLASS
-        }
-
-        self.update_submission = function () {
-            CHAGRADE.api.get_cha_user(self.opts.pk)
+            CHAGRADE.api.get_cha_user(self.opts.user_pk)
                 .done(function (data) {
                     self.github_information = data.github_info
                     self.user_information = data
+                    console.info('submission_updated', 1)
 
-                    self.github_request(self.user_information.github_url, function (repo_data) {
-                        self.github_repositories = repo_data
+                    console.info('github_url:', self.user_information.github_url )
+                    self.github_request(self.submission.github_url, function (commit_data) {
+                        self.github_repositories = commit_data
+                        console.info('commit_data', commit_data)
                         self.update()
                     })
                 })

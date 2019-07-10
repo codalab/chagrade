@@ -236,13 +236,13 @@
         }
 
         function load_github_file_tree () {
-            function create_tree(files, tracker) {
+            function create_tree(files) {
                 for (let i = 0; i < files.length; i++) {
                     if (files[i].type == 'dir') {
                         self.github_requests++
                         self.github_request(files[i].url, function (data) {
                             files[i].files = data
-                            create_tree(files[i].files, tracker + 1)
+                            create_tree(files[i].files)
                             self.github_requests--
                             if (self.github_requests == 0) {
                                 print_g_files()
@@ -391,7 +391,6 @@
                 .fail(function (error) {
                     toastr.error("Error fetching user: " + error.statusText)
                 })
-
 
             if (window.SUBMISSION !== undefined) {
                 self.update_submission()

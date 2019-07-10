@@ -112,6 +112,7 @@
                                                             <th>Phase</th>
                                                         </tr>
                                                         </thead>
+                                                        <tbody>
                                                         {% for submission in submissions %}
 {#                                                <div class="eight wide column">#}
 {#                                                    <div class="ui divider"></div>#}
@@ -134,7 +135,8 @@
 {#                                                                {{ submission.publication_url }}</div>{% endif %}#}
 {#                                                    </ul>#}
 {#                                                </div>#}
-                                                            <tbody>
+{#                                                        <tr><td>{{ submission.pk }}</td></tr>#}
+                                                            <tr>
                                                             <td>{{ submission.created }}</td>
                                                             {% if team or instructor_view %}
                                                                 <td>{{ submission.creator.user }}</td>
@@ -150,6 +152,11 @@
                                                             <td>{{ submission.github_repo_name }}</td>
                                                             <td>{{ submission.github_branch_name }}</td>
                                                             <td>{{ submission.github_commit_hash|slice:'7' }}</td>
+                                                            <td>{{ submission.pk }}</td>
+                                                            {% with previous_submission=submissions|next:forloop.counter0 %}
+                                                            <td><submission-diff submission_pk="{{ submission.pk }}" previous_submission_pk="{{ previous_submission.pk }}" user_pk="{{ request.user.pk }}"></submission-diff></td>
+                                                            {% endwith %}
+
                                                                 {% for tracker in submission.tracked_submissions.all %}
                                                                     {% with tracker.get_remote_submission_info as submission_info %}
                                                                         {% if submission_info %}
@@ -163,8 +170,9 @@
                                                                         {% endif %}
                                                                     {% endwith %}
                                                                 {% endfor %}
-                                                            </tbody>
+                                                            </tr>
                                                         {% endfor %}
+                                                        </tbody>
                                                     </table>
                                                 </div>
                                             {% else %}

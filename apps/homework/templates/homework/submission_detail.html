@@ -100,7 +100,7 @@
                                                 <p>Repository Name: {{ submission.github_repo_name }}</p>
                                                 <p>Branch Name: {{ submission.github_branch_name }}</p>
                                             </div>
-                                            <submission-detail-github user_pk="{{ request.user.pk }}"></submission-detail-github>
+                                            <submission-detail-github submission_pk="{{ submission.pk }}" hash="{{ submission.commit_hash }}" user_pk="{{ request.user.pk }}"></submission-detail-github>
                                         </div>
                                     </div>
 
