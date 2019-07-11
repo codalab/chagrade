@@ -19,11 +19,17 @@
                         <i class="hashtag icon"></i>
                         {commit.sha.slice(0,6)}
                     </a>
-                    <div class="ui right floated date">
+                    <a class="ui right floated author" href="{ commit.author.html_url }">
+                        { commit.commit.author.name }
+                    </a>
+                    <br>
+                    <div class="date">
                         {format_date(commit.commit.committer.date)}
                     </div>
                 </div>
-                {commit.commit.message}
+                <div class="ui row">
+                    {commit.commit.message}
+                </div>
             </div>
         </div>
     </div>
@@ -85,6 +91,7 @@
                                 let repo = _.find(repo_data, ['name', self.submission.github_repo_name])
                                 self.github_request(repo.commits_url.split('{')[0], function (data) {
                                     self.commits = data
+                                    console.log(data)
                                     self.update()
                                 })
                                 self.update()
@@ -111,9 +118,16 @@
             line-height: 1.5em;
         }
 
+        .author {
+            color: #444444;
+            margin-left: 15px;
+            margin-right: auto;
+        }
+
         .date {
             color: #888888;
             margin-left: 15px;
+            font-size: 0.8em;
         }
     </style>
 </submission-detail-github>
