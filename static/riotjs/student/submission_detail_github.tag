@@ -67,11 +67,11 @@
                     console.info('submission_updated', 1)
 
                     console.info('github_url:', self.user_information.github_url )
-                    self.github_request(self.submission.github_url, function (commit_data) {
-                        self.github_repositories = commit_data
-                        console.info('commit_data', commit_data)
-                        self.update()
-                    })
+//                    self.github_request(self.submission.github_url, function (commit_data) {
+//                        self.github_repositories = commit_data
+//                        console.info('commit_data', commit_data)
+//                        self.update()
+//                    })
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching user: " + error.statusText)
