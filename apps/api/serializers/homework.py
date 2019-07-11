@@ -40,8 +40,11 @@ class SubmissionSerializer(WritableNestedModelSerializer):
             'question_answers',
             'id',
             # 'get_challenge_url',
-            'team'
+            'team',
+            'created',
         ]
+
+        read_only_fields = ('created',)
 
 
 class QuestionSerializer(ModelSerializer):

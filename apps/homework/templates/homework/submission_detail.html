@@ -93,13 +93,13 @@
                                         <div class="column">
                                             <div class="ui header">Github Information</div>
                                             <div class="ui divider"></div>
-                                            <div class="ui content">
-                                                <p>Date: {{ submission.created }}</p>
-                                                <p>Commit hash: {{ submission.commit_hash|slice:"7" }}</p>
+{#                                            <div class="ui content">#}
+{#                                                <p>Date: {{ submission.created }}</p>#}
+{#                                                <p>Commit hash: {{ submission.commit_hash|slice:"7" }}</p>#}
 {#                                                <p>{{ submission.github_url }}</p>#}
-                                                <p>Repository Name: {{ submission.github_repo_name }}</p>
-                                                <p>Branch Name: {{ submission.github_branch_name }}</p>
-                                            </div>
+{#                                                <p>Repository Name: {{ submission.github_repo_name }}</p>#}
+{#                                                <p>Branch Name: {{ submission.github_branch_name }}</p>#}
+{#                                            </div>#}
                                             <submission-detail-github submission_pk="{{ submission.pk }}" hash="{{ submission.commit_hash }}" user_pk="{{ request.user.pk }}"></submission-detail-github>
                                         </div>
                                     </div>

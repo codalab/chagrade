@@ -1,26 +1,42 @@
 <submission-detail-github>
-    <p>{  }</p>
-    <p>{  }</p>
-    <p>{  }</p>
+
+    <div class="ui grid">
+        <div class="six wide column">
+            <p>Date: { format_date(submission.created) }</p>
+            <p if={ submission.commit_hash }>Commit hash: { submission.commit_hash.slice(0,6) }</p>
+            <a class="ui tiny black button" href="{ submission.github_url }">Submission File</a>
+            <p if={ submission.github_repo_name }>Repository Name: { submission.github_repo_name }</p>
+            <p if={ submission.github_branch_name }>Branch Name: { submission.github_branch_name }</p>
+        </div>
+        <div class="ten wide column">
+            <div class="ui header">
+                Repository Activity
+            </div>
+
+            <div each={commit in commits} class="ui grid commit">
+                <div class="row">
+                    <a class="ui blue label" href="{ commit.html_url }">
+                        <i class="hashtag icon"></i>
+                        {commit.sha.slice(0,6)}
+                    </a>
+                    <div class="ui right floated date">
+                        {format_date(commit.commit.committer.date)}
+                    </div>
+                </div>
+                {commit.commit.message}
+            </div>
+        </div>
+    </div>
+    </div>
     <script>
         var self = this
         self.errors = []
-        self.submission = {
-            'method_name': '',
-            'method_description': '',
-            'project_url': '',
-            'publication_url': '',
-            'github_url': '',
-            'github_repo_name': '',
-            'github_branch_name': '',
-            'github_commit_hash': '',
-        }
+        self.submission = {}
 
         self.github_requests = 0
 
         self.one('mount', function () {
             self.update_submission()
-            console.log('mounted')
         })
 
         self.github_request = (url, done_function) => {
@@ -34,9 +50,14 @@
             })
             .done(done_function)
             .fail(function (error) {
-                console.log(error)
                 toastr.error("Github API Error: " + error.statusText)
             })
+        }
+
+        self.format_date = function (iso_string) {
+            let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: 'numeric', second: '2-digit' };
+            let d = new Date(iso_string)
+            return d.toLocaleDateString('en-US', options)
         }
 
         self.cancel_button = function () {
@@ -55,27 +76,44 @@
                         self.github_ref = null
                     }
                     self.update()
+                    CHAGRADE.api.get_cha_user(self.opts.user_pk)
+                        .done(function (data) {
+                            self.github_information = data.github_info
+                            self.user_information = data
+                            self.github_request(self.github_information.repos_url, function (repo_data) {
+                                self.github_repositories = repo_data
+                                let repo = _.find(repo_data, ['name', self.submission.github_repo_name])
+                                self.github_request(repo.commits_url.split('{')[0], function (data) {
+                                    self.commits = data
+                                    self.update()
+                                })
+                                self.update()
+                            })
+                        })
+                        .fail(function (error) {
+                            toastr.error("Error fetching user: " + error.statusText)
+                        })
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching submission: " + error.statusText)
                 })
 
-            CHAGRADE.api.get_cha_user(self.opts.user_pk)
-                .done(function (data) {
-                    self.github_information = data.github_info
-                    self.user_information = data
-                    console.info('submission_updated', 1)
-
-                    console.info('github_url:', self.user_information.github_url )
-//                    self.github_request(self.submission.github_url, function (commit_data) {
-//                        self.github_repositories = commit_data
-//                        console.info('commit_data', commit_data)
-//                        self.update()
-//                    })
-                })
-                .fail(function (error) {
-                    toastr.error("Error fetching user: " + error.statusText)
-                })
         }
     </script>
+    <style>
+        .ten.wide.column {
+            height: 100%;
+        }
+
+        .commit {
+            margin: 28px 0 28px 0 !important;
+            font-size: 1.3em;
+            line-height: 1.5em;
+        }
+
+        .date {
+            color: #888888;
+            margin-left: 15px;
+        }
+    </style>
 </submission-detail-github>
