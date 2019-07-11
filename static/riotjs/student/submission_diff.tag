@@ -1,9 +1,16 @@
 <submission-diff>
     <tr>
-    <td>{ submission.id } { previous_submission.id }</td>
+    <td if={!no_diff}>
+        <a class="ui small green button" href="{diff_url}">Diff</a>
+    </td>
+    <td if={no_diff}>No diff
+    <div if={no_length}>No length</div>
+    </td>
     </tr>
     <script>
         var self = this
+        self.no_diff = false
+        self.no_length = false
         self.errors = []
         self.submission = {}
 //            'method_name': '',
@@ -20,11 +27,11 @@
 
         self.one('mount', function () {
             self.find_diff()
-            console.log('mounted')
+//            console.log('mounted')
         })
 
         self.github_request = (url, done_function) => {
-            console.log(url)
+//            console.log(url)
             $.ajax({
                 type: 'GET',
                 url: url,
@@ -77,39 +84,63 @@
 
             Promise.all([current_submission, previous_submission])
                 .then( function(data) {
-                    //console.info('both promises fulfilled... ', data)
+ //                   //console.info('both promises fulfilled... ', data)
+ //                   console.log('\n\n')
                     let curr = self.submission
                     let prev = self.previous_submission
 
-                    if ((curr.github_repo_name != prev.github_repo_name) || !curr.github_repo_name) {
+                    if ((curr.github_repo_name !== prev.github_repo_name) || !curr.github_repo_name) {
                         self.no_diff = true
                     } else {
-                        let repo = curr.github_repo_name
+                        let repo_name = curr.github_repo_name
                         let curr_ref  = self.submission.github_ref
                         let prev_ref  = self.previous_submission.github_ref
 
-                        if ((curr_ref != prev_ref) || !curr_ref) {
+                        if ((curr_ref === prev_ref) || !curr_ref) {
                             self.no_diff = true
                         } else {
-                            console.info('current ref:', curr_ref)
-                            console.info('previous ref:', prev_ref)
-
+ //                           console.info('current ref:', curr_ref)
+ //                           console.info('previous ref:', prev_ref)
+  //                          console.log('\n\n')
+  //
                             CHAGRADE.api.get_cha_user(self.opts.user_pk)
                                 .done(function (data) {
                                     self.github_information = data.github_info
                                     self.user_information = data
 
-//                            self.github_request(self.submission.github_url, function (commit_data) {
-//                                self.github_repositories = commit_data
-//                                console.info('commit_data', commit_data)
-//                                self.update()
-//                            })
+                            self.github_request(self.github_information.repos_url, function (repo_data) {
+                                self.github_repositories = repo_data
+//                                console.info('repo data', repo_data)
+//                                console.info('repo', repo_name)
+                                let repo = _.find(repo_data, ['name', repo_name])
+//                                console.info('repo', repo)
+//
+                                let compare_url = repo.compare_url.replace('{base}', curr_ref).replace('{head}', prev_ref)
+//                                let commits_url = repo.branches_url.slice(0,23) + 'repos/' + repo.full_name + '/commits/'
+//                                console.info('commits url', commits_url)
+//
+//                                console.info('compare url', compare_url)
+                                self.github_request(compare_url, function (comparison) {
+                                    if (comparison.files.length == 0) {
+                                        self.no_diff = true
+                                        self.no_length = true
+                                    }
+
+                                    console.info('comparison', comparison.html_url, !self.no_diff, comparison.files)
+                                    self.diff_url = comparison.html_url
+                                    self.update()
+                                })
+                            })
                                 })
                                 .fail(function (error) {
                                     toastr.error("Error fetching user: " + error.statusText)
                                 })
                         }
                     }
+//                    console.info('pk:', self.submission.id)
+//                    console.info('diff:', !self.no_diff)
+//                    console.log('\n\n')
+                    self.update()
                 })
         }
     </script>
