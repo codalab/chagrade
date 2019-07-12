@@ -111,4 +111,6 @@ def post_submission(submission_pk):
             )
         else:
             print("Something went wrong making a submission to the challenge_url")
+            print(phase_final_resp)
+            print(dir(phase_final_resp))
     submission.submitted_to_challenge = True

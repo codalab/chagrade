@@ -88,6 +88,9 @@ CHAGRADE.api = {
     get_submission: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + "submissions/" + pk)
     },
+    list_submissions: function(data) {
+        return CHAGRADE.api.request('GET', URLS.API + "submissions/", data)
+    },
     // Grades
     create_grade: function(data) {
         return CHAGRADE.api.request('POST', URLS.API + "grades/", data)

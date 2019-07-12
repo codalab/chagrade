@@ -95,7 +95,7 @@
                                                     <table class="ui table">
                                                         <thead>
                                                         <tr>
-                                                            <th>Date</th>
+                                                            <th class="two wide">Date</th>
                                                             {% if team or instructor_view %}
                                                                 <th>User</th>
                                                             {% endif %}
@@ -106,10 +106,10 @@
                                                             <th>Repo</th>
                                                             <th>Branch</th>
                                                             <th>Commit</th>
-                                                            <th>ID</th>
-                                                            <th>Status</th>
-                                                            <th>Score</th>
-                                                            <th>Phase</th>
+                                                            <th>Diff</th>
+{#                                                            <th>Status</th>#}
+{#                                                            <th>Score</th>#}
+{#                                                            <th>Phase</th>#}
                                                         </tr>
                                                         </thead>
                                                         <tbody>
@@ -152,7 +152,6 @@
                                                             <td>{{ submission.github_repo_name }}</td>
                                                             <td>{{ submission.github_branch_name }}</td>
                                                             <td>{{ submission.github_commit_hash|slice:'7' }}</td>
-                                                            <td>{{ submission.pk }}</td>
                                                             {% with previous_submission=submissions|next:forloop.counter0 %}
                                                             <td><submission-diff submission_pk="{{ submission.pk }}" previous_submission_pk="{{ previous_submission.pk }}" user_pk="{{ request.user.pk }}"></submission-diff></td>
                                                             {% endwith %}

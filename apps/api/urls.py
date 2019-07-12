@@ -6,7 +6,7 @@ from rest_framework import permissions
 from rest_framework.routers import SimpleRouter
 
 from apps.api.views.homework import DefinitionViewSet, CriteriaViewSet, QuestionViewSet, SubmissionViewSet, \
-    GradeViewSet, CustomChallengeURLViewSet
+    SubmissionGETMultipleView, GradeViewSet, CustomChallengeURLViewSet
 from apps.api.views.profiles import ProfileViewSet, StudentViewSet, create_students_from_csv, \
     TestStudentViewSet
 from apps.api.views.klasses import KlassViewSet
@@ -53,6 +53,7 @@ urlpatterns = [
     url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=None), name='schema-json'),
     url(r'^$', schema_view.with_ui('swagger', cache_timeout=None), name='docs'),
 
+    path('list_submissions/', SubmissionGETMultipleView.as_view() , name='list_submissions'),
     # Custom API point for handling student creation
     # path('create_student/', create_student, name='create_student'),
     path('create_students_from_csv/', create_students_from_csv, name='create_students_from_csv'),

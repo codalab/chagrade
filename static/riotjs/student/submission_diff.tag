@@ -9,7 +9,7 @@
     </tr>
     <script>
         var self = this
-        self.no_diff = false
+        self.no_diff = true
         self.behind = false
         self.errors = []
         self.submission = {}
@@ -31,7 +31,6 @@
             })
             .done(done_function)
             .fail(function (error) {
-                console.log(error)
                 toastr.error("Github API Error: " + error.statusText)
             })
         }
@@ -43,7 +42,7 @@
                     self.behind = true
                     self.diff_request(head_ref, base_ref)
                 }
-                console.info('comparison', comparison)
+                self.no_diff = false
                 self.diff_url = comparison.html_url
                 self.update()
             })
@@ -58,7 +57,7 @@
                     } else if (!!self.submission.github_branch_name) {
                         self.submission.github_ref = self.submission.github_branch_name
                     } else {
-                        self.github_ref = null
+                        self.submission.github_ref = 'master'
                     }
                     self.update()
                 })
@@ -73,7 +72,7 @@
                     } else if (!!self.previous_submission.github_branch_name) {
                         self.previous_submission.github_ref = self.previous_submission.github_branch_name
                     } else {
-                        self.github_ref = null
+                        self.previous_submission.github_ref = 'master'
                     }
                     self.update()
                 })
@@ -105,7 +104,7 @@
                                     self.github_request(self.github_information.repos_url, function (repo_data) {
                                         self.github_repositories = repo_data
                                         self.repo = _.find(repo_data, ['name', repo_name])
-                                        self.diff_request(curr_ref, prev_ref)
+                                        self.diff_request(prev_ref, curr_ref)
                                     })
                                 })
                                 .fail(function (error) {
@@ -117,4 +116,9 @@
                 })
         }
     </script>
+    <style>
+        .button {
+            margin: 0px !important;
+        }
+    </style>
 </submission-diff>

@@ -1,5 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 
 from apps.api.permissions import SubmissionPermissionCheck, GradePermissionCheck, DefinitionPermissionCheck, \
     QuestionPermissionCheck, CriteriaPermissionCheck, CustomChallengeURLPermissionCheck
@@ -24,6 +27,15 @@ class GradeViewSet(ModelViewSet):
     def perform_update(self, serializer):
         new_obj = serializer.save()
         new_obj.calculate_grade()
+
+class SubmissionGETMultipleView(APIView):
+    def post(self, request, **kwargs):
+        if request.data:
+            queryset = Submission.objects.filter(pk__in=request.data)
+        else:
+            queryset = Submission.objects.all()
+        serializer = SubmissionSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class SubmissionViewSet(ModelViewSet):

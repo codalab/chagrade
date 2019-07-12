@@ -1,0 +1,124 @@
+{# TODO: Replace all the context/templatefilter/templatetag with proper context variables #}
+{% extends 'base.html' %}
+{% load static %}
+{% load homework_tags %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .condensed {
+            margin: 0.5vh 0 0 0 !important;
+            padding: 0.5vh 0 0 0 !important;
+        }
+
+        .no-padding {
+            padding: 1vh 0 0 0 !important;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
+{% endblock %}
+
+{% block content %}
+    <div class="ui centered grid">
+        <div class="row">
+            <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
+            <div class="fourteen wide column">
+                <div class="ui centered grid segment">
+                    <div class="row">
+                        <div class="two wide column">
+                            {% if klass.image %}
+                                <img style="height: 100px; width: auto;" src="{{ klass.image.url }}">
+                            {% else %}
+                                <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
+                            {% endif %}
+                        </div>
+                        <div class="fourteen wide column">
+                            <div class="ui grid">
+                                <div class="row no-padding">
+                                    <div class="twelve wide column">
+                                        <h1 class="ui header">{{ klass.title }}</h1>
+                                        {% if klass.group %}
+                                            <h4 class="ui header condensed">From Group: {{ klass.group.name }}</h4>
+                                        {% endif %}
+                                        <h4 class="ui header condensed">Organized
+                                            by: {{ klass.instructor.user.username }}</h4>
+                                    </div>
+                                    <div class="four wide column">
+                                        <h5 class="ui header condensed">Created: {{ klass.created.date }}</h5>
+                                        <h5 class="ui header condensed">Modified: {{ klass.modified.date }}</h5>
+                                    </div>
+                                </div>
+                                <div class="row no-padding">
+                                    <div class="sixteen wide column">
+                                        <ul class="ui relaxed list">
+                                            <div class="item">
+                                                Description: {{ klass.description }}
+                                            </div>
+                                            {% if klass.syllabus %}
+                                                <div class="item">
+                                                    <a href="{{ klass.syllabus.url }}">Syllabus</a>
+                                                </div>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui header">Submission {{ submission.pk }} for homework {{ definition.name }}{% if team %} for team {{ team.name }}{% endif %}</div>
+                <div class="ui grid">
+                    <homework-metrics definition_pk="{{ definition.pk }}"></homework-metrics>
+                </div>
+                {% if definition %}
+                    {#                    {% if definition.team_based %}#}
+                    {% with definition|get_last_submission:user.pk as submission %}
+                        {% with submission|get_last_grade as grade %}
+                            <div class="ui message">
+                                <div class="content">
+                                    <a style="margin-bottom: 20px;" href="{{ submission.get_challenge_url }}"
+                                       class="ui blue button">View Challenge</a>
+                                    <a style="margin-bottom: 20px;" href="{% url "homework:overview" klass_pk=definition.klass.pk %}"
+                                       class="ui blue button">View Homeworks</a>
+                                    <a style="margin-bottom: 20px;" href="{% url "homework:submission_list" definition_pk=definition.pk %}"
+                                       class="ui blue button">View </a>
+                                    {% if definition.starting_kit_github_url %}
+                                        <a href="{{ definition.starting_kit_github_url }}" class="ui blue button">Goto Starting
+                                            Kit</a><br>
+                                    {% endif %}
+                                    {% if definition.team_based %}
+                                        <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
+                                             class="ui red label">Graded as teamwork
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="ui grid">
+                                        <div class="column">
+                                            <div class="ui header">Github Information</div>
+                                            <div class="ui divider"></div>
+{#                                            <div class="ui content">#}
+{#                                                <p>Date: {{ submission.created }}</p>#}
+{#                                                <p>Commit hash: {{ submission.commit_hash|slice:"7" }}</p>#}
+{#                                                <p>{{ submission.github_url }}</p>#}
+{#                                                <p>Repository Name: {{ submission.github_repo_name }}</p>#}
+{#                                                <p>Branch Name: {{ submission.github_branch_name }}</p>#}
+{#                                            </div>#}
+                                            <submission-detail-github submission_pk="{{ submission.pk }}" hash="{{ submission.commit_hash }}" user_pk="{{ request.user.pk }}"></submission-detail-github>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        {% endwith %}
+                    {% endwith %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_script %}
+    <script src="https://cdn.jsdelivr.net/npm/luxon@1.16.0/build/global/luxon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js"></script>
+{% endblock %}
