@@ -213,7 +213,6 @@
             $(document).on('click', '.file.title', function (e) {
                 let file_element = $(e.target)
                 self.github_url = file_element.attr('data-url')
-                console.info('title click', file_element.attr('data-url'))
                 $('.title').removeClass('selected-file')
                 file_element.addClass('selected-file')
             })
@@ -229,6 +228,9 @@
                 dataType: 'json',
             })
             .done(done_function)
+                .fail( function (data) {
+                    toastr.error('Please connect your account to GitHub.')
+                })
         }
 
         function print_g_files () {
@@ -302,8 +304,6 @@
                 ]
             }
 
-            console.log('post data')
-            console.log(data)
 
             if (window.USER_TEAM !== undefined) {
                 data['team'] = window.USER_TEAM

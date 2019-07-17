@@ -100,20 +100,26 @@
                                                                 <th>User</th>
                                                             {% endif %}
                                                             {% if submission.github_url %}
-                                                                <th>Submission File</th>
+                                                                <th>File</th>
                                                             {% endif %}
                                                             <th>Details</th>
-                                                            <th>Repo</th>
-                                                            <th>Branch</th>
+{#                                                            <th>Repo</th>#}
+{#                                                            <th>Branch</th>#}
                                                             <th>Commit</th>
                                                             <th>Diff</th>
 {#                                                            <th>Status</th>#}
-{#                                                            <th>Score</th>#}
+                                                            <th>Score</th>
 {#                                                            <th>Phase</th>#}
                                                         </tr>
                                                         </thead>
                                                         <tbody>
                                                         {% for submission in submissions %}
+                                                            <div id="popup-{{ submission.pk }}" class="ui popup top right transition">
+                                                                <div class="ui grid">
+                                                                    <div class="row">Repo: {{ submission.github_repo_name }}</div>
+                                                                    <div class="row">Branch: {{ submission.github_branch_name }}</div>
+                                                                </div>
+                                                            </div>
 {#                                                <div class="eight wide column">#}
 {#                                                    <div class="ui divider"></div>#}
 {#                                                    <h4 class="ui header">Submission Details:</h4>#}
@@ -136,21 +142,21 @@
 {#                                                    </ul>#}
 {#                                                </div>#}
 {#                                                        <tr><td>{{ submission.pk }}</td></tr>#}
-                                                            <tr>
-                                                            <td>{{ submission.created }}</td>
+                                                            <tr id="row-{{ submission.pk }}">
+                                                            <td>{{ submission.created|timesince }} ago</td>
                                                             {% if team or instructor_view %}
                                                                 <td>{{ submission.creator.user }}</td>
                                                             {% endif %}
                                                             {% if submission.github_url %}
                                                                 <td>
-                                                                    <a class="ui mini blue button" href="{{ submission.github_url }}">{{ submission.filename }}</a>
+                                                                    <a class="ui mini blue icon button" href="{{ submission.github_url }}">
+                                                                        <i class="file code icon"></i>
+                                                                    </a>
                                                                 </td>
                                                             {% endif %}
                                                             <td>
                                                                 <a class="ui mini blue button" href="{% url "homework:submission_detail" submission_pk=submission.pk %}">Details</a>
                                                             </td>
-                                                            <td>{{ submission.github_repo_name }}</td>
-                                                            <td>{{ submission.github_branch_name }}</td>
                                                             <td>{{ submission.github_commit_hash|slice:'7' }}</td>
                                                             {% with previous_submission=submissions|next:forloop.counter0 %}
                                                             <td><submission-diff submission_pk="{{ submission.pk }}" previous_submission_pk="{{ previous_submission.pk }}" user_pk="{{ request.user.pk }}"></submission-diff></td>
@@ -159,11 +165,11 @@
                                                                 {% for tracker in submission.tracked_submissions.all %}
                                                                     {% with tracker.get_remote_submission_info as submission_info %}
                                                                         {% if submission_info %}
-                                                                            <td>{{ tracker.remote_id }}</td>
-                                                                            <td>{{ submission_info|get_item:'status' }}</td>
+{#                                                                            <td>{{ tracker.remote_id }}</td>#}
+{#                                                                            <td>{{ submission_info|get_item:'status' }}</td>#}
                                                                             <td>{{ submission_info|get_item:'score' }}</td>
-                                                                            <td>{{ tracker.remote_phase }}</td>
-                                                                            <td></td>
+{#                                                                            <td>{{ tracker.remote_phase }}</td>#}
+{#                                                                            <td></td>#}
                                                                         {% else %}
                                                                             <td>Waiting...</td>
                                                                         {% endif %}
@@ -205,3 +211,15 @@
         </div>
     </div>
 {% endblock %}
+
+{% block extra_script %}
+    <script>
+        $(document).ready( function () {
+            {% for submission in submissions %}
+                $('#row-{{ submission.pk }}').popup({
+                    popup: '#popup-{{ submission.pk }}'
+                })
+            {% endfor %}
+        })
+    </script>
+{% endblock extra_script%}

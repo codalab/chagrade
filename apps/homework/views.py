@@ -82,7 +82,7 @@ class SubmissionMetricsView(LoginRequiredMixin, UserPassesTestMixin, TemplateVie
                 print('User is instructor of class.')
                 return True
         try:
-            if self.request.user.student_membership.get(klass__pk=definition.klass.pk):
+            if self.request.user.klass_memberships.get(klass__pk=definition.klass.pk):
                 print('User is student of class.')
                 return True
         except ObjectDoesNotExist:
@@ -109,12 +109,14 @@ class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
             submission = Submission.objects.get(pk=submission_pk)
         except ObjectDoesNotExist:
             raise Http404('Definition object not found')
+        if self.request.user.is_superuser:
+            return True
         if self.request.user.instructor:
             if self.request.user.instructor == submission.definition.klass.instructor:
                 print('User is instructor of class.')
                 return True
         try:
-            if self.request.user.student_membership.get(klass__pk=submission.definition.klass.pk):
+            if self.request.user.klass_memberships.get(klass__pk=submission.definition.klass.pk):
                 print('User is student of class.')
                 return True
         except ObjectDoesNotExist:
@@ -135,27 +137,26 @@ class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             raise Http404('Definition object not found')
 
         # if user is instructor of the class
-        if self.request.user.instructor:
-            if self.request.user.instructor == definition.klass.instructor:
-                try:
-                    submissions = Submission.objects.filter(definition=definition)
-                    context['instructor_view'] = True
-                except ObjectDoesNotExist:
-                    raise Http404('Submission object not found')
+        if self.request.user.instructor and self.request.user.instructor == definition.klass.instructor:
+            try:
+                submissions = Submission.objects.filter(definition=definition)
+                context['instructor_view'] = True
+            except ObjectDoesNotExist:
+                raise Http404('Submission object not found')
 
         # if user is member of the class
         else:
             try:
-                student_membership = self.user.student_memberships.get(klass__pk=definition.klass.pk)
+                klass_membership = self.request.user.klass_memberships.get(klass__pk=definition.klass.pk)
             except ObjectDoesNotExist:
                 raise Http404('Student Membership object not found')
             try:
                 if definition.team_based:
-                    team = student_membership.team
+                    team = klass_membership.team
                     submissions = Submission.objects.filter(definition=definition, team=team)
                     context['team'] = team
                 else:
-                    submissions = Submission.objects.filter(definition=definition, creator=student_membership)
+                    submissions = Submission.objects.filter(definition=definition, creator=klass_membership)
             except ObjectDoesNotExist:
                 raise Http404('Submission object not found')
         context['submissions'] = submissions
@@ -167,12 +168,14 @@ class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             definition = Definition.objects.get(pk=definition_pk)
         except ObjectDoesNotExist:
             raise Http404('Definition object not found')
+        if self.request.user.is_superuser:
+            return True
         if self.request.user.instructor:
             if self.request.user.instructor == definition.klass.instructor:
                 print('User is instructor of class.')
                 return True
         try:
-            if self.request.user.student_membership.get(klass__pk=definition.klass.pk):
+            if self.request.user.klass_memberships.get(klass__pk=definition.klass.pk):
                 print('User is student of class.')
                 return True
         except ObjectDoesNotExist:
@@ -190,12 +193,17 @@ class SubmissionFormView(LoginRequiredMixin, TemplateView):
 
             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
             context['klass'] = klass
-            definition = Definition.objects.get(pk=kwargs.get('definition_pk'))
-            context['definition'] = definition
-            context['student'] = klass.enrolled_students.get(user=self.request.user)
         except ObjectDoesNotExist:
             raise Http404('Klass object not found')
-        print(context)
+        try:
+            definition = Definition.objects.get(pk=kwargs.get('definition_pk'))
+            context['definition'] = definition
+        except ObjectDoesNotExist:
+            raise Http404('Definition object not found')
+        try:
+            context['student'] = klass.enrolled_students.get(user=self.request.user)
+        except ObjectDoesNotExist:
+            raise Http404('User not part of klass.')
         return context
 
 class SubmissionEditFormView(LoginRequiredMixin, TemplateView):

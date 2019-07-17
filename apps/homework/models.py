@@ -112,6 +112,8 @@ class SubmissionTracker(models.Model):
                 os.environ.get('CODALAB_SUBMISSION_PASSWORD')
             )
         )
+        print(score_api_url)
+        print(score_api_resp.content)
         if score_api_resp.status_code == 200:
             data = score_api_resp.json()
             if data.get('status'):

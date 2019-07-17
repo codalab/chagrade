@@ -101,6 +101,10 @@ def post_submission(submission_pk):
             os.environ.get('CODALAB_SUBMISSION_USERNAME'),
             os.environ.get('CODALAB_SUBMISSION_PASSWORD')
         ))
+        print('url:', finalize_url)
+        print('username:', os.environ.get('CODALAB_SUBMISSION_USERNAME'))
+        print('password:', os.environ.get('CODALAB_SUBMISSION_PASSWORD'))
+
         # If we succeed in posting to the phase, create a new tracker and store the submission info
         if phase_final_resp.status_code == 201:
             result = phase_final_resp.json()
@@ -111,6 +115,6 @@ def post_submission(submission_pk):
             )
         else:
             print("Something went wrong making a submission to the challenge_url")
-            print(phase_final_resp)
+            print(phase_final_resp.content)
             print(dir(phase_final_resp))
     submission.submitted_to_challenge = True
