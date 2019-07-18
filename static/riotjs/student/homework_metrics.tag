@@ -1,19 +1,19 @@
 <homework-metrics>
     <div class="ui grid">
         <div class="row">
-            <div class="ui header">Start</div>
+            <div class="canvas-container">
+                <canvas ref="codalab_scores" id="codalab_scores"></canvas>
+            </div>
+            <div class="canvas-container">
+                <canvas ref="github_activity" id="github_activity"></canvas>
+            </div>
         </div>
         <div class="row">
-            <canvas ref="codalab_scores"></canvas>
-        </div>
-        <div class="row">
-            <canvas ref="github_activity"></canvas>
-        </div>
-        <div class="row">
-            <div class="ui header">End</div>
+            <div class="canvas-container">
+                <canvas ref="temporal_histogram" id="temporal_histogram"></canvas>
+            </div>
         </div>
     </div>
-
     <script>
         var self = this
         self.errors = []
@@ -24,48 +24,200 @@
         self.one('mount', function () {
             self.update_score_data()
             self.update_github_data()
-            self.codalab_score_chart = new Chart($(self.refs.codalab_scores), create_chart_config('Submission Score'));
-            self.github_activity_chart = new Chart($(self.refs.github_activity), create_chart_config('Commit Frequency'));
+
+            self.codalab_score_chart = new Chart(self.refs.codalab_scores, create_chart_config('Submission Score'));
+            self.github_activity_chart = new Chart(self.refs.github_activity, create_stacked_bar_chart_config('Commit Frequency'));
+            self.temporal_histogram = new Chart(self.refs.temporal_histogram, create_bar_chart_config('Commit Frequency'));
             console.log('mounted')
         })
 
+        let min_date = new Date(2019, 1, 1)
+        let max_date = new Date(2022, 1, 30)
 
+
+        let score_data = {
+            label: 'Median Class Score',
+            data: [
+                {
+                    x: new Date(2019, 1, 1),
+                    y: 0.20,
+                },{
+                    x: new Date(2019, 1, 2),
+                    y: 0.22,
+                },{
+                    x: new Date(2019, 1, 3),
+                    y: 0.22,
+                },{
+                    x: new Date(2019, 1, 4),
+                    y: 0.25,
+                },{
+                    x: new Date(2019, 1, 5),
+                    y: 0.52,
+                },{
+                    x: new Date(2019, 1, 7),
+                    y: 0.62,
+                },{
+                    x: new Date(2019, 1, 8),
+                    y: 0.80,
+                },{
+                    x: new Date(2019, 1, 9),
+                    y: 0.84,
+                },{
+                    x: new Date(2019, 1, 12),
+                    y: 0.91,
+                },{
+                    x: new Date(2019, 1, 15),
+                    y: 0.95,
+                },{
+                    x: new Date(2019, 1, 16),
+                    y: 0.96,
+                },{
+                    x: new Date(2019, 1, 17),
+                    y: 0.98,
+                },
+            ],
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor:'rgba(54, 112, 185, 1)',
+            borderWidth: 2.2,
+            lineTension: 0,
+        }
+
+        let target_data = {
+            label: 'Target Score',
+            data: [
+                {
+                    x: new Date(2019, 1, 1),
+                    y: 0.96,
+                },{
+                    x: new Date(2019, 1, 17),
+                    y: 0.96,
+                },
+            ],
+            backgroundColor: 'rgba(0, 0, 0, 0.0)',
+            borderColor:'rgba(0, 190, 0, 1)',
+            borderWidth: 2.2,
+            lineTension: 0,
+        }
+
+        let baseline_data = {
+            label: 'Baseline Score',
+            data: [
+                {
+                    x: new Date(2019, 1, 1),
+                    y: 0.2,
+                },{
+                    x: new Date(2019, 1, 17),
+                    y: 0.2,
+                },
+            ],
+            backgroundColor: 'rgba(0, 0, 0, 0.0)',
+            borderColor:'rgba(190, 0, 0, 1)',
+            borderWidth: 2.2,
+            lineTension: 0,
+        }
+
+
+        let bar_data = [
+            {
+                label: 'Lines Removed',
+                data: [25, 15, 40],
+                borderColor: 'rgba(190, 0, 0, 1)',
+                backgroundColor: 'rgba(190, 0, 0, 0.5)',
+            },{
+                label: 'Lines Added',
+                data: [55, 80, 120],
+                borderColor: 'rgba(0, 150, 0, 1)',
+                backgroundColor: 'rgba(0, 150, 0, 0.5)',
+            }
+        ]
+
+        function create_stacked_bar_chart_config(label) {
+            return {
+                type: 'bar',
+                data: {
+                    labels: ['Tom', 'Alice', 'Bjorne'],
+                    datasets: bar_data,
+                },
+                options: {
+                aspectRatio: 1.4,
+                    title: {
+                        display: true,
+                        text: 'Contribution Comparison',
+                    },
+                    scales: {
+                        xAxes: [{
+                            stacked: true,
+                        }],
+                        yAxes: [{
+                            stacked: true,
+                        }]
+                    }
+                }
+            }
+        }
 
         function create_chart_config(label) {
             return {
                 type: 'line',
                 data: {
-                    datasets: [{
-                        label: label,
-                        data: [
-                            {
-                                x: new Date(2019, 1, 1),
-                                y: 2,
-                            },{
-                                x: new Date(2019, 1, 2),
-                                y: 3,
-                            },{
-                            },
-                        ],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor:'rgba(54, 162, 235, 1)',
-                        borderWidth: 1,
-                        lineTension: 0,
-                    }],
+                    datasets: [
+                        score_data,
+                        target_data,
+                        baseline_data,
+                    ],
                 },
                 options: {
+                aspectRatio: 1.4,
+                    title: {
+                        display: true,
+                        text: 'Median Class Score / Time',
+                    },
                     scales: {
                         xAxes: [{
                             type: 'time',
                             time: {
-                                unit: 'month'
-                            }
+                                unit: 'day',
+                            },
                         }],
                         yAxes: [{
                             ticks: {
                                 beginAtZero: true,
-                                stepSize: 1,
+                                stepSize: 0.25,
                             }
+                        }]
+                    }
+                }
+            }
+        }
+
+        let submission_counts = [1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 2, 4, 2, 0, 0, 3, 5, 6, 2, 3, 4, 4, 2, 1,]
+        let submission_times = ['12 am', '1 am', '2 am', '3 am', '4 am', '5 am', '6 am', '7 am', '8 am', '9 am', '10 am', '11 am', '12 pm', '1 pm', '2 pm', '3 pm', '4 pm', '5 pm', '6 pm', '7 pm', '8 pm', '9 pm', '10 pm', '11 pm',]
+
+
+        function create_bar_chart_config(label) {
+            return {
+                type: 'bar',
+                data: {
+                    labels: submission_times,
+                    datasets: [{
+                        label: 'Submissions Per Hour',
+                        data: submission_counts,
+                        backgroundColor:'rgba(54, 112, 185, 0.6)',
+                        borderColor:'rgba(54, 112, 185, 1)',
+                    }],
+                },
+                options: {
+                aspectRatio: 1.4,
+                    title: {
+                        display: true,
+                        text: 'Busy Submission Hours',
+                    },
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                        }],
+                        yAxes: [{
+                            display: true,
                         }]
                     }
                 }
@@ -145,6 +297,12 @@
     <style>
         .ten.wide.column {
             height: 100%;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 45%;
+            height: 400px;
         }
 
         .commit {
