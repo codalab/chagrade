@@ -1,16 +1,37 @@
 <homework-metrics>
     <div class="ui grid">
         <div class="row">
-            <div class="canvas-container">
-                <canvas ref="codalab_scores" id="codalab_scores"></canvas>
+            <div class="seven wide left floated column graph-container">
+                <div class="row">
+                    <div class="ui centered header">Class Median Score</div>
+                </div>
+                <div class="row">
+                    <div class="canvas-container">
+                        <canvas ref="codalab_scores" id="codalab_scores"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="canvas-container">
-                <canvas ref="github_activity" id="github_activity"></canvas>
+            <div class="seven wide right floated column graph-container">
+                <div class="row">
+                    <div class="ui centered header">Contribution Comparison</div>
+                </div>
+                <div class="row">
+                    <div class="canvas-container">
+                        <canvas ref="github_activity" id="github_activity"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="row">
-            <div class="canvas-container">
-                <canvas ref="temporal_histogram" id="temporal_histogram"></canvas>
+            <div class="seven wide column graph-container">
+                <div class="row">
+                    <div class="ui centered header">Busy Submission Hours</div>
+                </div>
+                <div class="row">
+                    <div class="canvas-container">
+                        <canvas ref="temporal_histogram" id="temporal_histogram"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -34,7 +55,6 @@
         let min_date = new Date(2019, 1, 1)
         let max_date = new Date(2022, 1, 30)
 
-
         let score_data = {
             label: 'Median Class Score',
             data: [
@@ -55,8 +75,7 @@
                     y: 0.52,
                 },{
                     x: new Date(2019, 1, 7),
-                    y: 0.62,
-                },{
+                    y: 0.62, },{
                     x: new Date(2019, 1, 8),
                     y: 0.80,
                 },{
@@ -139,11 +158,15 @@
                     datasets: bar_data,
                 },
                 options: {
-                aspectRatio: 1.4,
-                    title: {
+                    legend: {
                         display: true,
-                        text: 'Contribution Comparison',
+                        position: 'bottom',
                     },
+                    aspectRatio: 1.4,
+//                    title: {
+//                        display: true,
+//                        text: 'Contribution Comparison',
+//                    },
                     scales: {
                         xAxes: [{
                             stacked: true,
@@ -167,11 +190,15 @@
                     ],
                 },
                 options: {
-                aspectRatio: 1.4,
-                    title: {
+                    legend: {
                         display: true,
-                        text: 'Median Class Score / Time',
+                        position: 'bottom',
                     },
+                    aspectRatio: 1.4,
+//                    title: {
+//                        display: true,
+//                        text: 'Median Class Score / Time',
+//                    },
                     scales: {
                         xAxes: [{
                             type: 'time',
@@ -207,11 +234,15 @@
                     }],
                 },
                 options: {
-                aspectRatio: 1.4,
-                    title: {
+                    legend: {
                         display: true,
-                        text: 'Busy Submission Hours',
+                        position: 'bottom',
                     },
+                    aspectRatio: 1.4,
+//                    title: {
+//                        display: true,
+//                        text: 'Busy Submission Hours',
+//                    },
                     scales: {
                         xAxes: [{
                             display: true,
@@ -295,14 +326,26 @@
         }
     </script>
     <style>
+        homework-metrics {
+            margin-top: 40px;
+        }
+
         .ten.wide.column {
             height: 100%;
         }
 
         .canvas-container {
+            margin-left: auto;
+            margin-right: auto;
             position: relative;
-            width: 45%;
-            height: 400px;
+            width: 350px;
+        }
+
+        .graph-container {
+            padding-top: 20px;
+            background: white;
+            border: solid 1.5px #dddddd;
+            border-radius: 4px;
         }
 
         .commit {
