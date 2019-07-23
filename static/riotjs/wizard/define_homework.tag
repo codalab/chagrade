@@ -50,6 +50,29 @@
                        ref="starting_kit_github_url" value="{definition.starting_kit_github_url}">
             </div>
         </div>
+        <!-- Scoring Fields -->
+        <div class="fields">
+            <div class="eight wide required field">
+                <label>
+                    <i class="pop-up question blue circle icon"
+                       data-content="This is the lowest score expected. Usually zero or the score that the homework starting kit achieves. This serves as the baseline score for the metrics scale. "></i>
+                       Baseline Score
+                </label>
+                <input type="number" name="baseline_score" maxlength="10" ref="baseline_score"
+                       value="{definition.baseline_score}">
+            </div>
+
+            <div class="eight wide required field">
+                <label>
+                    <i class="pop-up question blue circle icon"
+                       data-title="Target Score"
+                       data-content="This is the score that everyone will be shooting for. In metrics, a score this high or higher will be considered 100%."></i>
+                       Target Score
+                </label>
+                <input type="number" name="target_score" maxlength="10"
+                       ref="target_score" value="{definition.target_score}">
+            </div>
+        </div>
         <!-- Default Submission Questions -->
         <div class="fields">
             <div class="four wide field">
@@ -341,6 +364,8 @@
                 "description": self.refs.description.value,
                 "challenge_url": self.refs.challenge_url.value,
                 "starting_kit_github_url": self.refs.starting_kit_github_url.value,
+                "baseline_score": self.refs.baseline_score.value,
+                "target_score": self.refs.target_score.value,
                 "ask_method_name": self.refs.ask_method_name.checked,
                 "ask_method_description": self.refs.ask_method_description.checked,
                 "ask_project_url": self.refs.ask_project_url.checked,
@@ -362,6 +387,8 @@
                      }*/
                 ]
             }
+            console.table(obj_data)
+//            return
 
             for (var index = 0; index < self.criterias.length; index++) {
                 var temp_data = {

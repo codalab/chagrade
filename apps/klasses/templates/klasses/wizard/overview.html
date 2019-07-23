@@ -60,6 +60,18 @@
                 <div class="ui warning message">
                     Class Status: NOT IMPLEMENTED
                 </div>
+                {% if object.active %}
+                <div class="ui grid" style="width: 100%">
+                    <div class="row">
+                        <div class="content">
+                            <a href="{% url "klasses:klass_metrics" klass_pk=object.pk %}" class="ui basic blue button">
+                                <i class="ui chart bar outline icon"></i>
+                                Metrics
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
                 <div class="ui vertical steps" style="width: 100%">
                     <a href="{% url "klasses:klass_enrollment" klass_pk=klass.pk %}" class="{% if klass.enrolled_students.count > 0 %}completed {% endif %}step">
                         <i class="users icon"></i>

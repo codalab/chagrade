@@ -106,6 +106,8 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'description',
             'challenge_url',
             'starting_kit_github_url',
+            'baseline_score',
+            'target_score',
             'ask_method_name',
             'ask_method_description',
             'ask_project_url',

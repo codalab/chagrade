@@ -22,6 +22,9 @@ class Definition(models.Model):
 
     challenge_url = models.URLField(default=None, null=True, blank=True)
     starting_kit_github_url = models.URLField(default=None, null=True, blank=True)
+    baseline_score = models.FloatField(default=0.0, null=False, blank=False)
+    target_score = models.FloatField(default=1.0, null=False, blank=False)
+
 
     # These values for submissions will have to be grabbed from v1.5 API
     # We should almost set these automatically by an API request to the challenge and see if these options are enabled

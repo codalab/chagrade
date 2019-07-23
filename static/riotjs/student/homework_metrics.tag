@@ -13,23 +13,23 @@
             </div>
             <div class="seven wide right floated column graph-container">
                 <div class="row">
-                    <div class="ui centered header">Contribution Comparison</div>
-                </div>
-                <div class="row">
-                    <div class="canvas-container">
-                        <canvas ref="github_activity" id="github_activity"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="seven wide column graph-container">
-                <div class="row">
                     <div class="ui centered header">Busy Submission Hours</div>
                 </div>
                 <div class="row">
                     <div class="canvas-container">
                         <canvas ref="temporal_histogram" id="temporal_histogram"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="seven wide left floated column graph-container">
+ <!--           <div class="row">
+                    <div class="ui centered header">Contribution Comparison</div>
+                </div>-->
+                <div class="row">
+                    <div class="canvas-container">
+                        <canvas ref="github_activity" id="github_activity"></canvas>
                     </div>
                 </div>
             </div>
@@ -47,54 +47,14 @@
             self.update_github_data()
 
             self.codalab_score_chart = new Chart(self.refs.codalab_scores, create_chart_config('Submission Score'));
-            self.github_activity_chart = new Chart(self.refs.github_activity, create_stacked_bar_chart_config('Commit Frequency'));
+//            self.github_activity_chart = new Chart(self.refs.github_activity, create_stacked_bar_chart_config('Commit Frequency'));
             self.temporal_histogram = new Chart(self.refs.temporal_histogram, create_bar_chart_config('Commit Frequency'));
             console.log('mounted')
         })
 
-        let min_date = new Date(2019, 1, 1)
-        let max_date = new Date(2022, 1, 30)
-
         let score_data = {
             label: 'Median Class Score',
-            data: [
-                {
-                    x: new Date(2019, 1, 1),
-                    y: 0.20,
-                },{
-                    x: new Date(2019, 1, 2),
-                    y: 0.22,
-                },{
-                    x: new Date(2019, 1, 3),
-                    y: 0.22,
-                },{
-                    x: new Date(2019, 1, 4),
-                    y: 0.25,
-                },{
-                    x: new Date(2019, 1, 5),
-                    y: 0.52,
-                },{
-                    x: new Date(2019, 1, 7),
-                    y: 0.62, },{
-                    x: new Date(2019, 1, 8),
-                    y: 0.80,
-                },{
-                    x: new Date(2019, 1, 9),
-                    y: 0.84,
-                },{
-                    x: new Date(2019, 1, 12),
-                    y: 0.91,
-                },{
-                    x: new Date(2019, 1, 15),
-                    y: 0.95,
-                },{
-                    x: new Date(2019, 1, 16),
-                    y: 0.96,
-                },{
-                    x: new Date(2019, 1, 17),
-                    y: 0.98,
-                },
-            ],
+            data: [0.04, 0.1, 0.3, 0.6, 0.9],
             backgroundColor: 'rgba(54, 162, 235, 0.2)',
             borderColor:'rgba(54, 112, 185, 1)',
             borderWidth: 2.2,
@@ -185,9 +145,10 @@
                 data: {
                     datasets: [
                         score_data,
-                        target_data,
-                        baseline_data,
+//                        target_data,
+//                        baseline_data,
                     ],
+                    labels: ['HW 1', 'HW 2', 'HW 3', 'HW 4', 'HW 5'],
                 },
                 options: {
                     legend: {
@@ -195,16 +156,12 @@
                         position: 'bottom',
                     },
                     aspectRatio: 1.4,
-//                    title: {
-//                        display: true,
-//                        text: 'Median Class Score / Time',
-//                    },
                     scales: {
                         xAxes: [{
-                            type: 'time',
-                            time: {
-                                unit: 'day',
-                            },
+//                            type: 'time',
+//                            time: {
+//                                unit: 'day',
+//                            },
                         }],
                         yAxes: [{
                             ticks: {
