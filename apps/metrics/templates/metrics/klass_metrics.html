@@ -1,0 +1,451 @@
+{# TODO: Replace all the context/templatefilter/templatetag with proper context variables #}
+{% extends 'base.html' %}
+{% load static %}
+{% load homework_tags %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .charts-container {
+            margin: 40px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .chart-container {
+            margin-top: 30px;
+            margin-bottom: 20px;
+            width: 350px;
+        }
+
+        .condensed {
+            margin: 0.5vh 0 0 0 !important;
+            padding: 0.5vh 0 0 0 !important;
+        }
+
+        .no-padding {
+            padding: 1vh 0 0 0 !important;
+        }
+
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="ui centered grid">
+        <div class="row">
+            <a class="ui blue button" href="{% url 'klasses:klass_details' klass_pk=klass.pk %}">Back to Class Overview</a>
+            <div class="fourteen wide column">
+                <div class="ui centered grid segment">
+                    <div class="row">
+                        <div class="two wide column">
+                            {% if klass.image %}
+                                <img style="height: 100px; width: auto;" src="{{ klass.image.url }}">
+                            {% else %}
+                                <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
+                            {% endif %}
+                        </div>
+                        <div class="fourteen wide column">
+                            <div class="ui grid">
+                                <div class="row no-padding">
+                                    <div class="twelve wide column">
+                                        <h1 class="ui header">{{ klass.title }}</h1>
+                                        {% if klass.group %}
+                                            <h4 class="ui header condensed">From Group: {{ klass.group.name }}</h4>
+                                        {% endif %}
+                                        <h4 class="ui header condensed">Organized
+                                            by: {{ klass.instructor.user.username }}</h4>
+                                    </div>
+                                    <div class="four wide column">
+                                        <h5 class="ui header condensed">Created: {{ klass.created.date }}</h5>
+                                        <h5 class="ui header condensed">Modified: {{ klass.modified.date }}</h5>
+                                    </div>
+                                </div>
+                                <div class="row no-padding">
+                                    <div class="sixteen wide column">
+                                        <ul class="ui relaxed list">
+                                            <div class="item">
+                                                Description: {{ klass.description }}
+                                            </div>
+                                            {% if klass.syllabus %}
+                                                <div class="item">
+                                                    <a href="{{ klass.syllabus.url }}">Syllabus</a>
+                                                </div>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui header">Class Metrics</div>
+                <div class="ui grid">
+                    <div class="ui top attached tabular menu">
+                        <a class="active item" data-tab="overview">Overview</a>
+                        <a class="item" data-tab="users">Users</a>
+                        <a class="item" data-tab="teams">Teams</a>
+                    </div>
+
+                    <div class="ui bottom attached active tab segment" data-tab="overview">
+                        <!--        <div class="ui small statistic"> -->
+                        <!--            <div class="value"> -->
+                        <!--                {competitions} -->
+                        <!--            </div> -->
+                        <!--            <div class="label"> -->
+                        <!--                Competitions Created -->
+                        <!--            </div> -->
+                        <!--        </div> -->
+
+                        <div class='charts-container'>
+                            <div class='chart-container'>
+                                <h5>Class Average Scores</h5>
+                                <canvas ref="overview_scores" id="overview_scores"></canvas>
+                            </div>
+                            <div class='chart-container'>
+                                <h5>Class Submission Times</h5>
+                                <canvas ref="overview_temporal_histogram" id="overview_temporal_histogram"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui bottom attached tab segment" data-tab="users">
+                        <!--        <div class="ui small statistic"> -->
+                        <!--            <div class="value"> -->
+                        <!--                {users_total} -->
+                        <!--            </div> -->
+                        <!--            <div class="label"> -->
+                        <!--                Users Joined -->
+                        <!--            </div> -->
+                        <!--        </div> -->
+
+                        <div class="ui search selection dropdown">
+                            <input type="hidden" name="user">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Select User</div>
+                            <div class="menu">
+                                <div class="item" data-value="">Sally</div>
+                                <div class="item" data-value="">Joe</div>
+                                <div class="item" data-value="">Bjorne</div>
+                                <div class="item" data-value="">Gerald</div>
+                            </div>
+                        </div>
+
+                        <div class='charts-container hidden'>
+                            <div class='student-chart chart-container'>
+                                <h5>Scores</h5>
+                                <canvas ref="student_scores" id="student_scores"></canvas>
+                            </div>
+                            <div class='student-chart chart-container'>
+                                <h5>Submission Times</h5>
+                                <canvas ref="student_temporal_histogram" id="student_temporal_histogram"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui bottom attached tab segment" data-tab="teams">
+                        <!--        <div class="ui small statistic"> -->
+                        <!--            <div class="value"> -->
+                        <!--                {submissions_made} -->
+                        <!--            </div> -->
+                        <!--            <div class="label"> -->
+                        <!--                Submissions Made -->
+                        <!--            </div> -->
+                        <!--        </div> -->
+
+                        <div class="ui search selection dropdown">
+                            <input type="hidden" name="team">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Select Team</div>
+                            <div class="menu">
+                                <div class="item" data-value="">Red</div>
+                                <div class="item" data-value="">Blue</div>
+                                <div class="item" data-value="">Pink</div>
+                                <div class="item" data-value="">Black</div>
+                            </div>
+                        </div>
+
+                        <div class='charts-container hidden'>
+                            <div class='team-chart chart-container'>
+                                <h5>Submissions</h5>
+                                <canvas ref="team_codalab_activity" id="team_codalab_activity"></canvas>
+                            </div>
+                            <div class='team-chart chart-container'>
+                                <h5>Commits</h5>
+                                <canvas ref="team_github_activity" id="team_github_activity"></canvas>
+                            </div>
+                            <div class='team-chart chart-container'>
+                                <h5>Team Scores</h5>
+                                <canvas ref="team_scores" id="team_scores"></canvas>
+                            </div>
+                            <div class='team-chart chart-container'>
+                                <h5>Team Submission Times</h5>
+                                <canvas ref="team_temporal_histogram" id="team_temporal_histogram"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% if definition %}
+                    {#                    {% if definition.team_based %}#}
+                    {% with definition|get_last_submission:user.pk as submission %}
+                        {% with submission|get_last_grade as grade %}
+                            <div class="ui message">
+                                <div class="content">
+                                    <a style="margin-bottom: 20px;" href="{{ submission.get_challenge_url }}"
+                                       class="ui blue button">View Challenge</a>
+                                    <a style="margin-bottom: 20px;" href="{% url "homework:overview" klass_pk=definition.klass.pk %}"
+                                       class="ui blue button">View Homeworks</a>
+                                    <a style="margin-bottom: 20px;" href="{% url "homework:submission_list" definition_pk=definition.pk %}"
+                                       class="ui blue button">View </a>
+                                    {% if definition.starting_kit_github_url %}
+                                        <a href="{{ definition.starting_kit_github_url }}" class="ui blue button">Goto Starting
+                                            Kit</a><br>
+                                    {% endif %}
+                                    {% if definition.team_based %}
+                                        <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
+                                             class="ui red label">Graded as teamwork
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="ui grid">
+                                        <div class="column">
+                                            <div class="ui header">Github Information</div>
+                                            <div class="ui divider"></div>
+{#                                            <div class="ui content">#}
+{#                                                <p>Date: {{ submission.created }}</p>#}
+{#                                                <p>Commit hash: {{ submission.commit_hash|slice:"7" }}</p>#}
+{#                                                <p>{{ submission.github_url }}</p>#}
+{#                                                <p>Repository Name: {{ submission.github_repo_name }}</p>#}
+{#                                                <p>Branch Name: {{ submission.github_branch_name }}</p>#}
+{#                                            </div>#}
+                                            <submission-detail-github submission_pk="{{ submission.pk }}" hash="{{ submission.commit_hash }}" user_pk="{{ request.user.pk }}"></submission-detail-github>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        {% endwith %}
+                    {% endwith %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_script %}
+    <script src="https://cdn.jsdelivr.net/npm/luxon@1.16.0/build/global/luxon.min.js"></script>
+    <script>
+        $('.tabular.menu .item', self.root).tab();
+        console.log($('.ui.dropdown', self.root))
+        $('.ui.dropdown', self.root).dropdown({
+//                action: 'activate',
+            onChange: function() {
+                console.log('hi')
+                console.log(element)
+                console.log(text)
+            },
+        });
+//        self.update_score_data()
+//        self.update_github_data()
+
+        let score_data = {
+            label: 'Median Class Score',
+            data: [0.04, 0.1, 0.3, 0.6, 0.9],
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor:'rgba(54, 112, 185, 1)',
+            borderWidth: 2.2,
+            lineTension: 0,
+        }
+
+        let target_data = {
+            label: 'Target Score',
+            data: [
+                {
+                    x: new Date(2019, 1, 1),
+                    y: 0.96,
+                },{
+                    x: new Date(2019, 1, 17),
+                    y: 0.96,
+                },
+            ],
+            backgroundColor: 'rgba(0, 0, 0, 0.0)',
+            borderColor:'rgba(0, 190, 0, 1)',
+            borderWidth: 2.2,
+            lineTension: 0,
+        }
+
+        let baseline_data = {
+            label: 'Baseline Score',
+            data: [
+                {
+                    x: new Date(2019, 1, 1),
+                    y: 0.2,
+                },{
+                    x: new Date(2019, 1, 17),
+                    y: 0.2,
+                },
+            ],
+            backgroundColor: 'rgba(0, 0, 0, 0.0)',
+            borderColor:'rgba(190, 0, 0, 1)',
+            borderWidth: 2.2,
+            lineTension: 0,
+        }
+
+
+        let sub_data = [
+            {
+                label: 'Submissions',
+                data: [3, 5, 1],
+                borderColor: 'rgba(0, 150, 0, 1)',
+                backgroundColor: 'rgba(0, 150, 0, 0.5)',
+            }
+        ]
+        let git_data = [
+            {
+                label: 'Lines Removed',
+                data: [25, 15, 40],
+                borderColor: 'rgba(190, 0, 0, 1)',
+                backgroundColor: 'rgba(190, 0, 0, 0.5)',
+            },{
+                label: 'Lines Added',
+                data: [55, 80, 120],
+                borderColor: 'rgba(0, 150, 0, 1)',
+                backgroundColor: 'rgba(0, 150, 0, 0.5)',
+            }
+        ]
+
+        function create_sub_bar_chart_config(label) {
+            return {
+                type: 'bar',
+                data: {
+                    labels: ['Tom', 'Alice', 'Bjorne'],
+                    datasets: sub_data,
+                },
+                options: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                    },
+                    aspectRatio: 1.4,
+                    scales: {
+                        xAxes: [{
+                            stacked: true,
+                        }],
+                        yAxes: [{
+                            stacked: true,
+                        }]
+                    }
+                }
+            }
+        }
+        function create_stacked_bar_chart_config(label) {
+            return {
+                type: 'bar',
+                data: {
+                    labels: ['Tom', 'Alice', 'Bjorne'],
+                    datasets: git_data,
+                },
+                options: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                    },
+                    aspectRatio: 1.4,
+                    scales: {
+                        xAxes: [{
+                            stacked: true,
+                        }],
+                        yAxes: [{
+                            stacked: true,
+                        }]
+                    }
+                }
+            }
+        }
+
+        function create_chart_config(label) {
+            return {
+                type: 'line',
+                data: {
+                    datasets: [
+                        score_data,
+//                        target_data,
+//                        baseline_data,
+                    ],
+                    labels: ['HW 1', 'HW 2', 'HW 3', 'HW 4', 'HW 5'],
+                },
+                options: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                    },
+                    aspectRatio: 1.4,
+                    scales: {
+                        xAxes: [{
+//                            type: 'time',
+//                            time: {
+//                                unit: 'day',
+//                            },
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                stepSize: 0.25,
+                            }
+                        }]
+                    }
+                }
+            }
+        }
+
+        let submission_counts = [1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 2, 4, 2, 0, 0, 3, 5, 6, 2, 3, 4, 4, 2, 1,]
+        let submission_times = ['12 am', '1 am', '2 am', '3 am', '4 am', '5 am', '6 am', '7 am', '8 am', '9 am', '10 am', '11 am', '12 pm', '1 pm', '2 pm', '3 pm', '4 pm', '5 pm', '6 pm', '7 pm', '8 pm', '9 pm', '10 pm', '11 pm',]
+
+
+        function create_bar_chart_config(label) {
+            return {
+                type: 'bar',
+                data: {
+                    labels: submission_times,
+                    datasets: [{
+                        label: 'Submissions Per Hour',
+                        data: submission_counts,
+                        backgroundColor:'rgba(54, 112, 185, 0.6)',
+                        borderColor:'rgba(54, 112, 185, 1)',
+                    }],
+                },
+                options: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                    },
+                    aspectRatio: 1.4,
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                        }],
+                        yAxes: [{
+                            display: true,
+                        }]
+                    }
+                }
+            }
+        }
+
+
+        self.overview_scores_chart = new Chart($('#overview_scores'), create_chart_config('Submission Scores'));
+        self.overview_temporal_histogram = new Chart($('#overview_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
+
+        self.student_scores_chart = new Chart($('#student_scores'), create_chart_config('Submission Scores'));
+        self.student_temporal_histogram = new Chart($('#student_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
+
+        self.team_scores_chart = new Chart($('#team_scores'), create_chart_config('Submission Scores'));
+        self.team_temporal_histogram = new Chart($('#team_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
+        self.team_github_activity_chart = new Chart($('#team_github_activity'), create_stacked_bar_chart_config('Commit Frequency'));
+        self.team_codalab_activity_chart = new Chart($('#team_codalab_activity'), create_sub_bar_chart_config('Commit Frequency'));
+    </script>
+{% endblock %}

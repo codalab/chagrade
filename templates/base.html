@@ -54,7 +54,6 @@
     <script src="{% static "riotjs/student/submit_homework_github.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/student/submission_detail_github.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/student/submission_diff.tag" %}" type="riot/tag"></script>
-    <script src="{% static "riotjs/student/metrics.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/student/accordion_file_tree.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/wizard/grade_homework.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/wizard/define_homework.tag" %}" type="riot/tag"></script>
@@ -85,6 +84,7 @@
                     <a class="item" href="{% url 'admin:index' %}homework/">Homework</a>
                     <a class="item" href="{% url 'admin:index' %}klasses/">Classes</a>
                     <a class="item" href="{% url 'admin:index' %}profiles/">Profiles</a>
+                    <a class="item" href="{% url 'metrics:admin' %}">Metrics</a>
                 {% endif %}
                     <div class="ui divider"></div>
                     <div class="header">Chasuite</div>
@@ -195,7 +195,7 @@
 
     $('document').ready(function () {
         $('table').tablesort();
-        $('.dropdown').dropdown();
+        $('.dropdown.login-button').dropdown();
 
         particlesJS.load('particles-js', "{% static 'particles/particles.json' %}", function () {
             console.log('callback - particles.js config loaded');

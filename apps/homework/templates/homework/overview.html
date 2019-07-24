@@ -83,8 +83,6 @@
                                        class="ui green button">View Challenge</a>
                                     <a href="{% url "homework:submission_list" definition_pk=definition.pk %}"
                                        class="ui blue button">View Submissions</a>
-                                    <a href="{% url "homework:submission_metrics" definition_pk=definition.pk %}"
-                                       class="ui blue button">View Metrics</a>
                                     {% if definition.starting_kit_github_url %}
                                         <a href="{{ definition.starting_kit_github_url }}" class="ui blue button">Goto Starting
                                             Kit</a><br>

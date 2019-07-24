@@ -69,7 +69,7 @@ class HomeworkOverView(LoginRequiredMixin, TemplateView):
         return context
 
 #class SubmissionMetricsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
-#    template_name = 'homework/metrics.html'
+#    template_name = 'homework/admin_metrics.html'
 #
 #    def test_func(self):
 #        definition_pk = self.kwargs.get('definition_pk')

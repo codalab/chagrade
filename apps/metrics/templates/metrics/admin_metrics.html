@@ -7,6 +7,19 @@
 
 {% block extra_head %}
     <style>
+        .charts-container {
+            margin: 40px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .chart-container {
+            margin-top: 30px;
+            margin-bottom: 20px;
+            width: 350px;
+        }
+
         .condensed {
             margin: 0.5vh 0 0 0 !important;
             padding: 0.5vh 0 0 0 !important;
@@ -14,13 +27,6 @@
 
         .no-padding {
             padding: 1vh 0 0 0 !important;
-        }
-
-        homework-metrics {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            height: 40%;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
@@ -31,54 +37,14 @@
 {% block content %}
     <div class="ui centered grid">
         <div class="row">
-            <a class="ui blue button" href="{% url 'klasses:klass_details' klass_pk=klass.pk %}">Back to Class Overview</a>
             <div class="fourteen wide column">
-                <div class="ui centered grid segment">
-                    <div class="row">
-                        <div class="two wide column">
-                            {% if klass.image %}
-                                <img style="height: 100px; width: auto;" src="{{ klass.image.url }}">
-                            {% else %}
-                                <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
-                            {% endif %}
-                        </div>
-                        <div class="fourteen wide column">
-                            <div class="ui grid">
-                                <div class="row no-padding">
-                                    <div class="twelve wide column">
-                                        <h1 class="ui header">{{ klass.title }}</h1>
-                                        {% if klass.group %}
-                                            <h4 class="ui header condensed">From Group: {{ klass.group.name }}</h4>
-                                        {% endif %}
-                                        <h4 class="ui header condensed">Organized
-                                            by: {{ klass.instructor.user.username }}</h4>
-                                    </div>
-                                    <div class="four wide column">
-                                        <h5 class="ui header condensed">Created: {{ klass.created.date }}</h5>
-                                        <h5 class="ui header condensed">Modified: {{ klass.modified.date }}</h5>
-                                    </div>
-                                </div>
-                                <div class="row no-padding">
-                                    <div class="sixteen wide column">
-                                        <ul class="ui relaxed list">
-                                            <div class="item">
-                                                Description: {{ klass.description }}
-                                            </div>
-                                            {% if klass.syllabus %}
-                                                <div class="item">
-                                                    <a href="{{ klass.syllabus.url }}">Syllabus</a>
-                                                </div>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="ui header">Class Metrics</div>
+                <div class="ui header">Chagrade Metrics</div>
                 <div class="ui grid">
-                    <metrics definition_pk="{{ definition.pk }}"></metrics>
+                    users tab
+                        instructors
+                        students
+                    klasses tab
+                        klases created
                 </div>
                 {% if definition %}
                     {#                    {% if definition.team_based %}#}

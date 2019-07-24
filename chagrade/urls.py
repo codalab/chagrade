@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^profiles/', include('apps.profiles.urls', namespace='profiles')),
     url(r'^klasses/', include('apps.klasses.urls', namespace='klasses')),
+    url(r'^metrics/', include('apps.metrics.urls', namespace='metrics')),
     url(r'^homework/', include('apps.homework.urls', namespace='homework')),
     url(r'^groups/', include('apps.groups.urls', namespace='groups')),
     url(r'^social/', include('social_django.urls', namespace='social')),
