@@ -1,40 +1,134 @@
-<homework-metrics>
-    <div class="ui grid">
-        <div class="row">
-            <div class="seven wide left floated column graph-container">
-                <div class="row">
-                    <div class="ui centered header">Class Median Score</div>
-                </div>
-                <div class="row">
-                    <div class="canvas-container">
-                        <canvas ref="codalab_scores" id="codalab_scores"></canvas>
-                    </div>
-                </div>
+<metrics>
+    <div class="ui top attached tabular menu">
+        <a class="active item" data-tab="overview">Overview</a>
+        <a class="item" data-tab="users">Users</a>
+        <a class="item" data-tab="teams">Teams</a>
+    </div>
+
+    <div class="ui bottom attached active tab segment" data-tab="overview">
+<!--        <div class="ui small statistic"> -->
+<!--            <div class="value"> -->
+<!--                {competitions} -->
+<!--            </div> -->
+<!--            <div class="label"> -->
+<!--                Competitions Created -->
+<!--            </div> -->
+<!--        </div> -->
+
+        <div class='charts-container'>
+            <div class='chart-container'>
+                <canvas ref="overview_scores" id="overview_scores"></canvas>
             </div>
-            <div class="seven wide right floated column graph-container">
-                <div class="row">
-                    <div class="ui centered header">Busy Submission Hours</div>
-                </div>
-                <div class="row">
-                    <div class="canvas-container">
-                        <canvas ref="temporal_histogram" id="temporal_histogram"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="seven wide left floated column graph-container">
- <!--           <div class="row">
-                    <div class="ui centered header">Contribution Comparison</div>
-                </div>-->
-                <div class="row">
-                    <div class="canvas-container">
-                        <canvas ref="github_activity" id="github_activity"></canvas>
-                    </div>
-                </div>
+            <div class='chart-container'>
+                <canvas ref="overview_temporal_histogram" id="overview_temporal_histogram"></canvas>
             </div>
         </div>
     </div>
+
+    <div class="ui bottom attached tab segment" data-tab="users">
+<!--        <div class="ui small statistic"> -->
+<!--            <div class="value"> -->
+<!--                {users_total} -->
+<!--            </div> -->
+<!--            <div class="label"> -->
+<!--                Users Joined -->
+<!--            </div> -->
+<!--        </div> -->
+        <div></div>
+
+        <div class="ui search selection dropdown">
+            <input type="hidden" name="user">
+            <i class="dropdown icon"></i>
+            <div class="default text">Select User</div>
+            <div class="menu">
+                <div class="item" data-value="">Sally</div>
+                <div class="item" data-value="">Joe</div>
+                <div class="item" data-value="">Bjorne</div>
+                <div class="item" data-value="">Gerald</div>
+            </div>
+        </div>
+
+        <div class='charts-container'>
+            <div class='student-chart chart-container'>
+                <canvas ref="student_scores" id="student_scores"></canvas>
+            </div>
+            <div class='student-chart chart-container'>
+                <canvas ref="student_temporal_histogram" id="student_temporal_histogram"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui bottom attached tab segment" data-tab="teams">
+<!--        <div class="ui small statistic"> -->
+<!--            <div class="value"> -->
+<!--                {submissions_made} -->
+<!--            </div> -->
+<!--            <div class="label"> -->
+<!--                Submissions Made -->
+<!--            </div> -->
+<!--        </div> -->
+
+        <div class="ui search selection dropdown">
+            <input type="hidden" name="team">
+            <i class="dropdown icon"></i>
+            <div class="default text">Select Team</div>
+            <div class="menu">
+                <div class="item" data-value="">Red</div>
+                <div class="item" data-value="">Blue</div>
+                <div class="item" data-value="">Pink</div>
+                <div class="item" data-value="">Black</div>
+            </div>
+        </div>
+
+        <div class='charts-container'>
+            <div class='team-chart chart-container'>
+                <canvas ref="team_scores" id="team_scores"></canvas>
+            </div>
+            <div class='team-chart chart-container'>
+                <canvas ref="team_github_activity" id="team_github_activity"></canvas>
+            </div>
+            <div class='team-chart chart-container'>
+                <canvas ref="team_temporal_histogram" id="team_temporal_histogram"></canvas>
+            </div>
+        </div>
+    </div>
+
+<!--    <div class="ui grid"> -->
+<!--        <div class="row"> -->
+<!--            <div class="seven wide left floated column graph-container"> -->
+<!--                <div class="row"> -->
+<!--                    <div class="ui centered header">Class Median Score</div> -->
+<!--                </div> -->
+<!--                <div class="row"> -->
+<!--                    <div class="canvas-container"> -->
+<!--<!--                        <canvas ref="codalab_scores" id="codalab_scores"></canvas> --> -->
+<!--                    </div> -->
+<!--                </div> -->
+<!--            </div> -->
+<!--            <div class="seven wide right floated column graph-container"> -->
+<!--                <div class="row"> -->
+<!--                    <div class="ui centered header">Busy Submission Hours</div> -->
+<!--                </div> -->
+<!--                <div class="row"> -->
+<!--                    <div class="canvas-container"> -->
+<!--<!--                        <canvas ref="temporal_histogram" id="temporal_histogram"></canvas> --> -->
+<!--                    </div> -->
+<!--                </div> -->
+<!--            </div> -->
+<!--        </div> -->
+<!--        <div class="row"> -->
+<!--            <div class="seven wide left floated column graph-container"> -->
+<!--           <div class="row"> -->
+<!--                    <div class="ui centered header">Contribution Comparison</div> -->
+<!--                </div> -->
+<!--                <div class="row"> -->
+<!--                    <div class="canvas-container"> -->
+<!--                        <canvas ref="github_activity" id="github_activity"></canvas> -->
+<!--                    </div> -->
+<!--                </div> -->
+<!--            </div> -->
+<!--        </div> -->
+<!--    </div> -->
     <script>
         var self = this
         self.errors = []
@@ -43,12 +137,20 @@
         self.github_requests = 0
 
         self.one('mount', function () {
+            $('.tabular.menu .item', self.root).tab();
+            $('.ui.dropdown', self.root).dropdown();
             self.update_score_data()
             self.update_github_data()
 
-            self.codalab_score_chart = new Chart(self.refs.codalab_scores, create_chart_config('Submission Score'));
-//            self.github_activity_chart = new Chart(self.refs.github_activity, create_stacked_bar_chart_config('Commit Frequency'));
-            self.temporal_histogram = new Chart(self.refs.temporal_histogram, create_bar_chart_config('Commit Frequency'));
+            self.overview_scores_chart = new Chart(self.refs.overview_scores, create_chart_config('Submission Scores'));
+            self.overview_temporal_histogram = new Chart(self.refs.overview_temporal_histogram, create_bar_chart_config('Commit Frequency'));
+
+            self.student_scores_chart = new Chart(self.refs.student_scores, create_chart_config('Submission Scores'));
+            self.student_temporal_histogram = new Chart(self.refs.student_temporal_histogram, create_bar_chart_config('Commit Frequency'));
+
+            self.team_scores_chart = new Chart(self.refs.team_scores, create_chart_config('Submission Scores'));
+            self.team_temporal_histogram = new Chart(self.refs.team_temporal_histogram, create_bar_chart_config('Commit Frequency'));
+            self.team_github_activity_chart = new Chart(self.refs.team_github_activity, create_stacked_bar_chart_config('Commit Frequency'));
             console.log('mounted')
         })
 
@@ -196,10 +298,6 @@
                         position: 'bottom',
                     },
                     aspectRatio: 1.4,
-//                    title: {
-//                        display: true,
-//                        text: 'Busy Submission Hours',
-//                    },
                     scales: {
                         xAxes: [{
                             display: true,
@@ -283,7 +381,8 @@
         }
     </script>
     <style>
-        homework-metrics {
+        metrics {
+            width: 100%;
             margin-top: 40px;
         }
 
@@ -291,10 +390,16 @@
             height: 100%;
         }
 
-        .canvas-container {
-            margin-left: auto;
-            margin-right: auto;
-            position: relative;
+        .charts-container {
+            margin: 40px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .chart-container {
+            margin-top: 30px;
+            margin-bottom: 20px;
             width: 350px;
         }
 
@@ -323,4 +428,4 @@
             font-size: 0.8em;
         }
     </style>
-</homework-metrics>
+</metrics>

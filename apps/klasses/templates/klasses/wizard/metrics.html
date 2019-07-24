@@ -31,7 +31,7 @@
 {% block content %}
     <div class="ui centered grid">
         <div class="row">
-            <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
+            <a class="ui blue button" href="{% url 'klasses:klass_details' klass_pk=klass.pk %}">Back to Class Overview</a>
             <div class="fourteen wide column">
                 <div class="ui centered grid segment">
                     <div class="row">
@@ -76,9 +76,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="ui header">Submission {{ submission.pk }} for homework {{ definition.name }}{% if team %} for team {{ team.name }}{% endif %}</div>
+                <div class="ui header">Class Metrics</div>
                 <div class="ui grid">
-                    <homework-metrics definition_pk="{{ definition.pk }}"></homework-metrics>
+                    <metrics definition_pk="{{ definition.pk }}"></metrics>
                 </div>
                 {% if definition %}
                     {#                    {% if definition.team_based %}#}

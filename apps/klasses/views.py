@@ -51,7 +51,17 @@ class OverView(LoginRequiredMixin, DetailView):
         return context
 
 class KlassMetricsView(LoginRequiredMixin, TemplateView): #UserPassesTestMixin,
-    template_name = 'homework/submission_metrics.html'
+    template_name = 'klasses/wizard/metrics.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(KlassMetricsView, self).get_context_data(**kwargs)
+        klass_pk = self.kwargs['klass_pk']
+        try:
+            klass = Klass.objects.get(pk=klass_pk)
+            context['klass'] = klass
+        except ObjectDoesNotExist:
+            raise Http404
+        return context
 
 #    def test_func(self):
 #        definition_pk = self.kwargs.get('definition_pk')
