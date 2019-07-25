@@ -7,6 +7,14 @@
 
 {% block extra_head %}
     <style>
+        .metrics {
+            margin-top: 40px !important;
+        }
+
+        .total.statistic {
+            margin: 40px auto 0 auto !important;
+        }
+
         .charts-container {
             margin: 40px;
             display: flex;
@@ -39,55 +47,71 @@
         <div class="row">
             <div class="fourteen wide column">
                 <div class="ui header">Chagrade Metrics</div>
-                <div class="ui grid">
-                    users tab
-                        instructors
-                        students
-                    klasses tab
-                        klases created
-                </div>
-                {% if definition %}
-                    {#                    {% if definition.team_based %}#}
-                    {% with definition|get_last_submission:user.pk as submission %}
-                        {% with submission|get_last_grade as grade %}
-                            <div class="ui message">
-                                <div class="content">
-                                    <a style="margin-bottom: 20px;" href="{{ submission.get_challenge_url }}"
-                                       class="ui blue button">View Challenge</a>
-                                    <a style="margin-bottom: 20px;" href="{% url "homework:overview" klass_pk=definition.klass.pk %}"
-                                       class="ui blue button">View Homeworks</a>
-                                    <a style="margin-bottom: 20px;" href="{% url "homework:submission_list" definition_pk=definition.pk %}"
-                                       class="ui blue button">View </a>
-                                    {% if definition.starting_kit_github_url %}
-                                        <a href="{{ definition.starting_kit_github_url }}" class="ui blue button">Goto Starting
-                                            Kit</a><br>
-                                    {% endif %}
-                                    {% if definition.team_based %}
-                                        <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
-                                             class="ui red label">Graded as teamwork
-                                        </div>
-                                    {% endif %}
+                <div class="ui grid metrics">
 
-                                    <div class="ui grid">
-                                        <div class="column">
-                                            <div class="ui header">Github Information</div>
-                                            <div class="ui divider"></div>
-{#                                            <div class="ui content">#}
-{#                                                <p>Date: {{ submission.created }}</p>#}
-{#                                                <p>Commit hash: {{ submission.commit_hash|slice:"7" }}</p>#}
-{#                                                <p>{{ submission.github_url }}</p>#}
-{#                                                <p>Repository Name: {{ submission.github_repo_name }}</p>#}
-{#                                                <p>Branch Name: {{ submission.github_branch_name }}</p>#}
-{#                                            </div>#}
-                                            <submission-detail-github submission_pk="{{ submission.pk }}" hash="{{ submission.commit_hash }}" user_pk="{{ request.user.pk }}"></submission-detail-github>
-                                        </div>
-                                    </div>
+                    <div class="ui top attached tabular menu">
+                        <a class="active item" data-tab="users">Users</a>
+                        <a class="item" data-tab="teams">Classes</a>
+                    </div>
 
-                                </div>
+                    <div class="ui bottom attached active tab segment" data-tab="users">
+                        <div class="ui total statistic">
+                            <div class="value">
+                                27,972
                             </div>
-                        {% endwith %}
-                    {% endwith %}
-                {% endif %}
+                            <div class="label">
+                                Total Users
+                            </div>
+                        </div>
+
+                        <div class='charts-container'>
+                            <div class='chart-container'>
+                                <div class="ui small statistic">
+                                    <div class="value">
+                                        25,830
+                                    </div>
+                                    <div class="label">
+                                        Students Joined
+                                    </div>
+                                </div>
+
+                                <canvas id="students_chart"></canvas>
+                            </div>
+
+                            <div class='chart-container'>
+                                <div class="ui small statistic">
+                                    <div class="value">
+                                        2,142
+                                    </div>
+                                    <div class="label">
+                                        Instructors Joined
+                                    </div>
+                                </div>
+
+                                <canvas id="instructors_chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui bottom attached tab segment" data-tab="teams">
+                        <div class='charts-container'>
+
+                            <div class='chart-container'>
+                                <div class="ui small statistic">
+                                    <div class="value">
+                                        2,103
+                                    </div>
+                                    <div class="label">
+                                        Classes Created
+                                    </div>
+                                </div>
+
+                                <canvas id="klasses_chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
@@ -95,4 +119,147 @@
 
 {% block extra_script %}
     <script src="https://cdn.jsdelivr.net/npm/luxon@1.16.0/build/global/luxon.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.tabular.menu .item').tab()
+            let students_chart = new Chart($('#students_chart'), create_chart_config(students_data, 'Users'))
+            let instructors_chart = new Chart($('#instructors_chart'), create_chart_config(instructors_data, 'Instructors'))
+            let klasses_chart = new Chart($('#klasses_chart'), create_chart_config(klasses_data, 'Klasses'))
+        })
+
+        let klasses_data = {
+            label: 'Klasses Created',
+            data: [
+                {
+                    x: new Date(2019, 0, 1),
+                    y: 1,
+                },{
+                    x: new Date(2019, 1, 1),
+                    y: 12,
+                },{
+                    x: new Date(2019, 2, 1),
+                    y: 40,
+                },{
+                    x: new Date(2019, 3, 1),
+                    y: 100,
+                },{
+                    x: new Date(2019, 4, 1),
+                    y: 200,
+                },{
+                    x: new Date(2019, 5, 1),
+                    y: 250,
+                },{
+                    x: new Date(2019, 6, 1),
+                    y: 1100,
+                },{
+                    x: new Date(2019, 7, 1),
+                    y: 2103,
+                },
+            ],
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor:'rgba(54, 112, 185, 1)',
+            lineTension: 0,
+        }
+
+        let instructors_data = {
+            label: 'Instructors Joined',
+            data: [
+                {
+                    x: new Date(2019, 0, 1),
+                    y: 2,
+                },{
+                    x: new Date(2019, 1, 1),
+                    y: 10,
+                },{
+                    x: new Date(2019, 2, 1),
+                    y: 50,
+                },{
+                    x: new Date(2019, 3, 1),
+                    y: 150,
+                },{
+                    x: new Date(2019, 4, 1),
+                    y: 230,
+                },{
+                    x: new Date(2019, 5, 1),
+                    y: 700,
+                },{
+                    x: new Date(2019, 6, 1),
+                    y: 1340,
+                },{
+                    x: new Date(2019, 7, 1),
+                    y: 2583,
+                },
+            ],
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor:'rgba(54, 112, 185, 1)',
+            lineTension: 0,
+        }
+
+        let students_data = {
+            label: 'Students Joined',
+            data: [
+                {
+                    x: new Date(2019, 0, 1),
+                    y: 30,
+                },{
+                    x: new Date(2019, 1, 1),
+                    y: 150,
+                },{
+                    x: new Date(2019, 2, 1),
+                    y: 500,
+                },{
+                    x: new Date(2019, 3, 1),
+                    y: 1500,
+                },{
+                    x: new Date(2019, 4, 1),
+                    y: 2300,
+                },{
+                    x: new Date(2019, 5, 1),
+                    y: 7000,
+                },{
+                    x: new Date(2019, 6, 1),
+                    y: 13400,
+                },{
+                    x: new Date(2019, 7, 1),
+                    y: 25830,
+                },
+            ],
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor:'rgba(54, 112, 185, 1)',
+            lineTension: 0,
+        }
+
+
+        function create_chart_config(dataset, label) {
+            return {
+                type: 'line',
+                data: {
+                    datasets: [
+                        dataset
+                    ],
+                },
+                options: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                    },
+                    aspectRatio: 1.4,
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                unit: 'month',
+                            },
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                            }
+                        }]
+                    }
+                }
+            }
+        }
+    </script>
 {% endblock %}
