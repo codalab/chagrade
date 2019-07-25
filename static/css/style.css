@@ -16,7 +16,7 @@ body {
 .header-container {
     margin-bottom: 3em;
     padding: 1em;
-    height: 150px;
+    height: 80px;
 }
 
 .subheader-container {
@@ -86,7 +86,7 @@ body {
 }
 
 #particles-js {
-    height: 150px;
+    height: 80px;
     position: absolute;
     top: 0;
     left: 0;
@@ -98,7 +98,7 @@ body {
 .logo {
     text-align: left;
     color: white;
-    cursor: pointer;
+    cursor: pointer !important;
     z-index: 5;
     display: inline-block;
     transition: filter 100ms;
@@ -109,6 +109,7 @@ body {
 .logo:hover {
     filter: invert(20%);
     transition: filter 100ms;
+    cursor: pointer;
 }
 
 #logo .ui.sub.header {
