@@ -13,22 +13,24 @@
                 Repository Activity
             </div>
 
-            <div each={commit in commits} class="ui grid commit">
-                <div class="row">
-                    <a class="ui blue label" href="{ commit.html_url }">
-                        <i class="hashtag icon"></i>
-                        {commit.sha.slice(0,6)}
-                    </a>
-                    <a class="ui right floated author" href="{ commit.author.html_url }">
-                        { commit.commit.author.name }
-                    </a>
-                    <br>
-                    <div class="date">
-                        {format_date(commit.commit.committer.date)}
+            <div class="commit-container">
+                <div each={commit in commits} class="ui grid commit">
+                    <div class="row commit-header">
+                        <a class="ui blue label" href="{ commit.html_url }">
+                            <i class="hashtag icon"></i>
+                            {commit.sha.slice(0,6)}
+                        </a>
+                        <a class="ui right floated author" href="{ commit.author.html_url }">
+                            { commit.commit.author.name }
+                        </a>
+                        <br>
+                        <div class="date">
+                            {format_date(commit.commit.committer.date)}
+                        </div>
                     </div>
-                </div>
-                <div class="ui row">
-                    {commit.commit.message}
+                    <div class="ui row commit-message">
+                        {commit.commit.message}
+                    </div>
                 </div>
             </div>
         </div>
@@ -40,6 +42,8 @@
         self.submission = {}
 
         self.github_requests = 0
+
+        var datetime = luxon.DateTime
 
         self.one('mount', function () {
             self.update_submission()
@@ -61,9 +65,8 @@
         }
 
         self.format_date = function (iso_string) {
-            let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: 'numeric', second: '2-digit' };
-            let d = new Date(iso_string)
-            return d.toLocaleDateString('en-US', options)
+            let d = datetime.fromISO(iso_string)
+            return d.toRelative()
         }
 
         self.cancel_button = function () {
@@ -116,6 +119,20 @@
             margin: 28px 0 28px 0 !important;
             font-size: 1.3em;
             line-height: 1.5em;
+        }
+
+        .commit-container {
+            height: 40vh;
+            overflow-y: scroll;
+        }
+
+        .commit-header {
+            padding-bottom: 10px !important;
+        }
+
+        .commit-message {
+            padding-top: 0 !important;
+            font-size: 0.8em;
         }
 
         .author {

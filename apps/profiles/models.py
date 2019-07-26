@@ -35,6 +35,8 @@ class Instructor(models.Model):
 
     group = models.ForeignKey('groups.Group', related_name='instructor_members', null=True, blank=True, on_delete=models.PROTECT)
 
+    date_promoted = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return "{0}".format(self.user.username)
 

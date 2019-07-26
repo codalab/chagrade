@@ -1,8 +1,14 @@
 <submission-diff>
     <tr>
     <td if={!no_diff}>
-        <a if={!behind} class="ui small green button" href="{diff_url}">Diff</a>
+        <a if={!behind} class="ui small green button" href="{diff_url}">{diff_magnitude}</a>
         <a if={behind} class="ui small red button" href="{diff_url}">Behind</a>
+<!--            <a class="ui small green label"> -->
+<!--                5 -->
+<!--                <div class="diff-behind detail"> -->
+<!--                    6 -->
+<!--                </div> -->
+<!--            </a> -->
     </td>
     <td if={no_diff}>No diff
     </td>
@@ -38,12 +44,14 @@
         self.diff_request = function (base_ref, head_ref) {
             let compare_url = self.repo.compare_url.replace('{base}', base_ref).replace('{head}', head_ref)
             self.github_request(compare_url, function (comparison) {
+                console.log(comparison)
                 if (comparison.behind_by > 0 && comparison.ahead_by == 0) {
                     self.behind = true
                     self.diff_request(head_ref, base_ref)
                 }
                 self.no_diff = false
                 self.diff_url = comparison.html_url
+                self.diff_magnitude = comparison.ahead_by
                 self.update()
             })
         }
@@ -52,9 +60,9 @@
             let current_submission = CHAGRADE.api.get_submission(self.opts.submission_pk)
                 .done(function (data) {
                     self.submission = data
-                    if (!!self.submission.github_commit_hash) {
+                    if (!!self.submission.github_commit_hash && self.submission.github_commit_hash !== 'Commit') {
                         self.submission.github_ref = self.submission.github_commit_hash
-                    } else if (!!self.submission.github_branch_name) {
+                    } else if (!!self.submission.github_branch_name && self.submission.github_branch_name !== 'Branch') {
                         self.submission.github_ref = self.submission.github_branch_name
                     } else {
                         self.submission.github_ref = 'master'
@@ -119,6 +127,11 @@
     <style>
         .button {
             margin: 0px !important;
+        }
+
+        .diff-behind {
+            background: red;
+            font: white;
         }
     </style>
 </submission-diff>

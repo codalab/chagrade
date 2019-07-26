@@ -25,6 +25,10 @@
             color: #999999;
         }
 
+        .hidden {
+            display: none;
+        }
+
         /* this will only style the popup if inline is true */
         .popup {
 {#            color: #FF0000 !important;#}
@@ -99,6 +103,12 @@
                 </div>
                 <div class="ui horizontal divider"></div>
                 <div class="twelve wide row">
+                    <div id="file-tree-header" class="ui header hidden">
+                        <div class="content">
+                            <i class="blue alternate file icon"></i>
+                            Select File Below:
+                        </div>
+                    </div>
                     <div class="ui styled accordion">
                         <accordion-file-tree each="{ file in github_file_tree }" file="{file}" class="{ file.type === 'dir' ? "styled accordion" : "" }"></accordion-file-tree>
                     </div>
@@ -233,10 +243,6 @@
                 })
         }
 
-        function print_g_files () {
-            console.info('github file tree', self.github_file_tree)
-        }
-
         function load_github_file_tree () {
             function create_tree(files) {
                 for (let i = 0; i < files.length; i++) {
@@ -247,7 +253,6 @@
                             create_tree(files[i].files)
                             self.github_requests--
                             if (self.github_requests == 0) {
-                                print_g_files()
                                 $('.ui.accordion').accordion('close others')
                                 self.update()
                             }
@@ -261,18 +266,16 @@
                 root_url += '?ref=' + self.github_ref
             }
 
-            console.info('github root in file tree function', root_url)
-
             setTimeout(function () {
                 $('.ui.accordion').accordion('close others')
                 self.update()
-                print_g_files()
             }, 500)
 
             self.github_request(root_url, function (repo_files) {
                     self.github_file_tree = repo_files
                     create_tree(self.github_file_tree)
                 })
+            $('#file-tree-header').removeClass('hidden')
         }
 
         self.submit_form = function () {

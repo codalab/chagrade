@@ -60,7 +60,7 @@
         });
 
         self.get_chagrade_stats = function () {
-            CHAGRADE.api.get_general_stats()
+            CHAGRADE.api.get_overall_metrics()
                 .done(function (data) {
                     self.stats = data
                     self.update()

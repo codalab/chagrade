@@ -15,13 +15,17 @@
         .no-padding {
             padding: 1vh 0 0 0 !important;
         }
+
+        .popup-container {
+            padding: 20px !important;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
     <div class="ui centered grid">
         <div class="row">
-            <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
+            <a class="ui blue button" href="{% url 'homework:overview' klass_pk=klass.pk %}">Back to Class Overview</a>
             <div class="fourteen wide column">
                 <div class="ui centered grid segment">
                     <div class="row">
@@ -99,22 +103,20 @@
                                                             {% if team or instructor_view %}
                                                                 <th>User</th>
                                                             {% endif %}
-                                                            {% if submission.github_url %}
-                                                                <th>File</th>
-                                                            {% endif %}
+                                                            <th>File</th>
                                                             <th>Details</th>
-{#                                                            <th>Repo</th>#}
-{#                                                            <th>Branch</th>#}
                                                             <th>Commit</th>
-                                                            <th>Diff</th>
-{#                                                            <th>Status</th>#}
+                                                            <th data-tooltip="Diff tells you how many commits were made since the last submission."
+                                                                data-position="top left">
+                                                                Diff
+                                                                <i id="diff-header" class="question blue circle icon"></i>
+                                                            </th>
                                                             <th>Score</th>
-{#                                                            <th>Phase</th>#}
                                                         </tr>
                                                         </thead>
                                                         <tbody>
                                                         {% for submission in submissions %}
-                                                            <div id="popup-{{ submission.pk }}" class="ui popup top right transition">
+                                                            <div id="popup-{{ submission.pk }}" class="ui popup top right transition popup-container">
                                                                 <div class="ui grid">
                                                                     <div class="row">Repo: {{ submission.github_repo_name }}</div>
                                                                     <div class="row">Branch: {{ submission.github_branch_name }}</div>
@@ -147,17 +149,29 @@
                                                             {% if team or instructor_view %}
                                                                 <td>{{ submission.creator.user }}</td>
                                                             {% endif %}
-                                                            {% if submission.github_url %}
-                                                                <td>
+                                                            <td>
+                                                                {% if submission.github_url %}
                                                                     <a class="ui mini blue icon button" href="{{ submission.github_url }}">
                                                                         <i class="file code icon"></i>
                                                                     </a>
-                                                                </td>
-                                                            {% endif %}
+                                                                {% else %}
+                                                                    <a class="ui mini blue icon disabled button">
+                                                                        <i class="file code icon"></i>
+                                                                    </a>
+                                                                {% endif %}
+                                                            </td>
                                                             <td>
                                                                 <a class="ui mini blue button" href="{% url "homework:submission_detail" submission_pk=submission.pk %}">Details</a>
                                                             </td>
-                                                            <td>{{ submission.github_commit_hash|slice:'7' }}</td>
+                                                            <td>
+                                                                {% if submission.github_branch_name and submission.github_branch_name != "Branch" %}
+                                                                    {{ submission.github_branch_name }}
+                                                                {% elif submission.github_commit_hash and submission.github_commit_hash != "Commit" %}
+                                                                    {{ submission.github_commit_hash|slice:'7' }}
+                                                                {% else %}
+                                                                    Master
+                                                                {% endif %}
+                                                            </td>
                                                             {% with previous_submission=submissions|next:forloop.counter0 %}
                                                             <td><submission-diff submission_pk="{{ submission.pk }}" previous_submission_pk="{{ previous_submission.pk }}" user_pk="{{ request.user.pk }}"></submission-diff></td>
                                                             {% endwith %}

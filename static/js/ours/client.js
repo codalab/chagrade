@@ -117,8 +117,20 @@ CHAGRADE.api = {
     delete_team: function(pk) {
         return CHAGRADE.api.request('DELETE', URLS.API + "teams/" + pk + "/")
     },
-    // General Stats
-    get_general_stats: function() {
-        return CHAGRADE.api.request('GET', URLS.API + "chagrade_general_stats/")
+    // Metrics
+    get_overall_metrics: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_overall_metrics/")
+    },
+    get_student_metrics: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_student_metrics/")
+    },
+    get_instructor_metrics: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_instructor_metrics/")
+    },
+    get_klass_metrics: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_klass_metrics/")
+    },
+    get_submission_metrics: function(klass_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_submission_metrics/" + klass_pk)
     },
 }

@@ -218,7 +218,6 @@
     <script src="https://cdn.jsdelivr.net/npm/luxon@1.16.0/build/global/luxon.min.js"></script>
     <script>
         $('.tabular.menu .item', self.root).tab();
-        console.log($('.ui.dropdown', self.root))
         $('.ui.dropdown', self.root).dropdown({
 //                action: 'activate',
             onChange: function() {
@@ -227,8 +226,57 @@
                 console.log(text)
             },
         });
-//        self.update_score_data()
-//        self.update_github_data()
+
+        var instructor_metrics = {}
+
+        $(document).ready( function () {
+            instructor_metrics.overview_scores_chart = new Chart($('#overview_scores'), create_chart_config('Submission Scores'));
+            instructor_metrics.overview_temporal_histogram = new Chart($('#overview_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
+
+            instructor_metrics.student_scores_chart = new Chart($('#student_scores'), create_chart_config('Submission Scores'));
+            instructor_metrics.student_temporal_histogram = new Chart($('#student_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
+
+            instructor_metrics.team_scores_chart = new Chart($('#team_scores'), create_chart_config('Submission Scores'));
+            instructor_metrics.team_temporal_histogram = new Chart($('#team_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
+            instructor_metrics.team_github_activity_chart = new Chart($('#team_github_activity'), create_stacked_bar_chart_config('Commit Frequency'));
+            instructor_metrics.team_codalab_activity_chart = new Chart($('#team_codalab_activity'), create_sub_bar_chart_config('Commit Frequency'));
+            update_charts()
+        })
+
+        function update_charts() {
+            function format_data_for_bar_chart(data) {
+                let labels = []
+                let values = []
+                for (let i = 0; i < data.length; i++) {
+                    labels.push(data[i].name)
+                    values.push(data[i].count)
+                }
+                return {
+                    labels: labels,
+                    values: values,
+                }
+            }
+
+            function update_chart(chart, data) {
+                console.log(chart)
+                chart.data.datasets[0].data = format_data_for_chart(data)
+                chart.update()
+            }
+
+            CHAGRADE.api.get_submission_metrics({{ klass.pk }})
+                .done( (data) => {
+                    console.log(data)
+                    let formatted_data = format_data_for_bar_chart(data)
+                    console.log(instructor_metrics.team_codalab_activity_chart.data)
+//                    instructor_metrics.team_codalab_activity_chart.data.labels = formatted_data.labels
+//                    instructor_metrics.team_codalab_activity_chart.data.datasets[0].data = formatted_data.values
+                    console.log(instructor_metrics.team_codalab_activity_chart.data)
+                    instructor_metrics.team_codalab_activity_chart.update()
+                })
+                .fail( (data) => {
+                    console.log(data)
+                })
+        }
 
         let score_data = {
             label: 'Median Class Score',
@@ -415,15 +463,5 @@
         }
 
 
-        self.overview_scores_chart = new Chart($('#overview_scores'), create_chart_config('Submission Scores'));
-        self.overview_temporal_histogram = new Chart($('#overview_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
-
-        self.student_scores_chart = new Chart($('#student_scores'), create_chart_config('Submission Scores'));
-        self.student_temporal_histogram = new Chart($('#student_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
-
-        self.team_scores_chart = new Chart($('#team_scores'), create_chart_config('Submission Scores'));
-        self.team_temporal_histogram = new Chart($('#team_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
-        self.team_github_activity_chart = new Chart($('#team_github_activity'), create_stacked_bar_chart_config('Commit Frequency'));
-        self.team_codalab_activity_chart = new Chart($('#team_codalab_activity'), create_sub_bar_chart_config('Commit Frequency'));
     </script>
 {% endblock %}
