@@ -1,18 +1,7 @@
 <submission-diff>
-    <tr>
-    <td if={!no_diff}>
-        <a if={!behind} class="ui small green button" href="{diff_url}">{diff_magnitude}</a>
-        <a if={behind} class="ui small red button" href="{diff_url}">Behind</a>
-<!--            <a class="ui small green label"> -->
-<!--                5 -->
-<!--                <div class="diff-behind detail"> -->
-<!--                    6 -->
-<!--                </div> -->
-<!--            </a> -->
-    </td>
-    <td if={no_diff}>No diff
-    </td>
-    </tr>
+    <a if={!behind && !no_diff} class="ui small green button" href="{diff_url}">{diff_magnitude} commits ahead</a>
+    <a if={behind && !no_diff} class="ui small red button" href="{diff_url}">Behind</a>
+    <div if={no_diff}>No Diff</div>
     <script>
         var self = this
         self.no_diff = true
@@ -23,6 +12,7 @@
 
 
         self.one('mount', function () {
+            console.log('self.repos_url', self.opts.repos_url)
             self.find_diff()
         })
 
@@ -31,14 +21,14 @@
                 type: 'GET',
                 url: url,
                 data: JSON.stringify(null),
-                headers:{"Authorization": 'token ' + self.github_information.access_token},
+                headers:{"Authorization": 'token ' + self.opts.github_access_token},
                 contentType: "application/json",
                 dataType: 'json',
             })
-            .done(done_function)
-            .fail(function (error) {
-                toastr.error("Github API Error: " + error.statusText)
-            })
+                .done(done_function)
+                .fail(function (error) {
+                    toastr.error("Github API Error: " + error.statusText)
+                })
         }
 
         self.diff_request = function (base_ref, head_ref) {
@@ -57,71 +47,32 @@
         }
 
         self.find_diff = function () {
-            let current_submission = CHAGRADE.api.get_submission(self.opts.submission_pk)
-                .done(function (data) {
-                    self.submission = data
-                    if (!!self.submission.github_commit_hash && self.submission.github_commit_hash !== 'Commit') {
-                        self.submission.github_ref = self.submission.github_commit_hash
-                    } else if (!!self.submission.github_branch_name && self.submission.github_branch_name !== 'Branch') {
-                        self.submission.github_ref = self.submission.github_branch_name
-                    } else {
-                        self.submission.github_ref = 'master'
-                    }
-                    self.update()
-                })
-                .fail(function (error) {
-                    toastr.error("Error fetching submission: " + error.statusText)
-                })
-            let previous_submission = CHAGRADE.api.get_submission(self.opts.previous_submission_pk)
-                .done(function (data) {
-                    self.previous_submission = data
-                    if (!!self.previous_submission.github_commit_hash) {
-                        self.previous_submission.github_ref = self.previous_submission.github_commit_hash
-                    } else if (!!self.previous_submission.github_branch_name) {
-                        self.previous_submission.github_ref = self.previous_submission.github_branch_name
-                    } else {
-                        self.previous_submission.github_ref = 'master'
-                    }
-                    self.update()
-                })
-                .fail(function (error) {
-                    toastr.error("Error fetching submission: " + error.statusText)
-                })
+            // c stands for current submission
+            // p stands for previous submission
 
+            let c_github_ref = 'master'
+            let p_github_ref = 'master'
 
-            Promise.all([current_submission, previous_submission])
-                .then( function(data) {
-                    let curr = self.submission
-                    let prev = self.previous_submission
+            if (!!self.opts.c_github_commit_hash && self.opts.c_github_commit_hash !== 'Commit') {
+                c_github_ref = self.opts.c_github_commit_hash
+            } else if (!!self.opts.c_github_branch_name && self.opts.c_github_branch_name !== 'Branch') {
+                c_github_ref = self.opts.c_github_branch_name
+            }
 
-                    if ((curr.github_repo_name !== prev.github_repo_name) || !curr.github_repo_name) {
-                        self.no_diff = true
-                    } else {
-                        let repo_name = curr.github_repo_name
-                        let curr_ref  = self.submission.github_ref
-                        let prev_ref  = self.previous_submission.github_ref
+            if (!!self.opts.p_github_commit_hash && self.opts.p_github_commit_hash !== 'Commit') {
+                p_github_ref = self.opts.p_github_commit_hash
+            } else if (!!self.opts.p_github_branch_name && self.opts.p_github_branch_name !== 'Branch') {
+                p_github_ref = self.opts.p_github_branch_name
+            }
 
-                        if ((curr_ref === prev_ref) || !curr_ref) {
-                            self.no_diff = true
-                        } else {
-                            CHAGRADE.api.get_cha_user(self.opts.user_pk)
-                                .done(function (data) {
-                                    self.github_information = data.github_info
-                                    self.user_information = data
-
-                                    self.github_request(self.github_information.repos_url, function (repo_data) {
-                                        self.github_repositories = repo_data
-                                        self.repo = _.find(repo_data, ['name', repo_name])
-                                        self.diff_request(prev_ref, curr_ref)
-                                    })
-                                })
-                                .fail(function (error) {
-                                    toastr.error("Error fetching user: " + error.statusText)
-                                })
-                        }
-                    }
-                    self.update()
+            if ((c_github_ref === p_github_ref) || !c_github_ref) {
+                self.no_diff = true
+            } else {
+                self.github_request(self.opts.repos_url, function (repo_data) {
+                    self.repo = _.find(repo_data, ['name', self.opts.repo_name])
+                    self.diff_request(p_github_ref, c_github_ref)
                 })
+            }
         }
     </script>
     <style>

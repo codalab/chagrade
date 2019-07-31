@@ -119,8 +119,8 @@
                                             </div>
                                             <div class="eight wide column">
                                                 {% if submission %}
-                                                    <a href="{% url "homework:edit_submission" klass_pk=klass.pk definition_pk=definition.pk submission_pk=submission.pk use_github=1%}"
-                                                       class="ui yellow button">Edit/Re-Submit Homework</a>
+                                                    <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk use_github=1 %}"
+                                                       class="ui yellow button">Re-Submit Homework</a>
                                                     <table class="ui table">
                                                         <thead>
                                                         <tr>

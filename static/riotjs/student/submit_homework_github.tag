@@ -109,8 +109,10 @@
                             Select File Below:
                         </div>
                     </div>
-                    <div class="ui styled accordion">
-                        <accordion-file-tree each="{ file in github_file_tree }" file="{file}" class="{ file.type === 'dir' ? "styled accordion" : "" }"></accordion-file-tree>
+                    <div class="ui form">
+                        <div class="ui styled accordion">
+                            <accordion-file-tree each="{ file in github_file_tree }" file="{file}" class="{ file.type === 'dir' ? "styled accordion" : "" }"></accordion-file-tree>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -189,9 +191,12 @@
             $('.pop-up').popup({
                 inline: true,
                 position: 'top left',
-            });
+            })
+
+
             $('.ui.dropdown.repository', self.root).dropdown({
                 onChange: function(value, text, $selectedItem) {
+///                    $selectedItem.dropdown('set text', text)
                     self.github_repo = self.github_repositories[parseInt(value)]
                     self.github_request(self.github_repo.branches_url.split('{')[0], function (branch_data) {
                         self.github_branches = branch_data
@@ -222,9 +227,22 @@
 
             $(document).on('click', '.file.title', function (e) {
                 let file_element = $(e.target)
-                self.github_url = file_element.attr('data-url')
-                $('.title').removeClass('selected-file')
-                file_element.addClass('selected-file')
+                console.log('\n\n\n\n\n')
+                console.log(file_element)
+                let url = file_element.parent().parent().attr('data-url')
+                console.log(url)
+                if (!!url) {
+                    let parent = file_element.parent()
+                    console.info("parent", parent)
+                    parent.checkbox('check')
+                    let checkbox = file_element.siblings().first()
+//                    checkbox.click()
+                    console.log('clicked')
+                    self.github_url = url
+                    console.log(self.github_url)
+                    $('.file-label').removeClass('selected-file')
+                    file_element.addClass('selected-file')
+                }
             })
         })
 
@@ -255,6 +273,7 @@
                             if (self.github_requests == 0) {
                                 $('.ui.accordion').accordion('close others')
                                 self.update()
+                                $('.ui.checkbox').checkbox()
                             }
                         })
                     }
@@ -280,12 +299,18 @@
 
         self.submit_form = function () {
 
+            if (!self.github_url) {
+                toastr.error("Please select a file before submitting.")
+                return
+            }
+
             if (window.SUBMISSION !== undefined) {
                 var result = confirm("There is already an existing submission. Submitting again will overwrite the previous submission and any previously attached grades will be lost. Continue?")
                 if (!result) {
                     return
                 }
             }
+
 
             var data = {
                 "klass": KLASS,

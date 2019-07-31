@@ -22,6 +22,18 @@
                 <input name="github_url" ref="github_url" type="text"
                        value="{submission.github_url || ''}">
             </div>
+            <div class="eight wide field">
+                <span>
+                    <label class="">
+                        <i class="pop-up question blue circle icon"
+                           data-title="A reference of to a point in the repo's history"
+                           data-content="Ex: a9dhe3 or master"></i>
+                        Commit or Branch Name (optional):
+                    </label>
+                </span>
+                <input name="github_ref" ref="github_ref" type="text">
+<!--                value="}" -->
+            </div>
         </div>
         <div class="fields">
             <div show="{definition.ask_method_name}" class="four wide field">
@@ -95,7 +107,6 @@
             });
         })
 
-
         self.submit_form = function () {
 
             if (window.SUBMISSION !== undefined) {
@@ -105,50 +116,59 @@
                 }
             }
 
-            var data = {
-                "klass": KLASS,
-                "definition": DEFINITION,
-                "creator": STUDENT,
-                "github_url": self.refs.github_url.value,
-                "method_name": self.refs.method_name.value || '',
-                "method_description": self.refs.method_description.value || '',
-                "project_url": self.refs.project_url.value || '',
-                "publication_url": self.refs.publication_url.value || '',
-                "question_answers": [
-                    /*{
-                     "question": 0,
-                     "text": "string"
-                     }*/
-                ]
+            let github_ref = self.refs.github_ref.value
+            let github_url = self.refs.github_url.value
+
+            if (!!github_ref) {
+                let split_url = github_url.split('/')
+                split_url[6] = github_ref
+                github_url = split_url.join('/')
             }
 
-            if (window.USER_TEAM !== undefined) {
-                data['team'] = window.USER_TEAM
-            }
+           var data = {
+               "klass": KLASS,
+               "definition": DEFINITION,
+               "creator": STUDENT,
+               "github_url": github_url,
+               "method_name": self.refs.method_name.value || '',
+               "method_description": self.refs.method_description.value || '',
+               "project_url": self.refs.project_url.value || '',
+               "publication_url": self.refs.publication_url.value || '',
+               "question_answers": [
+                   /*{
+                    "question": 0,
+                    "text": "string"
+                    }*/
+               ]
+           }
 
-            for (var index = 0; index < self.definition.custom_questions.length; index++) {
-                var temp_data = {
-                    'question': self.refs['question_id_' + index].value,
-                    'text': self.refs['question_answer_' + index].value
-                }
-                data['question_answers'].push(temp_data)
+           if (window.USER_TEAM !== undefined) {
+               data['team'] = window.USER_TEAM
+           }
 
-            }
+           for (var index = 0; index < self.definition.custom_questions.length; index++) {
+               var temp_data = {
+                   'question': self.refs['question_id_' + index].value,
+                   'text': self.refs['question_answer_' + index].value
+               }
+               data['question_answers'].push(temp_data)
 
-            CHAGRADE.api.create_submission(data)
-                .done(function (data) {
-                    window.location = '/homework/overview/' + KLASS
-                })
-                .fail(function (response) {
-                    console.log(response)
-                    Object.keys(response.responseJSON).forEach(function (key) {
-                        if (key === 'question_answers') {
-                            toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
-                        } else {
-                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
-                        }
-                    });
-                })
+           }
+
+           CHAGRADE.api.create_submission(data)
+               .done(function (data) {
+                   window.location = '/homework/overview/' + KLASS
+               })
+               .fail(function (response) {
+                   console.log(response)
+                   Object.keys(response.responseJSON).forEach(function (key) {
+                       if (key === 'question_answers') {
+                           toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
+                       } else {
+                           toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                       }
+                   });
+               })
         }
 
         self.update_question_answers = function () {

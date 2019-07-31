@@ -188,7 +188,7 @@
     {% endif %}
     {# This one is passed as a PK like the rest should probably be #}
     {% if team %}
-        TEAM = {{ team }}
+        TEAM = {{ team.pk }}
     {% endif %}
 
     {% block extra_js_context %}

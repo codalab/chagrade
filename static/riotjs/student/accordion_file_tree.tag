@@ -1,6 +1,9 @@
 <accordion-file-tree>
     <div if="{ opts.file.type != 'dir' }" class="title file" data-url="{ opts.file.html_url }">
-        { file.name }
+        <div class="ui radio checkbox">
+            <input type="radio" name="html_url">
+            <label class="file-label">{ file.name }</label>
+        </div>
     </div>
 
     <div if="{ opts.file.type == 'dir' }" class="title dir" data-url="{ opts.file.html_url }">

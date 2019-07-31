@@ -85,10 +85,35 @@
                 </div>
                 <div class="ui header">Class Metrics</div>
                 <div class="ui grid">
+
                     <div class="ui top attached tabular menu">
                         <a class="active item" data-tab="overview">Overview</a>
                         <a class="item" data-tab="users">Users</a>
                         <a class="item" data-tab="teams">Teams</a>
+
+                        <div class="ui search selection fluid dropdown">
+                            <input type="hidden" name="user">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Select User</div>
+                            <div class="menu">
+                                <div class="item" data-value="">Sally</div>
+                                <div class="item" data-value="">Joe</div>
+                                <div class="item" data-value="">Bjorne</div>
+                                <div class="item" data-value="">Gerald</div>
+                            </div>
+                        </div>
+
+                        <div class="ui search selection dropdown">
+                            <input type="hidden" name="team">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">Select Team</div>
+                            <div class="menu">
+                                <div class="item" data-value="">Red</div>
+                                <div class="item" data-value="">Blue</div>
+                                <div class="item" data-value="">Pink</div>
+                                <div class="item" data-value="">Black</div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="ui bottom attached active tab segment" data-tab="overview">
@@ -109,17 +134,6 @@
 
                     <div class="ui bottom attached tab segment" data-tab="users">
 
-                        <div class="ui search selection dropdown">
-                            <input type="hidden" name="user">
-                            <i class="dropdown icon"></i>
-                            <div class="default text">Select User</div>
-                            <div class="menu">
-                                <div class="item" data-value="">Sally</div>
-                                <div class="item" data-value="">Joe</div>
-                                <div class="item" data-value="">Bjorne</div>
-                                <div class="item" data-value="">Gerald</div>
-                            </div>
-                        </div>
 
                         <div class='charts-container hidden'>
                             <div class='student-chart chart-container'>
@@ -135,17 +149,6 @@
 
                     <div class="ui bottom attached tab segment" data-tab="teams">
 
-                        <div class="ui search selection dropdown">
-                            <input type="hidden" name="team">
-                            <i class="dropdown icon"></i>
-                            <div class="default text">Select Team</div>
-                            <div class="menu">
-                                <div class="item" data-value="">Red</div>
-                                <div class="item" data-value="">Blue</div>
-                                <div class="item" data-value="">Pink</div>
-                                <div class="item" data-value="">Black</div>
-                            </div>
-                        </div>
 
                         <div class='charts-container hidden'>
                             <div class='team-chart chart-container'>
@@ -217,19 +220,12 @@
 {% block extra_script %}
     <script src="https://cdn.jsdelivr.net/npm/luxon@1.16.0/build/global/luxon.min.js"></script>
     <script>
-        $('.tabular.menu .item', self.root).tab();
-        $('.ui.dropdown', self.root).dropdown({
-//                action: 'activate',
-            onChange: function() {
-                console.log('hi')
-                console.log(element)
-                console.log(text)
-            },
-        });
 
         var instructor_metrics = {}
 
         $(document).ready( function () {
+            $('.tabular.menu .item').tab()
+            $('.ui.dropdown').dropdown()
             instructor_metrics.overview_scores_chart = new Chart($('#overview_scores'), create_chart_config('Submission Scores'));
             instructor_metrics.overview_temporal_histogram = new Chart($('#overview_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
 

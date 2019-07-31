@@ -154,13 +154,17 @@ class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             try:
                 if definition.team_based:
                     team = klass_membership.team
+                    print('team', team)
                     submissions = Submission.objects.filter(definition=definition, team=team)
+                    print('submissions', submissions)
                     context['team'] = team
                 else:
                     submissions = Submission.objects.filter(definition=definition, creator=klass_membership)
             except ObjectDoesNotExist:
                 raise Http404('Submission object not found')
+        print('submissions', submissions)
         context['submissions'] = submissions
+        context['user'] = self.request.user
         return context
 
     def test_func(self):
@@ -217,7 +221,10 @@ class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
             submission = Submission.objects.get(pk=self.kwargs.get('submission_pk'))
             student = klass.enrolled_students.get(user=self.request.user)
 
-            if submission.team:
+            definition = Definition.objects.get(pk=kwargs.get('definition_pk'))
+            context['definition'] = definition
+
+            if definition.team_based:
                 if not submission.creator == student or not student in submission.team.members.all():
                     raise Http404("You do not have permission to view this")
             else:

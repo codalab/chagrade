@@ -102,40 +102,61 @@ class Submission(models.Model):
 class SubmissionTracker(models.Model):
     submission = models.ForeignKey('Submission', related_name='tracked_submissions', null=True, blank=True, on_delete=models.CASCADE)
 
+    finished_successfully = models.BooleanField(null=True)
+    score = models.DecimalField(null=True, decimal_places=3, max_digits=9)
+
     remote_id = models.CharField(max_length=10)
     remote_phase = models.CharField(max_length=10)
 
+
     def get_remote_submission_info(self):
-        challenge_site_url = self.submission.definition.get_challenge_domain()
-        score_api_url = "{0}/api/submission/{1}/get_score".format(challenge_site_url, self.remote_id)
-        score_api_resp = requests.get(
-            score_api_url,
-            auth=HTTPBasicAuth(
-                os.environ.get('CODALAB_SUBMISSION_USERNAME'),
-                os.environ.get('CODALAB_SUBMISSION_PASSWORD')
+        if self.finished_successfully == None:
+            challenge_site_url = self.submission.definition.get_challenge_domain()
+            score_api_url = "{0}/api/submission/{1}/get_score".format(challenge_site_url, self.remote_id)
+            score_api_resp = requests.get(
+                score_api_url,
+                auth=HTTPBasicAuth(
+                    os.environ.get('CODALAB_SUBMISSION_USERNAME'),
+                    os.environ.get('CODALAB_SUBMISSION_PASSWORD')
+                )
             )
-        )
-        print(score_api_url)
-        print(score_api_resp.content)
-        if score_api_resp.status_code == 200:
-            data = score_api_resp.json()
-            if data.get('status'):
-                print("Data found for submission. Returning scores.")
-                return {
-                    'status': data.get('status'),
-                    'score': data.get('score', None)
-                }
-            else:
-                print("Could not retrieve complete data for submission")
+            print(score_api_url)
+            print(score_api_resp.content)
+            if score_api_resp.status_code == 200:
+                data = score_api_resp.json()
+                if data.get('status'):
+                    print("Data found for submission. Returning scores.")
+
+                    if data.get('status') == 'finished':
+                        self.finished_successfully = True
+                        self.score = float(data.get('score', None))
+                        self.save()
+
+                    return {
+                        'status': data.get('status'),
+                        'score': data.get('score', None)
+                    }
+                else:
+                    print("Could not retrieve complete data for submission")
+                    return None
+            elif score_api_resp.status_code == 404:
+                self.finished_successfully = False
+                self.save()
+                print("Could not find submission or competition.")
                 return None
-        elif score_api_resp.status_code == 404:
-            print("Could not find submission or competition.")
+            elif score_api_resp.status_code == 403:
+                self.finished_successfully = False
+                self.save()
+                print("Not authorized to make this request.")
+                return None
+            print("There was a problem making the request")
             return None
-        elif score_api_resp.status_code == 403:
-            print("Not authorized to make this request.")
-            return None
-        print("There was a problem making the request")
-        return None
+        else:
+            return {
+                'status': self.finished_successfully,
+                'score': self.score
+            }
+
 
 
 class Grade(models.Model):
