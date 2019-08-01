@@ -2,7 +2,9 @@ import os
 from urllib.parse import urlparse
 
 import requests
+
 from django.db import models
+from django_cached_field import CachedDecimalField, CachedBoolField
 
 # Require an account type to determine users vs students?
 # Or should we abstract two seperate sub-models from this one?
@@ -102,15 +104,19 @@ class Submission(models.Model):
 class SubmissionTracker(models.Model):
     submission = models.ForeignKey('Submission', related_name='tracked_submissions', null=True, blank=True, on_delete=models.CASCADE)
 
-    finished_successfully = models.BooleanField(null=True)
-    score = models.DecimalField(null=True, decimal_places=3, max_digits=9)
+    finished_successfully = CachedBooleanField(null=True)
+    score = CachedDecimalField(null=True, decimal_places=3, max_digits=9)
 
     remote_id = models.CharField(max_length=10)
     remote_phase = models.CharField(max_length=10)
 
 
-    def get_remote_submission_info(self):
-        if self.finished_successfully == None:
+    def calculate_finished_successfully(self):
+        return
+
+    def calculate_score(self):
+
+            if self.finished_successfully == None:
             challenge_site_url = self.submission.definition.get_challenge_domain()
             score_api_url = "{0}/api/submission/{1}/get_score".format(challenge_site_url, self.remote_id)
             score_api_resp = requests.get(
