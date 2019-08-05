@@ -73,35 +73,53 @@
                         {% with submission|get_last_grade as grade %}
                             <div class="ui message">
                                 <div class="content">
-                                    <a style="margin-bottom: 20px;" href="{{ submission.get_challenge_url }}"
-                                       target="_blank" rel="noopener noreferrer"
-                                       class="ui blue button">View Challenge</a>
                                     <a style="margin-bottom: 20px;" href="{% url "homework:overview" klass_pk=definition.klass.pk %}"
                                        class="ui blue button">View Homeworks</a>
                                     <a style="margin-bottom: 20px;" href="{% url "homework:submission_list" definition_pk=definition.pk %}"
                                        class="ui blue button">View Submissions</a>
+                                    <a style="margin-bottom: 20px;" href="{{ submission.get_challenge_url }}"
+                                       target="_blank" rel="noopener noreferrer"
+                                       class="ui blue button">Codalab Challenge</a>
                                     {% if definition.starting_kit_github_url %}
-                                        <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">Goto Starting
-                                            Kit</a><br>
+                                        <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">
+                                            <i class="ui github icon"></i>
+                                            Starting Kit</a><br>
                                     {% endif %}
                                     {% if definition.team_based %}
                                         <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
-                                             class="ui red label">Graded as teamwork
+                                             class="ui basic red label">Graded as teamwork
                                         </div>
                                     {% endif %}
 
                                     <div class="ui grid">
                                         <div class="column">
-                                            <div class="ui header">Github Information</div>
+                                            <div class="ui header">Submission Information</div>
                                             <div class="ui divider"></div>
-{#                                            <div class="ui content">#}
-{#                                                <p>Date: {{ submission.created }}</p>#}
-{#                                                <p>Commit hash: {{ submission.commit_hash|slice:"7" }}</p>#}
-{#                                                <p>{{ submission.github_url }}</p>#}
-{#                                                <p>Repository Name: {{ submission.github_repo_name }}</p>#}
-{#                                                <p>Branch Name: {{ submission.github_branch_name }}</p>#}
-{#                                            </div>#}
-                                            <submission-detail-github submission_pk="{{ submission.pk }}" hash="{{ submission.commit_hash }}" user_pk="{{ request.user.pk }}"></submission-detail-github>
+                                            <div class="ui grid">
+                                                <div class="six wide column">
+                                                    <a class="ui tiny black button" href="{{ submission.github_url }}">Submission File</a>
+                                                    {% if submission.github_repo_name %}
+                                                    <p>Submitted: {{ submission.created|timesince }} ago</p>
+                                                    {% if submission.commit_hash and not submission.commit_hash == "Commit" %}
+                                                        <p>Commit hash: {{ submission.commit_hash|truncatechars:6 }}</p>
+                                                    {% endif %}
+                                                    <p>Repository Name: {{ submission.github_repo_name }}</p>
+                                                    {% endif %}
+                                                    {% if submission.github_branch_name and not submission.github_branch_name == "Branch" %}
+                                                        <p>Branch Name: {{ submission.github_branch_name }}</p>
+                                                    {% endif %}
+
+                                                    <h4>Additional Questions</h4>
+                                                    <div class="ui relaxed celled list">
+                                                        <ol>
+                                                            {% for answer in submission.question_answers.all %}
+                                                                <li each="answer in submission.question_answers">{{ answer.question.question }} </br>{{ answer.text }}</li>
+                                                            {% endfor %}
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                                <submission-detail-github class="ten wide column" submission_pk="{{ submission.pk }}" hash="{{ submission.commit_hash }}" user_pk="{{ request.user.pk }}"></submission-detail-github>
+                                            </div>
                                         </div>
                                     </div>
 

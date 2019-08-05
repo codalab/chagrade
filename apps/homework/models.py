@@ -129,7 +129,6 @@ class SubmissionTracker(models.Model):
                 self.stored_status = data.get('status')
                 self.stored_score = float(data.get('score', None))
                 self.save()
-
             else:
                 print("Could not retrieve complete data for submission")
                 return
@@ -199,7 +198,8 @@ class Question(models.Model):
     has_specific_answer = models.BooleanField(default=False)
 
     question = models.CharField(max_length=300)
-    answer = models.CharField(max_length=200, null=True, blank=True)
+    answer = models.TextField(blank=True, default='')
+    #answer = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.question

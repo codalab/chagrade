@@ -79,18 +79,19 @@
                                 <div class="content">
                                     <h4>Due Date: {{ definition.due_date }}</h4>
                                     <p>{{ definition.description }}</p>
-                                    <a href="{{ submission.get_challenge_url }}"
-                                       target="_blank" rel="noopener noreferrer"
-                                       class="ui green button">View Challenge</a>
                                     <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk use_github=1 %}"
                                        class="ui blue button">Submit Homework</a>
+                                    <a href="{{ submission.get_challenge_url }}"
+                                       target="_blank" rel="noopener noreferrer"
+                                       class="ui blue button">Codalab Challenge</a>
                                     {% if definition.starting_kit_github_url %}
-                                        <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">Goto Starting
-                                            Kit</a><br>
+                                        <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">
+                                            <i class="ui github icon"></i>
+                                            Starting Kit</a><br>
                                     {% endif %}
                                     {% if definition.team_based %}
                                         <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
-                                             class="ui red label">Graded as teamwork
+                                             class="ui basic red label">Graded as teamwork
                                         </div>
                                     {% endif %}
                                     <div class="ui grid">

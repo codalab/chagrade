@@ -66,7 +66,7 @@
     <div style="">
         <span>
             <a onclick="{download_csv}" class="ui yellow button">Download CSV</a>
-            <a class="ui blue button"
+            <a class="ui blue button" data-tooltip="Format: First Name,Last Name,Display Name,Student ID,Email,Team,TeamLeader(Optional bool)"
                onclick="document.getElementById('hidden_file_input').click()">Upload CSV</a>
             <input id="hidden_file_input" hidden type="file" onchange="{do_csv_upload}"/>
             <a class="ui green icon button" onclick="{ show_student_modal }">

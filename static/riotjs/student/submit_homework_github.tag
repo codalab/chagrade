@@ -48,7 +48,7 @@
                         <i class="pop-up question blue circle icon"
                            data-title="A URL from your github repo to a specific file"
                            data-content="Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip"></i>
-                        Github Submission:
+                        Github Submission (Must be zip file):
                     </label>
                 </span>
                 </div>
@@ -106,7 +106,7 @@
                     <div id="file-tree-header" class="ui header hidden">
                         <div class="content">
                             <i class="blue alternate file icon"></i>
-                            Select File Below:
+                            Select Zip File Below:
                         </div>
                     </div>
                     <div class="ui form">
@@ -151,8 +151,8 @@
                 <input name="{'question_id_' + index}" ref="{'question_id_' + index}" type="hidden"
                        value="{question.id}">
                 <label>{question.question}:</label>
-                <input data-question-id="" name="{'question_answer_' + index}" ref="{'question_answer_' + index}"
-                       type="text" value="{question.prev_answer || ''}">
+                <textarea data-question-id="" name="{'question_answer_' + index}" ref="{'question_answer_' + index}"
+                          type="text" value="{question.prev_answer || ''}" rows="2"></textarea>
             </div>
         </div>
     </div>

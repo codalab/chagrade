@@ -73,29 +73,33 @@
                         {% with submission|get_last_grade as grade %}
                             <div class="ui message">
                                 <div class="content">
+
                                     <div class="header">
                                         {{ definition.name }}
                                     </div>
                                     <hr>
-                                    <h4>Due Date: {{ definition.due_date }}</h4>
-                                    <p>{{ definition.description }}</p>
-                                    <a href="{{ submission.get_challenge_url }}"
-                                       target="_blank" rel="noopener noreferrer"
-                                       class="ui green button">View Challenge</a>
-                                    <a href="{% url "homework:submission_list" definition_pk=definition.pk %}"
-                                       class="ui blue button">View Submissions</a>
-                                    {% if definition.starting_kit_github_url %}
-                                        <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">Goto Starting
-                                            Kit</a><br>
-                                    {% endif %}
-                                    {% if definition.team_based %}
-                                        <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
-                                             class="ui red label">Graded as teamwork
-                                        </div>
-                                    {% endif %}
+
                                     <div class="ui grid">
                                         <div class="row">
                                             <div class="eight wide column">
+
+                                                <h4>Due Date: {{ definition.due_date }}</h4>
+                                                <p>{{ definition.description }}</p>
+                                                <a href="{{ submission.get_challenge_url }}"
+                                                   target="_blank" rel="noopener noreferrer"
+                                                   class="ui blue button">Codalab Challenge</a>
+                                                {% if definition.starting_kit_github_url %}
+                                                    <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">
+                                                        <i class="ui github icon"></i>
+                                                        Starting Kit</a>
+                                                    <br>
+                                                {% endif %}
+                                                {% if definition.team_based %}
+                                                    <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
+                                                         class="ui basic red label">Graded as teamwork
+                                                    </div>
+                                                {% endif %}
+
                                                 {% if submission %}
                                                     <div class="ui divider"></div>
                                                     <h4 class="ui header">Submission Details:</h4>
@@ -122,7 +126,9 @@
                                             <div class="eight wide column">
                                                 {% if submission %}
                                                     <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk use_github=1 %}"
-                                                       class="ui yellow button">Re-Submit Homework</a>
+                                                       class="ui yellow fluid button">Re-Submit Homework</a>
+                                                    <a href="{% url "homework:submission_list" definition_pk=definition.pk %}"
+                                                       class="ui blue fluid button">View Submissions</a>
                                                     <table class="ui table">
                                                         <thead>
                                                         <tr>
@@ -166,6 +172,7 @@
                                             </div>
                                         {% endif %}
                                     </div>
+
                                 </div>
                             </div>
                         {% endwith %}
