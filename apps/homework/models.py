@@ -4,7 +4,6 @@ from urllib.parse import urlparse
 import requests
 
 from django.db import models
-from django_cached_field import CachedDecimalField, CachedBoolField
 
 # Require an account type to determine users vs students?
 # Or should we abstract two seperate sub-models from this one?
@@ -44,7 +43,7 @@ class Definition(models.Model):
     def __str__(self):
         return "{}".format(self.name)
 
-    def get_challenge_domain(self):
+    def get_challenge_url(self):
         parsed_uri = urlparse(self.challenge_url)
         scheme = parsed_uri.scheme
         domain = parsed_uri.netloc
@@ -104,64 +103,61 @@ class Submission(models.Model):
 class SubmissionTracker(models.Model):
     submission = models.ForeignKey('Submission', related_name='tracked_submissions', null=True, blank=True, on_delete=models.CASCADE)
 
-    finished_successfully = CachedBooleanField(null=True)
-    score = CachedDecimalField(null=True, decimal_places=3, max_digits=9)
+    stored_status = models.CharField(max_length=20, null=True)
+    stored_score = models.FloatField(null=True)
 
     remote_id = models.CharField(max_length=10)
     remote_phase = models.CharField(max_length=10)
 
+    def retrieve_score_and_status(self):
+        challenge_site_url = self.submission.definition.get_challenge_url()
+        score_api_url = "{0}/api/submission/{1}/get_score".format(challenge_site_url, self.remote_id)
+        score_api_resp = requests.get(
+            score_api_url,
+            auth=HTTPBasicAuth(
+                os.environ.get('CODALAB_SUBMISSION_USERNAME'),
+                os.environ.get('CODALAB_SUBMISSION_PASSWORD')
+            )
+        )
+        print(score_api_url)
+        print(score_api_resp.content)
+        if score_api_resp.status_code == 200:
+            data = score_api_resp.json()
+            if data.get('status'):
+                print("Data found for submission. Returning scores.")
 
-    def calculate_finished_successfully(self):
+                self.stored_status = data.get('status')
+                self.stored_score = float(data.get('score', None))
+                self.save()
+
+            else:
+                print("Could not retrieve complete data for submission")
+                return
+        elif score_api_resp.status_code == 404:
+            self.stored_status = 'DNE'
+            self.save()
+            print("Could not find submission or competition.")
+            return
+        elif score_api_resp.status_code == 403:
+            self.stored_status = 'DNE'
+            self.save()
+            print("Not authorized to make this request.")
+            return
+        print("There was a problem making the request")
         return
 
-    def calculate_score(self):
+    @property
+    def status(self):
+        if self.stored_status == None:
+            self.retrieve_score_and_status()
+        return self.stored_status
 
-            if self.finished_successfully == None:
-            challenge_site_url = self.submission.definition.get_challenge_domain()
-            score_api_url = "{0}/api/submission/{1}/get_score".format(challenge_site_url, self.remote_id)
-            score_api_resp = requests.get(
-                score_api_url,
-                auth=HTTPBasicAuth(
-                    os.environ.get('CODALAB_SUBMISSION_USERNAME'),
-                    os.environ.get('CODALAB_SUBMISSION_PASSWORD')
-                )
-            )
-            print(score_api_url)
-            print(score_api_resp.content)
-            if score_api_resp.status_code == 200:
-                data = score_api_resp.json()
-                if data.get('status'):
-                    print("Data found for submission. Returning scores.")
-
-                    if data.get('status') == 'finished':
-                        self.finished_successfully = True
-                        self.score = float(data.get('score', None))
-                        self.save()
-
-                    return {
-                        'status': data.get('status'),
-                        'score': data.get('score', None)
-                    }
-                else:
-                    print("Could not retrieve complete data for submission")
-                    return None
-            elif score_api_resp.status_code == 404:
-                self.finished_successfully = False
-                self.save()
-                print("Could not find submission or competition.")
-                return None
-            elif score_api_resp.status_code == 403:
-                self.finished_successfully = False
-                self.save()
-                print("Not authorized to make this request.")
-                return None
-            print("There was a problem making the request")
-            return None
-        else:
-            return {
-                'status': self.finished_successfully,
-                'score': self.score
-            }
+    @property
+    def score(self):
+        print('score property called')
+        if self.stored_score == None:
+            self.retrieve_score_and_status()
+        return self.stored_score
 
 
 
@@ -179,7 +175,7 @@ class Grade(models.Model):
     published = models.BooleanField(default=False)
 
     def __str__(self):
-        return "{0}:{1}".format(self.submission.submission_github_url, self.evaluator.user.username)
+        return "{0}:{1}".format(self.submission.github_url, self.evaluator.user.username)
 
     def get_total_score_total_possible(self):
         total_possible = 0

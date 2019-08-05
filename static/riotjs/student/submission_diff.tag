@@ -1,6 +1,6 @@
 <submission-diff>
-    <a if={!behind && !no_diff} class="ui small green button" href="{diff_url}">{diff_magnitude} commits ahead</a>
-    <a if={behind && !no_diff} class="ui small red button" href="{diff_url}">Behind</a>
+    <a if={!behind && !no_diff} class="ui small green button" href="{diff_url}" target="_blank" rel="noopener noreferrer">{diff_magnitude} commits ahead</a>
+    <a if={behind && !no_diff} class="ui small red button" href="{diff_url}" target="_blank" rel="noopener noreferrer">Behind</a>
     <div if={no_diff}>No Diff</div>
     <script>
         var self = this

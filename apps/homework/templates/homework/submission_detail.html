@@ -74,13 +74,14 @@
                             <div class="ui message">
                                 <div class="content">
                                     <a style="margin-bottom: 20px;" href="{{ submission.get_challenge_url }}"
+                                       target="_blank" rel="noopener noreferrer"
                                        class="ui blue button">View Challenge</a>
                                     <a style="margin-bottom: 20px;" href="{% url "homework:overview" klass_pk=definition.klass.pk %}"
                                        class="ui blue button">View Homeworks</a>
                                     <a style="margin-bottom: 20px;" href="{% url "homework:submission_list" definition_pk=definition.pk %}"
                                        class="ui blue button">View Submissions</a>
                                     {% if definition.starting_kit_github_url %}
-                                        <a href="{{ definition.starting_kit_github_url }}" class="ui blue button">Goto Starting
+                                        <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">Goto Starting
                                             Kit</a><br>
                                     {% endif %}
                                     {% if definition.team_based %}

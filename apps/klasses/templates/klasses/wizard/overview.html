@@ -25,7 +25,7 @@
                     <div class="row">
                         <div class="two wide column">
                             {% if klass.image %}
-                                <img style="height: 100px; width: auto;" src="{{ klass.image.url }}">
+                                <img style="height: auto; width: auto;" src="{{ klass.image.url }}">
                             {% else %}
                                 <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
                             {% endif %}
@@ -80,7 +80,7 @@
                             <div class="description">Choose your shipping options</div>
                         </div>
                     </a>
-                    <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="step">
+                    <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="{% if klass.homework_definitions.count > 0 %}completed {% endif %}step">
                         <i class="student icon"></i>
                         <div class="content">
                             <div class="title">Define Homework</div>

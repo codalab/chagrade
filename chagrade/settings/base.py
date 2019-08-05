@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'drf_yasg',
     'oauth2_provider',
     'storages',
-    'django_cached_field',
     # Our Apps
     'apps.profiles',
     'apps.klasses',
@@ -71,11 +70,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CELERY_IMPORTS = [
-    'django_cached_field.tasks',
-]
-
-CACHED_FIELD_EAGER_RECALCULATION = False
 
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

@@ -8,7 +8,7 @@ class SubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = [
-            'submission_github_url'
+            'github_url'
         ]
 
 

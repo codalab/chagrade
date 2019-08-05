@@ -80,11 +80,12 @@
                                     <h4>Due Date: {{ definition.due_date }}</h4>
                                     <p>{{ definition.description }}</p>
                                     <a href="{{ submission.get_challenge_url }}"
+                                       target="_blank" rel="noopener noreferrer"
                                        class="ui green button">View Challenge</a>
                                     <a href="{% url "homework:submission_list" definition_pk=definition.pk %}"
                                        class="ui blue button">View Submissions</a>
                                     {% if definition.starting_kit_github_url %}
-                                        <a href="{{ definition.starting_kit_github_url }}" class="ui blue button">Goto Starting
+                                        <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">Goto Starting
                                             Kit</a><br>
                                     {% endif %}
                                     {% if definition.team_based %}
@@ -101,6 +102,7 @@
                                                     <ul class="ui relaxed celled list">
                                                         <div class="item"><a
                                                                 href="{{ submission.github_url }}"
+                                                                target="_blank" rel="noopener noreferrer"
                                                                 class="">Github URL for Submission</a></div>
                                                         {% if definition.ask_method_name %}
                                                             <div class="item">Method Name:

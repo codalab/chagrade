@@ -80,11 +80,12 @@
                                     <h4>Due Date: {{ definition.due_date }}</h4>
                                     <p>{{ definition.description }}</p>
                                     <a href="{{ submission.get_challenge_url }}"
+                                       target="_blank" rel="noopener noreferrer"
                                        class="ui green button">View Challenge</a>
                                     <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk use_github=1 %}"
                                        class="ui blue button">Submit Homework</a>
                                     {% if definition.starting_kit_github_url %}
-                                        <a href="{{ definition.starting_kit_github_url }}" class="ui blue button">Goto Starting
+                                        <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">Goto Starting
                                             Kit</a><br>
                                     {% endif %}
                                     {% if definition.team_based %}
@@ -130,7 +131,7 @@
                                                             {% endif %}
                                                             <td>
                                                                 {% if submission.github_url %}
-                                                                    <a class="ui mini blue icon button" href="{{ submission.github_url }}">
+                                                                    <a class="ui mini blue icon button" href="{{ submission.github_url }}" target="_blank" rel="noopener noreferrer">
                                                                         <i class="file code icon"></i>
                                                                     </a>
                                                                 {% else %}
@@ -168,19 +169,30 @@
                                                                 {% endif %}
                                                             {% endwith %}
 
-                                                                {% for tracker in submission.tracked_submissions.all %}
-                                                                    {% with tracker.get_remote_submission_info as submission_info %}
-                                                                        {% if submission_info %}
-{#                                                                            <td>{{ tracker.remote_id }}</td>#}
-{#                                                                            <td>{{ submission_info|get_item:'status' }}</td>#}
-                                                                            <td>{{ submission_info|get_item:'score' }}</td>
-{#                                                                            <td>{{ tracker.remote_phase }}</td>#}
-{#                                                                            <td></td>#}
+                                                                {% if submission.tracked_submissions.all %}
+                                                                    {% for tracker in submission.tracked_submissions.all %}
+                                                                        {% if tracker.score %}
+                                                                            <td>{{tracker.score}}</td>
                                                                         {% else %}
-                                                                            <td>Waiting...</td>
+                                                                            <td>No Score</td>
                                                                         {% endif %}
-                                                                    {% endwith %}
-                                                                {% endfor %}
+
+{#                                                                        {% with tracker.get_remote_submission_info as submission_info %}#}
+{#                                                                            {% if submission_info %}#}
+{#                                                                                <td>{{ tracker.remote_id }}</td>#}
+{#                                                                                <td>{{ submission_info|get_item:'status' }}</td>#}
+{#                                                                                <td>{{ submission_info|get_item:'score' }}</td>#}
+{#                                                                                <td>{{ tracker.remote_phase }}</td>#}
+{#                                                                                <td></td>#}
+{#                                                                            {% else %}#}
+{#                                                                                <td>Waiting...</td>#}
+{#                                                                            {% endif %}#}
+{#                                                                        {% endwith %}#}
+
+                                                                    {% endfor %}
+                                                                {% else %}
+                                                                    <td>No Submission</td>
+                                                                {% endif %}
                                                             </tr>
                                                         {% endfor %}
                                                         </tbody>
