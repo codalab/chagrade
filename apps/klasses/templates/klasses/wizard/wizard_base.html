@@ -27,13 +27,13 @@
                     <div class="title">Enroll Students</div>
                 </div>
             </a>
-            <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="{% if wizard_current == 'klass_homework' or wizard_current == 'define_homework' %}active {% endif %}step">
+            <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="{% if klass.homework_definitions.count > 0 %}completed {% endif %}{% if wizard_current == 'klass_homework' or wizard_current == 'define_homework' %}active {% endif %}step">
                 <i class="student icon"></i>
                 <div class="content">
                     <div class="title">Define Homework</div>
                 </div>
             </a>
-            <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="{% if wizard_current == 'klass_grading' or wizard_current == 'grade_homework' %}active {% endif %}step">
+            <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="{% if completely_graded %}completed {% endif %}{% if wizard_current == 'klass_grading' or wizard_current == 'grade_homework' %}active {% endif %}step">
                 <i class="pencil alternate icon"></i>
                 <div class="content">
                     <div class="title">Grade Homework</div>

@@ -9,12 +9,38 @@ from django.http import Http404, JsonResponse, HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, TemplateView, FormView, UpdateView
 
+from apps.homework.models import Grade, Submission
+
 from apps.klasses.forms import KlassForm
 from apps.klasses.models import Klass
 
 from apps.klasses.mixins import WizardMixin
 
 # Todo: Replace Http404's with correct resposne for forbidden (Besides not found?)
+
+def klass_homeworks_completely_graded(klass):
+    for hw in klass.homework_definitions.all():
+        if hw.team_based:
+            for team in klass.teams.all():
+                team_graded = False
+                for submission in Submission.objects.filter(team=team, definition=hw):
+                    if Grade.objects.filter(submission=submission, published=True):
+                        team_graded = True
+                        break
+                if not team_graded:
+                    return False
+            return True
+
+        else:
+            for student in klass.enrolled_students.all():
+                student_graded = False
+                for submission in Submission.objects.filter(creator=student, definition=hw):
+                    if Grade.objects.filter(submission=submission, published=True):
+                        student_graded = True
+                        break
+                if not student_graded:
+                    return False
+            return True
 
 
 class CreationView(LoginRequiredMixin, FormView):
@@ -48,6 +74,16 @@ class OverView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(OverView, self).get_context_data(**kwargs)
+        print('kwargs: ', kwargs['object'])
+
+        try:
+            klass = kwargs.get('object')
+            print(klass)
+        except ObjectDoesNotExist:
+            raise Http404
+
+        context['completely_graded'] = klass_homeworks_completely_graded(klass)
+
         return context
 
 
@@ -56,15 +92,45 @@ class EnrollmentView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        try:
+            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+        except ObjectDoesNotExist:
+            raise Http404
+
+        context['completely_graded'] = klass_homeworks_completely_graded(klass)
         return context
 
 
 class DefineHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/define_homework.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        try:
+            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+        except ObjectDoesNotExist:
+            raise Http404
+
+        context['completely_graded'] = klass_homeworks_completely_graded(klass)
+        return context
+
 
 class GradeHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/grade_homework.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        try:
+            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+        except ObjectDoesNotExist:
+            raise Http404
+
+        context['completely_graded'] = klass_homeworks_completely_graded(klass)
+        return context
+
 
 
 # TODO: Make this into an API point/call
@@ -97,6 +163,17 @@ class ActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
                 'errors': {'klass': "Klass object not found!"}
             }
             return JsonResponse(data, status=404)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        try:
+            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+        except ObjectDoesNotExist:
+            raise Http404
+
+        context['completely_graded'] = klass_homeworks_completely_graded(klass)
+        return context
 
 
 def get_klass_students_as_csv(request, klass_pk):

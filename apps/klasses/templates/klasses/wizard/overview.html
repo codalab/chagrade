@@ -87,7 +87,7 @@
                             <div class="description">Attach competitions to homework and define deadlines</div>
                         </div>
                     </a>
-                    <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="step">
+                    <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="{% if completely_graded %}completed {% endif %}step">
                         <i class="pencil alternate icon"></i>
                         <div class="content">
                             <div class="title">Grade Homework</div>
