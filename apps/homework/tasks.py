@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 import requests
 from requests.auth import HTTPBasicAuth
 from apps.homework.models import Submission, SubmissionTracker
+from pprint import pprint
 
 # TODO: Clean this up and possibly have a flag between running this as a task vs actually calling it? (Heroku vs Docker)
 
@@ -85,37 +86,46 @@ def post_submission(submission_pk):
         os.environ.get('CODALAB_SUBMISSION_PASSWORD')
     ))
     phases_dict = phases_request.json()[0]['phases']
-    for i in range(len(phases_dict)):
-        phase_id = phases_dict[i]['id']
-        sub_descr = "Chagrade_Submission_{0}".format(submission.id)
-        finalize_url = "{0}/api/competition/{1}/submission?description={2}&phase_id={3}".format(site_url, challenge_pk,
-                                                                                                sub_descr, phase_id)
-        custom_filename = "{username}_{date}.zip".format(username=submission.creator.user.username, date=submission.created)
-        print("Finalizing submission for phase: {}".format(phase_id))
-        phase_final_resp = requests.post(finalize_url, data={
-            'id': submission_data,
-            # 'name': 'master.zip',
-            'name': custom_filename,
-            'type': 'application/zip',
-            # 'size': ?
-        }, auth=HTTPBasicAuth(
-            os.environ.get('CODALAB_SUBMISSION_USERNAME'),
-            os.environ.get('CODALAB_SUBMISSION_PASSWORD')
-        ))
-        print('url:', finalize_url)
-        print('username:', os.environ.get('CODALAB_SUBMISSION_USERNAME'))
-        print('password:', os.environ.get('CODALAB_SUBMISSION_PASSWORD'))
+    print('\n\n\n')
+    print('phases_resp:')
+    pprint(phases_request.json())
+    print('\n\n\n')
+    print('phases_dict:')
+    pprint(phases_request.json()[0]['phases'])
+    print('\n\n\n')
+    phase_id = None
+    for phase in phases_dict:
+        if phase['is_active']
+            phase_id = phase['id']
+    sub_descr = "Chagrade_Submission_{0}".format(submission.id)
+    finalize_url = "{0}/api/competition/{1}/submission?description={2}&phase_id={3}".format(site_url, challenge_pk,
+                                                                                            sub_descr, phase_id)
+    custom_filename = "{username}_{date}.zip".format(username=submission.creator.user.username, date=submission.created)
+    print("Finalizing submission for phase: {}".format(phase_id))
+    phase_final_resp = requests.post(finalize_url, data={
+        'id': submission_data,
+        # 'name': 'master.zip',
+        'name': custom_filename,
+        'type': 'application/zip',
+        # 'size': ?
+    }, auth=HTTPBasicAuth(
+        os.environ.get('CODALAB_SUBMISSION_USERNAME'),
+        os.environ.get('CODALAB_SUBMISSION_PASSWORD')
+    ))
+    print('url:', finalize_url)
+    print('username:', os.environ.get('CODALAB_SUBMISSION_USERNAME'))
+    print('password:', os.environ.get('CODALAB_SUBMISSION_PASSWORD'))
 
-        # If we succeed in posting to the phase, create a new tracker and store the submission info
-        if phase_final_resp.status_code == 201:
-            result = phase_final_resp.json()
-            new_tracker = SubmissionTracker.objects.create(
-                submission=submission,
-                remote_phase=phase_id,
-                remote_id=result['id']
-            )
-        else:
-            print("Something went wrong making a submission to the challenge_url")
-            print(phase_final_resp.content)
-            print(dir(phase_final_resp))
+    # If we succeed in posting to the phase, create a new tracker and store the submission info
+    if phase_final_resp.status_code == 201:
+        result = phase_final_resp.json()
+        new_tracker = SubmissionTracker.objects.create(
+            submission=submission,
+            remote_phase=phase_id,
+            remote_id=result['id']
+        )
+    else:
+        print("Something went wrong making a submission to the challenge_url")
+        print(phase_final_resp.content)
+        print(dir(phase_final_resp))
     submission.submitted_to_challenge = True
