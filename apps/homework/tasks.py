@@ -24,6 +24,7 @@ def post_submission(submission_pk):
     submission_url = '{0}/api/competition/{1}/submission/sas'.format(site_url, challenge_pk)
     # Post our request to the submission SAS API endpoint
     print("Getting submission SAS info")
+    print(os.environ.get('CODALAB_SUBMISSION_PASSWORD'))
     resp = requests.post(
         url=submission_url, auth=HTTPBasicAuth(
             os.environ.get('CODALAB_SUBMISSION_USERNAME'),
@@ -95,7 +96,7 @@ def post_submission(submission_pk):
     print('\n\n\n')
     phase_id = None
     for phase in phases_dict:
-        if phase['is_active']
+        if phase['is_active']:
             phase_id = phase['id']
     sub_descr = "Chagrade_Submission_{0}".format(submission.id)
     finalize_url = "{0}/api/competition/{1}/submission?description={2}&phase_id={3}".format(site_url, challenge_pk,

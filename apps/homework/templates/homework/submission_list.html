@@ -177,19 +177,6 @@
                                                                         {% else %}
                                                                             <td>No Score</td>
                                                                         {% endif %}
-
-{#                                                                        {% with tracker.get_remote_submission_info as submission_info %}#}
-{#                                                                            {% if submission_info %}#}
-{#                                                                                <td>{{ tracker.remote_id }}</td>#}
-{#                                                                                <td>{{ submission_info|get_item:'status' }}</td>#}
-{#                                                                                <td>{{ submission_info|get_item:'score' }}</td>#}
-{#                                                                                <td>{{ tracker.remote_phase }}</td>#}
-{#                                                                                <td></td>#}
-{#                                                                            {% else %}#}
-{#                                                                                <td>Waiting...</td>#}
-{#                                                                            {% endif %}#}
-{#                                                                        {% endwith %}#}
-
                                                                     {% endfor %}
                                                                 {% else %}
                                                                     <td>No Submission</td>

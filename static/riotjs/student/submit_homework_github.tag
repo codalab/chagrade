@@ -184,6 +184,9 @@
         }
 
         self.github_requests = 0
+        self.repo_value = null
+        self.branch_value = null
+        self.commit_value = null
 
         self.one('mount', function () {
             self.update_definition()
@@ -196,7 +199,10 @@
 
             $('.ui.dropdown.repository', self.root).dropdown({
                 onChange: function(value, text, $selectedItem) {
-///                    $selectedItem.dropdown('set text', text)
+                    if (self.repo_value === value) {
+                        return
+                    }
+                    self.repo_value = value
                     self.github_repo = self.github_repositories[parseInt(value)]
                     self.github_request(self.github_repo.branches_url.split('{')[0], function (branch_data) {
                         self.github_branches = branch_data
@@ -214,32 +220,33 @@
             })
             $('.ui.dropdown.branch', self.root).dropdown({
                 onChange: function(value, text, $selecteditem) {
+                        if (self.branch_value === value) {
+                            return
+                        }
+                        self.branch_value = value
                         self.github_ref = text
                         load_github_file_tree()
                 },
             })
             $('.ui.dropdown.commit', self.root).dropdown({
                 onChange: function(value, text, $selecteditem) {
+                        if (self.commit_value === value) {
+                            return
+                        }
+                        self.commit_value = value
                         self.github_ref = text
                         load_github_file_tree()
                 },
             })
 
-            $(document).on('click', '.file.title', function (e) {
+            $(document).on('click', '.file.title', function clickkky(e) {
                 let file_element = $(e.target)
-                console.log('\n\n\n\n\n')
-                console.log(file_element)
                 let url = file_element.parent().parent().attr('data-url')
-                console.log(url)
                 if (!!url) {
                     let parent = file_element.parent()
-                    console.info("parent", parent)
                     parent.checkbox('check')
                     let checkbox = file_element.siblings().first()
-//                    checkbox.click()
-                    console.log('clicked')
                     self.github_url = url
-                    console.log(self.github_url)
                     $('.file-label').removeClass('selected-file')
                     file_element.addClass('selected-file')
                 }
@@ -288,7 +295,7 @@
             setTimeout(function () {
                 $('.ui.accordion').accordion('close others')
                 self.update()
-            }, 500)
+            }, 100)
 
             self.github_request(root_url, function (repo_files) {
                     self.github_file_tree = repo_files
@@ -350,6 +357,7 @@
                     window.location = '/homework/overview/' + KLASS
                 })
                 .fail(function (response) {
+                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         if (key === 'question_answers') {
                             toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")

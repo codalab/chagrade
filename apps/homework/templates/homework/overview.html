@@ -140,16 +140,18 @@
                                                         </thead>
                                                         <tbody>
                                                         {% for tracker in submission.tracked_submissions.all %}
-                                                            {% with tracker.get_remote_submission_info as submission_info %}
-                                                                {% if submission_info %}
-                                                                    <td>{{ tracker.remote_id }}</td>
-                                                                    <td>{{ submission_info|get_item:'status' }}</td>
-                                                                    <td>{{ submission_info|get_item:'score' }}</td>
-                                                                    <td>{{ tracker.remote_phase }}</td>
-                                                                {% else %}
-                                                                    <td>Waiting...</td>
-                                                                {% endif %}
-                                                            {% endwith %}
+                                                            <td>{{ tracker.remote_id }}</td>
+                                                            {% if tracker.status %}
+                                                                <td>{{tracker.status}}</td>
+                                                            {% else %}
+                                                                <td>No Status</td>
+                                                            {% endif %}
+                                                            {% if tracker.score %}
+                                                                <td>{{tracker.score}}</td>
+                                                            {% else %}
+                                                                <td>No Score</td>
+                                                            {% endif %}
+                                                            <td>{{ tracker.remote_phase }}</td>
                                                         {% endfor %}
                                                         </tbody>
                                                     </table>
