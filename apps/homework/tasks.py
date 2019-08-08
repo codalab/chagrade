@@ -96,8 +96,12 @@ def post_submission(submission_pk):
     print('\n\n\n')
     phase_id = None
     for phase in phases_dict:
-        if phase['is_active']:
-            phase_id = phase['id']
+        try:
+            if phase['is_active']:
+                phase_id = phase['id']
+        except KeyError:
+            print('Codalab Submission API not up to date.')
+            return
     sub_descr = "Chagrade_Submission_{0}".format(submission.id)
     finalize_url = "{0}/api/competition/{1}/submission?description={2}&phase_id={3}".format(site_url, challenge_pk,
                                                                                             sub_descr, phase_id)

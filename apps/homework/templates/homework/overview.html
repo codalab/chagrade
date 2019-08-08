@@ -85,7 +85,7 @@
 
                                                 <h4>Due Date: {{ definition.due_date }}</h4>
                                                 <p>{{ definition.description }}</p>
-                                                <a href="{{ submission.get_challenge_url }}"
+                                                <a href="{{ definition.challenge_url }}"
                                                    target="_blank" rel="noopener noreferrer"
                                                    class="ui blue button">Codalab Challenge</a>
                                                 {% if definition.starting_kit_github_url %}
