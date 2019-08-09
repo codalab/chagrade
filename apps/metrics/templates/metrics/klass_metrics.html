@@ -176,7 +176,7 @@
                         {% with submission|get_last_grade as grade %}
                             <div class="ui message">
                                 <div class="content">
-                                    <a style="margin-bottom: 20px;" href="{{ submission.get_challenge_url }}"
+                                    <a style="margin-bottom: 20px;" href="{{ definition.get_challenge_url }}"
                                        target="_blank" rel="noopener noreferrer"
                                        class="ui blue button">View Challenge</a>
                                     <a style="margin-bottom: 20px;" href="{% url "homework:overview" klass_pk=definition.klass.pk %}"

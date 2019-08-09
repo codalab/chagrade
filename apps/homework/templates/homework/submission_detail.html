@@ -77,7 +77,7 @@
                                        class="ui blue button">View Homeworks</a>
                                     <a style="margin-bottom: 20px;" href="{% url "homework:submission_list" definition_pk=definition.pk %}"
                                        class="ui blue button">View Submissions</a>
-                                    <a style="margin-bottom: 20px;" href="{{ submission.get_challenge_url }}"
+                                    <a style="margin-bottom: 20px;" href="{{ definition.get_challenge_url }}"
                                        target="_blank" rel="noopener noreferrer"
                                        class="ui blue button">Codalab Challenge</a>
                                     {% if definition.starting_kit_github_url %}

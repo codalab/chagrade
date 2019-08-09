@@ -357,7 +357,6 @@
                     window.location = '/homework/overview/' + KLASS
                 })
                 .fail(function (response) {
-                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         if (key === 'question_answers') {
                             toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")

@@ -78,7 +78,6 @@ def post_submission(submission_pk):
                 # "Content-Encoding": "gzip",
             }
         )
-    print(storage_resp.status_code)
     # https://competitions.codalab.org/api/competition/20616/phases/
     phases_request_url = "{0}/api/competition/{1}/phases/".format(site_url, challenge_pk)
     print("Getting phase info for competition")
@@ -87,13 +86,6 @@ def post_submission(submission_pk):
         os.environ.get('CODALAB_SUBMISSION_PASSWORD')
     ))
     phases_dict = phases_request.json()[0]['phases']
-    print('\n\n\n')
-    print('phases_resp:')
-    pprint(phases_request.json())
-    print('\n\n\n')
-    print('phases_dict:')
-    pprint(phases_request.json()[0]['phases'])
-    print('\n\n\n')
     phase_id = None
     for phase in phases_dict:
         try:
@@ -117,9 +109,6 @@ def post_submission(submission_pk):
         os.environ.get('CODALAB_SUBMISSION_USERNAME'),
         os.environ.get('CODALAB_SUBMISSION_PASSWORD')
     ))
-    print('url:', finalize_url)
-    print('username:', os.environ.get('CODALAB_SUBMISSION_USERNAME'))
-    print('password:', os.environ.get('CODALAB_SUBMISSION_PASSWORD'))
 
     # If we succeed in posting to the phase, create a new tracker and store the submission info
     if phase_final_resp.status_code == 201:

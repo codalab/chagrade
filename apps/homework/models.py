@@ -129,16 +129,17 @@ class SubmissionTracker(models.Model):
                 self.stored_status = data.get('status')
                 self.stored_score = float(data.get('score', None))
                 self.save()
+                return
             else:
                 print("Could not retrieve complete data for submission")
                 return
         elif score_api_resp.status_code == 404:
-            self.stored_status = 'DNE'
+            self.stored_status = None
             self.save()
             print("Could not find submission or competition.")
             return
         elif score_api_resp.status_code == 403:
-            self.stored_status = 'DNE'
+            self.stored_status = None
             self.save()
             print("Not authorized to make this request.")
             return
@@ -153,7 +154,6 @@ class SubmissionTracker(models.Model):
 
     @property
     def score(self):
-        print('score property called')
         if self.stored_score == None:
             self.retrieve_score_and_status()
         return self.stored_score
