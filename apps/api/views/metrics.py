@@ -63,3 +63,20 @@ class KlassMetricsView(APIView):
         }
         klasses = Klass.objects.dates('created', 'day').values(**output_fields)
         return Response(klasses)
+
+class StudentScoresView(APIView):
+    def get(self, request, **kwargs):
+        output_fields = {
+            'score': Count('pk'),
+            'date': F('datefield')
+        }
+        student = StudentMembership.objects.get(pk=kwargs.get('student_id'))
+
+       # TODO: Add Permissions Class (403 rather than 404)
+        # Is instructor of student's klass
+        if not request.user.instructor == student.klass.instructor:
+            raise Http404
+
+        Submission.objects.filter(creator=student).dates('created', 'day').values(score=Avg('normalized_score'), date=F('datefield'))
+
+        return Response()

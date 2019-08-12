@@ -68,6 +68,8 @@ class Submission(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
+    normalized_score = models.FloatField(null=True)
+
     submitted_to_challenge = models.BooleanField(default=False)
 
     team = models.ForeignKey('groups.Team', default=None, null=True, blank=True, related_name='submissions', on_delete=models.SET_NULL)
@@ -100,6 +102,7 @@ class Submission(models.Model):
     def filename(self):
         return self.github_url.split('/')[-1]
 
+
 class SubmissionTracker(models.Model):
     submission = models.ForeignKey('Submission', related_name='tracked_submissions', null=True, blank=True, on_delete=models.CASCADE)
 
@@ -108,6 +111,18 @@ class SubmissionTracker(models.Model):
 
     remote_id = models.CharField(max_length=10)
     remote_phase = models.CharField(max_length=10)
+
+    def save_normalized_score(self):
+        print('saving normalized score')
+        score = self.stored_score
+        definition = self.submission.definition
+        if score:
+            baseline = definition.baseline_score
+            target = definition.target_score
+            self.submission.normalized_score = (score - baseline) / (target - baseline)
+            self.submission.save()
+            print('saved normalized score')
+        return
 
     def retrieve_score_and_status(self):
         challenge_site_url = self.submission.definition.get_challenge_url()
@@ -129,6 +144,7 @@ class SubmissionTracker(models.Model):
                 self.stored_status = data.get('status')
                 self.stored_score = float(data.get('score', None))
                 self.save()
+                self.save_normalized_score()
                 return
             else:
                 print("Could not retrieve complete data for submission")
