@@ -86,7 +86,7 @@ class Submission(models.Model):
         if self.definition.team_based:
             if not self.team:
                 print("Team not set")
-                return
+                return self.definition.challenge_url
             custom_urls = self.team.challenge_urls.filter(definition=self.definition)
             if not custom_urls:
                 print("No custom URL found, returning definition challenge url")
