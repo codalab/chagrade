@@ -112,7 +112,7 @@ class ActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
         #     return HttpResponse(status=403)
         try:
             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
-            if request.user == klass.instructor.user:
+            if request.user == klass.instructor.user or request.user.is_superuser:
                 klass.active = not klass.active
                 klass.save()
                 data = {
