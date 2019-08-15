@@ -133,4 +133,22 @@ CHAGRADE.api = {
     get_submission_metrics: function(klass_pk) {
         return CHAGRADE.api.request('GET', URLS.API + "chagrade_submission_metrics/" + klass_pk)
     },
+    get_student_scores_metrics: function(student_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "student_scores/" + student_pk)
+    },
+    get_student_submission_times_metrics: function(student_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "student_submission_times/" + student_pk)
+    },
+    get_team_scores_metrics: function(team_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "team_scores/" + team_pk)
+    },
+    get_team_submission_times_metrics: function(team_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "team_submission_times/" + team_pk)
+    },
+    get_klass_scores_metrics: function(klass_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "klass_scores/" + klass_pk)
+    },
+    get_klass_submission_times_metrics: function(klass_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "klass_submission_times/" + klass_pk)
+    },
 }

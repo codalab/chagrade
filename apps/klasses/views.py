@@ -183,7 +183,7 @@ def get_klass_students_as_csv(request, klass_pk):
             klass = Klass.objects.get(pk=klass_pk)
             if not request.user.instructor:
                 return Http404("Not allowed")
-            if not request.user.instructor == klass.instructor:
+            if not request.user.instructor == klass.instructor or request.user.is_superuser:
                 return Http404("Not allowed")
         except Klass.DoesNotExist:
             raise Http404("Klass not found!")
