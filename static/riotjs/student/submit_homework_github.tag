@@ -418,7 +418,7 @@
                 .done(function (data) {
                     self.github_information = data.github_info
 
-                    self.github_request(self.github_information.repos_url, function (repo_data) {
+                    self.github_request(self.github_information.repos_url.slice(0, 27) + '/repos', function (repo_data) {
                         self.github_repositories = repo_data
                         self.update()
                     })
