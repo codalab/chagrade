@@ -162,49 +162,6 @@
                         </div>
                     </div>
                 </div>
-{#                {% if definition %}#}
-                    {#                    {% if definition.team_based %}#}
-{#                    {% with definition|get_last_submission:user.pk as submission %}#}
-{#                        {% with submission|get_last_grade as grade %}#}
-{#                            <div class="ui message">#}
-{#                                <div class="content">#}
-{#                                    <a style="margin-bottom: 20px;" href="{{ definition.get_challenge_url }}"#}
-{#                                       target="_blank" rel="noopener noreferrer"#}
-{#                                       class="ui blue button">View Challenge</a>#}
-{#                                    <a style="margin-bottom: 20px;" href="{% url "homework:overview" klass_pk=definition.klass.pk %}"#}
-{#                                       class="ui blue button">View Homeworks</a>#}
-{#                                    <a style="margin-bottom: 20px;" href="{% url "homework:submission_list" definition_pk=definition.pk %}"#}
-{#                                       class="ui blue button">View </a>#}
-{#                                    {% if definition.starting_kit_github_url %}#}
-{#                                        <a href="{{ definition.starting_kit_github_url }}" class="ui blue button">Goto Starting#}
-{#                                            Kit</a><br>#}
-{#                                    {% endif %}#}
-{#                                    {% if definition.team_based %}#}
-{#                                        <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"#}
-{#                                             class="ui red label">Graded as teamwork#}
-{#                                        </div>#}
-{#                                    {% endif %}#}
-{##}
-{#                                    <div class="ui grid">#}
-{#                                        <div class="column">#}
-{#                                            <div class="ui header">Github Information</div>#}
-{#                                            <div class="ui divider"></div>#}
-{#                                            <div class="ui content">#}
-{#                                                <p>Date: {{ submission.created }}</p>#}
-{#                                                <p>Commit hash: {{ submission.commit_hash|slice:"7" }}</p>#}
-{#                                                <p>{{ submission.github_url }}</p>#}
-{#                                                <p>Repository Name: {{ submission.github_repo_name }}</p>#}
-{#                                                <p>Branch Name: {{ submission.github_branch_name }}</p>#}
-{#                                            </div>#}
-{#                                            <submission-detail-github submission_pk="{{ submission.pk }}" hash="{{ submission.commit_hash }}" user_pk="{{ request.user.pk }}"></submission-detail-github>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{##}
-{#                                </div>#}
-{#                            </div>#}
-{#                        {% endwith %}#}
-{#                    {% endwith %}#}
-{#                {% endif %}#}
             </div>
         </div>
     </div>
@@ -215,6 +172,8 @@
     <script>
 
         var instructor_metrics = {}
+
+        var submission_time_labels = ['12 am', '1 am', '2 am', '3 am', '4 am', '5 am', '6 am', '7 am', '8 am', '9 am', '10 am', '11 am', '12 pm', '1 pm', '2 pm', '3 pm', '4 pm', '5 pm', '6 pm', '7 pm', '8 pm', '9 pm', '10 pm', '11 pm',]
 
         $(document).ready( function () {
             tab_setup()
@@ -246,8 +205,7 @@
 
             CHAGRADE.api.get_klass({{ klass.pk }})
                 .done(klass => {
-                    //console.info('klass info', klass)
-
+                    console.info('klass information', klass)
                     let students = []
                     _.forEach(klass.enrolled_students, (student) => {
                         students.push({
@@ -258,10 +216,14 @@
 
                     let teams = []
                     _.forEach(klass.teams, (team) => {
-                        teams.push({
+                        let team_info = {
                             name: team.name,
                             value: team.id,
-                        })
+                        }
+                        if (team.leader) {
+                            team_info.leader = team.leader.id
+                        }
+                        teams.push(team_info)
                     })
 
                     $('#student-dropdown').dropdown({
@@ -269,7 +231,7 @@
                         onChange: (id, name, element) => {
                             CHAGRADE.api.get_student_scores_metrics(id)
                                 .done( (data) => {
-                                    //console.info('student scores', data)
+                                    instructor_metrics.student_scores_chart.data.datasets[0].label = 'Student Scores'
                                     instructor_metrics.student_scores_chart.data.datasets[0].data = data.score
                                     instructor_metrics.student_scores_chart.data.labels = data.name
                                     instructor_metrics.student_scores_chart.update()
@@ -279,11 +241,16 @@
                                 })
 
                             CHAGRADE.api.get_student_submission_times_metrics(id)
-                                .done( (data) => {
-                                    console.info('student submission times', data)
-//                                    instructor_metrics.student_scores_chart.data.datasets[0].data = data.score
-//                                    instructor_metrics.student_scores_chart.data.labels = data.name
-//                                    instructor_metrics.student_scores_chart.update()
+                                .done( (sub_times) => {
+                                    console.info('student submission times', sub_times)
+                                    let time_data = _.fill(Array(24), 0)
+                                    console.info('time data', time_data)
+                                    _.forEach(sub_times, (time) => {
+                                        time_data[time.time] = time.count
+                                    })
+
+                                    instructor_metrics.student_temporal_histogram.data.datasets[0].data = time_data
+                                    instructor_metrics.student_temporal_histogram.update()
                                 })
                                 .fail( (data) => {
                                     console.info('klass scores error', data)
@@ -296,7 +263,7 @@
                         onChange: (id, name, element) => {
                             CHAGRADE.api.get_team_scores_metrics(id)
                                 .done( (data) => {
-                                    //console.info('team scores', data)
+                                    instructor_metrics.team_scores_chart.data.datasets[0].label = 'Team Scores'
                                     instructor_metrics.team_scores_chart.data.datasets[0].data = data.score
                                     instructor_metrics.team_scores_chart.data.labels = data.name
                                     instructor_metrics.team_scores_chart.update()
@@ -306,15 +273,24 @@
                                 })
 
                             CHAGRADE.api.get_team_submission_times_metrics(id)
-                                .done( (data) => {
-                                    console.info('team submission times', data)
-//                                    instructor_metrics.student_scores_chart.data.datasets[0].data = data.score
-//                                    instructor_metrics.student_scores_chart.data.labels = data.name
-//                                    instructor_metrics.student_scores_chart.update()
+                                .done( (sub_times) => {
+                                    console.info('team submission times', sub_times)
+                                    let time_data = _.fill(Array(24), 0)
+                                    console.info('time data', time_data)
+                                    _.forEach(sub_times, (time) => {
+                                        time_data[time.time] = time.count
+                                    })
+
+                                    instructor_metrics.team_temporal_histogram.data.datasets[0].data = time_data
+                                    instructor_metrics.team_temporal_histogram.update()
                                 })
                                 .fail( (data) => {
                                     console.info('klass scores error', data)
                                 })
+
+                            let team_leader_id = element.data('leader')
+                            console.info('team_leader_id', team_leader_id)
+
                         },
                     })
                 })
@@ -349,7 +325,6 @@
             }
 
             function update_chart(chart, data) {
-                //console.log(chart)
                 chart.data.datasets[0].data = format_data_for_chart(data)
                 chart.update()
             }
@@ -357,7 +332,7 @@
 
             CHAGRADE.api.get_klass_scores_metrics({{ klass.pk }})
                 .done( (data) => {
-//                    console.info('klass scores', data)
+                    instructor_metrics.overview_scores_chart.data.datasets[0].label = 'Average Class Score'
                     instructor_metrics.overview_scores_chart.data.datasets[0].data = data.score
                     instructor_metrics.overview_scores_chart.data.labels = data.name
                     instructor_metrics.overview_scores_chart.update()
@@ -367,11 +342,16 @@
                 })
 
             CHAGRADE.api.get_klass_submission_times_metrics({{ klass.pk }})
-                .done( (data) => {
-                    console.info('klass submission times', data)
-//                    instructor_metrics.student_scores_chart.data.datasets[0].data = data.score
-//                    instructor_metrics.student_scores_chart.data.labels = data.name
-//                    instructor_metrics.student_scores_chart.update()
+                .done( (sub_times) => {
+                    console.info('klass submission times', sub_times)
+                    let time_data = _.fill(Array(24), 0)
+                    console.info('time data', time_data)
+                    _.forEach(sub_times, (time) => {
+                        time_data[time.time] = time.count
+                    })
+
+                   instructor_metrics.overview_temporal_histogram.data.datasets[0].data = time_data
+                   instructor_metrics.overview_temporal_histogram.update()
                 })
                 .fail( (data) => {
                     console.info('klass scores error', data)
@@ -392,14 +372,6 @@
                 })
         }
 
-        let klass_score_data = {
-            label: 'Average Class Score',
-            data: [0.2, 0.3],
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor:'rgba(54, 112, 185, 1)',
-            borderWidth: 2.2,
-            lineTension: 0,
-        }
 
         let target_data = {
             label: 'Target Score',
@@ -512,9 +484,14 @@
                 type: 'line',
                 data: {
                     datasets: [
-                        klass_score_data,
-//                        target_data,
-//                        baseline_data,
+                        {
+                            label: '',
+                            data: [0.2, 0.3],
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor:'rgba(54, 112, 185, 1)',
+                            borderWidth: 2.2,
+                            lineTension: 0,
+                        }
                     ],
                     labels: [],
                 },
@@ -543,17 +520,16 @@
         }
 
         let submission_counts = [1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 2, 4, 2, 0, 0, 3, 5, 6, 2, 3, 4, 4, 2, 1,]
-        let submission_times = ['12 am', '1 am', '2 am', '3 am', '4 am', '5 am', '6 am', '7 am', '8 am', '9 am', '10 am', '11 am', '12 pm', '1 pm', '2 pm', '3 pm', '4 pm', '5 pm', '6 pm', '7 pm', '8 pm', '9 pm', '10 pm', '11 pm',]
 
 
         function create_bar_chart_config(label) {
             return {
                 type: 'bar',
                 data: {
-                    labels: submission_times,
+                    labels: submission_time_labels,
                     datasets: [{
                         label: 'Submissions Per Hour',
-                        data: submission_counts,
+                        data: [],
                         backgroundColor:'rgba(54, 112, 185, 0.6)',
                         borderColor:'rgba(54, 112, 185, 1)',
                     }],
