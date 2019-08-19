@@ -74,16 +74,12 @@ class OverView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(OverView, self).get_context_data(**kwargs)
-        print('kwargs: ', kwargs['object'])
-
         try:
             klass = kwargs.get('object')
-            print(klass)
         except ObjectDoesNotExist:
             raise Http404
 
         context['completely_graded'] = klass_homeworks_completely_graded(klass)
-
         return context
 
 
@@ -92,7 +88,6 @@ class EnrollmentView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         try:
             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
         except ObjectDoesNotExist:
@@ -107,7 +102,6 @@ class DefineHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         try:
             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
         except ObjectDoesNotExist:
@@ -122,7 +116,6 @@ class GradeHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         try:
             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
         except ObjectDoesNotExist:

@@ -1,3 +1,5 @@
+import requests
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -126,6 +128,69 @@ class TeamSubmissionTimesView(APIView):
         team_pk = kwargs.get('team_pk')
         data = Submission.objects.filter(team=team_pk).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
         return Response(data)
+
+class TeamContributionsView(APIView):
+    permission_classes = (InstructorOrSuperuserPermission,)
+
+    def get(self, request, **kwargs):
+        team_pk = kwargs.get('team_pk')
+        team = Team.objects.get(pk=team_pk)
+
+        team_submissions = Submission.objects.filter(team=team_pk).values('team').values(count=Count('*'))
+        team_submissions = team.members.all().annotate(submission_count=Subquery(
+            Submission.objects.filter(team=team_pk, creator=OuterRef('pk')).values('creator').values(
+                c=Count('*')))).values('submission_count', name=F('user__username'))
+
+        for i in range(len(team_submissions)):
+            if not team_submissions[i].get('submission_count'):
+                team_submissions[i]['submission_count'] = 0
+
+        if team.leader:
+            latest_submission = team.leader.submitted_homeworks.last()
+            github_repo_url = latest_submission.github_url.split('/')
+            github_repo_url.insert(4, 'repos')
+            github_repo_url[2] = 'api.github.com'
+            temp = github_repo_url[3]
+            github_repo_url[3] = github_repo_url[4]
+            github_repo_url[4] = temp
+            contributors_url = '/'.join(github_repo_url[0:6]) + '/stats/contributors'
+            resp = requests.get(contributors_url, headers={'Authorization': 'token ' + team.leader.user.github_info.access_token})
+            contributors = resp.json()
+
+            usernames = list_of_dicts_to_dict_of_lists(team.members.all().values(chagrade_username=F('user__username'), github_username=F('user__github_info__login')))
+
+            contributor_metrics = []
+            outsider_commit_count = 0
+
+            for contributor in contributors:
+                author = contributor.get('author')
+                github_username = author.get('login')
+                if github_username in usernames['github_username']:
+                    index = usernames['github_username'].index(github_username)
+                    chagrade_username = usernames['chagrade_username'][index]
+                    contrib = {
+                        'name': chagrade_username,
+                        'commit_count': contributor.get('total'),
+                    }
+                    contributor_metrics.append(contrib)
+                else:
+                    outsider_commit_count += contributor.get('total', 0)
+
+            if outsider_commit_count > 0:
+                outsider_contrib = {
+                    'name': 'others',
+                    'commit_count': outsider_commit_count,
+                }
+                contributor_metrics.append(outsider_contrib)
+
+            data = {
+                'repo_url': latest_submission.github_url,
+                'github_contributions': list_of_dicts_to_dict_of_lists(contributor_metrics),
+                'chagrade_submissions': list_of_dicts_to_dict_of_lists(team_submissions),
+            }
+            return Response(data)
+        else:
+            return Response('No team leader.', status=status.HTTP_404_NOT_FOUND)
 
 
 class KlassSubmissionTimesView(APIView):

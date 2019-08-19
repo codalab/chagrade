@@ -6,13 +6,9 @@
         var self = this
         self.no_diff = true
         self.behind = false
-        self.errors = []
-        self.submission = {}
-        self.previous_submission = {}
 
 
         self.one('mount', function () {
-            console.log('self.repos_url', self.opts.repos_url)
             self.find_diff()
         })
 
@@ -34,7 +30,6 @@
         self.diff_request = function (base_ref, head_ref) {
             let compare_url = self.repo.compare_url.replace('{base}', base_ref).replace('{head}', head_ref)
             self.github_request(compare_url, function (comparison) {
-                console.log(comparison)
                 if (comparison.behind_by > 0 && comparison.ahead_by == 0) {
                     self.behind = true
                     self.diff_request(head_ref, base_ref)

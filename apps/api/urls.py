@@ -6,14 +6,15 @@ from rest_framework import permissions
 from rest_framework.routers import SimpleRouter
 
 from apps.api.views.homework import DefinitionViewSet, CriteriaViewSet, QuestionViewSet, SubmissionViewSet, \
-    SubmissionGETMultipleView, GradeViewSet, CustomChallengeURLViewSet
+    GradeViewSet, CustomChallengeURLViewSet
 from apps.api.views.profiles import ProfileViewSet, StudentViewSet, create_students_from_csv, \
     TestStudentViewSet
 from apps.api.views.klasses import KlassViewSet
 from apps.api.views.groups import TeamViewSet
 from apps.api.views.metrics import chagrade_overall_metrics, StudentMetricsView, \
     InstructorMetricsView, KlassMetricsView, SubmissionMetricsView, KlassScoresView, \
-    StudentScoresView, TeamScoresView, StudentSubmissionTimesView, TeamSubmissionTimesView, KlassSubmissionTimesView
+    StudentScoresView, TeamScoresView, StudentSubmissionTimesView, TeamSubmissionTimesView, \
+    KlassSubmissionTimesView, TeamContributionsView
 
 app_name = 'api'
 API_PREFIX = "v1"
@@ -55,7 +56,6 @@ urlpatterns = [
     url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=None), name='schema-json'),
     url(r'^$', schema_view.with_ui('swagger', cache_timeout=None), name='docs'),
 
-    path('list_submissions/', SubmissionGETMultipleView.as_view() , name='list_submissions'),
     # Custom API point for handling student creation
     # path('create_student/', create_student, name='create_student'),
     path('create_students_from_csv/', create_students_from_csv, name='create_students_from_csv'),
@@ -69,6 +69,7 @@ urlpatterns = [
     path('klass_submission_times/<int:klass_pk>', KlassSubmissionTimesView.as_view(), name='klass_submission_times'),
     path('student_scores/<int:student_pk>', StudentScoresView.as_view(), name='student_scores'),
     path('team_scores/<int:team_pk>', TeamScoresView.as_view(), name='team_scores'),
+    path('team_contributions/<int:team_pk>', TeamContributionsView.as_view(), name='team_contributions'),
     path('klass_scores/<int:klass_pk>', KlassScoresView.as_view(), name='klass_scores'),
 
     # Optionally, use "redoc" style

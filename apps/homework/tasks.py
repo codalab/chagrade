@@ -4,7 +4,6 @@ from urllib.parse import urlparse
 import requests
 from requests.auth import HTTPBasicAuth
 from apps.homework.models import Submission, SubmissionTracker
-from pprint import pprint
 
 # TODO: Clean this up and possibly have a flag between running this as a task vs actually calling it? (Heroku vs Docker)
 
@@ -14,30 +13,24 @@ def post_submission(submission_pk):
     # Get our URL's formatted and such
     submission = Submission.objects.get(pk=submission_pk)
     parsed_uri = urlparse(submission.get_challenge_url)
-    print('sub:', submission.get_challenge_url)
     scheme = parsed_uri.scheme
     domain = parsed_uri.netloc
     path = parsed_uri.path
-    print('path:', path)
     challenge_pk = path.split('/')[-1]
     site_url = "{0}://{1}".format(scheme, domain)
     submission_url = '{0}/api/competition/{1}/submission/sas'.format(site_url, challenge_pk)
     # Post our request to the submission SAS API endpoint
-    print("Getting submission SAS info")
-    print(os.environ.get('CODALAB_SUBMISSION_PASSWORD'))
     resp = requests.post(
         url=submission_url, auth=HTTPBasicAuth(
             os.environ.get('CODALAB_SUBMISSION_USERNAME'),
             os.environ.get('CODALAB_SUBMISSION_PASSWORD')
         )
     )
-    print(resp.status_code)
     # competition/15595/submission/44798/4aba772a-a6c1-4e6f-a82b-fb9d23193cb6.zip
     submission_data = resp.json()['id']
     submission_data_split = submission_data.split('/')
     submission_file_name = submission_data_split[-1]
     s3_file_url = resp.json()['url']
-    print("Posting github submission to storage")
 
     with TemporaryFile() as f:
         # repo_url = "{}/archive/master.zip".format(submission.submission_github_url)
@@ -59,7 +52,6 @@ def post_submission(submission_pk):
             else:
                 new_path += component
         repo_url = '{scheme}://{domain}{path}'.format(scheme=repo_scheme, domain=repo_loc, path=new_path)
-        print(repo_url)
         repo_resp = requests.get(repo_url, stream=True)
         for chunk in repo_resp.iter_content(chunk_size=1024):
             if chunk:  # filter out keep-alive new chunks
@@ -80,7 +72,6 @@ def post_submission(submission_pk):
         )
     # https://competitions.codalab.org/api/competition/20616/phases/
     phases_request_url = "{0}/api/competition/{1}/phases/".format(site_url, challenge_pk)
-    print("Getting phase info for competition")
     phases_request = requests.get(url=phases_request_url, auth=HTTPBasicAuth(
         os.environ.get('CODALAB_SUBMISSION_USERNAME'),
         os.environ.get('CODALAB_SUBMISSION_PASSWORD')
@@ -88,17 +79,13 @@ def post_submission(submission_pk):
     phases_dict = phases_request.json()[0]['phases']
     phase_id = None
     for phase in phases_dict:
-        try:
-            if phase['is_active']:
-                phase_id = phase['id']
-        except KeyError:
-            print('Codalab Submission API not up to date.')
-            return
+        if phase.get('is_active'):
+            phase_id = phase['id']
+            break
     sub_descr = "Chagrade_Submission_{0}".format(submission.id)
     finalize_url = "{0}/api/competition/{1}/submission?description={2}&phase_id={3}".format(site_url, challenge_pk,
                                                                                             sub_descr, phase_id)
     custom_filename = "{username}_{date}.zip".format(username=submission.creator.user.username, date=submission.created)
-    print("Finalizing submission for phase: {}".format(phase_id))
     phase_final_resp = requests.post(finalize_url, data={
         'id': submission_data,
         # 'name': 'master.zip',
@@ -118,8 +105,4 @@ def post_submission(submission_pk):
             remote_phase=phase_id,
             remote_id=result['id']
         )
-    else:
-        print("Something went wrong making a submission to the challenge_url")
-        print(phase_final_resp.content)
-        print(dir(phase_final_resp))
     submission.submitted_to_challenge = True

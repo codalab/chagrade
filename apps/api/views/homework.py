@@ -28,15 +28,6 @@ class GradeViewSet(ModelViewSet):
         new_obj = serializer.save()
         new_obj.calculate_grade()
 
-class SubmissionGETMultipleView(APIView):
-    def post(self, request, **kwargs):
-        if request.data:
-            queryset = Submission.objects.filter(pk__in=request.data)
-        else:
-            queryset = Submission.objects.all()
-        serializer = SubmissionSerializer(queryset, many=True)
-        return Response(serializer.data)
-
 
 class SubmissionViewSet(ModelViewSet):
     queryset = Submission.objects.all()

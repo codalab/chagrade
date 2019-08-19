@@ -211,7 +211,6 @@ if os.environ.get('USE_SSL'):
 else:
     # Allows us to use with django-oauth-toolkit on localhost sans https
     SESSION_COOKIE_SECURE = False
-    SESSION_COOKIE_SAMESITE = None
 
 # ============================================================================
 # Celery

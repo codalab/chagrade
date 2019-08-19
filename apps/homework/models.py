@@ -68,8 +68,6 @@ class Submission(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
-    normalized_score = models.FloatField(null=True)
-
     submitted_to_challenge = models.BooleanField(default=False)
 
     team = models.ForeignKey('groups.Team', default=None, null=True, blank=True, related_name='submissions', on_delete=models.SET_NULL)
@@ -112,17 +110,6 @@ class SubmissionTracker(models.Model):
     remote_id = models.CharField(max_length=10)
     remote_phase = models.CharField(max_length=10)
 
-    def save_normalized_score(self):
-        print('saving normalized score')
-        score = self.stored_score
-        definition = self.submission.definition
-        if score:
-            baseline = definition.baseline_score
-            target = definition.target_score
-            self.submission.normalized_score = (score - baseline) / (target - baseline)
-            self.submission.save()
-            print('saved normalized score')
-        return
 
     def retrieve_score_and_status(self):
         challenge_site_url = self.submission.definition.get_challenge_url()
@@ -134,32 +121,16 @@ class SubmissionTracker(models.Model):
                 os.environ.get('CODALAB_SUBMISSION_PASSWORD')
             )
         )
-        print('score_api_url',score_api_url)
-        print(score_api_resp.content)
+        self.stored_status = None
+        self.stored_score = None
+
         if score_api_resp.status_code == 200:
             data = score_api_resp.json()
             if data.get('status'):
-                print("Data found for submission. Returning scores.")
-
                 self.stored_status = data.get('status')
                 self.stored_score = float(data.get('score', None))
-                self.save()
-                self.save_normalized_score()
-                return
-            else:
-                print("Could not retrieve complete data for submission")
-                return
-        elif score_api_resp.status_code == 404:
-            self.stored_status = None
-            self.save()
-            print("Could not find submission or competition.")
-            return
-        elif score_api_resp.status_code == 403:
-            self.stored_status = None
-            self.save()
-            print("Not authorized to make this request.")
-            return
-        print("There was a problem making the request")
+
+        self.save()
         return
 
     @property
@@ -215,7 +186,6 @@ class Question(models.Model):
 
     question = models.CharField(max_length=300)
     answer = models.TextField(blank=True, default='')
-    #answer = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.question

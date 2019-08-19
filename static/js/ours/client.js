@@ -88,9 +88,6 @@ CHAGRADE.api = {
     get_submission: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + "submissions/" + pk)
     },
-    list_submissions: function(data) {
-        return CHAGRADE.api.request('GET', URLS.API + "submissions/", data)
-    },
     // Grades
     create_grade: function(data) {
         return CHAGRADE.api.request('POST', URLS.API + "grades/", data)
@@ -150,5 +147,8 @@ CHAGRADE.api = {
     },
     get_klass_submission_times_metrics: function(klass_pk) {
         return CHAGRADE.api.request('GET', URLS.API + "klass_submission_times/" + klass_pk)
+    },
+    get_team_contributions_metrics: function(team_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "team_contributions/" + team_pk)
     },
 }

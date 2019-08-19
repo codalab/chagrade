@@ -51,13 +51,13 @@ def get_item(dictionary, key):
 def previous(some_list, current_index):
     try:
         return some_list[int(current_index) - 1]
-    except:
+    except IndexError:
         return ''
 
 def next(some_list, current_index):
     try:
         return some_list[int(current_index) + 1]
-    except:
+    except IndexError:
         return ''
 
 register.filter('get_last_submission', get_last_submission)

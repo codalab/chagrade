@@ -112,7 +112,14 @@
 
                         <div class='charts-container'>
                             <div class='chart-container'>
-                                <h5>Class Average Scores</h5>
+                                <h5>Class Average Scores
+                                    <i class="ui blue question circle icon outline score-normalization-popup"
+                                       data-title="Score Normalization"
+                                       data-content="Each homework's score has been normalized to a linear scale based off of the homework's respective baseline and target scores.
+                                                     A score of 1.0 is representative of the target score, while a score of 0.0 is representative of the
+                                                     baseline score."
+                                    ></i>
+                                </h5>
                                 <canvas ref="overview_scores" id="overview_scores"></canvas>
                             </div>
 
@@ -129,7 +136,14 @@
 
                         <div class='charts-container hidden'>
                             <div class='student-chart chart-container'>
-                                <h5>Scores</h5>
+                                <h5>Scores
+                                    <i class="ui blue question circle icon outline score-normalization-popup"
+                                       data-title="Score Normalization"
+                                       data-content="Each homework's score has been normalized to a linear scale based off of the homework's respective baseline and target scores.
+                                                     A score of 1.0 is representative of the target score, while a score of 0.0 is representative of the
+                                                     baseline score."
+                                    ></i>
+                                </h5>
                                 <canvas ref="student_scores" id="student_scores"></canvas>
                             </div>
                             <div class='student-chart chart-container'>
@@ -140,21 +154,31 @@
                     </div>
 
                     <div class="ui bottom attached tab segment" data-tab="teams">
-
-
                         <div class='charts-container hidden'>
                             <div class='team-chart chart-container'>
                                 <h5>Submissions</h5>
                                 <canvas ref="team_codalab_activity" id="team_codalab_activity"></canvas>
                             </div>
+
                             <div class='team-chart chart-container'>
-                                <h5>Commits</h5>
+                                <h5>Commits
+                                    <a href="#" id="team-repo-url">Team Github Repo</a>
+                                </h5>
                                 <canvas ref="team_github_activity" id="team_github_activity"></canvas>
                             </div>
+
                             <div class='team-chart chart-container'>
-                                <h5>Team Scores</h5>
+                                <h5>Team Scores
+                                    <i class="ui blue question circle icon outline score-normalization-popup"
+                                       data-title="Score Normalization"
+                                       data-content="Each homework's score has been normalized to a linear scale based off of the homework's respective baseline and target scores.
+                                                     A score of 1.0 is representative of the target score, while a score of 0.0 is representative of the
+                                                     baseline score."
+                                    ></i>
+                                </h5>
                                 <canvas ref="team_scores" id="team_scores"></canvas>
                             </div>
+
                             <div class='team-chart chart-container'>
                                 <h5>Team Submission Times</h5>
                                 <canvas ref="team_temporal_histogram" id="team_temporal_histogram"></canvas>
@@ -179,6 +203,7 @@
             tab_setup()
             chart_setup()
             dropdown_setup()
+
         })
 
         function tab_setup() {
@@ -199,13 +224,13 @@
                     $('#team-dropdown').show()
                 }
             })
+            $('.score-normalization-popup').popup()
         }
 
         function dropdown_setup() {
 
             CHAGRADE.api.get_klass({{ klass.pk }})
                 .done(klass => {
-                    console.info('klass information', klass)
                     let students = []
                     _.forEach(klass.enrolled_students, (student) => {
                         students.push({
@@ -242,9 +267,7 @@
 
                             CHAGRADE.api.get_student_submission_times_metrics(id)
                                 .done( (sub_times) => {
-                                    console.info('student submission times', sub_times)
                                     let time_data = _.fill(Array(24), 0)
-                                    console.info('time data', time_data)
                                     _.forEach(sub_times, (time) => {
                                         time_data[time.time] = time.count
                                     })
@@ -261,6 +284,8 @@
                     $('#team-dropdown').dropdown({
                         values: teams,
                         onChange: (id, name, element) => {
+                            $('#team-header').html(name + "'s ")
+
                             CHAGRADE.api.get_team_scores_metrics(id)
                                 .done( (data) => {
                                     instructor_metrics.team_scores_chart.data.datasets[0].label = 'Team Scores'
@@ -274,9 +299,7 @@
 
                             CHAGRADE.api.get_team_submission_times_metrics(id)
                                 .done( (sub_times) => {
-                                    console.info('team submission times', sub_times)
                                     let time_data = _.fill(Array(24), 0)
-                                    console.info('time data', time_data)
                                     _.forEach(sub_times, (time) => {
                                         time_data[time.time] = time.count
                                     })
@@ -288,8 +311,17 @@
                                     console.info('klass scores error', data)
                                 })
 
-                            let team_leader_id = element.data('leader')
-                            console.info('team_leader_id', team_leader_id)
+                            CHAGRADE.api.get_team_contributions_metrics(id)
+                                .done(data => {
+                                    $('#team-repo-url').attr('href', data.repo_url)
+                                    instructor_metrics.team_github_activity_chart.data.datasets[0].data = data.github_contributions.commit_count
+                                    instructor_metrics.team_github_activity_chart.data.labels = data.github_contributions.name
+                                    instructor_metrics.team_github_activity_chart.update()
+
+                                    instructor_metrics.team_codalab_activity_chart.data.datasets[0].data = data.chagrade_submissions.submission_count
+                                    instructor_metrics.team_codalab_activity_chart.data.labels = data.chagrade_submissions.name
+                                    instructor_metrics.team_codalab_activity_chart.update()
+                                })
 
                         },
                     })
@@ -343,9 +375,7 @@
 
             CHAGRADE.api.get_klass_submission_times_metrics({{ klass.pk }})
                 .done( (sub_times) => {
-                    console.info('klass submission times', sub_times)
                     let time_data = _.fill(Array(24), 0)
-                    console.info('time data', time_data)
                     _.forEach(sub_times, (time) => {
                         time_data[time.time] = time.count
                     })
@@ -355,20 +385,6 @@
                 })
                 .fail( (data) => {
                     console.info('klass scores error', data)
-                })
-
-            CHAGRADE.api.get_submission_metrics({{ klass.pk }})
-                .done( (data) => {
-//                    console.log(data)
-                    let formatted_data = format_data_for_bar_chart(data)
- //                   console.log(instructor_metrics.team_codalab_activity_chart.data)
-//                    instructor_metrics.team_codalab_activity_chart.data.labels = formatted_data.labels
-//                    instructor_metrics.team_codalab_activity_chart.data.datasets[0].data = formatted_data.values
-//                    console.log(instructor_metrics.team_codalab_activity_chart.data)
-                    instructor_metrics.team_codalab_activity_chart.update()
-                })
-                .fail( (data) => {
-                    console.log(data)
                 })
         }
 
@@ -430,6 +446,15 @@
             }
         ]
 
+        let actual_git_data = [
+            {
+                label: 'Commits',
+                    data: [55, 80, 120],
+                    borderColor: 'rgba(0, 150, 0, 1)',
+                    backgroundColor: 'rgba(0, 150, 0, 0.5)',
+            }
+        ]
+
         function create_sub_bar_chart_config(label) {
             return {
                 type: 'bar',
@@ -449,6 +474,10 @@
                         }],
                         yAxes: [{
                             stacked: true,
+                            ticks: {
+                                beginAtZero: true,
+                                precision: 0,
+                            }
                         }]
                     }
                 }
@@ -459,7 +488,7 @@
                 type: 'bar',
                 data: {
                     labels: ['Tom', 'Alice', 'Bjorne'],
-                    datasets: git_data,
+                    datasets: actual_git_data,
                 },
                 options: {
                     legend: {
@@ -473,6 +502,11 @@
                         }],
                         yAxes: [{
                             stacked: true,
+                            ticks: {
+                                beginAtZero: true,
+                                precision: 0,
+//                                stepSize: 1,
+                            }
                         }]
                     }
                 }
@@ -546,6 +580,10 @@
                         }],
                         yAxes: [{
                             display: true,
+                            ticks: {
+                                beginAtZero: true,
+                                precision: 0,
+                            }
                         }]
                     }
                 }

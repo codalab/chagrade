@@ -1,54 +1,32 @@
 <submission-detail-github>
+    <div class="ui header">
+        Repository Activity
+    </div>
 
-<!--    <div class="ui grid"> -->
-<!--        <div class="six wide column"> -->
-<!--            <p>Date: { format_date(submission.created) }</p> -->
-<!--            <p if={ submission.commit_hash && submission.commit_hash != "Commit" }>Commit hash: { submission.commit_hash.slice(0,6) }</p> -->
-<!--            <a class="ui tiny black button" href="{ submission.github_url }">Submission File</a> -->
-<!--            <p if={ submission.github_repo_name }>Repository Name: { submission.github_repo_name }</p> -->
-<!--            <p if={ submission.github_branch_name && submission.github_branch_name != "Branch"}>Branch Name: { submission.github_branch_name }</p> -->
-<!--            <div class="ui relaxed celled list"> -->
-<!--                <ol> -->
-<!-- -->
-<!--                    {% for answer in submission.question_answers.all %} -->
-<!--                        <li each="answer in submission.question_answers">{{ answer.question.question }}: {{ answer.text }}</li> -->
-<!--                    {% endfor %} -->
-<!--                </ol> -->
-<!--            </div> -->
-<!--        </div> -->
-<!--        <div class="ten wide column"> -->
-            <div class="ui header">
-                Repository Activity
-            </div>
-
-            <div class="commit-container">
-                <div each={commit in commits} class="ui grid commit">
-                    <div class="row commit-header">
-                        <a class="ui blue label" href="{ commit.html_url }">
-                            <i class="hashtag icon"></i>
-                            {commit.sha.slice(0,6)}
-                        </a>
-                        <a class="ui right floated author" href="{ commit.author.html_url }">
-                            { commit.commit.author.name }
-                        </a>
-                        <br>
-                        <div class="date">
-                            {format_date(commit.commit.committer.date)}
-                        </div>
-                    </div>
-                    <div class="ui row commit-message">
-                        {commit.commit.message}
-                    </div>
+    <div class="commit-container">
+        <div each={commit in commits} class="ui grid commit">
+            <div class="row commit-header">
+                <a class="ui blue label" href="{ commit.html_url }">
+                    <i class="hashtag icon"></i>
+                    {commit.sha.slice(0,6)}
+                </a>
+                <a class="ui right floated author" href="{ commit.author.html_url }">
+                    { commit.commit.author.name }
+                </a>
+                <br>
+                <div class="date">
+                    {format_date(commit.commit.committer.date)}
                 </div>
             </div>
-<!--        </div> -->
-<!--    </div> -->
-<!--    </div> -->
+            <div class="ui row commit-message">
+                {commit.commit.message}
+            </div>
+        </div>
+    </div>
+
     <script>
         var self = this
-        self.errors = []
         self.submission = {}
-
         self.github_requests = 0
 
         var datetime = luxon.DateTime
@@ -84,9 +62,6 @@
         self.update_submission = function () {
             CHAGRADE.api.get_submission(self.opts.submission_pk)
                 .done(function (data) {
-                    console.log('Submission Data')
-                    console.log(data)
-                    console.log('Submission Data')
                     self.submission = data
                     if (!!self.submission.github_commit_hash) {
                         self.github_ref = self.submission.github_commit_hash
@@ -105,7 +80,6 @@
                                 let repo = _.find(repo_data, ['name', self.submission.github_repo_name])
                                 self.github_request(repo.commits_url.split('{')[0], function (data) {
                                     self.commits = data
-                                    console.log(data)
                                     self.update()
                                 })
                                 self.update()

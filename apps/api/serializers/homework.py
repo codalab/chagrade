@@ -44,7 +44,7 @@ class SubmissionSerializer(WritableNestedModelSerializer):
             'created',
         ]
 
-        read_only_fields = ('created',)
+        read_only_fields = ['created',]
 
 
 class QuestionSerializer(ModelSerializer):
