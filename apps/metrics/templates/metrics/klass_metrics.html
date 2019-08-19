@@ -197,7 +197,6 @@
 
         var instructor_metrics = {}
 
-        var submission_time_labels = ['12 am', '1 am', '2 am', '3 am', '4 am', '5 am', '6 am', '7 am', '8 am', '9 am', '10 am', '11 am', '12 pm', '1 pm', '2 pm', '3 pm', '4 pm', '5 pm', '6 pm', '7 pm', '8 pm', '9 pm', '10 pm', '11 pm',]
 
         $(document).ready( function () {
             tab_setup()
@@ -253,6 +252,7 @@
 
                     $('#student-dropdown').dropdown({
                         values: students,
+                        placeholder: 'Select a student for metrics',
                         onChange: (id, name, element) => {
                             CHAGRADE.api.get_student_scores_metrics(id)
                                 .done( (data) => {
@@ -283,6 +283,7 @@
 
                     $('#team-dropdown').dropdown({
                         values: teams,
+                        placeholder: 'Select a team for metrics',
                         onChange: (id, name, element) => {
                             $('#team-header').html(name + "'s ")
 
@@ -332,16 +333,16 @@
         }
 
         function chart_setup() {
-            instructor_metrics.overview_scores_chart = new Chart($('#overview_scores'), create_chart_config('Submission Scores'));
-            instructor_metrics.overview_temporal_histogram = new Chart($('#overview_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
+            instructor_metrics.overview_scores_chart = new Chart($('#overview_scores'), create_score_chart_config('Submission Scores'));
+            instructor_metrics.overview_temporal_histogram = new Chart($('#overview_temporal_histogram'), create_temporal_bar_chart_config('Commit Frequency'));
 
-            instructor_metrics.student_scores_chart = new Chart($('#student_scores'), create_chart_config('Submission Scores'));
-            instructor_metrics.student_temporal_histogram = new Chart($('#student_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
+            instructor_metrics.student_scores_chart = new Chart($('#student_scores'), create_score_chart_config('Submission Scores'));
+            instructor_metrics.student_temporal_histogram = new Chart($('#student_temporal_histogram'), create_temporal_bar_chart_config('Commit Frequency'));
 
-            instructor_metrics.team_scores_chart = new Chart($('#team_scores'), create_chart_config('Submission Scores'));
-            instructor_metrics.team_temporal_histogram = new Chart($('#team_temporal_histogram'), create_bar_chart_config('Commit Frequency'));
-            instructor_metrics.team_github_activity_chart = new Chart($('#team_github_activity'), create_stacked_bar_chart_config('Commit Frequency'));
-            instructor_metrics.team_codalab_activity_chart = new Chart($('#team_codalab_activity'), create_sub_bar_chart_config('Commit Frequency'));
+            instructor_metrics.team_scores_chart = new Chart($('#team_scores'), create_score_chart_config('Submission Scores'));
+            instructor_metrics.team_temporal_histogram = new Chart($('#team_temporal_histogram'), create_temporal_bar_chart_config('Commit Frequency'));
+            instructor_metrics.team_github_activity_chart = new Chart($('#team_github_activity'), create_bar_chart_config('Commits'));
+            instructor_metrics.team_codalab_activity_chart = new Chart($('#team_codalab_activity'), create_bar_chart_config('Submissions'));
 
             function format_data_for_bar_chart(data) {
                 let labels = []
@@ -388,146 +389,12 @@
                 })
         }
 
-
-        let target_data = {
-            label: 'Target Score',
-            data: [
-                {
-                    x: new Date(2019, 1, 1),
-                    y: 0.96,
-                },{
-                    x: new Date(2019, 1, 17),
-                    y: 0.96,
-                },
-            ],
-            backgroundColor: 'rgba(0, 0, 0, 0.0)',
-            borderColor:'rgba(0, 190, 0, 1)',
-            borderWidth: 2.2,
-            lineTension: 0,
-        }
-
-        let baseline_data = {
-            label: 'Baseline Score',
-            data: [
-                {
-                    x: new Date(2019, 1, 1),
-                    y: 0.2,
-                },{
-                    x: new Date(2019, 1, 17),
-                    y: 0.2,
-                },
-            ],
-            backgroundColor: 'rgba(0, 0, 0, 0.0)',
-            borderColor:'rgba(190, 0, 0, 1)',
-            borderWidth: 2.2,
-            lineTension: 0,
-        }
-
-
-        let sub_data = [
-            {
-                label: 'Submissions',
-                data: [3, 5, 1],
-                borderColor: 'rgba(0, 150, 0, 1)',
-                backgroundColor: 'rgba(0, 150, 0, 0.5)',
-            }
-        ]
-        let git_data = [
-            {
-                label: 'Lines Removed',
-                data: [25, 15, 40],
-                borderColor: 'rgba(190, 0, 0, 1)',
-                backgroundColor: 'rgba(190, 0, 0, 0.5)',
-            },{
-                label: 'Lines Added',
-                data: [55, 80, 120],
-                borderColor: 'rgba(0, 150, 0, 1)',
-                backgroundColor: 'rgba(0, 150, 0, 0.5)',
-            }
-        ]
-
-        let actual_git_data = [
-            {
-                label: 'Commits',
-                    data: [55, 80, 120],
-                    borderColor: 'rgba(0, 150, 0, 1)',
-                    backgroundColor: 'rgba(0, 150, 0, 0.5)',
-            }
-        ]
-
-        function create_sub_bar_chart_config(label) {
+        function create_default_chart_config() {
             return {
                 type: 'bar',
                 data: {
-                    labels: ['Tom', 'Alice', 'Bjorne'],
-                    datasets: sub_data,
-                },
-                options: {
-                    legend: {
-                        display: true,
-                        position: 'bottom',
-                    },
-                    aspectRatio: 1.4,
-                    scales: {
-                        xAxes: [{
-                            stacked: true,
-                        }],
-                        yAxes: [{
-                            stacked: true,
-                            ticks: {
-                                beginAtZero: true,
-                                precision: 0,
-                            }
-                        }]
-                    }
-                }
-            }
-        }
-        function create_stacked_bar_chart_config(label) {
-            return {
-                type: 'bar',
-                data: {
-                    labels: ['Tom', 'Alice', 'Bjorne'],
-                    datasets: actual_git_data,
-                },
-                options: {
-                    legend: {
-                        display: true,
-                        position: 'bottom',
-                    },
-                    aspectRatio: 1.4,
-                    scales: {
-                        xAxes: [{
-                            stacked: true,
-                        }],
-                        yAxes: [{
-                            stacked: true,
-                            ticks: {
-                                beginAtZero: true,
-                                precision: 0,
-//                                stepSize: 1,
-                            }
-                        }]
-                    }
-                }
-            }
-        }
-
-        function create_chart_config() {
-            return {
-                type: 'line',
-                data: {
-                    datasets: [
-                        {
-                            label: '',
-                            data: [0.2, 0.3],
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            borderColor:'rgba(54, 112, 185, 1)',
-                            borderWidth: 2.2,
-                            lineTension: 0,
-                        }
-                    ],
                     labels: [],
+                    datasets: [],
                 },
                 options: {
                     legend: {
@@ -537,58 +404,102 @@
                     aspectRatio: 1.4,
                     scales: {
                         xAxes: [{
-//                            type: 'time',
-//                            time: {
-//                                unit: 'day',
-//                            },
+                            stacked: true,
                         }],
                         yAxes: [{
+                            stacked: true,
                             ticks: {
                                 beginAtZero: true,
-                                stepSize: 0.25,
+                                precision: 0,
                             }
                         }]
                     }
                 }
             }
         }
-
-        let submission_counts = [1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 2, 4, 2, 0, 0, 3, 5, 6, 2, 3, 4, 4, 2, 1,]
-
 
         function create_bar_chart_config(label) {
-            return {
-                type: 'bar',
-                data: {
-                    labels: submission_time_labels,
-                    datasets: [{
-                        label: 'Submissions Per Hour',
+            let config = create_default_chart_config()
+            config.data.datasets.push(
+                {
+                    label: label,
                         data: [],
-                        backgroundColor:'rgba(54, 112, 185, 0.6)',
-                        borderColor:'rgba(54, 112, 185, 1)',
-                    }],
-                },
-                options: {
-                    legend: {
-                        display: true,
-                        position: 'bottom',
-                    },
-                    aspectRatio: 1.4,
-                    scales: {
-                        xAxes: [{
-                            display: true,
-                        }],
-                        yAxes: [{
-                            display: true,
-                            ticks: {
-                                beginAtZero: true,
-                                precision: 0,
-                            }
-                        }]
-                    }
-                }
-            }
+                    borderColor: 'rgba(0, 150, 0, 1)',
+                    backgroundColor: 'rgba(0, 150, 0, 0.5)',
+                })
+            return config
         }
+
+        var submission_time_labels = ['12 am', '1 am', '2 am', '3 am', '4 am', '5 am', '6 am', '7 am', '8 am', '9 am', '10 am', '11 am', '12 pm', '1 pm', '2 pm', '3 pm', '4 pm', '5 pm', '6 pm', '7 pm', '8 pm', '9 pm', '10 pm', '11 pm',]
+
+        function create_temporal_bar_chart_config(label) {
+            let config = create_default_chart_config()
+            config.data.labels = submission_time_labels
+            config.data.datasets.push({
+                label: 'Submissions Per Hour',
+                data: [],
+                backgroundColor:'rgba(54, 112, 185, 0.6)',
+                borderColor:'rgba(54, 112, 185, 1)',
+            })
+            return config
+        }
+
+        function create_score_chart_config() {
+            let config = create_default_chart_config()
+            config.type = 'line'
+            config.options.scales = {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        stepSize: 0.25,
+                    }
+                }]
+            }
+
+            config.data.datasets.push({
+                label: '',
+                data: [],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor:'rgba(54, 112, 185, 1)',
+                borderWidth: 2.2,
+                lineTension: 0,
+            })
+            return config
+
+//            return {
+//                type: 'line',
+//                data: {
+//                    datasets: [
+//                        {
+//                            label: '',
+//                            data: [0.2, 0.3],
+//                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+//                            borderColor:'rgba(54, 112, 185, 1)',
+//                            borderWidth: 2.2,
+//                            lineTension: 0,
+//                        }
+//                    ],
+//                    labels: [],
+//                },
+//                options: {
+//                    legend: {
+//                        display: true,
+//                        position: 'bottom',
+//                    },
+//                    aspectRatio: 1.4,
+//                    scales: {
+//                        yAxes: [{
+//                            ticks: {
+//                                beginAtZero: true,
+//                                stepSize: 0.25,
+//                            }
+//                        }]
+//                    }
+//                }
+//            }
+        }
+
+
 
 
     </script>
