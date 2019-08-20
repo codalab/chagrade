@@ -214,7 +214,7 @@ class StudentScoresView(APIView):
         data = Definition.objects.filter(klass=student.klass).annotate(
             score=Max(Subquery(
                 Submission.objects.filter(
-                    creator=student,
+                    creator=student_pk,
                     definition=OuterRef('pk')
                 ).values('tracked_submissions__stored_score')[:1])
             )

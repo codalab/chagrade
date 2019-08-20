@@ -1,23 +1,39 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.views.generic import TemplateView
-
+from django.http import Http404
 from apps.klasses.models import Klass
 
-class AdminMetricsView(LoginRequiredMixin, TemplateView): #UserPassesTestMixin,
+
+class AdminMetricsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'metrics/admin_metrics.html'
 
-    # TODO: Add permissions
+    def test_func(self):
+        if self.request.user.is_superuser:
+            return True
+        return False
 
     def get_context_data(self, **kwargs):
         context = super(AdminMetricsView, self).get_context_data(**kwargs)
         return context
 
 
-class KlassMetricsView(LoginRequiredMixin, TemplateView): #UserPassesTestMixin,
+class KlassMetricsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'metrics/klass_metrics.html'
 
-    # TODO: Add permissions
+    def test_func(self):
+        if self.request.user.is_superuser:
+            return True
+        klass_pk = self.kwargs.get('klass_pk')
+        try:
+            klass = Klass.objects.get(pk=klass_pk)
+        except ObjectDoesNotExist:
+            raise Http404('Klass object not found')
+        if self.request.user.instructor:
+            if self.request.user.instructor == klass.instructor:
+                return True
+        return False
+
 
     def get_context_data(self, **kwargs):
         context = super(KlassMetricsView, self).get_context_data(**kwargs)
@@ -28,4 +44,3 @@ class KlassMetricsView(LoginRequiredMixin, TemplateView): #UserPassesTestMixin,
         except ObjectDoesNotExist:
             raise Http404
         return context
-

@@ -29,6 +29,10 @@
             padding: 1vh 0 0 0 !important;
         }
 
+        .selection-section {
+            margin-top: 2rem !important;
+        }
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
@@ -90,22 +94,6 @@
                         <a class="active item" data-tab="overview">Overview</a>
                         <a class="item" data-tab="students">Students</a>
                         <a class="item" data-tab="teams">Teams</a>
-
-                        <div class="ui search selection fluid dropdown" id="student-dropdown" style="display: none;">
-                            <input type="hidden" name="student">
-                            <i class="dropdown icon"></i>
-                            <div class="default text">Select Student</div>
-                            <div class="menu">
-                            </div>
-                        </div>
-
-                        <div class="ui search selection fluid dropdown" id="team-dropdown" style="display: none;">
-                            <input type="hidden" name="team">
-                            <i class="dropdown icon"></i>
-                            <div class="default text">Select Team</div>
-                            <div class="menu">
-                            </div>
-                        </div>
                     </div>
 
                     <div class="ui bottom attached active tab segment" data-tab="overview">
@@ -133,6 +121,21 @@
 
                     <div class="ui bottom attached tab segment" data-tab="students">
 
+                        <div class="ui one column center aligned grid selection-section">
+                            <div class="twelve wide column">
+                                <div class="ui six wide large blue label">Please select a student
+                                    <i class="ui icon user"></i>
+                                </div>
+                                <div class="ui search selection four wide dropdown" id="student-dropdown" style="display: none;">
+                                    <input type="hidden" name="student">
+                                    <i class="dropdown icon"></i>
+                                    <div class="default text">Select Student</div>
+                                    <div class="menu">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
 
                         <div class='charts-container hidden'>
                             <div class='student-chart chart-container'>
@@ -154,6 +157,22 @@
                     </div>
 
                     <div class="ui bottom attached tab segment" data-tab="teams">
+                        <div class="ui one column center aligned grid selection-section">
+                            <div class="twelve wide column">
+                                <div class="ui six wide large blue label">Please select a team
+                                    <i class="ui icon users"></i>
+                                </div>
+
+                                <div class="ui search selection four wide dropdown" id="team-dropdown" style="display: none;">
+                                    <input type="hidden" name="team">
+                                    <i class="dropdown icon"></i>
+                                    <div class="default text">Select Team</div>
+                                    <div class="menu">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class='charts-container hidden'>
                             <div class='team-chart chart-container'>
                                 <h5>Submissions</h5>
@@ -252,7 +271,7 @@
 
                     $('#student-dropdown').dropdown({
                         values: students,
-                        placeholder: 'Select a student for metrics',
+                        placeholder: 'Student',
                         onChange: (id, name, element) => {
                             CHAGRADE.api.get_student_scores_metrics(id)
                                 .done( (data) => {
@@ -283,7 +302,7 @@
 
                     $('#team-dropdown').dropdown({
                         values: teams,
-                        placeholder: 'Select a team for metrics',
+                        placeholder: 'Team',
                         onChange: (id, name, element) => {
                             $('#team-header').html(name + "'s ")
 
