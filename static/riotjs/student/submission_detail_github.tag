@@ -63,13 +63,6 @@
             CHAGRADE.api.get_submission(self.opts.submission_pk)
                 .done(function (data) {
                     self.submission = data
-                    if (!!self.submission.github_commit_hash) {
-                        self.github_ref = self.submission.github_commit_hash
-                    } else if (!!self.submission.github_branch_name) {
-                        self.github_ref = self.submission.github_branch_name
-                    } else {
-                        self.github_ref = null
-                    }
                     self.update()
 
                     CHAGRADE.api.get_cha_user(self.opts.user_pk)

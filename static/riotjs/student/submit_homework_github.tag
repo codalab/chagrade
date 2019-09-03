@@ -385,13 +385,7 @@
             CHAGRADE.api.get_submission(SUBMISSION)
                 .done(function (data) {
                     self.submission = data
-                    if (!!self.submission.github_commit_hash) {
-                        self.github_ref = self.submission.github_commit_hash
-                    } else if (!!self.submission.github_branch_name) {
-                        self.github_ref = self.submission.github_branch_name
-                    } else {
-                        self.github_ref = null
-                    }
+                    self.github_ref = _.get(self.submission, 'github_commit_hash', _.get(self.submission, 'github_branch_name', null))
                     self.update()
                     self.update_question_answers()
                 })
