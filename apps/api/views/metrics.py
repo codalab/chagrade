@@ -10,7 +10,7 @@ from django.http import Http404
 
 
 from apps.profiles.models import StudentMembership, ChaUser, Instructor
-from apps.homework.models import Submission, Definition
+from apps.homework.models import Submission, Definition, SubmissionTracker
 from apps.klasses.models import Klass
 from apps.groups.models import Team
 
@@ -25,9 +25,14 @@ class InstructorOrSuperuserPermission(permissions.BasePermission):
         if request.user.is_superuser:
             return True
 
-        klass_pk = self.kwargs.get('klass_pk')
-        student_pk = self.kwargs.get('student_pk')
-        team_pk = self.kwargs.get('team_pk')
+        klass_pk = view.kwargs.get('klass_pk')
+        student_pk = view.kwargs.get('student_pk')
+        team_pk = view.kwargs.get('team_pk')
+
+        print('In Permission')
+        print('klass_pk',klass_pk)
+        print('student_pk',student_pk)
+        print('team_pk',team_pk)
 
         if klass_pk:
             klass = None
@@ -57,6 +62,21 @@ class InstructorOrSuperuserPermission(permissions.BasePermission):
                 return True
 
         return False
+
+
+class TimeDistributionMixin:
+    # Empty Default values
+    model = None
+    kwarg_name = None
+    filter_name = None
+
+    def get(self, request, **kwargs):
+        kwarg = kwargs.get(self.kwarg_name)
+        filter = {
+            self.filter_name: kwarg,
+        }
+        data = self.model.objects.filter(**filter).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
+        return Response(data)
 
 
 @api_view(['GET'])
@@ -122,6 +142,7 @@ class SubmissionMetricsView(APIView):
             }
         return Response(output_data)
 
+
 class StudentMetricsView(APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
 
@@ -133,6 +154,7 @@ class StudentMetricsView(APIView):
         users = StudentMembership.objects.dates('date_enrolled', 'day').values(**output_fields)
         return Response(users)
 
+
 class InstructorMetricsView(APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
 
@@ -143,6 +165,7 @@ class InstructorMetricsView(APIView):
         }
         instructors = Instructor.objects.dates('date_promoted', 'day').values(**output_fields)
         return Response(instructors)
+
 
 class KlassMetricsView(APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
@@ -171,22 +194,20 @@ class KlassMetricsView(APIView):
 
         return Response(data)
 
-class StudentSubmissionTimesView(APIView):
+
+class StudentSubmissionTimesView(APIView, TimeDistributionMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
-
-    def get(self, request, **kwargs):
-        student_pk = kwargs.get('student_pk')
-        data = Submission.objects.filter(creator=student_pk).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
-        return Response(data)
+    model = Submission
+    kwarg_name = 'student_pk'
+    filter_name = 'creator'
 
 
-class TeamSubmissionTimesView(APIView):
+class TeamSubmissionTimesView(APIView, TimeDistributionMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
+    model = Submission
+    kwarg_name = 'team_pk'
+    filter_name = 'team'
 
-    def get(self, request, **kwargs):
-        team_pk = kwargs.get('team_pk')
-        data = Submission.objects.filter(team=team_pk).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
-        return Response(data)
 
 class TeamContributionsView(APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
@@ -252,13 +273,12 @@ class TeamContributionsView(APIView):
             return Response('No team leader.', status=status.HTTP_404_NOT_FOUND)
 
 
-class KlassSubmissionTimesView(APIView):
+class KlassSubmissionTimesView(APIView, TimeDistributionMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
+    model = Submission
+    kwarg_name = 'klass_pk'
+    filter_name = 'klass'
 
-    def get(self, request, **kwargs):
-        klass_pk = kwargs.get('klass_pk')
-        data = Submission.objects.filter(klass=klass_pk).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
-        return Response(data)
 
 class StudentScoresView(APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
@@ -294,6 +314,7 @@ class StudentScoresView(APIView):
 
             normalized_data['score'].append(normalized_score)
         return Response(normalized_data)
+
 
 class TeamScoresView(APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
@@ -351,6 +372,8 @@ class KlassScoresView(APIView):
                 )
             ).values_list('max_score', flat=True)[:1]
 
+            print(qs)
+            print(len(qs))
             avg_score = sum(qs) / len(qs)
             target_score = definition.get('target_score')
             baseline_score = definition.get('baseline_score')
