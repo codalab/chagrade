@@ -16,32 +16,7 @@ from apps.klasses.models import Klass
 
 from apps.klasses.mixins import WizardMixin
 
-# Todo: Replace Http404's with correct resposne for forbidden (Besides not found?)
-
-def klass_homeworks_completely_graded(klass):
-    for hw in klass.homework_definitions.all():
-        if hw.team_based:
-            for team in klass.teams.all():
-                team_graded = False
-                for submission in Submission.objects.filter(team=team, definition=hw):
-                    if Grade.objects.filter(submission=submission, published=True):
-                        team_graded = True
-                        break
-                if not team_graded:
-                    return False
-            return True
-
-        else:
-            for student in klass.enrolled_students.all():
-                student_graded = False
-                for submission in Submission.objects.filter(creator=student, definition=hw):
-                    if Grade.objects.filter(submission=submission, published=True):
-                        student_graded = True
-                        break
-                if not student_graded:
-                    return False
-            return True
-
+# Todo: Replace Http404's with correct response for forbidden (Besides not found?)
 
 class CreationView(LoginRequiredMixin, FormView):
     template_name = 'klasses/klass_form.html'
@@ -79,7 +54,7 @@ class OverView(LoginRequiredMixin, DetailView):
         except ObjectDoesNotExist:
             raise Http404
 
-        context['completely_graded'] = klass_homeworks_completely_graded(klass)
+        context['completely_graded'] = klass.homeworks_completely_graded()
         return context
 
 
@@ -93,7 +68,7 @@ class EnrollmentView(LoginRequiredMixin, WizardMixin, TemplateView):
         except ObjectDoesNotExist:
             raise Http404
 
-        context['completely_graded'] = klass_homeworks_completely_graded(klass)
+        context['completely_graded'] = klass.homeworks_completely_graded()
         return context
 
 
@@ -107,7 +82,7 @@ class DefineHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
         except ObjectDoesNotExist:
             raise Http404
 
-        context['completely_graded'] = klass_homeworks_completely_graded(klass)
+        context['completely_graded'] = klass.homeworks_completely_graded()
         return context
 
 
@@ -121,7 +96,8 @@ class GradeHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
         except ObjectDoesNotExist:
             raise Http404
 
-        context['completely_graded'] = klass_homeworks_completely_graded(klass)
+        context['completely_graded'] = klass.homeworks_completely_graded()
+        print(context)
         return context
 
 
@@ -165,7 +141,7 @@ class ActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
         except ObjectDoesNotExist:
             raise Http404
 
-        context['completely_graded'] = klass_homeworks_completely_graded(klass)
+        context['completely_graded'] = klass.homeworks_completely_graded()
         return context
 
 

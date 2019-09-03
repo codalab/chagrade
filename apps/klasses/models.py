@@ -11,6 +11,7 @@ from django.db import models
 # references.
 from django.utils import timezone
 
+from apps.homework.models import Submission, Grade
 
 def upload_image(instance, filename):
     file_split = filename.split('.')
@@ -81,3 +82,27 @@ class Klass(models.Model):
             self.created = timezone.now()
         self.modified = timezone.now()
         return super().save(*args, **kwargs)
+
+    def homeworks_completely_graded(self):
+        for hw in self.homework_definitions.all():
+            if hw.team_based:
+                for team in self.teams.all():
+                    team_graded = False
+                    for submission in Submission.objects.filter(team=team, definition=hw):
+                        if Grade.objects.filter(submission=submission, published=True):
+                            team_graded = True
+                            break
+                    if not team_graded:
+                        return False
+                return True
+
+            else:
+                for student in self.enrolled_students.all():
+                    student_graded = False
+                    for submission in Submission.objects.filter(creator=student, definition=hw):
+                        if Grade.objects.filter(submission=submission, published=True):
+                            student_graded = True
+                            break
+                    if not student_graded:
+                        return False
+                return True

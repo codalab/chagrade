@@ -11,31 +11,35 @@
             margin-top: 40px !important;
         }
 
-        .total.statistic {
-            margin: 40px auto 0 auto !important;
-        }
-
         .charts-container {
-            margin: 40px;
+            margin: 20px 80px 20px 80px;
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
         }
 
         .chart-container {
-            margin-top: 30px;
-            margin-bottom: 20px;
-            width: 350px;
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .condensed {
-            margin: 0.5vh 0 0 0 !important;
-            padding: 0.5vh 0 0 0 !important;
+        canvas {
+            margin: 20px 0 20px 0;
         }
 
-        .no-padding {
-            padding: 1vh 0 0 0 !important;
+        .stat-row {
+            justify-content: center !important;
+            text-align: center !important;
+            margin-top: 60px;
         }
+
+        .submissions-charts-container {
+            display: flex;
+            justify-content: space-between !important;
+        }
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
@@ -51,66 +55,145 @@
 
                     <div class="ui top attached tabular menu">
                         <a class="active item" data-tab="users">Users</a>
-                        <a class="item" data-tab="teams">Classes</a>
+                        <a class="item" data-tab="klasses">Classes</a>
+                        <a class="item" data-tab="submissions">Submissions</a>
                     </div>
 
                     <div class="ui bottom attached active tab segment" data-tab="users">
-                        <div class="ui total statistic">
-                            <div id="users_stat" class="value">
-                                0
-                            </div>
-                            <div class="label">
-                                Total Users
-                            </div>
-                        </div>
 
                         <div class='charts-container'>
                             <div class='chart-container'>
-                                <div class="ui small statistic">
-                                    <div id="students_stat" class="value">
-                                        0
+                                <div class="ui one column centered grid">
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Total
+                                            </div>
+                                            <div id="users_stat" class="value">
+                                                0
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="label">
-                                        Students Joined
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Students
+                                            </div>
+                                            <div id="students_stat" class="value">
+                                                0
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Instructors
+                                            </div>
+                                            <div id="instructors_stat" class="value">
+                                                0
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <canvas id="students_chart"></canvas>
                             </div>
 
                             <div class='chart-container'>
-                                <div class="ui small statistic">
-                                    <div id="instructors_stat" class="value">
-                                        0
-                                    </div>
-                                    <div class="label">
-                                        Instructors Joined
-                                    </div>
-                                </div>
-
+                                <canvas id="students_chart"></canvas>
                                 <canvas id="instructors_chart"></canvas>
                             </div>
                         </div>
                     </div>
 
-                    <div class="ui bottom attached tab segment" data-tab="teams">
+                    <div class="ui bottom attached tab segment" data-tab="klasses">
                         <div class='charts-container'>
-
                             <div class='chart-container'>
-                                <div class="ui small statistic">
-                                    <div id="klasses_stat" class="value">
-                                        0
+                                <div class="ui one column grid">
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Total Classes
+                                            </div>
+                                            <div id="klasses_stat" class="value">
+                                                330
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="label">
-                                        Classes Created
+
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Ave. Students per Class
+                                            </div>
+                                            <div id="students_per_klass_stat" class="value">
+                                                330
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Ave. Homeworks per Class
+                                            </div>
+                                            <div id="definitions_per_klass_stat" class="value">
+                                                330
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Ave. Submissions per HW Definition
+                                            </div>
+                                            <div id="submissions_per_definition_stat" class="value">
+                                                330
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
 
+                            <div class='chart-container'>
                                 <canvas id="klasses_chart"></canvas>
                             </div>
                         </div>
                     </div>
 
+                    <div class="ui bottom attached tab segment" data-tab="submissions">
+                        <div class='charts-container'>
+                            <div class="ui grid">
+                                <div class="row stat-row">
+                                    <div class="ui small statistic">
+                                        <div class="label">
+                                            Total Submissions
+                                        </div>
+                                        <div id="submissions_stat" class="value">
+                                            0
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row submissions-charts-container">
+                                    <div class='chart-container'>
+                                        <canvas id="submissions_chart"></canvas>
+                                    </div>
+                                    <div class='chart-container'>
+                                        <canvas id="submissions_score_histogram"></canvas>
+                                        <div class="ui three wide label score-normalization-popup"
+                                             data-title="Score Normalization"
+                                             data-content="Each homework's score has been normalized to a linear scale based off of the homework's respective baseline and target scores.
+                                                     A score of 1.0 is representative of the target score, while a score of 0.0 is representative of the
+                                                     baseline score."
+                                        >
+                                            <i class="blue question circle outline icon"></i>
+                                            Score Normalization
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -127,13 +210,17 @@
 
         $(document).ready(function () {
             $('.tabular.menu .item').tab()
+            $('.score-normalization-popup').popup()
 
             update_totals()
 
-            admin_metrics.students_chart = new Chart($('#students_chart'), create_time_chart_config(students_data))
-            admin_metrics.instructors_chart = new Chart($('#instructors_chart'), create_time_chart_config(instructors_data))
-            admin_metrics.klasses_chart = new Chart($('#klasses_chart'), create_time_chart_config(klasses_data))
+            admin_metrics.students_chart = new Chart($('#students_chart'), create_time_chart_config('Students Joined'))
+            admin_metrics.instructors_chart = new Chart($('#instructors_chart'), create_time_chart_config('Instructors Joined'))
+            admin_metrics.klasses_chart = new Chart($('#klasses_chart'), create_time_chart_config('Classes Created'))
+            admin_metrics.submissions_score_histogram = new Chart($('#submissions_score_histogram'), create_histogram_chart_config())
+            admin_metrics.submissions_chart = new Chart($('#submissions_chart'), create_time_chart_config('Submissions Made'))
             update_charts()
+
         })
 
         function update_totals() {
@@ -143,6 +230,7 @@
                     $('#students_stat').html(stats.students)
                     $('#instructors_stat').html(stats.instructors)
                     $('#klasses_stat').html(stats.klasses)
+                    $('#submissions_stat').html(stats.submissions)
                 })
         }
 
@@ -157,7 +245,6 @@
             }
 
             function update_chart(chart, data) {
-                console.log(chart)
                 chart.data.datasets[0].data = format_data_for_chart(data)
                 chart.update()
             }
@@ -180,123 +267,89 @@
 
             CHAGRADE.api.get_klass_metrics()
                 .done( (data) => {
-                    update_chart(admin_metrics.klasses_chart, data)
+                    klasses_canvas = document.getElementById('klasses_chart')
+                    console.log(klasses_canvas)
+                    let height = 600
+                    let width = 600
+                    update_chart(admin_metrics.klasses_chart, data.klasses_created)
+                    klasses_canvas.width = width
+                    klasses_canvas.height = height
+                    klasses_canvas.style.width = width
+                    klasses_canvas.style.height = height
+                    $('#students_per_klass_stat').html(data.ave_students)
+                    $('#definitions_per_klass_stat').html(data.ave_definitions)
+                    $('#submissions_per_definition_stat').html(data.ave_subs)
+                })
+                .fail( (data) => {
+                    console.log(data)
+                })
+
+            CHAGRADE.api.get_submission_metrics()
+                .done( data => {
+                    let SH = admin_metrics.submissions_score_histogram
+                    let SC = admin_metrics.submissions_chart
+
+                    SH.data.labels = data.submission_scores.labels
+                    SH.data.datasets[0].data = data.submission_scores.values
+                    SH.options.scales.xAxes[0].ticks.max = data.submission_scores.labels[data.submission_scores.labels.length - 2]
+                    SH.options.scales.xAxes[1].ticks.max = data.submission_scores.labels[data.submission_scores.labels.length - 1]
+                    SH.update()
+
+                    update_chart(SC, data.submissions_made)
                 })
                 .fail( (data) => {
                     console.log(data)
                 })
         }
 
-        let students_data = {
-            label: 'Students Joined',
-            data: [
-                {
-                    x: new Date(2019, 0, 1),
-                    y: 30,
-                },{
-                    x: new Date(2019, 1, 1),
-                    y: 150,
-                },{
-                    x: new Date(2019, 2, 1),
-                    y: 500,
-                },{
-                    x: new Date(2019, 3, 1),
-                    y: 1500,
-                },{
-                    x: new Date(2019, 4, 1),
-                    y: 2300,
-                },{
-                    x: new Date(2019, 5, 1),
-                    y: 7000,
-                },{
-                    x: new Date(2019, 6, 1),
-                    y: 13400,
-                },{
-                    x: new Date(2019, 7, 1),
-                    y: 25830,
+        function create_histogram_chart_config () {
+            return {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Score Distribution',
+                        data: [],
+                        borderColor: 'rgba(54, 162, 235, 0.7)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    }]
                 },
-            ],
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor:'rgba(54, 112, 185, 1)',
-            lineTension: 0,
+                options: {
+                    scales: {
+                        xAxes: [{
+                            display: false,
+                            barPercentage: 1.3,
+                            ticks: {
+                            }
+                        }, {
+                            display: true,
+                            ticks: {
+                                autoSkip: true,
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                precision: 1,
+                                beginAtZero: true,
+                            }
+                        }]
+                    }
+                }
+            }
         }
 
-        let klasses_data = {
-            label: 'Klasses Created',
-            data: [
-                {
-                    x: new Date(2019, 0, 1),
-                    y: 1,
-                },{
-                    x: new Date(2019, 1, 1),
-                    y: 12,
-                },{
-                    x: new Date(2019, 2, 1),
-                    y: 40,
-                },{
-                    x: new Date(2019, 3, 1),
-                    y: 100,
-                },{
-                    x: new Date(2019, 4, 1),
-                    y: 200,
-                },{
-                    x: new Date(2019, 5, 1),
-                    y: 250,
-                },{
-                    x: new Date(2019, 6, 1),
-                    y: 1100,
-                },{
-                    x: new Date(2019, 7, 1),
-                    y: 2103,
-                },
-            ],
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor:'rgba(54, 112, 185, 1)',
-            lineTension: 0,
-        }
-
-        let instructors_data = {
-            label: 'Instructors Joined',
-            data: [
-                {
-                    x: new Date(2019, 0, 1),
-                    y: 2,
-                },{
-                    x: new Date(2019, 1, 1),
-                    y: 10,
-                },{
-                    x: new Date(2019, 2, 1),
-                    y: 50,
-                },{
-                    x: new Date(2019, 3, 1),
-                    y: 150,
-                },{
-                    x: new Date(2019, 4, 1),
-                    y: 230,
-                },{
-                    x: new Date(2019, 5, 1),
-                    y: 700,
-                },{
-                    x: new Date(2019, 6, 1),
-                    y: 1340,
-                },{
-                    x: new Date(2019, 7, 1),
-                    y: 2583,
-                },
-            ],
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor:'rgba(54, 112, 185, 1)',
-            lineTension: 0,
-        }
-
-
-
-        function create_time_chart_config(dataset) {
+        function create_time_chart_config(label) {
             return {
                 type: 'line',
                 data: {
                     datasets: [
-                        dataset
+                        {
+                            label: label,
+                            data: [],
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor:'rgba(54, 162, 235, 0.8)',
+                            lineTension: 0,
+                        }
                     ],
                 },
                 options: {
@@ -309,12 +362,13 @@
                         xAxes: [{
                             type: 'time',
                             time: {
-                                unit: 'month',
+                                unit: 'day',
                             },
                         }],
                         yAxes: [{
                             ticks: {
                                 beginAtZero: true,
+                                precision: 0,
                             }
                         }]
                     }

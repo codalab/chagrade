@@ -41,17 +41,16 @@ class GithubUserInfoSerializer(serializers.ModelSerializer):
         )
 
     def get_access_token(self, obj):
-        request = self.context.get('request', None)
+        request = self.context.get('request')
         if request:
-            user = request.user
-            if user.is_authenticated:
-                if user.pk == obj.user.pk:
+            if request.user.is_authenticated:
+                if request.user.pk == obj.user.pk:
                     return obj.access_token
         return None
 
 
 class ChaUserSerializer(WritableNestedModelSerializer):
-    github_info = GithubUserInfoSerializer()
+    github_info = GithubUserInfoSerializer(required=False)
 
     class Meta:
         model = User
@@ -67,7 +66,7 @@ class ChaUserSerializer(WritableNestedModelSerializer):
         extra_kwargs = {
             'username': {'validators': [], 'required': False, 'allow_blank': True},
             'email': {'validators': []},
-            'github_info': {'read_only': True}
+            'github_info': {'read_only': True, 'required': False, 'allow_blank': True},
         }
 
     def validate(self, attrs):

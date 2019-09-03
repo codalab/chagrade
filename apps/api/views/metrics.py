@@ -5,12 +5,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, permissions
 
-from django.db.models import Count, F, OuterRef, Max, Avg, Subquery
+from django.db.models import Count, F, Func, OuterRef, Max, Avg, Subquery
 from django.http import Http404
 
 
 from apps.profiles.models import StudentMembership, ChaUser, Instructor
-from apps.homework.models import Submission, Definition, SubmissionTracker
+from apps.homework.models import Submission, Definition
 from apps.klasses.models import Klass
 from apps.groups.models import Team
 
@@ -22,13 +22,12 @@ class InstructorOrSuperuserPermission(permissions.BasePermission):
     message = 'You are not allowed to access this data.'
 
     def has_permission(self, request, view):
-
         if request.user.is_superuser:
             return True
 
-        klass_pk = view.kwargs.get('klass_pk')
-        student_pk = view.kwargs.get('student_pk')
-        team_pk = view.kwargs.get('team_pk')
+        klass_pk = self.kwargs.get('klass_pk')
+        student_pk = self.kwargs.get('student_pk')
+        team_pk = self.kwargs.get('team_pk')
 
         if klass_pk:
             klass = None
@@ -74,18 +73,58 @@ def chagrade_overall_metrics(request, version):
 
 
 class SubmissionMetricsView(APIView):
+    permission_classes = (InstructorOrSuperuserPermission,)
+
     def get(self, request, **kwargs):
         output_fields = {
-            'count': Count('submitted_homeworks'),
-            'name': F('user__username')
+            'count': Count('pk'),
+            'date': F('datefield')
         }
-        klass_pk = self.kwargs.get('klass_pk')
-        if not klass_pk:
-            raise Http404
-        users = StudentMembership.objects.filter(klass__pk=klass_pk).values(**output_fields)
-        return Response(users)
+
+        sub_sample = Submission.objects.filter(tracked_submissions__stored_score__isnull=False).order_by('?').values(score=(F('tracked_submissions__stored_score') - F('definition__baseline_score')) / (F('definition__target_score') - F('definition__baseline_score')))[:1000]
+        sorted_sample = sorted(list(sub_sample), key=lambda k: k['score'])
+
+        # Histogram settings
+        minimum = 0
+        maximum = 1.2
+        delta = maximum - minimum
+        bucket_quantity = 12
+        bucket_bounds = []
+
+        for i in range(bucket_quantity + 1):
+            bucket_bound = round(minimum + (i * delta / bucket_quantity), 1)
+            bucket_bounds.append(bucket_bound)
+
+        i = 0
+        j = 0
+        bucket = 0
+        buckets = []
+        while j < len(bucket_bounds):
+            if i < len(sorted_sample) and sorted_sample[i].get('score') < bucket_bounds[j]:
+                if j != 0:
+                    bucket += 1
+                i += 1
+            else:
+                if j != 0:
+                    buckets.append(bucket)
+                    bucket = 0
+                j += 1
+
+        submissions = Submission.objects.dates('created', 'day').values(**output_fields)
+        output_data = {
+           'submissions_made': submissions,
+        }
+
+        if len(sorted_sample) > 0:
+            output_data['submission_scores'] = {
+                'values': buckets,
+                'labels': bucket_bounds,
+            }
+        return Response(output_data)
 
 class StudentMetricsView(APIView):
+    permission_classes = (InstructorOrSuperuserPermission,)
+
     def get(self, request, **kwargs):
         output_fields = {
             'count': Count('pk'),
@@ -95,6 +134,8 @@ class StudentMetricsView(APIView):
         return Response(users)
 
 class InstructorMetricsView(APIView):
+    permission_classes = (InstructorOrSuperuserPermission,)
+
     def get(self, request, **kwargs):
         output_fields = {
             'count': Count('pk'),
@@ -104,13 +145,31 @@ class InstructorMetricsView(APIView):
         return Response(instructors)
 
 class KlassMetricsView(APIView):
+    permission_classes = (InstructorOrSuperuserPermission,)
+
     def get(self, request, **kwargs):
         output_fields = {
             'count': Count('pk'),
             'date': F('datefield')
         }
         klasses = Klass.objects.dates('created', 'day').values(**output_fields)
-        return Response(klasses)
+
+        class Round(Func):
+            function = 'ROUND'
+            arity = 2
+
+        ave_students_per_klass = Klass.objects.all().annotate(student_count=Count('enrolled_students')).aggregate(ave_students=Round(Avg('student_count'), 2))
+        ave_subs_per_definition = Definition.objects.all().annotate(submission_count=Count('submissions')).aggregate(ave_subs=Round(Avg('submission_count'), 2))
+        ave_definitions_per_klass = Klass.objects.all().annotate(definition_count=Count('homework_definitions')).aggregate(ave_definitions=Round(Avg('definition_count'), 2))
+
+        data = {
+            'klasses_created': klasses,
+        }
+        data.update(ave_definitions_per_klass)
+        data.update(ave_subs_per_definition)
+        data.update(ave_students_per_klass)
+
+        return Response(data)
 
 class StudentSubmissionTimesView(APIView):
     permission_classes = (InstructorOrSuperuserPermission,)

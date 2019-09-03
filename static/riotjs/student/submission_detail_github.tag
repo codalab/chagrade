@@ -71,6 +71,7 @@
                         self.github_ref = null
                     }
                     self.update()
+
                     CHAGRADE.api.get_cha_user(self.opts.user_pk)
                         .done(function (data) {
                             self.github_information = data.github_info
@@ -92,7 +93,6 @@
                 .fail(function (error) {
                     toastr.error("Error fetching submission: " + error.statusText)
                 })
-
         }
     </script>
     <style>

@@ -127,8 +127,8 @@ CHAGRADE.api = {
     get_klass_metrics: function() {
         return CHAGRADE.api.request('GET', URLS.API + "chagrade_klass_metrics/")
     },
-    get_submission_metrics: function(klass_pk) {
-        return CHAGRADE.api.request('GET', URLS.API + "chagrade_submission_metrics/" + klass_pk)
+    get_submission_metrics: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_submission_metrics/")
     },
     get_student_scores_metrics: function(student_pk) {
         return CHAGRADE.api.request('GET', URLS.API + "student_scores/" + student_pk)
