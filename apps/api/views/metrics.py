@@ -1,6 +1,7 @@
 import requests
 
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework_csv import renderers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, permissions
@@ -8,6 +9,7 @@ from rest_framework import status, permissions
 from django.db.models import Count, F, Func, OuterRef, Max, Avg, Subquery
 from django.http import Http404
 
+from apps.api.serializers.metrics import MetricsTimeOfDayAndHWScoreSerializer
 
 from apps.profiles.models import StudentMembership, ChaUser, Instructor
 from apps.homework.models import Submission, Definition, SubmissionTracker
@@ -15,8 +17,38 @@ from apps.klasses.models import Klass
 from apps.groups.models import Team
 
 
+# To render with CSV, Run a list of dictionaries through a serializer with fields identical to the keys of the
+# renderer below. Then they'll be rendered into proper columns with labels (values associated with keys) at the
+# top row of the CSV document.
+
+class InstructorMetricsRenderer(renderers.CSVRenderer):
+    labels = {
+        'registered_user_count': 'Registered User Count',
+        'competition_count': 'Competition Count',
+        'competitions_published_count': 'Competitions Published Count',
+        'submissions_made_count': 'Submissions Made Count',
+        'users_data_date': 'Users Data Date',
+        'users_data_count': 'Users Data Count',
+        'competitions_data_date': 'Competitions Data Date',
+        'competitions_data_count': 'Competitions Data Count',
+        'submissions_data_date': 'Submissions Data Date',
+        'submissions_data_count': 'Submissions Data Count',
+    }
+    header = list(labels.keys())
+
+class MetricsTimeOfDayAndHWScoreRenderer(renderers.CSVRenderer):
+    labels = {
+        'name': 'Homework Name',
+        'score': 'Homework Score',
+        'time': 'Time of Day',
+        'count': 'Submission Count',
+    }
+    header = list(labels.keys())
+
+
 def list_of_dicts_to_dict_of_lists(l):
     return {k: [d[k] for d in l] for k in l[0]}
+
 
 class InstructorOrSuperuserPermission(permissions.BasePermission):
     message = 'You are not allowed to access this data.'
@@ -76,6 +108,7 @@ class TimeDistributionMixin:
             self.filter_name: kwarg,
         }
         data = self.model.objects.filter(**filter).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
+        print(data)
         return Response(data)
 
 
@@ -372,9 +405,12 @@ class KlassScoresView(APIView):
                 )
             ).values_list('max_score', flat=True)[:1]
 
-            print(qs)
-            print(len(qs))
-            avg_score = sum(qs) / len(qs)
+            sum = 0
+            for val in qs:
+                if val:
+                    sum += val
+
+            avg_score = sum / len(qs)
             target_score = definition.get('target_score')
             baseline_score = definition.get('baseline_score')
 
@@ -383,3 +419,56 @@ class KlassScoresView(APIView):
             data.append({'name': definition.get('name'), 'score': scale_adjusted_score})
         data = list_of_dicts_to_dict_of_lists(data)
         return Response(data)
+
+
+class InstructorKlassCSVView(APIView):
+    permission_classes = (InstructorOrSuperuserPermission,)
+    renderer_classes = (MetricsTimeOfDayAndHWScoreRenderer,)
+
+    def get(self, request, **kwargs):
+        klass_pk = kwargs.get('klass_pk')
+        print(request.query_params.get('format'))
+
+        score_data = []
+        for definition in Definition.objects.filter(klass=klass_pk).values('pk', 'name', 'target_score', 'baseline_score').order_by('due_date'):
+            qs = StudentMembership.objects.filter(
+                klass=klass_pk
+            ).annotate(
+                max_score=Max(Subquery(
+                    Submission.objects.filter(
+                        id__in=OuterRef('submitted_homeworks'),
+                        definition=definition.get('pk')
+                    ).values('tracked_submissions__stored_score'))
+                )
+            ).values_list('max_score', flat=True)[:1]
+
+            sum = 0
+            for val in qs:
+                if val:
+                    sum += val
+
+            avg_score = sum / len(qs)
+            target_score = definition.get('target_score')
+            baseline_score = definition.get('baseline_score')
+            scale_adjusted_score = (avg_score - baseline_score) / (target_score - baseline_score)
+
+            score_data.append({'name': definition.get('name'), 'score': scale_adjusted_score})
+
+        time_data = Submission.objects.filter(klass=klass_pk).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
+        data = [list(time_data), list(score_data)]
+        longer_list = None
+        shorter_list = None
+        if len(data[0]) < len(data[1]):
+            longer_list = data.pop(1)
+        else:
+            longer_list = data.pop(0)
+        shorter_list = data.pop(0)
+
+        for i in range(len(shorter_list)):
+            longer_list[i].update(shorter_list[i])
+
+        print(longer_list)
+        serializer = MetricsTimeOfDayAndHWScoreSerializer(data=longer_list, many=True)
+        serializer.is_valid(raise_exception=True)
+        print('serializer.errors', serializer.errors)
+        return Response(serializer.validated_data)

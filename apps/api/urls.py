@@ -14,7 +14,7 @@ from apps.api.views.groups import TeamViewSet
 from apps.api.views.metrics import chagrade_overall_metrics, StudentMetricsView, \
     InstructorMetricsView, KlassMetricsView, SubmissionMetricsView, KlassScoresView, \
     StudentScoresView, TeamScoresView, StudentSubmissionTimesView, TeamSubmissionTimesView, \
-    KlassSubmissionTimesView, TeamContributionsView
+    KlassSubmissionTimesView, TeamContributionsView, InstructorKlassCSVView
 
 app_name = 'api'
 API_PREFIX = "v1"
@@ -71,6 +71,8 @@ urlpatterns = [
     path('team_scores/<int:team_pk>', TeamScoresView.as_view(), name='team_scores'),
     path('team_contributions/<int:team_pk>', TeamContributionsView.as_view(), name='team_contributions'),
     path('klass_scores/<int:klass_pk>', KlassScoresView.as_view(), name='klass_scores'),
+
+    path('klass_csv/<int:klass_pk>', InstructorKlassCSVView.as_view(), name='klass_CSV'),
 
     # Optionally, use "redoc" style
     # url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=None), name='schema-redoc'),

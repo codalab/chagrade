@@ -145,6 +145,9 @@ CHAGRADE.api = {
     get_klass_scores_metrics: function(klass_pk) {
         return CHAGRADE.api.request('GET', URLS.API + "klass_scores/" + klass_pk)
     },
+    get_klass_CSV: function(klass_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "klass_csv/" + klass_pk + "?format=csv")
+    },
     get_klass_submission_times_metrics: function(klass_pk) {
         return CHAGRADE.api.request('GET', URLS.API + "klass_submission_times/" + klass_pk)
     },
