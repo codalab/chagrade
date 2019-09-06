@@ -1,4 +1,5 @@
 import requests
+from copy import deepcopy
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_csv import renderers
@@ -9,7 +10,7 @@ from rest_framework import status, permissions
 from django.db.models import Count, F, Func, OuterRef, Max, Avg, Subquery
 from django.http import Http404
 
-from apps.api.serializers.metrics import MetricsTimeOfDayAndHWScoreSerializer
+from apps.api.serializers.metrics import MetricsSerializer
 
 from apps.profiles.models import StudentMembership, ChaUser, Instructor
 from apps.homework.models import Submission, Definition, SubmissionTracker
@@ -45,10 +46,35 @@ class MetricsTimeOfDayAndHWScoreRenderer(renderers.CSVRenderer):
     }
     header = list(labels.keys())
 
+class MetricsTeamRenderer(renderers.CSVRenderer):
+    labels = {
+        'name': 'Homework Name',
+        'score': 'Homework Score',
+        'time': 'Time of Day',
+        'cha_username': 'Chagrade Username',
+        'submission_count': 'Submission Count',
+        'commit_count': 'Github Commit Count',
+    }
+    header = list(labels.keys())
+
 
 def list_of_dicts_to_dict_of_lists(l):
     return {k: [d[k] for d in l] for k in l[0]}
 
+
+def merge_list_of_lists_of_dicts(input_list):
+    # Sort list by lengths of the sub-lists from greatest length to shortest length
+    sorted_input_list = sorted(input_list, key=lambda i: -len(i))
+    output_list = []
+    if len(sorted_input_list) > 0:
+        output_list = deepcopy(sorted_input_list.pop(0))
+    else:
+        return []
+    while len(sorted_input_list) > 0:
+        next_longest_list = sorted_input_list.pop(0)
+        for i in range(len(next_longest_list)):
+            output_list[i].update(next_longest_list[i])
+    return output_list
 
 class InstructorOrSuperuserPermission(permissions.BasePermission):
     message = 'You are not allowed to access this data.'
@@ -98,18 +124,125 @@ class InstructorOrSuperuserPermission(permissions.BasePermission):
 
 class TimeDistributionMixin:
     # Empty Default values
-    model = None
-    kwarg_name = None
-    filter_name = None
+    time_distribution_model = None
+    time_distribution_kwarg_name = None
+    time_distribution_filter_name = None
 
-    def get(self, request, **kwargs):
-        kwarg = kwargs.get(self.kwarg_name)
+    def time_distribution_query(self, **kwargs):
+        kwarg = kwargs.get(self.time_distribution_kwarg_name)
         filter = {
-            self.filter_name: kwarg,
+            self.time_distribution_filter_name: kwarg,
         }
-        data = self.model.objects.filter(**filter).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
-        print(data)
-        return Response(data)
+        data = self.time_distribution_model.objects.filter(**filter).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
+        return data
+
+
+class ScorePerHWMixin:
+    score_per_hw_filter_name = None
+
+    def score_per_hw_query(self, filter_object, team_query=False):
+        sub_query_filter = {
+            self.score_per_hw_filter_name: filter_object,
+            'definition': OuterRef('pk'),
+        }
+        definition_filter = {
+            'klass': filter_object.klass
+        }
+        if team_query:
+            definition_filter['team_based'] = True
+        data = Definition.objects.filter(**definition_filter).annotate(
+            non_normalized_score=Max(Subquery(
+                Submission.objects.filter(**sub_query_filter).values('tracked_submissions__stored_score')[:1])
+            )
+        ).order_by('due_date').annotate(score=((F('non_normalized_score') - F('baseline_score')) / (F('target_score') - F('baseline_score')))).values('name', 'score')
+        return data
+
+
+class KlassScorePerHWMixin:
+    def klass_score_per_hw_query(self, **kwargs):
+        klass_pk = kwargs.get('klass_pk')
+        data = []
+        for definition in Definition.objects.filter(klass=klass_pk).values('pk', 'name', 'target_score', 'baseline_score').order_by('due_date'):
+            qs = StudentMembership.objects.filter(
+                klass=klass_pk
+            ).annotate(
+                max_score=Max(Subquery(
+                    Submission.objects.filter(
+                        id__in=OuterRef('submitted_homeworks'),
+                        definition=definition.get('pk')
+                    ).values('tracked_submissions__stored_score'))
+                )
+            ).values_list('max_score', flat=True)[:1]
+
+            sum = 0
+            for val in qs:
+                if val:
+                    sum += val
+
+            avg_score = sum / len(qs)
+            target_score = definition.get('target_score')
+            baseline_score = definition.get('baseline_score')
+            scale_adjusted_score = (avg_score - baseline_score) / (target_score - baseline_score)
+
+            data.append({'name': definition.get('name'), 'score': scale_adjusted_score})
+        return data
+
+class TeamContributionsMixin:
+    def team_contributions(self, team):
+        print('team_contributions_mixin')
+        team_submissions = team.members.all().annotate(submission_count=Subquery(
+            Submission.objects.filter(team=team, creator=OuterRef('pk')).values('creator').values(
+                c=Count('*')))).values('submission_count', cha_username=F('user__username'))
+
+        for i in range(len(team_submissions)):
+            if not team_submissions[i].get('submission_count'):
+                team_submissions[i]['submission_count'] = 0
+
+        if team.leader:
+            latest_submission = team.leader.submitted_homeworks.last()
+            github_repo_url = latest_submission.github_url.split('/')
+            github_repo_url.insert(4, 'repos')
+            github_repo_url[2] = 'api.github.com'
+            temp = github_repo_url[3]
+            github_repo_url[3] = github_repo_url[4]
+            github_repo_url[4] = temp
+            contributors_url = '/'.join(github_repo_url[0:6]) + '/stats/contributors'
+            resp = requests.get(contributors_url, headers={'Authorization': 'token ' + team.leader.user.github_info.access_token})
+            contributors = resp.json()
+
+            usernames = list_of_dicts_to_dict_of_lists(team.members.all().values(chagrade_username=F('user__username'), github_username=F('user__github_info__login')))
+
+            contributor_metrics = []
+            outsider_commit_count = 0
+
+            for contributor in contributors:
+                author = contributor.get('author')
+                github_username = author.get('login')
+                if github_username in usernames['github_username']:
+                    index = usernames['github_username'].index(github_username)
+                    chagrade_username = usernames['chagrade_username'][index]
+                    contrib = {
+                        'cha_username': chagrade_username,
+                        'commit_count': contributor.get('total'),
+                    }
+                    contributor_metrics.append(contrib)
+                else:
+                    outsider_commit_count += contributor.get('total', 0)
+
+            if outsider_commit_count > 0:
+                outsider_contrib = {
+                    'cha_username': 'others',
+                    'commit_count': outsider_commit_count,
+                }
+                contributor_metrics.append(outsider_contrib)
+            data = {
+                'repo_url': latest_submission.github_url,
+                'github_contributions': contributor_metrics,
+                'chagrade_submissions': team_submissions,
+            }
+            return data
+        else:
+            return
 
 
 @api_view(['GET'])
@@ -230,77 +363,36 @@ class KlassMetricsView(APIView):
 
 class StudentSubmissionTimesView(APIView, TimeDistributionMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
-    model = Submission
-    kwarg_name = 'student_pk'
-    filter_name = 'creator'
+    time_distribution_model = Submission
+    time_distribution_kwarg_name = 'student_pk'
+    time_distribution_filter_name = 'creator'
+
+    def get(self, request, **kwargs):
+        data = self.time_distribution_query(**kwargs)
+        return Response(data)
 
 
 class TeamSubmissionTimesView(APIView, TimeDistributionMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
-    model = Submission
-    kwarg_name = 'team_pk'
-    filter_name = 'team'
+    time_distribution_model = Submission
+    time_distribution_kwarg_name = 'team_pk'
+    time_distribution_filter_name = 'team'
+
+    def get(self, request, **kwargs):
+        data = self.time_distribution_query(**kwargs)
+        return Response(data)
 
 
-class TeamContributionsView(APIView):
+class TeamContributionsView(APIView, TeamContributionsMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
 
     def get(self, request, **kwargs):
         team_pk = kwargs.get('team_pk')
         team = Team.objects.get(pk=team_pk)
-
-        team_submissions = Submission.objects.filter(team=team_pk).values('team').values(count=Count('*'))
-        team_submissions = team.members.all().annotate(submission_count=Subquery(
-            Submission.objects.filter(team=team_pk, creator=OuterRef('pk')).values('creator').values(
-                c=Count('*')))).values('submission_count', name=F('user__username'))
-
-        for i in range(len(team_submissions)):
-            if not team_submissions[i].get('submission_count'):
-                team_submissions[i]['submission_count'] = 0
-
-        if team.leader:
-            latest_submission = team.leader.submitted_homeworks.last()
-            github_repo_url = latest_submission.github_url.split('/')
-            github_repo_url.insert(4, 'repos')
-            github_repo_url[2] = 'api.github.com'
-            temp = github_repo_url[3]
-            github_repo_url[3] = github_repo_url[4]
-            github_repo_url[4] = temp
-            contributors_url = '/'.join(github_repo_url[0:6]) + '/stats/contributors'
-            resp = requests.get(contributors_url, headers={'Authorization': 'token ' + team.leader.user.github_info.access_token})
-            contributors = resp.json()
-
-            usernames = list_of_dicts_to_dict_of_lists(team.members.all().values(chagrade_username=F('user__username'), github_username=F('user__github_info__login')))
-
-            contributor_metrics = []
-            outsider_commit_count = 0
-
-            for contributor in contributors:
-                author = contributor.get('author')
-                github_username = author.get('login')
-                if github_username in usernames['github_username']:
-                    index = usernames['github_username'].index(github_username)
-                    chagrade_username = usernames['chagrade_username'][index]
-                    contrib = {
-                        'name': chagrade_username,
-                        'commit_count': contributor.get('total'),
-                    }
-                    contributor_metrics.append(contrib)
-                else:
-                    outsider_commit_count += contributor.get('total', 0)
-
-            if outsider_commit_count > 0:
-                outsider_contrib = {
-                    'name': 'others',
-                    'commit_count': outsider_commit_count,
-                }
-                contributor_metrics.append(outsider_contrib)
-
-            data = {
-                'repo_url': latest_submission.github_url,
-                'github_contributions': list_of_dicts_to_dict_of_lists(contributor_metrics),
-                'chagrade_submissions': list_of_dicts_to_dict_of_lists(team_submissions),
-            }
+        data = self.team_contributions(team)
+        if data:
+            data['github_contributions'] = list_of_dicts_to_dict_of_lists(data['github_contributions'])
+            data['chagrade_submissions'] = list_of_dicts_to_dict_of_lists(data['chagrade_submissions'])
             return Response(data)
         else:
             return Response('No team leader.', status=status.HTTP_404_NOT_FOUND)
@@ -308,13 +400,18 @@ class TeamContributionsView(APIView):
 
 class KlassSubmissionTimesView(APIView, TimeDistributionMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
-    model = Submission
-    kwarg_name = 'klass_pk'
-    filter_name = 'klass'
+    time_distribution_model = Submission
+    time_distribution_kwarg_name = 'klass_pk'
+    time_distribution_filter_name = 'klass'
+
+    def get(self, request, **kwargs):
+        data = self.time_distribution_query(**kwargs)
+        return Response(data)
 
 
-class StudentScoresView(APIView):
+class StudentScoresView(APIView, ScorePerHWMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
+    score_per_hw_filter_name = 'creator'
 
     def get(self, request, **kwargs):
         student_pk = kwargs.get('student_pk')
@@ -323,34 +420,14 @@ class StudentScoresView(APIView):
         except StudentMembership.DoesNotExist:
             raise Http404
 
-        data = Definition.objects.filter(klass=student.klass).annotate(
-            score=Max(Subquery(
-                Submission.objects.filter(
-                    creator=student_pk,
-                    definition=OuterRef('pk')
-                ).values('tracked_submissions__stored_score')[:1])
-            )
-        ).order_by('due_date').values('name', 'score', 'target_score', 'baseline_score')
-        data = list_of_dicts_to_dict_of_lists(data)
-
-        normalized_data = {
-            'name': [],
-            'score': [],
-        }
-        for i in range(len(data['name'])):
-            normalized_data['name'].append(data['name'][i])
-            normalized_score = 0.0
-            if data['score'][i] != None:
-                target_score = data['target_score'][i]
-                baseline_score = data['baseline_score'][i]
-                normalized_score = (data['score'][i] - baseline_score) / (target_score - baseline_score)
-
-            normalized_data['score'].append(normalized_score)
-        return Response(normalized_data)
+        data = self.score_per_hw_query(student)
+        formatted_data = list_of_dicts_to_dict_of_lists(data)
+        return Response(formatted_data)
 
 
-class TeamScoresView(APIView):
+class TeamScoresView(APIView, ScorePerHWMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
+    score_per_hw_filter_name = 'team'
 
     def get(self, request, **kwargs):
         team_pk = kwargs.get('team_pk')
@@ -359,116 +436,136 @@ class TeamScoresView(APIView):
         except Team.DoesNotExist:
             raise Http404
 
-        data = Definition.objects.filter(klass=team.klass, team_based=True).annotate(
-            score=Max(Subquery(
-                Submission.objects.filter(
-                    team=team,
-                    definition=OuterRef('pk')
-                ).values('tracked_submissions__stored_score')[:1])
-            )
-        ).order_by('due_date').values('name', 'score', 'target_score', 'baseline_score')
-        data = list_of_dicts_to_dict_of_lists(data)
-
-        normalized_data = {
-            'name': [],
-            'score': [],
-        }
-        for i in range(len(data['name'])):
-            normalized_data['name'].append(data['name'][i])
-            normalized_score = 0.0
-            if data['score'][i] != None:
-                target_score = data['target_score'][i]
-                baseline_score = data['baseline_score'][i]
-                normalized_score = (data['score'][i] - baseline_score) / (target_score - baseline_score)
-
-            normalized_data['score'].append(normalized_score)
-        return Response(normalized_data)
-
-
-class KlassScoresView(APIView):
-    permission_classes = (InstructorOrSuperuserPermission,)
-
-    def get(self, request, **kwargs):
-
-        klass_pk = kwargs.get('klass_pk')
-
-        data = []
-        for definition in Definition.objects.filter(klass=klass_pk).values('pk', 'name', 'target_score', 'baseline_score').order_by('due_date'):
-            qs = StudentMembership.objects.filter(
-                klass=klass_pk
-            ).annotate(
-                max_score=Max(Subquery(
-                    Submission.objects.filter(
-                        id__in=OuterRef('submitted_homeworks'),
-                        definition=definition.get('pk')
-                    ).values('tracked_submissions__stored_score'))
-                )
-            ).values_list('max_score', flat=True)[:1]
-
-            sum = 0
-            for val in qs:
-                if val:
-                    sum += val
-
-            avg_score = sum / len(qs)
-            target_score = definition.get('target_score')
-            baseline_score = definition.get('baseline_score')
-
-            scale_adjusted_score = (avg_score - baseline_score) / (target_score - baseline_score)
-
-            data.append({'name': definition.get('name'), 'score': scale_adjusted_score})
+        data = self.score_per_hw_query(team, team_query=True)
         data = list_of_dicts_to_dict_of_lists(data)
         return Response(data)
 
 
-class InstructorKlassCSVView(APIView):
+class KlassScoresView(APIView, KlassScorePerHWMixin):
+    permission_classes = (InstructorOrSuperuserPermission,)
+    score_per_hw_filter_name = 'team'
+
+    def get(self, request, **kwargs):
+        data = self.klass_score_per_hw_query(**kwargs)
+        formatted_data = list_of_dicts_to_dict_of_lists(data)
+        return Response(formatted_data)
+
+
+class InstructorKlassCSVView(APIView, TimeDistributionMixin, KlassScorePerHWMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
     renderer_classes = (MetricsTimeOfDayAndHWScoreRenderer,)
+
+    time_distribution_model = Submission
+    time_distribution_kwarg_name = 'klass_pk'
+    time_distribution_filter_name = 'klass'
 
     def get(self, request, **kwargs):
         klass_pk = kwargs.get('klass_pk')
         print(request.query_params.get('format'))
 
-        score_data = []
-        for definition in Definition.objects.filter(klass=klass_pk).values('pk', 'name', 'target_score', 'baseline_score').order_by('due_date'):
-            qs = StudentMembership.objects.filter(
-                klass=klass_pk
-            ).annotate(
-                max_score=Max(Subquery(
-                    Submission.objects.filter(
-                        id__in=OuterRef('submitted_homeworks'),
-                        definition=definition.get('pk')
-                    ).values('tracked_submissions__stored_score'))
-                )
-            ).values_list('max_score', flat=True)[:1]
+        score_data = self.klass_score_per_hw_query(**kwargs)
+        time_data = self.time_distribution_query(**kwargs)
+        data = merge_list_of_lists_of_dicts([list(time_data), list(score_data)])
 
-            sum = 0
-            for val in qs:
-                if val:
-                    sum += val
-
-            avg_score = sum / len(qs)
-            target_score = definition.get('target_score')
-            baseline_score = definition.get('baseline_score')
-            scale_adjusted_score = (avg_score - baseline_score) / (target_score - baseline_score)
-
-            score_data.append({'name': definition.get('name'), 'score': scale_adjusted_score})
-
-        time_data = Submission.objects.filter(klass=klass_pk).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
-        data = [list(time_data), list(score_data)]
-        longer_list = None
-        shorter_list = None
-        if len(data[0]) < len(data[1]):
-            longer_list = data.pop(1)
-        else:
-            longer_list = data.pop(0)
-        shorter_list = data.pop(0)
-
-        for i in range(len(shorter_list)):
-            longer_list[i].update(shorter_list[i])
-
-        print(longer_list)
-        serializer = MetricsTimeOfDayAndHWScoreSerializer(data=longer_list, many=True)
+        serializer = MetricsSerializer(data=data, many=True)
         serializer.is_valid(raise_exception=True)
-        print('serializer.errors', serializer.errors)
+        return Response(serializer.validated_data)
+
+
+class InstructorStudentCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin):
+    permission_classes = (InstructorOrSuperuserPermission,)
+    renderer_classes = (MetricsTimeOfDayAndHWScoreRenderer,)
+
+    time_distribution_model = Submission
+    time_distribution_kwarg_name = 'student_pk'
+    time_distribution_filter_name = 'creator'
+    score_per_hw_filter_name = 'creator'
+
+    def get(self, request, **kwargs):
+        student_pk = kwargs.get('student_pk')
+        try:
+            student = StudentMembership.objects.get(pk=kwargs.get('student_pk'))
+        except StudentMembership.DoesNotExist:
+            raise Http404
+
+        score_data = self.score_per_hw_query(student)
+        time_data = self.time_distribution_query(**kwargs)
+        data = merge_list_of_lists_of_dicts([list(time_data), list(score_data)])
+
+        serializer = MetricsSerializer(data=data, many=True)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data)
+
+
+class InstructorTeamCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin, TeamContributionsMixin):
+    permission_classes = (InstructorOrSuperuserPermission,)
+    renderer_classes = (MetricsTeamRenderer,)
+
+    time_distribution_model = Submission
+    time_distribution_kwarg_name = 'team_pk'
+    time_distribution_filter_name = 'team'
+    score_per_hw_filter_name = 'team'
+
+    def union_contribution_lists(self, github_list, chagrade_list):
+        GL = sorted(github_list, key = lambda i: i['cha_username'])
+        CL = sorted(chagrade_list, key = lambda i: i['cha_username'])
+
+        i = 0
+        j = 0
+        GL_end = False
+        CL_end = False
+        output_list = []
+        while True:
+
+            if GL_end and CL_end:
+                break
+
+            elif not GL_end and (CL_end or (GL[i]['cha_username'] < CL[j]['cha_username'])):
+                GL[i]['submission_count'] = 0
+                output_list.append(GL[i])
+                if i < len(GL) - 1:
+                    i += 1
+                else:
+                    GL_end = True
+
+            elif not CL_end and (GL_end or (CL[j]['cha_username'] < GL[i]['cha_username'])):
+                CL[j]['commit_count'] = 0
+                output_list.append(CL[j])
+                if j < len(CL) - 1:
+                    j += 1
+                else:
+                    CL_end = True
+
+            elif GL[i]['cha_username'] == CL[j]['cha_username']:
+                GL[i].update(CL[j])
+                output_list.append(GL[i])
+                if j < len(CL) - 1:
+                    j += 1
+                else:
+                    CL_end = True
+                if i < len(GL) - 1:
+                    i += 1
+                else:
+                    GL_end = True
+
+        return output_list
+
+    def get(self, request, **kwargs):
+        team_pk = kwargs.get('team_pk')
+        try:
+            team = Team.objects.get(pk=team_pk)
+        except Team.DoesNotExist:
+            raise Http404
+
+        score_data = self.score_per_hw_query(team, team_query=True)
+        time_data = self.time_distribution_query(**kwargs)
+        team_data = self.team_contributions(team)
+        merged_team_data = None
+
+        if team_data:
+            merged_team_data = self.union_contribution_lists(list(team_data['github_contributions']), list(team_data['chagrade_submissions']))
+
+        data = merge_list_of_lists_of_dicts([list(time_data), list(score_data), list(merged_team_data)])
+        serializer = MetricsSerializer(data=data, many=True)
+        serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data)

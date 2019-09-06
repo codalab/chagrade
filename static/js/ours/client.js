@@ -148,6 +148,12 @@ CHAGRADE.api = {
     get_klass_CSV: function(klass_pk) {
         return CHAGRADE.api.request('GET', URLS.API + "klass_csv/" + klass_pk + "?format=csv")
     },
+    get_student_CSV: function(student_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "student_csv/" + student_pk + "?format=csv")
+    },
+    get_team_CSV: function(team_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "team_csv/" + team_pk + "?format=csv")
+    },
     get_klass_submission_times_metrics: function(klass_pk) {
         return CHAGRADE.api.request('GET', URLS.API + "klass_submission_times/" + klass_pk)
     },

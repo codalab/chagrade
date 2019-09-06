@@ -14,7 +14,9 @@ from apps.api.views.groups import TeamViewSet
 from apps.api.views.metrics import chagrade_overall_metrics, StudentMetricsView, \
     InstructorMetricsView, KlassMetricsView, SubmissionMetricsView, KlassScoresView, \
     StudentScoresView, TeamScoresView, StudentSubmissionTimesView, TeamSubmissionTimesView, \
-    KlassSubmissionTimesView, TeamContributionsView, InstructorKlassCSVView
+    KlassSubmissionTimesView, TeamContributionsView, InstructorKlassCSVView, \
+    InstructorStudentCSVView, InstructorTeamCSVView
+
 
 app_name = 'api'
 API_PREFIX = "v1"
@@ -59,6 +61,8 @@ urlpatterns = [
     # Custom API point for handling student creation
     # path('create_student/', create_student, name='create_student'),
     path('create_students_from_csv/', create_students_from_csv, name='create_students_from_csv'),
+
+    # Metrics
     path('chagrade_overall_metrics/', chagrade_overall_metrics, name='chagrade_overall_metrics'),
     path('chagrade_student_metrics/', StudentMetricsView.as_view(), name='chagrade_student_metrics'),
     path('chagrade_instructor_metrics/', InstructorMetricsView.as_view(), name='chagrade_instructor_metrics'),
@@ -72,7 +76,11 @@ urlpatterns = [
     path('team_contributions/<int:team_pk>', TeamContributionsView.as_view(), name='team_contributions'),
     path('klass_scores/<int:klass_pk>', KlassScoresView.as_view(), name='klass_scores'),
 
+    # CSV Metrics
     path('klass_csv/<int:klass_pk>', InstructorKlassCSVView.as_view(), name='klass_CSV'),
+    path('student_csv/<int:student_pk>', InstructorStudentCSVView.as_view(), name='student_CSV'),
+    path('team_csv/<int:team_pk>', InstructorTeamCSVView.as_view(), name='team_CSV'),
+
 
     # Optionally, use "redoc" style
     # url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=None), name='schema-redoc'),
