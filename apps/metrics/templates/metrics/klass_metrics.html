@@ -335,11 +335,11 @@
                                 .done(data => {
                                     $('#team-repo-url').attr('href', data.repo_url)
                                     instructor_metrics.team_github_activity_chart.data.datasets[0].data = data.github_contributions.commit_count
-                                    instructor_metrics.team_github_activity_chart.data.labels = data.github_contributions.name
+                                    instructor_metrics.team_github_activity_chart.data.labels = data.github_contributions.cha_username
                                     instructor_metrics.team_github_activity_chart.update()
 
                                     instructor_metrics.team_codalab_activity_chart.data.datasets[0].data = data.chagrade_submissions.submission_count
-                                    instructor_metrics.team_codalab_activity_chart.data.labels = data.chagrade_submissions.name
+                                    instructor_metrics.team_codalab_activity_chart.data.labels = data.chagrade_submissions.cha_username
                                     instructor_metrics.team_codalab_activity_chart.update()
                                 })
 

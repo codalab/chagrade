@@ -22,20 +22,6 @@ from apps.groups.models import Team
 # renderer below. Then they'll be rendered into proper columns with labels (values associated with keys) at the
 # top row of the CSV document.
 
-class InstructorMetricsRenderer(renderers.CSVRenderer):
-    labels = {
-        'registered_user_count': 'Registered User Count',
-        'competition_count': 'Competition Count',
-        'competitions_published_count': 'Competitions Published Count',
-        'submissions_made_count': 'Submissions Made Count',
-        'users_data_date': 'Users Data Date',
-        'users_data_count': 'Users Data Count',
-        'competitions_data_date': 'Competitions Data Date',
-        'competitions_data_count': 'Competitions Data Count',
-        'submissions_data_date': 'Submissions Data Date',
-        'submissions_data_count': 'Submissions Data Count',
-    }
-    header = list(labels.keys())
 
 class MetricsTimeOfDayAndHWScoreRenderer(renderers.CSVRenderer):
     labels = {
@@ -45,6 +31,28 @@ class MetricsTimeOfDayAndHWScoreRenderer(renderers.CSVRenderer):
         'count': 'Submission Count',
     }
     header = list(labels.keys())
+
+
+class AdminMetricsRenderer(renderers.CSVRenderer):
+    labels = {
+        'students_join_count': 'Students Joined',
+        'instructors_join_count': 'Instructors Joined',
+        'klasses_created_count': 'Classes Created',
+        'submissions_made_count': 'Submissions Made',
+        'score_interval_count': 'Scores on Interval',
+        'score_interval': 'Score Interval',
+        'date': 'Date',
+        'students_total': 'Students Total',
+        'instructors_total': 'Instructors Total',
+        'users_total': 'Users Total',
+        'klasses_total': 'Classes Total',
+        'submissions_total': 'Submissions Total',
+        'ave_students_per_klass': 'Average Number of Students Per Class',
+        'ave_definitions_per_klass': 'Average Number of Homework Definitions Per Class',
+        'ave_submissions_per_definition': 'Average Number of Submissions Per Homework Definitions',
+    }
+    header = list(labels.keys())
+
 
 class MetricsTeamRenderer(renderers.CSVRenderer):
     labels = {
@@ -75,6 +83,7 @@ def merge_list_of_lists_of_dicts(input_list):
         for i in range(len(next_longest_list)):
             output_list[i].update(next_longest_list[i])
     return output_list
+
 
 class InstructorOrSuperuserPermission(permissions.BasePermission):
     message = 'You are not allowed to access this data.'
@@ -135,6 +144,19 @@ class TimeDistributionMixin:
         }
         data = self.time_distribution_model.objects.filter(**filter).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
         return data
+
+
+class TimeSeriesObjectCreationQueryMixin:
+    time_series_model = None
+    time_series_creation_date_field_name = None
+
+    def time_series_query(self):
+        output_fields = {
+            'count': Count('pk'),
+            'date': F('datefield')
+        }
+        time_series_data = self.time_series_model.objects.dates(self.time_series_creation_date_field_name, 'day').values(**output_fields)
+        return time_series_data
 
 
 class ScorePerHWMixin:
@@ -258,15 +280,16 @@ def chagrade_overall_metrics(request, version):
     return Response(data, status=status.HTTP_200_OK)
 
 
-class SubmissionMetricsView(APIView):
+#################################################
+################# Admin Metrics #################
+#################################################
+
+class SubmissionMetricsView(APIView, TimeSeriesObjectCreationQueryMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
+    time_series_model = Submission
+    time_series_creation_date_field_name = 'created'
 
     def get(self, request, **kwargs):
-        output_fields = {
-            'count': Count('pk'),
-            'date': F('datefield')
-        }
-
         sub_sample = Submission.objects.filter(tracked_submissions__stored_score__isnull=False).order_by('?').values(score=(F('tracked_submissions__stored_score') - F('definition__baseline_score')) / (F('definition__target_score') - F('definition__baseline_score')))[:1000]
         sorted_sample = sorted(list(sub_sample), key=lambda k: k['score'])
 
@@ -296,7 +319,7 @@ class SubmissionMetricsView(APIView):
                     bucket = 0
                 j += 1
 
-        submissions = Submission.objects.dates('created', 'day').values(**output_fields)
+        submissions = self.time_series_query()
         output_data = {
            'submissions_made': submissions,
         }
@@ -309,39 +332,33 @@ class SubmissionMetricsView(APIView):
         return Response(output_data)
 
 
-class StudentMetricsView(APIView):
+class StudentMetricsView(APIView, TimeSeriesObjectCreationQueryMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
+    time_series_model = StudentMembership
+    time_series_creation_date_field_name = 'date_enrolled'
 
     def get(self, request, **kwargs):
-        output_fields = {
-            'count': Count('pk'),
-            'date': F('datefield')
-        }
-        users = StudentMembership.objects.dates('date_enrolled', 'day').values(**output_fields)
+        users = self.time_series_query()
         return Response(users)
 
 
-class InstructorMetricsView(APIView):
+class InstructorMetricsView(APIView, TimeSeriesObjectCreationQueryMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
+    time_series_model = Instructor
+    time_series_creation_date_field_name = 'date_promoted'
 
     def get(self, request, **kwargs):
-        output_fields = {
-            'count': Count('pk'),
-            'date': F('datefield')
-        }
-        instructors = Instructor.objects.dates('date_promoted', 'day').values(**output_fields)
+        instructors = self.time_series_query()
         return Response(instructors)
 
 
-class KlassMetricsView(APIView):
+class KlassMetricsView(APIView, TimeSeriesObjectCreationQueryMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
+    time_series_creation_date_field_name = 'created'
+    time_series_model = Klass
 
     def get(self, request, **kwargs):
-        output_fields = {
-            'count': Count('pk'),
-            'date': F('datefield')
-        }
-        klasses = Klass.objects.dates('created', 'day').values(**output_fields)
+        klasses = self.time_series_query()
 
         class Round(Func):
             function = 'ROUND'
@@ -359,6 +376,61 @@ class KlassMetricsView(APIView):
         data.update(ave_students_per_klass)
 
         return Response(data)
+
+class UserMetricsCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
+    permission_classes = (InstructorOrSuperuserPermission,)
+    renderer_classes = (AdminMetricsRenderer)
+
+    time_series_model = Instructor
+    time_series_creation_date_field_name = 'date_promoted'
+
+    def get(self, request, **kwargs):
+        instructors = self.time_series_query()
+        self.time_series_model = StudentMembership
+        self.time_series_creation_date_field_name = 'date_enrolled'
+        students = self.time_series_query()
+
+        users_total = ChaUser.objects.count()
+        students_total = StudentMembership.objects.count()
+        instructors_total = Instructor.objects.count()
+
+        # Find union of instructors and students based on date
+
+
+class KlassMetricsCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
+    permission_classes = (InstructorOrSuperuserPermission,)
+    renderer_classes = (AdminMetricsRenderer)
+
+    time_series_model = Klass
+    time_series_creation_date_field_name = 'created'
+
+    def get(self, request, **kwargs):
+        klasses = self.time_series_query()
+
+        klasses_total = Klass.objects.count(),
+        ave_students_per_klass = Klass.objects.all().annotate(student_count=Count('enrolled_students')).aggregate(ave_students=Round(Avg('student_count'), 2))
+        ave_subs_per_definition = Definition.objects.all().annotate(submission_count=Count('submissions')).aggregate(ave_subs=Round(Avg('submission_count'), 2))
+        ave_definitions_per_klass = Klass.objects.all().annotate(definition_count=Count('homework_definitions')).aggregate(ave_definitions=Round(Avg('definition_count'), 2))
+
+        # Render
+
+
+class SubmissionsMetricsCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
+    permission_classes = (InstructorOrSuperuserPermission,)
+    renderer_classes = (AdminMetricsRenderer)
+
+    time_series_model = Submission
+    time_series_creation_date_field_name = 'created'
+
+    def get(self, request, **kwargs):
+        submissions = self.time_series_query()
+        submissions_total = Submission.objects.count()
+
+        # Render
+
+#################################################
+############## Instructor Metrics ###############
+#################################################
 
 
 class StudentSubmissionTimesView(APIView, TimeDistributionMixin):
