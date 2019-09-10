@@ -23,7 +23,17 @@ from apps.groups.models import Team
 # top row of the CSV document.
 
 
-class MetricsTimeOfDayAndHWScoreRenderer(renderers.CSVRenderer):
+class KlassRenderer(renderers.CSVRenderer):
+    labels = {
+        'name': 'Homework Name',
+        'score': 'Average Homework Score',
+        'time': 'Time of Day',
+        'count': 'Submission Count',
+    }
+    header = list(labels.keys())
+
+
+class StudentRenderer(renderers.CSVRenderer):
     labels = {
         'name': 'Homework Name',
         'score': 'Homework Score',
@@ -507,7 +517,7 @@ class AdminKlassCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
             'klasses_total': klasses_total,
             'ave_students_per_klass': ave_students_per_klass.get('ave_students'),
             'ave_definitions_per_klass': ave_definitions_per_klass.get('ave_definitions'),
-            'ave_subs_per_definition': ave_subs_per_definition.get('ave_subs'),
+            'ave_submissions_per_definition': ave_subs_per_definition.get('ave_subs'),
         }
         if len(data) > 0:
             data[0].update(stats)
@@ -651,7 +661,7 @@ class KlassScoresView(APIView, KlassScorePerHWMixin):
 
 class InstructorKlassCSVView(APIView, TimeDistributionMixin, KlassScorePerHWMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
-    renderer_classes = (MetricsTimeOfDayAndHWScoreRenderer,)
+    renderer_classes = (KlassRenderer,)
 
     time_distribution_model = Submission
     time_distribution_kwarg_name = 'klass_pk'
@@ -671,7 +681,7 @@ class InstructorKlassCSVView(APIView, TimeDistributionMixin, KlassScorePerHWMixi
 
 class InstructorStudentCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
-    renderer_classes = (MetricsTimeOfDayAndHWScoreRenderer,)
+    renderer_classes = (StudentRenderer,)
 
     time_distribution_model = Submission
     time_distribution_kwarg_name = 'student_pk'

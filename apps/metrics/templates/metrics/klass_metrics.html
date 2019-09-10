@@ -33,6 +33,10 @@
             margin-top: 2rem !important;
         }
 
+        .hidden {
+            display: none !important;
+        }
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
@@ -116,7 +120,7 @@
                                 <canvas ref="overview_temporal_histogram" id="overview_temporal_histogram"></canvas>
                             </div>
                         </div>
-
+                        <a class="ui basic blue button" href="{% url 'api:klass_CSV' version='v1' klass_pk=klass.pk  %}?format=csv" download="overall_metrics_for_{{ klass.course_number }}.csv">Download</a>
                     </div>
 
                     <div class="ui bottom attached tab segment" data-tab="students">
@@ -137,7 +141,7 @@
                         </div>
 
 
-                        <div class='charts-container hidden'>
+                        <div class='charts-container'>
                             <div class='student-chart chart-container'>
                                 <h5>Scores
                                     <i class="ui blue question circle icon outline score-normalization-popup"
@@ -154,6 +158,7 @@
                                 <canvas ref="student_temporal_histogram" id="student_temporal_histogram"></canvas>
                             </div>
                         </div>
+                        <a id="student_download_button" class="ui basic blue button hidden" href="#" download="student_metrics_for_.csv">Download</a>
                     </div>
 
                     <div class="ui bottom attached tab segment" data-tab="teams">
@@ -173,7 +178,7 @@
                             </div>
                         </div>
 
-                        <div class='charts-container hidden'>
+                        <div class='charts-container'>
                             <div class='team-chart chart-container'>
                                 <h5>Submissions</h5>
                                 <canvas ref="team_codalab_activity" id="team_codalab_activity"></canvas>
@@ -203,6 +208,7 @@
                                 <canvas ref="team_temporal_histogram" id="team_temporal_histogram"></canvas>
                             </div>
                         </div>
+                        <a id="team_download_button" class="ui basic blue button hidden" href= download="team_metrics_for_.csv">Download</a>
                     </div>
                 </div>
             </div>
@@ -216,6 +222,13 @@
 
         var instructor_metrics = {}
 
+        var team_download_url = "{% url 'api:team_CSV' version='v1' team_pk=99  %}?format=csv".replace('99', 'team_pk')
+        var team_download_button = document.getElementById('team_download_button')
+        var team_download_filename = 'team_metrics_for_NAME.csv'
+
+        var student_download_url = "{% url 'api:student_CSV' version='v1' student_pk=99  %}?format=csv".replace('99', 'student_pk')
+        var student_download_button = document.getElementById('student_download_button')
+        var student_download_filename = 'student_metrics_for_NAME.csv'
 
         $(document).ready( function () {
             tab_setup()
@@ -273,6 +286,10 @@
                         values: students,
                         placeholder: 'Student',
                         onChange: (id, name, element) => {
+                            student_download_button.href = student_download_url.replace('student_pk', id)
+                            student_download_button.download = student_download_filename.replace('NAME', name)
+                            student_download_button.classList.remove('hidden')
+
                             CHAGRADE.api.get_student_scores_metrics(id)
                                 .done( (data) => {
                                     instructor_metrics.student_scores_chart.data.datasets[0].label = 'Student Scores'
@@ -305,6 +322,9 @@
                         placeholder: 'Team',
                         onChange: (id, name, element) => {
                             $('#team-header').html(name + "'s ")
+                            team_download_button.href = team_download_url.replace('team_pk', id)
+                            team_download_button.download = team_download_filename.replace('NAME', name)
+                            team_download_button.classList.remove('hidden')
 
                             CHAGRADE.api.get_team_scores_metrics(id)
                                 .done( (data) => {

@@ -102,6 +102,7 @@
                                 <canvas id="instructors_chart"></canvas>
                             </div>
                         </div>
+                        <a class="ui basic blue button" href="{% url 'api:users_CSV' version='v1' %}?format=csv" download="site_wide_users.csv">Download</a>
                     </div>
 
                     <div class="ui bottom attached tab segment" data-tab="klasses">
@@ -158,6 +159,7 @@
                                 <canvas id="klasses_chart"></canvas>
                             </div>
                         </div>
+                        <a class="ui basic blue button" href="{% url 'api:klasses_CSV' version='v1' %}?format=csv" download="site_wide_klasses.csv">Download</a>
                     </div>
 
                     <div class="ui bottom attached tab segment" data-tab="submissions">
@@ -193,6 +195,7 @@
                                 </div>
                             </div>
                         </div>
+                        <a class="ui basic blue button" href="{% url 'api:submissions_CSV' version='v1' %}?format=csv" download="site_wide_submissions.csv">Download</a>
                     </div>
                 </div>
             </div>

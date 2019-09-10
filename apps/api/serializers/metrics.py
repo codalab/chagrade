@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 class InstructorMetricsSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100, required=False)
-    score = serializers.FloatField(required=False)
+    score = serializers.FloatField(allow_null=True, required=False)
     time = serializers.FloatField(required=False)
     count = serializers.IntegerField(required=False)
     cha_username = serializers.CharField(max_length=100, required=False)
