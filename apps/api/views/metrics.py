@@ -10,10 +10,10 @@ from rest_framework import status, permissions
 from django.db.models import Count, F, Func, OuterRef, Max, Avg, Subquery
 from django.http import Http404
 
-from apps.api.serializers.metrics import MetricsSerializer
+from apps.api.serializers.metrics import InstructorMetricsSerializer, AdminMetricsSerializer
 
 from apps.profiles.models import StudentMembership, ChaUser, Instructor
-from apps.homework.models import Submission, Definition, SubmissionTracker
+from apps.homework.models import Submission, Definition
 from apps.klasses.models import Klass
 from apps.groups.models import Team
 
@@ -35,13 +35,11 @@ class MetricsTimeOfDayAndHWScoreRenderer(renderers.CSVRenderer):
 
 class AdminMetricsRenderer(renderers.CSVRenderer):
     labels = {
+        'date': 'Date',
         'students_join_count': 'Students Joined',
         'instructors_join_count': 'Instructors Joined',
         'klasses_created_count': 'Classes Created',
         'submissions_made_count': 'Submissions Made',
-        'score_interval_count': 'Scores on Interval',
-        'score_interval': 'Score Interval',
-        'date': 'Date',
         'students_total': 'Students Total',
         'instructors_total': 'Instructors Total',
         'users_total': 'Users Total',
@@ -50,6 +48,8 @@ class AdminMetricsRenderer(renderers.CSVRenderer):
         'ave_students_per_klass': 'Average Number of Students Per Class',
         'ave_definitions_per_klass': 'Average Number of Homework Definitions Per Class',
         'ave_submissions_per_definition': 'Average Number of Submissions Per Homework Definitions',
+        'score_interval': 'Score Interval',
+        'score_interval_count': 'Scores on Interval',
     }
     header = list(labels.keys())
 
@@ -85,6 +85,57 @@ def merge_list_of_lists_of_dicts(input_list):
     return output_list
 
 
+def union_lists(union_key, list1_data, list2_data):
+    if not list1_data.get('sorted'):
+        l1 = sorted(list1_data['data'], key=lambda i: i[union_key])
+    else:
+        l1 = list1_data['data']
+    if not list2_data.get('sorted'):
+        l2 = sorted(list2_data['data'], key=lambda i: i[union_key])
+    else:
+        l2 = list2_data['data']
+
+    i = 0
+    j = 0
+    l1_end = False
+    l2_end = False
+    output_list = []
+    while True:
+
+        if l1_end and l2_end:
+            break
+
+        elif not l1_end and (l2_end or (l1[i][union_key] < l2[j][union_key])):
+            l1[i].update(list2_data.get('unique_pairs'))
+            output_list.append(l1[i])
+            if i < len(l1) - 1:
+                i += 1
+            else:
+                l1_end = True
+
+        elif not l2_end and (l1_end or (l2[j][union_key] < l1[i][union_key])):
+            l2[j].update(list1_data.get('unique_pairs'))
+            output_list.append(l2[j])
+            if j < len(l2) - 1:
+                j += 1
+            else:
+                l2_end = True
+
+        elif l1[i][union_key] == l2[j][union_key]:
+            l1[i].update(l2[j])
+            output_list.append(l1[i])
+            if j < len(l2) - 1:
+                j += 1
+            else:
+                l2_end = True
+            if i < len(l1) - 1:
+                i += 1
+            else:
+                l1_end = True
+
+    return output_list
+
+
 class InstructorOrSuperuserPermission(permissions.BasePermission):
     message = 'You are not allowed to access this data.'
 
@@ -95,11 +146,6 @@ class InstructorOrSuperuserPermission(permissions.BasePermission):
         klass_pk = view.kwargs.get('klass_pk')
         student_pk = view.kwargs.get('student_pk')
         team_pk = view.kwargs.get('team_pk')
-
-        print('In Permission')
-        print('klass_pk',klass_pk)
-        print('student_pk',student_pk)
-        print('team_pk',team_pk)
 
         if klass_pk:
             klass = None
@@ -146,13 +192,53 @@ class TimeDistributionMixin:
         return data
 
 
+class ScoreDistributionMixin:
+    def score_distribution_query(self):
+        sub_sample = Submission.objects.filter(tracked_submissions__stored_score__isnull=False).order_by(
+            '?').values(score=(F('tracked_submissions__stored_score') - F('definition__baseline_score')) / (
+                F('definition__target_score') - F('definition__baseline_score')))[:1000]
+        sorted_sample = sorted(list(sub_sample), key=lambda k: k['score'])
+
+        # Histogram settings
+        minimum = 0
+        maximum = 1.2
+        delta = maximum - minimum
+        bucket_quantity = 12
+        bucket_bounds = []
+
+        for i in range(bucket_quantity + 1):
+            bucket_bound = round(minimum + (i * delta / bucket_quantity), 1)
+            bucket_bounds.append(bucket_bound)
+
+        i = 0
+        j = 0
+        bucket = 0
+        buckets = []
+        while j < len(bucket_bounds):
+            if i < len(sorted_sample) and sorted_sample[i].get('score') < bucket_bounds[j]:
+                if j != 0:
+                    bucket += 1
+                i += 1
+            else:
+                if j != 0:
+                    buckets.append(bucket)
+                    bucket = 0
+                j += 1
+
+        data = {
+            'values': buckets,
+            'labels': bucket_bounds,
+        }
+        return data
+
+
 class TimeSeriesObjectCreationQueryMixin:
     time_series_model = None
     time_series_creation_date_field_name = None
 
-    def time_series_query(self):
+    def time_series_query(self, count_field_name='count'):
         output_fields = {
-            'count': Count('pk'),
+            count_field_name: Count('pk'),
             'date': F('datefield')
         }
         time_series_data = self.time_series_model.objects.dates(self.time_series_creation_date_field_name, 'day').values(**output_fields)
@@ -209,9 +295,9 @@ class KlassScorePerHWMixin:
             data.append({'name': definition.get('name'), 'score': scale_adjusted_score})
         return data
 
+
 class TeamContributionsMixin:
     def team_contributions(self, team):
-        print('team_contributions_mixin')
         team_submissions = team.members.all().annotate(submission_count=Subquery(
             Submission.objects.filter(team=team, creator=OuterRef('pk')).values('creator').values(
                 c=Count('*')))).values('submission_count', cha_username=F('user__username'))
@@ -284,51 +370,20 @@ def chagrade_overall_metrics(request, version):
 ################# Admin Metrics #################
 #################################################
 
-class SubmissionMetricsView(APIView, TimeSeriesObjectCreationQueryMixin):
+
+class SubmissionMetricsView(APIView, TimeSeriesObjectCreationQueryMixin, ScoreDistributionMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
     time_series_model = Submission
     time_series_creation_date_field_name = 'created'
 
     def get(self, request, **kwargs):
-        sub_sample = Submission.objects.filter(tracked_submissions__stored_score__isnull=False).order_by('?').values(score=(F('tracked_submissions__stored_score') - F('definition__baseline_score')) / (F('definition__target_score') - F('definition__baseline_score')))[:1000]
-        sorted_sample = sorted(list(sub_sample), key=lambda k: k['score'])
-
-        # Histogram settings
-        minimum = 0
-        maximum = 1.2
-        delta = maximum - minimum
-        bucket_quantity = 12
-        bucket_bounds = []
-
-        for i in range(bucket_quantity + 1):
-            bucket_bound = round(minimum + (i * delta / bucket_quantity), 1)
-            bucket_bounds.append(bucket_bound)
-
-        i = 0
-        j = 0
-        bucket = 0
-        buckets = []
-        while j < len(bucket_bounds):
-            if i < len(sorted_sample) and sorted_sample[i].get('score') < bucket_bounds[j]:
-                if j != 0:
-                    bucket += 1
-                i += 1
-            else:
-                if j != 0:
-                    buckets.append(bucket)
-                    bucket = 0
-                j += 1
+        score_distribution = self.score_distribution_query()
 
         submissions = self.time_series_query()
         output_data = {
-           'submissions_made': submissions,
+            'submissions_made': submissions,
+            'submission_scores': score_distribution,
         }
-
-        if len(sorted_sample) > 0:
-            output_data['submission_scores'] = {
-                'values': buckets,
-                'labels': bucket_bounds,
-            }
         return Response(output_data)
 
 
@@ -377,56 +432,127 @@ class KlassMetricsView(APIView, TimeSeriesObjectCreationQueryMixin):
 
         return Response(data)
 
-class UserMetricsCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
+
+class AdminUserCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
-    renderer_classes = (AdminMetricsRenderer)
+    renderer_classes = (AdminMetricsRenderer,)
 
     time_series_model = Instructor
     time_series_creation_date_field_name = 'date_promoted'
 
     def get(self, request, **kwargs):
-        instructors = self.time_series_query()
+        instructors = self.time_series_query(count_field_name='instructors_join_count')
         self.time_series_model = StudentMembership
         self.time_series_creation_date_field_name = 'date_enrolled'
-        students = self.time_series_query()
+        students = self.time_series_query(count_field_name='students_join_count')
 
         users_total = ChaUser.objects.count()
         students_total = StudentMembership.objects.count()
         instructors_total = Instructor.objects.count()
+        stats = {
+            'users_total': users_total,
+            'students_total': students_total,
+            'instructors_total': instructors_total,
+        }
+
+        instructors_data = {
+            'data': list(instructors),
+            'unique_pairs': {
+                'instructors_join_count': 0,
+            },
+            'sorted': True,
+        }
+
+        students_data = {
+            'data': list(students),
+            'unique_pairs': {
+                'students_join_count': 0,
+            },
+            'sorted': True,
+        }
 
         # Find union of instructors and students based on date
+        merged_time_series_data = union_lists('date', instructors_data, students_data)
+
+        if len(merged_time_series_data) > 0:
+            merged_time_series_data[0].update(stats)
+        else:
+            merged_time_series_data.append(stats)
+
+        serializer = AdminMetricsSerializer(data=merged_time_series_data, many=True)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data)
 
 
-class KlassMetricsCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
+class AdminKlassCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
-    renderer_classes = (AdminMetricsRenderer)
+    renderer_classes = (AdminMetricsRenderer,)
 
     time_series_model = Klass
     time_series_creation_date_field_name = 'created'
 
     def get(self, request, **kwargs):
-        klasses = self.time_series_query()
+        klasses = self.time_series_query(count_field_name='klasses_created_count')
 
-        klasses_total = Klass.objects.count(),
+        class Round(Func):
+            function = 'ROUND'
+            arity = 2
+
+        klasses_total = Klass.objects.count()
         ave_students_per_klass = Klass.objects.all().annotate(student_count=Count('enrolled_students')).aggregate(ave_students=Round(Avg('student_count'), 2))
         ave_subs_per_definition = Definition.objects.all().annotate(submission_count=Count('submissions')).aggregate(ave_subs=Round(Avg('submission_count'), 2))
         ave_definitions_per_klass = Klass.objects.all().annotate(definition_count=Count('homework_definitions')).aggregate(ave_definitions=Round(Avg('definition_count'), 2))
+        data = list(klasses)
+        stats = {
+            'klasses_total': klasses_total,
+            'ave_students_per_klass': ave_students_per_klass.get('ave_students'),
+            'ave_definitions_per_klass': ave_definitions_per_klass.get('ave_definitions'),
+            'ave_subs_per_definition': ave_subs_per_definition.get('ave_subs'),
+        }
+        if len(data) > 0:
+            data[0].update(stats)
+        else:
+            data.append(stats)
 
-        # Render
+        serializer = AdminMetricsSerializer(data=data, many=True)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data)
 
 
-class SubmissionsMetricsCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
+class AdminSubmissionCSVView(APIView, TimeSeriesObjectCreationQueryMixin, ScoreDistributionMixin):
     permission_classes = (InstructorOrSuperuserPermission,)
-    renderer_classes = (AdminMetricsRenderer)
+    renderer_classes = (AdminMetricsRenderer,)
 
     time_series_model = Submission
     time_series_creation_date_field_name = 'created'
 
     def get(self, request, **kwargs):
-        submissions = self.time_series_query()
+        submissions = list(self.time_series_query(count_field_name='submissions_made_count'))
         submissions_total = Submission.objects.count()
+        stats = {
+            'submissions_total': submissions_total,
+        }
 
-        # Render
+        score_distribution = self.score_distribution_query()
+        label_values = score_distribution.get('labels')
+        formatted_data = []
+        for i in range(len(score_distribution.get('values'))):
+            data = {
+                'score_interval': '{:.1f} - {:.1f}'.format(label_values[i], label_values[i + 1]),
+                'score_interval_count': score_distribution['values'][i],
+            }
+            formatted_data.append(data)
+
+        if len(submissions) > 0:
+            submissions[0].update(stats)
+        else:
+            submissions.append(stats)
+
+        data = merge_list_of_lists_of_dicts([formatted_data, submissions])
+
+        serializer = AdminMetricsSerializer(data=data, many=True)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data)
 
 #################################################
 ############## Instructor Metrics ###############
@@ -533,13 +659,12 @@ class InstructorKlassCSVView(APIView, TimeDistributionMixin, KlassScorePerHWMixi
 
     def get(self, request, **kwargs):
         klass_pk = kwargs.get('klass_pk')
-        print(request.query_params.get('format'))
 
         score_data = self.klass_score_per_hw_query(**kwargs)
         time_data = self.time_distribution_query(**kwargs)
         data = merge_list_of_lists_of_dicts([list(time_data), list(score_data)])
 
-        serializer = MetricsSerializer(data=data, many=True)
+        serializer = InstructorMetricsSerializer(data=data, many=True)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data)
 
@@ -564,7 +689,7 @@ class InstructorStudentCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin):
         time_data = self.time_distribution_query(**kwargs)
         data = merge_list_of_lists_of_dicts([list(time_data), list(score_data)])
 
-        serializer = MetricsSerializer(data=data, many=True)
+        serializer = InstructorMetricsSerializer(data=data, many=True)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data)
 
@@ -578,50 +703,6 @@ class InstructorTeamCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin, Tea
     time_distribution_filter_name = 'team'
     score_per_hw_filter_name = 'team'
 
-    def union_contribution_lists(self, github_list, chagrade_list):
-        GL = sorted(github_list, key = lambda i: i['cha_username'])
-        CL = sorted(chagrade_list, key = lambda i: i['cha_username'])
-
-        i = 0
-        j = 0
-        GL_end = False
-        CL_end = False
-        output_list = []
-        while True:
-
-            if GL_end and CL_end:
-                break
-
-            elif not GL_end and (CL_end or (GL[i]['cha_username'] < CL[j]['cha_username'])):
-                GL[i]['submission_count'] = 0
-                output_list.append(GL[i])
-                if i < len(GL) - 1:
-                    i += 1
-                else:
-                    GL_end = True
-
-            elif not CL_end and (GL_end or (CL[j]['cha_username'] < GL[i]['cha_username'])):
-                CL[j]['commit_count'] = 0
-                output_list.append(CL[j])
-                if j < len(CL) - 1:
-                    j += 1
-                else:
-                    CL_end = True
-
-            elif GL[i]['cha_username'] == CL[j]['cha_username']:
-                GL[i].update(CL[j])
-                output_list.append(GL[i])
-                if j < len(CL) - 1:
-                    j += 1
-                else:
-                    CL_end = True
-                if i < len(GL) - 1:
-                    i += 1
-                else:
-                    GL_end = True
-
-        return output_list
-
     def get(self, request, **kwargs):
         team_pk = kwargs.get('team_pk')
         try:
@@ -634,10 +715,26 @@ class InstructorTeamCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin, Tea
         team_data = self.team_contributions(team)
         merged_team_data = None
 
+        data1_for_union = {
+            'data': list(team_data.get('github_contributions')),
+            'unique_pairs': {
+                'commit_count': 0,
+            },
+            'sorted': False,
+        }
+
+        data2_for_union = {
+            'data': list(team_data.get('chagrade_submissions')),
+            'unique_pairs': {
+                'submission_count': 0,
+            },
+            'sorted': False,
+        }
+
         if team_data:
-            merged_team_data = self.union_contribution_lists(list(team_data['github_contributions']), list(team_data['chagrade_submissions']))
+            merged_team_data = union_lists('cha_username', data1_for_union, data2_for_union)
 
         data = merge_list_of_lists_of_dicts([list(time_data), list(score_data), list(merged_team_data)])
-        serializer = MetricsSerializer(data=data, many=True)
+        serializer = InstructorMetricsSerializer(data=data, many=True)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data)

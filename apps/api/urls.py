@@ -15,7 +15,8 @@ from apps.api.views.metrics import chagrade_overall_metrics, StudentMetricsView,
     InstructorMetricsView, KlassMetricsView, SubmissionMetricsView, KlassScoresView, \
     StudentScoresView, TeamScoresView, StudentSubmissionTimesView, TeamSubmissionTimesView, \
     KlassSubmissionTimesView, TeamContributionsView, InstructorKlassCSVView, \
-    InstructorStudentCSVView, InstructorTeamCSVView
+    InstructorStudentCSVView, InstructorTeamCSVView, AdminKlassCSVView, AdminUserCSVView, \
+    AdminSubmissionCSVView
 
 
 app_name = 'api'
@@ -81,6 +82,9 @@ urlpatterns = [
     path('student_csv/<int:student_pk>', InstructorStudentCSVView.as_view(), name='student_CSV'),
     path('team_csv/<int:team_pk>', InstructorTeamCSVView.as_view(), name='team_CSV'),
 
+    path('klasses_csv/', AdminKlassCSVView.as_view(), name='klasses_CSV'),
+    path('users_csv/', AdminUserCSVView.as_view(), name='users_CSV'),
+    path('submissions_csv/', AdminSubmissionCSVView.as_view(), name='submissions_CSV'),
 
     # Optionally, use "redoc" style
     # url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=None), name='schema-redoc'),
