@@ -29,8 +29,9 @@
                 </div>
                 <h4 class="ui header">Challenge Rules</h4>
                 <div class="ui relaxed celled list">
-                    <a href="{{ definition.get_challenge_url }}" class="item" target="_blank" rel="noopener noreferrer">Link to challenge website</a>
+                    <a href="{{ definition.challenge_url }}" class="item" target="_blank" rel="noopener noreferrer">Link to challenge competition</a>
                     <a href="{{ submission.github_url }}" class="item" target="_blank" rel="noopener noreferrer">Link to Github repo of submission</a>
+                    <a class="ui mini blue button" href="{% url "homework:submission_detail" submission_pk=submission.pk %}">Submission Details</a>
                 </div>
                 <h4>Questions</h4>
                 <div class="ui relaxed celled list">
