@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from apps.profiles.models import GithubUserInfo
+from social_core.exceptions import AuthAlreadyAssociated
 
 USER_FIELDS = ['username', 'email']
 
@@ -54,10 +55,10 @@ GITHUB_FIELDS = [
 ]
 
 
-def _create_user_data(user, response, backend_name):
+def _create_user_data(user, response, backend):
     data = {}
     # --------------------------- Github ----------------------
-    if backend_name == 'github':
+    if backend.name == 'github':
         data['uid'] = response.get('id')
         for field in GITHUB_FIELDS:
             data[field] = response.get(field)
@@ -67,7 +68,11 @@ def _create_user_data(user, response, backend_name):
         else:
             # Only update if they're the same remote id
             if str(user.github_info.uid) == str(data['uid']):
+                print('updating github user info *****')
                 GithubUserInfo.objects.filter(uid=str(data['uid'])).update(**data)
+            else:
+                msg = 'User already associated with a Github account.'
+                raise AuthAlreadyAssociated(backend, msg)
     user.save()
 
 
@@ -78,4 +83,4 @@ def user_details(user, **kwargs):
 
     # If we've been passed a user at this point in the pipeline
     if user:
-        _create_user_data(user=user, response=response, backend_name=backend.name)
+        _create_user_data(user=user, response=response, backend=backend)
