@@ -160,35 +160,35 @@
 <script>
 
     // Load in URLs or other django generated goodies
-    URLS = {
+    var URLS = {
         API: "/api/v1/"
     }
-    USER_AUTHENTICATED = ("{{ user.is_authenticated }}" === "True")
+    var USER_AUTHENTICATED = ("{{ user.is_authenticated }}" === "True")
     {% if klass %}
-        KLASS = {{ klass.pk }}
+        var KLASS = {{ klass.pk }}
     {% endif %}
     {% if definition %}
-        DEFINITION = {{ definition.pk }}
+        var DEFINITION = {{ definition.pk }}
     {% endif %}
     {% if user.is_authenticated and user.instructor %}
-        INSTRUCTOR = {{ user.instructor.pk }}
+        var INSTRUCTOR = {{ user.instructor.pk }}
     {% endif %}
     {% if submission %}
-        SUBMISSION = {{ submission.pk }}
+        var SUBMISSION = {{ submission.pk }}
     {% endif %}
     {% if student %}
-        STUDENT = {{ student.pk }}
+        var STUDENT = {{ student.pk }}
     {% endif %}
     {% if grade %}
-        GRADE = {{ grade.pk }}
+        var GRADE = {{ grade.pk }}
     {% endif %}
     {% if student and definition and definition.team_based %}
         console.log("Definition is team based")
-        USER_TEAM = {{ student.team.pk }}
+        var USER_TEAM = {{ student.team.pk }}
     {% endif %}
     {# This one is passed as a PK like the rest should probably be #}
     {% if team %}
-        TEAM = {{ team.pk }}
+        var TEAM = {{ team.pk }}
     {% endif %}
 
     {% block extra_js_context %}

@@ -1,6 +1,6 @@
 <create-team>
     <form method="post" class="ui form" enctype="multipart/form-data">
-        <div class="ui error message">{self.errors.message}</div>
+        <div class="ui error message">{errors.message}</div>
         <div class="fields">
             <div class="six wide field">
                 <label>Name:</label>
@@ -129,14 +129,13 @@
                             if (student.team.id === self.team.id) {
                                 student.selected = true
                             }
-                            if (self.team.leader !== null) {
+                            if (!!self.team.leader) {
                                 if (student.id === self.team.leader.id) {
                                     student.leader = true
                                 }
                             }
                         })
                     }
-                    console.log(data)
                     self.update({klass: data})
                 })
                 .fail(function (error) {
