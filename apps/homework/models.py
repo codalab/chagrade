@@ -110,7 +110,6 @@ class SubmissionTracker(models.Model):
     remote_id = models.CharField(max_length=10)
     remote_phase = models.CharField(max_length=10)
 
-
     def retrieve_score_and_status(self):
         challenge_site_url = self.submission.definition.get_challenge_url()
         score_api_url = "{0}/api/submission/{1}/get_score".format(challenge_site_url, self.remote_id)
@@ -135,7 +134,7 @@ class SubmissionTracker(models.Model):
 
     @property
     def status(self):
-        if self.stored_status == None:
+        if self.stored_status:
             self.retrieve_score_and_status()
         return self.stored_status
 
@@ -144,7 +143,6 @@ class SubmissionTracker(models.Model):
         if self.stored_score == None:
             self.retrieve_score_and_status()
         return self.stored_score
-
 
 
 class Grade(models.Model):
@@ -191,6 +189,14 @@ class Question(models.Model):
         return self.question
 
 
+class QuestionAnswer(models.Model):
+    submission = models.ForeignKey('Submission', related_name='question_answers', on_delete=models.CASCADE)
+    question = models.ForeignKey('Question', default=None, related_name='student_answers', on_delete=models.CASCADE)
+
+    text = models.TextField(default='')
+    is_correct = models.BooleanField(default=False)
+
+
 class Criteria(models.Model):
     definition = models.ForeignKey('Definition', related_name='criterias', on_delete=models.CASCADE)
 
@@ -200,14 +206,6 @@ class Criteria(models.Model):
 
     def __str__(self):
         return "{0}-{1}".format(self.definition, self.pk)
-
-
-class QuestionAnswer(models.Model):
-    submission = models.ForeignKey('Submission', related_name='question_answers', on_delete=models.CASCADE)
-    question = models.ForeignKey('Question', default=None, related_name='student_answers', on_delete=models.CASCADE)
-
-    text = models.CharField(max_length=150, default='')
-    is_correct = models.BooleanField(default=False)
 
 
 class CriteriaAnswer(models.Model):

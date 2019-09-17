@@ -13,6 +13,7 @@ from django.utils import timezone
 
 from apps.homework.models import Submission, Grade
 
+
 def upload_image(instance, filename):
     file_split = filename.split('.')
     file_extension = file_split[len(file_split) - 1]

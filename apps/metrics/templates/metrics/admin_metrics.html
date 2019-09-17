@@ -270,7 +270,7 @@
 
             CHAGRADE.api.get_klass_metrics()
                 .done( (data) => {
-                    klasses_canvas = document.getElementById('klasses_chart')
+                    let klasses_canvas = document.getElementById('klasses_chart')
                     console.log(klasses_canvas)
                     let height = 600
                     let width = 600
@@ -365,7 +365,7 @@
                         xAxes: [{
                             type: 'time',
                             time: {
-                                unit: 'day',
+                                unit: 'year',
                             },
                         }],
                         yAxes: [{

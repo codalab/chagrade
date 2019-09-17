@@ -10,7 +10,7 @@ from apps.klasses.models import Klass
 from apps.groups.models import Group, Team
 
 
-class ChaUserFactory(factory.django.DjangoModelFactory):
+class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ChaUser
     username = factory.Faker('user_name')
@@ -18,11 +18,18 @@ class ChaUserFactory(factory.django.DjangoModelFactory):
     password = 'test'
     date_joined = factory.Faker('date_time_between', start_date='-10y', end_date='now', tzinfo=pytz.UTC)
 
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        """Override the default ``_create`` with our custom call."""
+        manager = cls._get_manager(model_class)
+        # The default would use ``manager.create(*args, **kwargs)``
+        return manager.create_user(*args, **kwargs)
+
 
 class InstructorFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Instructor
-    user = factory.SubFactory(ChaUserFactory)
+    user = factory.SubFactory(UserFactory)
     university_name = factory.Faker('company')
 
     @factory.post_generation
@@ -47,7 +54,7 @@ class KlassFactory(factory.django.DjangoModelFactory):
 class StudentMembershipFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = StudentMembership
-    user = factory.SubFactory(ChaUserFactory)
+    user = factory.SubFactory(UserFactory)
     klass = factory.SubFactory(KlassFactory)
     student_id = factory.LazyAttribute(lambda o: o.user.username)
 
@@ -71,7 +78,7 @@ class AssistantMembershipFactory(factory.django.DjangoModelFactory):
 class PasswordResetRequestFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = PasswordResetRequest
-    user = factory.SubFactory(ChaUserFactory)
+    user = factory.SubFactory(UserFactory)
 
 
 class GithubUserInfoFactory(factory.django.DjangoModelFactory):
@@ -84,19 +91,19 @@ class DefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Definition
     klass = factory.SubFactory(KlassFactory)
-    creator = factory.SubFactory(InstructorFactory)
     name = 'test homework'
     due_date = factory.LazyAttribute(lambda o: o.klass.created)
     description = factory.Faker('paragraph')
     team_based = factory.LazyAttribute(lambda o: random.random() > 0.5)
+    creator = factory.LazyAttribute(lambda o: o.klass.instructor)
 
 
 class SubmissionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Submission
-    klass = factory.SubFactory(KlassFactory)
     definition = factory.SubFactory(DefinitionFactory)
-    creator = factory.SubFactory(StudentMembershipFactory)
+    klass = factory.LazyAttribute(lambda o: o.definition.klass)
+    creator = factory.SubFactory(StudentMembershipFactory, klass=factory.SelfAttribute('..klass'))
 
     @factory.post_generation
     def created(self, create, extracted, **kwargs):

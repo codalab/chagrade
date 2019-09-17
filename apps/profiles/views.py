@@ -68,7 +68,7 @@ class RequestResetView(TemplateView):
                 else:
                     print("Password reset request already exists")
             except ChaUser.DoesNotExist:
-                print("Could not create password reset request for non-existant user")
+                print("Could not create password reset request for non-existent user")
         return HttpResponseRedirect(reverse_lazy('index'))
 
 

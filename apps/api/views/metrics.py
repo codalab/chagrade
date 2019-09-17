@@ -157,6 +157,12 @@ class InstructorOrSuperuserPermission(permissions.BasePermission):
         student_pk = view.kwargs.get('student_pk')
         team_pk = view.kwargs.get('team_pk')
 
+        instructor = None
+        try:
+            instructor = request.user.instructor
+        except AttributeError:
+            return False
+
         if klass_pk:
             klass = None
             try:
@@ -183,7 +189,6 @@ class InstructorOrSuperuserPermission(permissions.BasePermission):
                 raise Http404
             if request.user.instructor == team.klass.instructor:
                 return True
-
         return False
 
 
@@ -251,7 +256,7 @@ class TimeSeriesObjectCreationQueryMixin:
             count_field_name: Count('pk'),
             'date': F('datefield')
         }
-        time_series_data = self.time_series_model.objects.dates(self.time_series_creation_date_field_name, 'day').values(**output_fields)
+        time_series_data = self.time_series_model.objects.dates(self.time_series_creation_date_field_name, 'year').values(**output_fields)
         return time_series_data
 
 
