@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 
 from django.db.models import Count, F, Func, OuterRef, Max, Avg, Subquery
-from django.http import Http404
+from django.shortcuts import get_object_or_404
 
 from apps.api.serializers.metrics import InstructorMetricsSerializer, AdminMetricsSerializer
 
@@ -164,30 +164,18 @@ class InstructorOrSuperuserPermission(permissions.BasePermission):
             return False
 
         if klass_pk:
-            klass = None
-            try:
-                klass = Klass.objects.get(pk=klass_pk)
-            except Klass.DoesNotExist:
-                raise Http404
-            if request.user.instructor == klass.instructor:
+            klass = get_object_or_404(Klass, pk=klass_pk)
+            if instructor == klass.instructor:
                 return True
 
         elif student_pk:
-            student = None
-            try:
-                student = StudentMembership.objects.get(pk=student_pk)
-            except StudentMembership.DoesNotExist:
-                raise Http404
-            if request.user.instructor == student.klass.instructor:
+            student = get_object_or_404(StudentMembership, pk=student_pk)
+            if instructor == student.klass.instructor:
                 return True
 
         elif team_pk:
-            team = None
-            try:
-                team = Team.objects.get(pk=team_pk)
-            except Team.DoesNotExist:
-                raise Http404
-            if request.user.instructor == team.klass.instructor:
+            team = get_object_or_404(Team, pk=team_pk)
+            if instructor == team.klass.instructor:
                 return True
         return False
 
@@ -627,12 +615,7 @@ class StudentScoresView(APIView, ScorePerHWMixin):
     score_per_hw_filter_name = 'creator'
 
     def get(self, request, **kwargs):
-        student_pk = kwargs.get('student_pk')
-        try:
-            student = StudentMembership.objects.get(pk=kwargs.get('student_pk'))
-        except StudentMembership.DoesNotExist:
-            raise Http404
-
+        student = get_object_or_404(StudentMembership, pk=kwargs.get('student_pk'))
         data = self.score_per_hw_query(student)
         formatted_data = list_of_dicts_to_dict_of_lists(data)
         return Response(formatted_data)
@@ -643,12 +626,7 @@ class TeamScoresView(APIView, ScorePerHWMixin):
     score_per_hw_filter_name = 'team'
 
     def get(self, request, **kwargs):
-        team_pk = kwargs.get('team_pk')
-        try:
-            team = Team.objects.get(pk=team_pk)
-        except Team.DoesNotExist:
-            raise Http404
-
+        team = get_object_or_404(Team, pk=kwargs.get('team_pk'))
         data = self.score_per_hw_query(team, team_query=True)
         data = list_of_dicts_to_dict_of_lists(data)
         return Response(data)
@@ -673,8 +651,6 @@ class InstructorKlassCSVView(APIView, TimeDistributionMixin, KlassScorePerHWMixi
     time_distribution_filter_name = 'klass'
 
     def get(self, request, **kwargs):
-        klass_pk = kwargs.get('klass_pk')
-
         score_data = self.klass_score_per_hw_query(**kwargs)
         time_data = self.time_distribution_query(**kwargs)
         data = merge_list_of_lists_of_dicts([list(time_data), list(score_data)])
@@ -694,11 +670,7 @@ class InstructorStudentCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin):
     score_per_hw_filter_name = 'creator'
 
     def get(self, request, **kwargs):
-        student_pk = kwargs.get('student_pk')
-        try:
-            student = StudentMembership.objects.get(pk=kwargs.get('student_pk'))
-        except StudentMembership.DoesNotExist:
-            raise Http404
+        student = get_object_or_404(StudentMembership, pk=kwargs.get('student_pk'))
 
         score_data = self.score_per_hw_query(student)
         time_data = self.time_distribution_query(**kwargs)
@@ -719,11 +691,7 @@ class InstructorTeamCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin, Tea
     score_per_hw_filter_name = 'team'
 
     def get(self, request, **kwargs):
-        team_pk = kwargs.get('team_pk')
-        try:
-            team = Team.objects.get(pk=team_pk)
-        except Team.DoesNotExist:
-            raise Http404
+        team = get_object_or_404(Team, pk=kwargs.get('team_pk'))
 
         score_data = self.score_per_hw_query(team, team_query=True)
         time_data = self.time_distribution_query(**kwargs)
