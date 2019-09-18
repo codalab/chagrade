@@ -2,6 +2,7 @@ import factory
 import factory.fuzzy
 import random
 import pytz
+import uuid
 
 
 from apps.profiles.models import ChaUser, Instructor, StudentMembership, AssistantMembership, PasswordResetRequest, GithubUserInfo
@@ -47,8 +48,15 @@ class KlassFactory(factory.django.DjangoModelFactory):
         model = Klass
     instructor = factory.SubFactory(InstructorFactory)
     course_number = factory.Faker('slug')
-    created = factory.Faker('date_time_between', start_date='-10y', end_date='now', tzinfo=pytz.UTC)
     active = factory.LazyAttribute(lambda o: random.random() > 0.5)
+    @factory.post_generation
+    def created(self, create, extracted, **kwargs):
+        if create:
+            if extracted:
+                self.created = extracted
+            else:
+                self.created = self.instructor.user.date_joined
+            self.save()
 
 
 class StudentMembershipFactory(factory.django.DjangoModelFactory):
@@ -91,7 +99,7 @@ class DefinitionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Definition
     klass = factory.SubFactory(KlassFactory)
-    name = 'test homework'
+    name = factory.LazyAttribute(lambda o: 'test homework' + uuid.uuid1().hex)
     due_date = factory.LazyAttribute(lambda o: o.klass.created)
     description = factory.Faker('paragraph')
     team_based = factory.LazyAttribute(lambda o: random.random() > 0.5)
@@ -119,7 +127,7 @@ class SubmissionTrackerFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = SubmissionTracker
     submission = factory.SubFactory(SubmissionFactory)
-    stored_status = factory.fuzzy.FuzzyChoice(['failed', 'submitted', 'running', 'finished'])
+    stored_status = 'finished'
     stored_score = factory.LazyAttribute(lambda o: random.random())
 
 
