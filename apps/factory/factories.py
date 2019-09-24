@@ -128,7 +128,7 @@ class SubmissionTrackerFactory(factory.django.DjangoModelFactory):
         model = SubmissionTracker
     submission = factory.SubFactory(SubmissionFactory)
     stored_status = 'finished'
-    stored_score = factory.LazyAttribute(lambda o: random.random())
+    stored_score = factory.LazyAttribute(lambda o: random.random() * 1.1)
 
 
 class GradeFactory(factory.django.DjangoModelFactory):

@@ -50,7 +50,7 @@ class MetricsTests(APITestCase):
         resp = self.client.get(reverse('api:chagrade_submission_metrics', kwargs={'version': 'v1'}))
         data = resp.json()
         submissions = data['submissions_made']
-        scores = data['submissions_scores']
+        scores = data['submission_scores']
 
         total = 0
         for date in submissions:
@@ -133,4 +133,13 @@ class MetricsTests(APITestCase):
         student = StudentMembership.objects.first()
         resp = self.client.get(reverse('api:student_submission_times', kwargs={'version': 'v1', 'student_pk': student.pk}))
         assert resp.status_code == 401
-        assert False
+        resp = self.client.get(reverse('api:student_scores', kwargs={'version': 'v1', 'student_pk': student.pk}))
+        assert resp.status_code == 401
+
+        klass = Klass.objects.first()
+        resp = self.client.get(reverse('api:klass_submission_times', kwargs={'version': 'v1', 'klass_pk': klass.pk}))
+        assert resp.status_code == 401
+        resp = self.client.get(reverse('api:klass_scores', kwargs={'version': 'v1', 'klass_pk': klass.pk}))
+        assert resp.status_code == 401
+
+    # Do Team Views Permissions
