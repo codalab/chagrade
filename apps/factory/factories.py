@@ -30,8 +30,16 @@ class UserFactory(factory.django.DjangoModelFactory):
 class InstructorFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Instructor
-    user = factory.SubFactory(UserFactory)
     university_name = factory.Faker('company')
+
+    @factory.post_generation
+    def user(self, create, extracted, **kwargs):
+        if create:
+            if extracted:
+                self.user = extracted
+            else:
+                self.user = UserFactory(instructor=self)
+            self.save()
 
     @factory.post_generation
     def date_promoted(self, create, extracted, **kwargs):

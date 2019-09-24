@@ -696,10 +696,17 @@ class InstructorTeamCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin, Tea
         score_data = self.score_per_hw_query(team, team_query=True)
         time_data = self.time_distribution_query(**kwargs)
         team_data = self.team_contributions(team)
-        merged_team_data = None
+        merged_team_data = []
+
+        if team_data:
+            gc = team_data.get('github_contributions')
+            cs = team_data.get('chagrade_submissions')
+        else:
+            gc = []
+            cs = []
 
         data1_for_union = {
-            'data': list(team_data.get('github_contributions')),
+            'data': gc,
             'unique_pairs': {
                 'commit_count': 0,
             },
@@ -707,7 +714,7 @@ class InstructorTeamCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin, Tea
         }
 
         data2_for_union = {
-            'data': list(team_data.get('chagrade_submissions')),
+            'data': cs,
             'unique_pairs': {
                 'submission_count': 0,
             },

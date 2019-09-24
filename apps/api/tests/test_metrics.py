@@ -1,9 +1,9 @@
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from apps.factory.factories import UserFactory, SubmissionTrackerFactory
+from apps.factory.factories import UserFactory, SubmissionTrackerFactory, KlassFactory, TeamFactory, InstructorFactory
 
-from apps.profiles.models import StudentMembership, Instructor, ChaUser
+from apps.profiles.models import ChaUser, StudentMembership, Instructor
 from apps.homework.models import Submission
 from apps.klasses.models import Klass
 
@@ -21,6 +21,10 @@ class MetricsTests(APITestCase):
                 self.submission_trackers[i].stored_score = 0.0
             else:
                 self.submission_trackers[i].stored_score = 1.0
+
+        self.klass = Klass.objects.first()
+        self.team = TeamFactory(klass=self.klass)
+        StudentMembership(klass=self.klass)
 
     def test_overall_metrics_returns_correct_object_count_totals(self):
         resp = self.client.get(reverse('api:chagrade_overall_metrics', kwargs={'version': 'v1'}))
@@ -135,11 +139,73 @@ class MetricsTests(APITestCase):
         assert resp.status_code == 401
         resp = self.client.get(reverse('api:student_scores', kwargs={'version': 'v1', 'student_pk': student.pk}))
         assert resp.status_code == 401
-
-        klass = Klass.objects.first()
-        resp = self.client.get(reverse('api:klass_submission_times', kwargs={'version': 'v1', 'klass_pk': klass.pk}))
-        assert resp.status_code == 401
-        resp = self.client.get(reverse('api:klass_scores', kwargs={'version': 'v1', 'klass_pk': klass.pk}))
+        resp = self.client.get(reverse('api:student_CSV', kwargs={'version': 'v1', 'student_pk': student.pk}))
         assert resp.status_code == 401
 
-    # Do Team Views Permissions
+        resp = self.client.get(reverse('api:klass_submission_times', kwargs={'version': 'v1', 'klass_pk': self.klass.pk}))
+        assert resp.status_code == 401
+        resp = self.client.get(reverse('api:klass_scores', kwargs={'version': 'v1', 'klass_pk': self.klass.pk}))
+        assert resp.status_code == 401
+        resp = self.client.get(reverse('api:klass_CSV', kwargs={'version': 'v1', 'klass_pk': self.klass.pk}))
+        assert resp.status_code == 401
+
+        resp = self.client.get(reverse('api:team_submission_times', kwargs={'version': 'v1', 'team_pk': self.team.pk}))
+        assert resp.status_code == 401
+        resp = self.client.get(reverse('api:team_scores', kwargs={'version': 'v1', 'team_pk': self.team.pk}))
+        assert resp.status_code == 401
+        resp = self.client.get(reverse('api:team_CSV', kwargs={'version': 'v1', 'team_pk': self.team.pk}))
+        assert resp.status_code == 401
+
+    def test_non_instructors_cannot_see_instructor_views(self):
+        # Creates new instructor of new klass. The important thing is that this instructor is not an instructor of the
+        # klass related to the objects in the queries.
+        self.client.login(username=InstructorFactory().user.username, password='test')
+
+        student = self.klass.enrolled_students.first()
+        resp = self.client.get(reverse('api:student_submission_times', kwargs={'version': 'v1', 'student_pk': student.pk}))
+        assert resp.status_code == 403
+        resp = self.client.get(reverse('api:student_scores', kwargs={'version': 'v1', 'student_pk': student.pk}))
+        assert resp.status_code == 403
+        resp = self.client.get(reverse('api:student_CSV', kwargs={'version': 'v1', 'student_pk': student.pk}))
+        assert resp.status_code == 403
+
+        resp = self.client.get(reverse('api:klass_submission_times', kwargs={'version': 'v1', 'klass_pk': self.klass.pk}))
+        assert resp.status_code == 403
+        resp = self.client.get(reverse('api:klass_scores', kwargs={'version': 'v1', 'klass_pk': self.klass.pk}))
+        assert resp.status_code == 403
+        resp = self.client.get(reverse('api:klass_CSV', kwargs={'version': 'v1', 'klass_pk': self.klass.pk}))
+        assert resp.status_code == 403
+
+        resp = self.client.get(reverse('api:team_submission_times', kwargs={'version': 'v1', 'team_pk': self.team.pk}))
+        assert resp.status_code == 403
+        resp = self.client.get(reverse('api:team_scores', kwargs={'version': 'v1', 'team_pk': self.team.pk}))
+        assert resp.status_code == 403
+        resp = self.client.get(reverse('api:team_CSV', kwargs={'version': 'v1', 'team_pk': self.team.pk}))
+        assert resp.status_code == 403
+
+    def test_instructor_of_klass_can_see_instructor_views(self):
+        # Creates new instructor of new klass. The important thing is that this instructor is not an instructor of the
+        # klass related to the objects in the queries.
+        self.client.login(username=self.klass.instructor.user.username, password='test')
+
+        student = self.klass.enrolled_students.first()
+        resp = self.client.get(reverse('api:student_submission_times', kwargs={'version': 'v1', 'student_pk': student.pk}))
+        assert resp.status_code == 200
+        resp = self.client.get(reverse('api:student_scores', kwargs={'version': 'v1', 'student_pk': student.pk}))
+        assert resp.status_code == 200
+        resp = self.client.get(reverse('api:student_CSV', kwargs={'version': 'v1', 'student_pk': student.pk}))
+        assert resp.status_code == 200
+
+        resp = self.client.get(reverse('api:klass_submission_times', kwargs={'version': 'v1', 'klass_pk': self.klass.pk}))
+        assert resp.status_code == 200
+        resp = self.client.get(reverse('api:klass_scores', kwargs={'version': 'v1', 'klass_pk': self.klass.pk}))
+        assert resp.status_code == 200
+        resp = self.client.get(reverse('api:klass_CSV', kwargs={'version': 'v1', 'klass_pk': self.klass.pk}))
+        assert resp.status_code == 200
+
+        resp = self.client.get(reverse('api:team_submission_times', kwargs={'version': 'v1', 'team_pk': self.team.pk}))
+        assert resp.status_code == 200
+        resp = self.client.get(reverse('api:team_scores', kwargs={'version': 'v1', 'team_pk': self.team.pk}))
+        assert resp.status_code == 200
+        resp = self.client.get(reverse('api:team_CSV', kwargs={'version': 'v1', 'team_pk': self.team.pk}))
+        assert resp.status_code == 200
