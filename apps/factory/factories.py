@@ -183,6 +183,7 @@ class CriteriaAnswerFactory(factory.django.DjangoModelFactory):
 class TeamFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Team
+    name = factory.LazyAttribute(lambda o: 'test team' + uuid.uuid1().hex)
     klass = factory.SubFactory(KlassFactory)
 
 

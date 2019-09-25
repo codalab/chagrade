@@ -70,11 +70,11 @@ urlpatterns = [
     path('chagrade_klass_metrics/', KlassMetricsView.as_view(), name='chagrade_klass_metrics'),
     path('chagrade_submission_metrics/', SubmissionMetricsView.as_view(), name='chagrade_submission_metrics'),
     path('student_submission_times/<int:student_pk>', StudentSubmissionTimesView.as_view(), name='student_submission_times'),
-    path('team_submission_times/<int:team_pk>', TeamSubmissionTimesView.as_view(), name='team_submission_times'),
-    path('klass_submission_times/<int:klass_pk>', KlassSubmissionTimesView.as_view(), name='klass_submission_times'),
     path('student_scores/<int:student_pk>', StudentScoresView.as_view(), name='student_scores'),
+    path('team_submission_times/<int:team_pk>', TeamSubmissionTimesView.as_view(), name='team_submission_times'),
     path('team_scores/<int:team_pk>', TeamScoresView.as_view(), name='team_scores'),
     path('team_contributions/<int:team_pk>', TeamContributionsView.as_view(), name='team_contributions'),
+    path('klass_submission_times/<int:klass_pk>', KlassSubmissionTimesView.as_view(), name='klass_submission_times'),
     path('klass_scores/<int:klass_pk>', KlassScoresView.as_view(), name='klass_scores'),
 
     # CSV Metrics

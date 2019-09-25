@@ -310,50 +310,53 @@ class TeamContributionsMixin:
                 team_submissions[i]['submission_count'] = 0
 
         if team.leader:
-            latest_submission = team.leader.submitted_homeworks.last()
-            github_repo_url = latest_submission.github_url.split('/')
-            github_repo_url.insert(4, 'repos')
-            github_repo_url[2] = 'api.github.com'
-            temp = github_repo_url[3]
-            github_repo_url[3] = github_repo_url[4]
-            github_repo_url[4] = temp
-            contributors_url = '/'.join(github_repo_url[0:6]) + '/stats/contributors'
-            resp = requests.get(contributors_url, headers={'Authorization': 'token ' + team.leader.user.github_info.access_token})
-            contributors = resp.json()
+            if team.leader.user.github_info:
+                latest_submission = team.leader.submitted_homeworks.last()
+                github_repo_url = latest_submission.github_url.split('/')
+                github_repo_url.insert(4, 'repos')
+                github_repo_url[2] = 'api.github.com'
+                temp = github_repo_url[3]
+                github_repo_url[3] = github_repo_url[4]
+                github_repo_url[4] = temp
+                contributors_url = '/'.join(github_repo_url[0:6]) + '/stats/contributors'
+                resp = requests.get(contributors_url, headers={'Authorization': 'token ' + team.leader.user.github_info.access_token})
+                contributors = resp.json()
 
-            usernames = list_of_dicts_to_dict_of_lists(team.members.all().values(chagrade_username=F('user__username'), github_username=F('user__github_info__login')))
+                usernames = list_of_dicts_to_dict_of_lists(team.members.all().values(chagrade_username=F('user__username'), github_username=F('user__github_info__login')))
 
-            contributor_metrics = []
-            outsider_commit_count = 0
+                contributor_metrics = []
+                outsider_commit_count = 0
 
-            for contributor in contributors:
-                author = contributor.get('author')
-                github_username = author.get('login')
-                if github_username in usernames['github_username']:
-                    index = usernames['github_username'].index(github_username)
-                    chagrade_username = usernames['chagrade_username'][index]
-                    contrib = {
-                        'cha_username': chagrade_username,
-                        'commit_count': contributor.get('total'),
+                for contributor in contributors:
+                    author = contributor.get('author')
+                    github_username = author.get('login')
+                    if github_username in usernames['github_username']:
+                        index = usernames['github_username'].index(github_username)
+                        chagrade_username = usernames['chagrade_username'][index]
+                        contrib = {
+                            'cha_username': chagrade_username,
+                            'commit_count': contributor.get('total'),
+                        }
+                        contributor_metrics.append(contrib)
+                    else:
+                        outsider_commit_count += contributor.get('total', 0)
+
+                if outsider_commit_count > 0:
+                    outsider_contrib = {
+                        'cha_username': 'others',
+                        'commit_count': outsider_commit_count,
                     }
-                    contributor_metrics.append(contrib)
-                else:
-                    outsider_commit_count += contributor.get('total', 0)
-
-            if outsider_commit_count > 0:
-                outsider_contrib = {
-                    'cha_username': 'others',
-                    'commit_count': outsider_commit_count,
+                    contributor_metrics.append(outsider_contrib)
+                data = {
+                    'repo_url': latest_submission.github_url,
+                    'github_contributions': contributor_metrics,
+                    'chagrade_submissions': team_submissions,
                 }
-                contributor_metrics.append(outsider_contrib)
-            data = {
-                'repo_url': latest_submission.github_url,
-                'github_contributions': contributor_metrics,
-                'chagrade_submissions': team_submissions,
-            }
-            return data
+                return data
+            else:
+                return 'Team leader not connected to Github.'
         else:
-            return
+            return 'No team leader.'
 
 
 @api_view(['GET'])
@@ -374,7 +377,7 @@ def chagrade_overall_metrics(request, version):
 #################################################
 
 
-class SubmissionMetricsView(APIView, TimeSeriesObjectCreationQueryMixin, ScoreDistributionMixin):
+class SubmissionMetricsView(TimeSeriesObjectCreationQueryMixin, ScoreDistributionMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     time_series_model = Submission
     time_series_creation_date_field_name = 'created'
@@ -390,7 +393,7 @@ class SubmissionMetricsView(APIView, TimeSeriesObjectCreationQueryMixin, ScoreDi
         return Response(output_data)
 
 
-class StudentMetricsView(APIView, TimeSeriesObjectCreationQueryMixin):
+class StudentMetricsView(TimeSeriesObjectCreationQueryMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     time_series_model = StudentMembership
     time_series_creation_date_field_name = 'date_enrolled'
@@ -400,7 +403,7 @@ class StudentMetricsView(APIView, TimeSeriesObjectCreationQueryMixin):
         return Response(users)
 
 
-class InstructorMetricsView(APIView, TimeSeriesObjectCreationQueryMixin):
+class InstructorMetricsView(TimeSeriesObjectCreationQueryMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     time_series_model = Instructor
     time_series_creation_date_field_name = 'date_promoted'
@@ -410,7 +413,7 @@ class InstructorMetricsView(APIView, TimeSeriesObjectCreationQueryMixin):
         return Response(instructors)
 
 
-class KlassMetricsView(APIView, TimeSeriesObjectCreationQueryMixin):
+class KlassMetricsView(TimeSeriesObjectCreationQueryMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     time_series_creation_date_field_name = 'created'
     time_series_model = Klass
@@ -436,7 +439,7 @@ class KlassMetricsView(APIView, TimeSeriesObjectCreationQueryMixin):
         return Response(data)
 
 
-class AdminUserCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
+class AdminUserCSVView(TimeSeriesObjectCreationQueryMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     renderer_classes = (AdminMetricsRenderer,)
 
@@ -487,7 +490,7 @@ class AdminUserCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
         return Response(serializer.validated_data)
 
 
-class AdminKlassCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
+class AdminKlassCSVView(TimeSeriesObjectCreationQueryMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     renderer_classes = (AdminMetricsRenderer,)
 
@@ -522,7 +525,7 @@ class AdminKlassCSVView(APIView, TimeSeriesObjectCreationQueryMixin):
         return Response(serializer.validated_data)
 
 
-class AdminSubmissionCSVView(APIView, TimeSeriesObjectCreationQueryMixin, ScoreDistributionMixin):
+class AdminSubmissionCSVView(TimeSeriesObjectCreationQueryMixin, ScoreDistributionMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     renderer_classes = (AdminMetricsRenderer,)
 
@@ -562,7 +565,7 @@ class AdminSubmissionCSVView(APIView, TimeSeriesObjectCreationQueryMixin, ScoreD
 #################################################
 
 
-class StudentSubmissionTimesView(APIView, TimeDistributionMixin):
+class StudentSubmissionTimesView(TimeDistributionMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     time_distribution_model = Submission
     time_distribution_kwarg_name = 'student_pk'
@@ -573,7 +576,7 @@ class StudentSubmissionTimesView(APIView, TimeDistributionMixin):
         return Response(data)
 
 
-class TeamSubmissionTimesView(APIView, TimeDistributionMixin):
+class TeamSubmissionTimesView(TimeDistributionMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     time_distribution_model = Submission
     time_distribution_kwarg_name = 'team_pk'
@@ -584,22 +587,22 @@ class TeamSubmissionTimesView(APIView, TimeDistributionMixin):
         return Response(data)
 
 
-class TeamContributionsView(APIView, TeamContributionsMixin):
+class TeamContributionsView(TeamContributionsMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
 
     def get(self, request, **kwargs):
         team_pk = kwargs.get('team_pk')
         team = Team.objects.get(pk=team_pk)
         data = self.team_contributions(team)
-        if data:
+        if type(data) == dict:
             data['github_contributions'] = list_of_dicts_to_dict_of_lists(data['github_contributions'])
             data['chagrade_submissions'] = list_of_dicts_to_dict_of_lists(data['chagrade_submissions'])
             return Response(data)
         else:
-            return Response('No team leader.', status=status.HTTP_404_NOT_FOUND)
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
 
 
-class KlassSubmissionTimesView(APIView, TimeDistributionMixin):
+class KlassSubmissionTimesView(TimeDistributionMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     time_distribution_model = Submission
     time_distribution_kwarg_name = 'klass_pk'
@@ -610,7 +613,7 @@ class KlassSubmissionTimesView(APIView, TimeDistributionMixin):
         return Response(data)
 
 
-class StudentScoresView(APIView, ScorePerHWMixin):
+class StudentScoresView(ScorePerHWMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     score_per_hw_filter_name = 'creator'
 
@@ -621,7 +624,7 @@ class StudentScoresView(APIView, ScorePerHWMixin):
         return Response(formatted_data)
 
 
-class TeamScoresView(APIView, ScorePerHWMixin):
+class TeamScoresView(ScorePerHWMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     score_per_hw_filter_name = 'team'
 
@@ -632,7 +635,7 @@ class TeamScoresView(APIView, ScorePerHWMixin):
         return Response(data)
 
 
-class KlassScoresView(APIView, KlassScorePerHWMixin):
+class KlassScoresView(KlassScorePerHWMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     score_per_hw_filter_name = 'team'
 
@@ -642,7 +645,7 @@ class KlassScoresView(APIView, KlassScorePerHWMixin):
         return Response(formatted_data)
 
 
-class InstructorKlassCSVView(APIView, TimeDistributionMixin, KlassScorePerHWMixin):
+class InstructorKlassCSVView(TimeDistributionMixin, KlassScorePerHWMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     renderer_classes = (KlassRenderer,)
 
@@ -660,7 +663,7 @@ class InstructorKlassCSVView(APIView, TimeDistributionMixin, KlassScorePerHWMixi
         return Response(serializer.validated_data)
 
 
-class InstructorStudentCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin):
+class InstructorStudentCSVView(TimeDistributionMixin, ScorePerHWMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     renderer_classes = (StudentRenderer,)
 
@@ -681,7 +684,7 @@ class InstructorStudentCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin):
         return Response(serializer.validated_data)
 
 
-class InstructorTeamCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin, TeamContributionsMixin):
+class InstructorTeamCSVView(TimeDistributionMixin, ScorePerHWMixin, TeamContributionsMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     renderer_classes = (MetricsTeamRenderer,)
 
@@ -698,7 +701,7 @@ class InstructorTeamCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin, Tea
         team_data = self.team_contributions(team)
         merged_team_data = []
 
-        if team_data:
+        if type(team_data) == dict:
             gc = team_data.get('github_contributions')
             cs = team_data.get('chagrade_submissions')
         else:
@@ -721,7 +724,7 @@ class InstructorTeamCSVView(APIView, TimeDistributionMixin, ScorePerHWMixin, Tea
             'sorted': False,
         }
 
-        if team_data:
+        if type(team_data) == dict:
             merged_team_data = union_lists('cha_username', data1_for_union, data2_for_union)
 
         data = merge_list_of_lists_of_dicts([list(time_data), list(score_data), list(merged_team_data)])
