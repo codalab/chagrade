@@ -382,24 +382,7 @@
             instructor_metrics.team_temporal_histogram = new Chart($('#team_temporal_histogram'), create_temporal_bar_chart_config('Commit Frequency'));
             instructor_metrics.team_github_activity_chart = new Chart($('#team_github_activity'), create_bar_chart_config('Commits'));
             instructor_metrics.team_codalab_activity_chart = new Chart($('#team_codalab_activity'), create_bar_chart_config('Submissions'));
-
-            function format_data_for_bar_chart(data) {
-                let labels = []
-                let values = []
-                for (let i = 0; i < data.length; i++) {
-                    labels.push(data[i].name)
-                    values.push(data[i].count)
-                }
-                return {
-                    labels: labels,
-                    values: values,
-                }
-            }
-
-            function update_chart(chart, data) {
-                chart.data.datasets[0].data = format_data_for_chart(data)
-                chart.update()
-            }
+        }
 
 
             CHAGRADE.api.get_klass_scores_metrics({{ klass.pk }})
