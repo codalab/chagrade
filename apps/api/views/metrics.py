@@ -22,8 +22,42 @@ from apps.groups.models import Team
 # renderer below. Then they'll be rendered into proper columns with labels (values associated with keys) at the
 # top row of the CSV document.
 
+class AdminSubmissionCSVRenderer(renderers.CSVRenderer):
+    labels = {
+        'date': 'Date',
+        'submissions_made_count': 'Submissions Made',
+        'submissions_total': 'Submissions Total',
+        'score_interval': 'Score Interval',
+        'score_interval_count': 'Scores on Interval',
+    }
+    header = list(labels.keys())
 
-class KlassRenderer(renderers.CSVRenderer):
+
+class AdminKlassCSVRenderer(renderers.CSVRenderer):
+    labels = {
+        'date': 'Date',
+        'klasses_created_count': 'Classes Created',
+        'klasses_total': 'Classes Total',
+        'ave_students_per_klass': 'Average Number of Students Per Class',
+        'ave_definitions_per_klass': 'Average Number of Homework Definitions Per Class',
+        'ave_submissions_per_definition': 'Average Number of Submissions Per Homework Definitions',
+    }
+    header = list(labels.keys())
+
+
+class AdminUserCSVRenderer(renderers.CSVRenderer):
+    labels = {
+        'date': 'Date',
+        'students_join_count': 'Students Joined',
+        'instructors_join_count': 'Instructors Joined',
+        'students_total': 'Students Total',
+        'instructors_total': 'Instructors Total',
+        'users_total': 'Users Total',
+    }
+    header = list(labels.keys())
+
+
+class InstructorKlassCSVRenderer(renderers.CSVRenderer):
     labels = {
         'name': 'Homework Name',
         'score': 'Average Homework Score',
@@ -33,7 +67,7 @@ class KlassRenderer(renderers.CSVRenderer):
     header = list(labels.keys())
 
 
-class StudentRenderer(renderers.CSVRenderer):
+class InstructorStudentCSVRenderer(renderers.CSVRenderer):
     labels = {
         'name': 'Homework Name',
         'score': 'Homework Score',
@@ -43,32 +77,12 @@ class StudentRenderer(renderers.CSVRenderer):
     header = list(labels.keys())
 
 
-class AdminMetricsRenderer(renderers.CSVRenderer):
-    labels = {
-        'date': 'Date',
-        'students_join_count': 'Students Joined',
-        'instructors_join_count': 'Instructors Joined',
-        'klasses_created_count': 'Classes Created',
-        'submissions_made_count': 'Submissions Made',
-        'students_total': 'Students Total',
-        'instructors_total': 'Instructors Total',
-        'users_total': 'Users Total',
-        'klasses_total': 'Classes Total',
-        'submissions_total': 'Submissions Total',
-        'ave_students_per_klass': 'Average Number of Students Per Class',
-        'ave_definitions_per_klass': 'Average Number of Homework Definitions Per Class',
-        'ave_submissions_per_definition': 'Average Number of Submissions Per Homework Definitions',
-        'score_interval': 'Score Interval',
-        'score_interval_count': 'Scores on Interval',
-    }
-    header = list(labels.keys())
-
-
-class MetricsTeamRenderer(renderers.CSVRenderer):
+class InstructorTeamCSVRenderer(renderers.CSVRenderer):
     labels = {
         'name': 'Homework Name',
         'score': 'Homework Score',
         'time': 'Time of Day',
+        'count': 'Submission Count',
         'cha_username': 'Chagrade Username',
         'submission_count': 'Submission Count',
         'commit_count': 'Github Commit Count',
@@ -312,47 +326,50 @@ class TeamContributionsMixin:
         if team.leader:
             if team.leader.user.github_info:
                 latest_submission = team.leader.submitted_homeworks.last()
-                github_repo_url = latest_submission.github_url.split('/')
-                github_repo_url.insert(4, 'repos')
-                github_repo_url[2] = 'api.github.com'
-                temp = github_repo_url[3]
-                github_repo_url[3] = github_repo_url[4]
-                github_repo_url[4] = temp
-                contributors_url = '/'.join(github_repo_url[0:6]) + '/stats/contributors'
-                resp = requests.get(contributors_url, headers={'Authorization': 'token ' + team.leader.user.github_info.access_token})
-                contributors = resp.json()
+                if latest_submission:
+                    github_repo_url = latest_submission.github_url.split('/')
+                    github_repo_url.insert(4, 'repos')
+                    github_repo_url[2] = 'api.github.com'
+                    temp = github_repo_url[3]
+                    github_repo_url[3] = github_repo_url[4]
+                    github_repo_url[4] = temp
+                    contributors_url = '/'.join(github_repo_url[0:6]) + '/stats/contributors'
+                    resp = requests.get(contributors_url, headers={'Authorization': 'token ' + team.leader.user.github_info.access_token})
+                    contributors = resp.json()
 
-                usernames = list_of_dicts_to_dict_of_lists(team.members.all().values(chagrade_username=F('user__username'), github_username=F('user__github_info__login')))
+                    usernames = list_of_dicts_to_dict_of_lists(team.members.all().values(chagrade_username=F('user__username'), github_username=F('user__github_info__login')))
 
-                contributor_metrics = []
-                outsider_commit_count = 0
+                    contributor_metrics = []
+                    outsider_commit_count = 0
 
-                for contributor in contributors:
-                    author = contributor.get('author')
-                    github_username = author.get('login')
-                    if github_username in usernames['github_username']:
-                        index = usernames['github_username'].index(github_username)
-                        chagrade_username = usernames['chagrade_username'][index]
-                        contrib = {
-                            'cha_username': chagrade_username,
-                            'commit_count': contributor.get('total'),
+                    for contributor in contributors:
+                        author = contributor.get('author')
+                        github_username = author.get('login')
+                        if github_username in usernames['github_username']:
+                            index = usernames['github_username'].index(github_username)
+                            chagrade_username = usernames['chagrade_username'][index]
+                            contrib = {
+                                'cha_username': chagrade_username,
+                                'commit_count': contributor.get('total'),
+                            }
+                            contributor_metrics.append(contrib)
+                        else:
+                            outsider_commit_count += contributor.get('total', 0)
+
+                    if outsider_commit_count > 0:
+                        outsider_contrib = {
+                            'cha_username': 'others',
+                            'commit_count': outsider_commit_count,
                         }
-                        contributor_metrics.append(contrib)
-                    else:
-                        outsider_commit_count += contributor.get('total', 0)
-
-                if outsider_commit_count > 0:
-                    outsider_contrib = {
-                        'cha_username': 'others',
-                        'commit_count': outsider_commit_count,
+                        contributor_metrics.append(outsider_contrib)
+                    data = {
+                        'repo_url': latest_submission.github_url,
+                        'github_contributions': contributor_metrics,
+                        'chagrade_submissions': team_submissions,
                     }
-                    contributor_metrics.append(outsider_contrib)
-                data = {
-                    'repo_url': latest_submission.github_url,
-                    'github_contributions': contributor_metrics,
-                    'chagrade_submissions': team_submissions,
-                }
-                return data
+                    return data
+                else:
+                    return 'Team leader has no submissions.'
             else:
                 return 'Team leader not connected to Github.'
         else:
@@ -441,7 +458,7 @@ class KlassMetricsView(TimeSeriesObjectCreationQueryMixin, APIView):
 
 class AdminUserCSVView(TimeSeriesObjectCreationQueryMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
-    renderer_classes = (AdminMetricsRenderer,)
+    renderer_classes = (AdminUserCSVRenderer,)
 
     time_series_model = Instructor
     time_series_creation_date_field_name = 'date_promoted'
@@ -492,7 +509,7 @@ class AdminUserCSVView(TimeSeriesObjectCreationQueryMixin, APIView):
 
 class AdminKlassCSVView(TimeSeriesObjectCreationQueryMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
-    renderer_classes = (AdminMetricsRenderer,)
+    renderer_classes = (AdminKlassCSVRenderer,)
 
     time_series_model = Klass
     time_series_creation_date_field_name = 'created'
@@ -527,7 +544,7 @@ class AdminKlassCSVView(TimeSeriesObjectCreationQueryMixin, APIView):
 
 class AdminSubmissionCSVView(TimeSeriesObjectCreationQueryMixin, ScoreDistributionMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
-    renderer_classes = (AdminMetricsRenderer,)
+    renderer_classes = (AdminSubmissionCSVRenderer,)
 
     time_series_model = Submission
     time_series_creation_date_field_name = 'created'
@@ -647,7 +664,7 @@ class KlassScoresView(KlassScorePerHWMixin, APIView):
 
 class InstructorKlassCSVView(TimeDistributionMixin, KlassScorePerHWMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
-    renderer_classes = (KlassRenderer,)
+    renderer_classes = (InstructorKlassCSVRenderer,)
 
     time_distribution_model = Submission
     time_distribution_kwarg_name = 'klass_pk'
@@ -665,7 +682,7 @@ class InstructorKlassCSVView(TimeDistributionMixin, KlassScorePerHWMixin, APIVie
 
 class InstructorStudentCSVView(TimeDistributionMixin, ScorePerHWMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
-    renderer_classes = (StudentRenderer,)
+    renderer_classes = (InstructorStudentCSVRenderer,)
 
     time_distribution_model = Submission
     time_distribution_kwarg_name = 'student_pk'
@@ -686,7 +703,7 @@ class InstructorStudentCSVView(TimeDistributionMixin, ScorePerHWMixin, APIView):
 
 class InstructorTeamCSVView(TimeDistributionMixin, ScorePerHWMixin, TeamContributionsMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
-    renderer_classes = (MetricsTeamRenderer,)
+    renderer_classes = (InstructorTeamCSVRenderer,)
 
     time_distribution_model = Submission
     time_distribution_kwarg_name = 'team_pk'
