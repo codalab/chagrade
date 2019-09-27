@@ -25,6 +25,10 @@
             color: #999999;
         }
 
+        .active.dimmer {
+            z-index: 1 !important;
+        }
+
         .hidden {
             display: none;
         }
@@ -109,7 +113,18 @@
                             Select Zip File Below:
                         </div>
                     </div>
-                    <div class="ui form">
+                    <div if="{loading_box}" class="ui segment">
+                        <div class="ui active inverted dimmer">
+                            <div class="ui large text loader">Loading</div>
+                        </div>
+                        <div class="ui fluid placeholder">
+                            <div class="ui full line"></div>
+                            <div class="ui full line"></div>
+                            <div class="ui full line"></div>
+                            <div class="ui full line"></div>
+                        </div>
+                    </div>
+                    <div if="{!loading_box}" class="ui form">
                         <div class="ui styled accordion">
                             <accordion-file-tree each="{ file in github_file_tree }" file="{file}" class="{ file.type === 'dir' ? "styled accordion" : "" }"></accordion-file-tree>
                         </div>
@@ -187,6 +202,7 @@
         self.repo_value = null
         self.branch_value = null
         self.commit_value = null
+        self.loading_box = false
 
         self.one('mount', function () {
             self.update_definition()
@@ -269,6 +285,8 @@
         }
 
         function load_github_file_tree () {
+            self.loading_box = true
+            self.update()
             function create_tree(files) {
                 for (let i = 0; i < files.length; i++) {
                     if (files[i].type == 'dir') {
@@ -278,6 +296,8 @@
                             create_tree(files[i].files)
                             self.github_requests--
                             if (self.github_requests == 0) {
+                                self.loading_box = false
+                                self.update()
                                 $('.ui.accordion').accordion('close others')
                                 self.update()
                                 $('.ui.checkbox').checkbox()
