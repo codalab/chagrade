@@ -239,16 +239,41 @@
 
         function update_charts() {
             function format_data_for_chart(data) {
-                return _.map(data, (datapoint) => {
+                let formatted_data = _.map(data, (datapoint) => {
                     return {
                         x: new DateTime.fromISO(datapoint.date).toJSDate(),
                         y: datapoint.count,
                     }
                 })
+
+                let appropriate_time_unit = 'year'
+
+                if (data) {
+                    if (data.length > 0) {
+                        let first_date = new DateTime.fromISO(data[0].date).toJSDate()
+                        let last_date = new DateTime.fromISO(data[data.length - 1].date).toJSDate()
+
+                        let range_in_days = (last_date - first_date) / (1000 * 60 * 60 * 24)
+                        if (range_in_days > 180) {
+                            appropriate_time_unit = 'year'
+                        } else if (range_in_days > 45) {
+                            appropriate_time_unit = 'month'
+                        } else {
+                            appropriate_time_unit = 'day'
+                        }
+                    }
+                }
+
+                return {
+                    data:  formatted_data,
+                    time_unit: appropriate_time_unit,
+                }
             }
 
             function update_chart(chart, data) {
-                chart.data.datasets[0].data = format_data_for_chart(data)
+                let formatted_data = format_data_for_chart(data)
+                chart.data.datasets[0].data = formatted_data.data
+                chart.options.scales.xAxes[0].time.unit = formatted_data.time_unit
                 chart.update()
             }
 
@@ -271,7 +296,6 @@
             CHAGRADE.api.get_klass_metrics()
                 .done( (data) => {
                     let klasses_canvas = document.getElementById('klasses_chart')
-                    console.log(klasses_canvas)
                     let height = 600
                     let width = 600
                     update_chart(admin_metrics.klasses_chart, data.klasses_created)
