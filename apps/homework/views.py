@@ -101,6 +101,7 @@ class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
             return False
         return False
 
+
 class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'homework/submission_list.html'
 
@@ -159,6 +160,7 @@ class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         except ObjectDoesNotExist:
             return False
         return False
+
 
 class SubmissionFormView(LoginRequiredMixin, TemplateView):
     template_name = 'homework/forms/submit.html'

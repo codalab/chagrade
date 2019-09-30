@@ -137,14 +137,33 @@
             <div style="margin-top: 2.5vh; margin-bottom: 0.5vh;" each="{question, index in questions}">
                 <h4 style="margin-bottom: 2.5vh" class="ui dividing header">Question {index + 1}</h4>
                 <div class="three inline fields">
-                    <div class="six wide inline field">
+                    <div class="seven wide inline field">
+                        <label>Question:</label>
                         <input type="hidden" name="{'question' + '_id_' + index}" ref="{'question' + '_id_' + index}"
                                value="{question.id}">
-                        <label>Question:</label>
                         <input type="text" name="{'question' + '_question_' + index}" maxlength="200"
                                ref="{'question' + '_question_' + index}" value="{question.question}">
                     </div>
 
+                    <div class="ui field">
+                        <label>Type:</label>
+                        <div class="ui selection dropdown" ref="{'selection_dropdown_' + index}">
+                            <input type="hidden" name="type" ref="asdfs">
+                            <div class="default text">Type</div>
+                            <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <div class="item" data-value="MS">Multiple Select</div>
+                                <div class="item" data-value="SS">Single Select</div>
+                                <div class="item" data-value="TX">Text</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="six wide inline field">
+                        <a onclick="{remove_question.bind(this, index)}" class="ui red button">X</a>
+                    </div>
+                </div>
+                <div if="{question.type === 'TX'}" class="one inline fields">
                     <div class="six wide inline field">
                         <label>Answer:</label>
                         <input type="text" name="{'question' + '_answer_' + index}" maxlength="200"
@@ -156,13 +175,26 @@
                         <input class="ui checkbox" type="checkbox" name="{'question' + '_has_specific_answer_' + index}"
                                ref="{'question' + '_has_specific_answer_' + index}" checked="{question.has_specific_answer}">
                     </div>-->
+                </div>
+
+                <div if="{question.type === 'MS' || question.type === 'SS'}" each="{answer_candidate, candidate_index in question.answer_candidates}" class="two inline fields">
                     <div class="six wide inline field">
-                        <a onclick="{remove_question.bind(this, index)}" class="ui red button">X</a>
+                        <label><i class="ui circle outline icon"></i></label>
+                        <input type="text" name="{'question' + '_answer_' + index}" maxlength="200" placeholder="Option {candidate_index + 1}"
+                               ref="{'answer_candidate_' + index + '_' + candidate_index}" value="{answer_candidate}" onkeypress="{ () => focus_next_input(event, index, candidate_index)}" onkeyup="{ () => update_answer_candidate_text(event, index, candidate_index)}">
+                    </div>
+                    <div class="six wide inline field">
+                        <a onclick="{remove_answer_candidate.bind(this, index, candidate_index)}" class="ui red button">X</a>
                     </div>
                 </div>
+
+                <button if="{question.type === 'MS' || question.type === 'SS'}" class="ui basic icon button add-answer-candidate" onclick="{ () => add_answer_candidate(event, index) }" ref="{'add_answer_candidate_button_' + index}">
+                    <i class="big plus square outline icon"></i>
+                </button>
+
             </div>
 
-            <a class="ui green button" onclick="{add_question}">Add Question</a>
+            <a class="ui green button" onclick="{ () => add_question(questions.length) }">Add Question</a>
         </div>
 
         <div class="ui divider"></div>
@@ -249,6 +281,22 @@
 
         })
 
+        self.focus_next_input = function (event, question_index, candidate_index) {
+            if (event.which === 13) {
+                event.preventDefault()
+                let question = self.questions[question_index]
+                if (question.hasOwnProperty('answer_candidates')){
+                    if (question.answer_candidates.length - 1 <= candidate_index) {
+                        self.refs['add_answer_candidate_button_' + question_index].click()
+                    } else {
+                        $(self.refs['answer_candidate_' + question_index + '_' + (candidate_index + 1)]).focus()
+                    }
+                } else {
+                    self.refs['add_answer_candidate_button_' + question_index].click()
+                }
+            }
+        }
+
         self.update_teams = function () {
             CHAGRADE.api.get_teams(KLASS)
                 .done(function (data) {
@@ -268,11 +316,85 @@
             }
             self.questions.splice(index, 1)
             self.update()
+            console.info('questions', self.questions)
+
+            for(let question_index = 0; question_index < self.questions.length; question_index++) {
+                $(self.refs['selection_dropdown_' + question_index])
+                    .dropdown({
+                        action: 'activate',
+                        onChange: function (value, readable_name, element) {
+                            let question = self.questions[question_index]
+                            question.type = value
+                            self.update()
+
+                            if (value === 'MS' || value === 'SS') {
+                                if (question.hasOwnProperty('answer_candidates')) {
+                                    if (question.answer_candidates.length === 0) {
+                                        self.refs['add_answer_candidate_button_' + question_index].click()
+                                    }
+                                } else {
+
+                                    self.refs['add_answer_candidate_button_' + question_index].click()
+                                }
+                            }
+                        }
+                    })
+            }
         }
 
-        self.add_question = function () {
-            self.questions[self.questions.length] = {}
+        self.add_question = function (question_index) {
+            self.questions[question_index] = {
+                type: null,
+            }
             self.update()
+            $(self.refs['selection_dropdown_' + question_index])
+                .dropdown({
+                    action: 'activate',
+                    onChange: function (value, readable_name, element) {
+                        let question = self.questions[question_index]
+                        question.type = value
+                        self.update()
+
+                        if (value === 'MS' || value === 'SS') {
+                            if (question.hasOwnProperty('answer_candidates')) {
+                                if (question.answer_candidates.length === 0) {
+                                    self.refs['add_answer_candidate_button_' + question_index].click()
+                                }
+                            } else {
+
+                                self.refs['add_answer_candidate_button_' + question_index].click()
+                            }
+                        }
+                    }
+                })
+            console.info('questions', self.questions)
+            self.update()
+        }
+
+        self.update_answer_candidate_text = function (event, index, candidate_index) {
+            self.questions[index].answer_candidates[candidate_index] = event.target.value
+            self.update()
+        }
+
+        self.remove_answer_candidate = function (index, candidate_index) {
+            let question = self.questions[index]
+            if (question.hasOwnProperty('answer_candidates')) {
+                question.answer_candidates.splice(candidate_index, 1)
+            }
+            console.log(self.questions)
+            console.log(question)
+            self.update()
+        }
+
+        self.add_answer_candidate = function (event, index) {
+            event.preventDefault()
+            let question = self.questions[index]
+            if (!question.hasOwnProperty('answer_candidates')) {
+                question.answer_candidates = []
+            }
+            question.answer_candidates.push('')
+            self.update()
+            $(self.refs['answer_candidate_' + index + '_' + (question.answer_candidates.length - 1)]).focus()
         }
 
         self.remove_criteria = function (index) {

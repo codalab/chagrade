@@ -51,9 +51,10 @@ class QuestionSerializer(ModelSerializer):
     class Meta:
         model = Question
         fields = [
+            'type',
             'has_specific_answer',
             'question',
-            'answer',
+            'candidate_answers',
             'id'
         ]
 

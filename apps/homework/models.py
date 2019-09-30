@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 import requests
 
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 # Require an account type to determine users vs students?
 # Or should we abstract two seperate sub-models from this one?
@@ -178,12 +179,59 @@ class Grade(models.Model):
 
 
 class Question(models.Model):
+    MULTIPLE_SELECT = 'MS'
+    SINGLE_SELECT = 'SS'
+    TEXT = 'TX'
+
+    TYPE_CHOICES = [
+        (MULTIPLE_SELECT, 'Checkboxes'),
+        (SINGLE_SELECT, 'Multiple Choice'),
+        (TEXT, 'Text Answer'),
+    ]
+    type = models.CharField(max_length=2, choices=TYPE_CHOICES, default=TEXT)
+
     definition = models.ForeignKey('Definition', related_name='custom_questions', on_delete=models.CASCADE)
 
     has_specific_answer = models.BooleanField(default=False)
 
     question = models.CharField(max_length=300)
-    answer = models.TextField(blank=True, default='')
+#    answer = models.TextField(blank=True, default='')
+    candidate_answers = JSONField(blank=True, default='')
+
+    # If Question is a single or multiple select is the type of the question, the candidate answers are in the
+    # form of an array in JSON. The student's selection(s) are stored on the Question Answer model in the form
+    # of indices that refer to entries in this candidate answer array.
+    #
+    # E.g. If a question had a prompt that looked like this, "What is 5 + 5?", the candidate answers could look
+    # like the following:
+    #
+    # candidate_answers = [
+    #     '2',
+    #     '3',
+    #     '8',
+    #     '10',
+    # ]
+    #
+    # The student's answer would be stored in the following form on the QuestionAnswer model:
+    # answer = {
+    #     'index': 3
+    # }
+    #
+    #
+    #
+    # If the Question is a 'Text Answer', the candidate_answers object would either be left blank or take
+    # the following form:
+    #
+    # Question: "What is my favorite color?"
+    #
+    # candidate_answers = {
+    #     'red'
+    # }
+    #
+    # The student's answer would be stored like this:
+    # answer = {
+    #     'text': 'green'
+    # }
 
     def __str__(self):
         return self.question
@@ -193,7 +241,8 @@ class QuestionAnswer(models.Model):
     submission = models.ForeignKey('Submission', related_name='question_answers', on_delete=models.CASCADE)
     question = models.ForeignKey('Question', default=None, related_name='student_answers', on_delete=models.CASCADE)
 
-    text = models.TextField(default='')
+    #text = models.TextField(default='')
+    answer = JSONField(default='')
     is_correct = models.BooleanField(default=False)
 
 
