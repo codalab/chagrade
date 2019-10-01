@@ -105,6 +105,7 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'due_date',
             'name',
             'description',
+            'questions_only',
             'challenge_url',
             'starting_kit_github_url',
             'baseline_score',

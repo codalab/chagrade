@@ -39,7 +39,7 @@
 
     <div class="ui form" style="margin-bottom: 2.5vh;">
         <h1 class="ui dividing header">Submission Form</h1>
-        <div class="fields">
+        <div if="{ !definition.questions_only }" class="fields">
             <div class="sixteen wide field">
                 <div class="row">
                 <span>
@@ -145,7 +145,7 @@
                        value="{submission.publication_url || ''}">
             </div>
         </div>
-        <h2 class="ui dividing header">Extra Questions:</h2>
+        <h2 class="ui dividing header">Custom Questions:</h2>
         <div each="{question, index in definition.custom_questions}" class="fields">
             <div if="{ question.type === 'TX' }" class="sixteen wide field">
                 <input name="{'question_id_' + index}" ref="{'question_id_' + index}" type="hidden"
@@ -356,7 +356,7 @@
             }
             console.info('question_answers', question_answers)
 
-            if (!self.github_url) {
+            if (!self.github_url && !self.definition.questions_only) {
                 toastr.error("Please select a file before submitting.")
                 return
             }
@@ -372,10 +372,6 @@
                 "klass": KLASS,
                 "definition": DEFINITION,
                 "creator": STUDENT,
-                "github_url": self.github_url,
-                "github_repo_name": $(self.refs.github_repo).dropdown('get text'),
-                "github_branch_name": $(self.refs.github_branch).dropdown('get text'),
-                "github_commit_hash": $(self.refs.github_commit_hash).dropdown('get text'),
                 "method_name": self.refs.method_name.value || '',
                 "method_description": self.refs.method_description.value || '',
                 "project_url": self.refs.project_url.value || '',
@@ -388,6 +384,13 @@
                 ]
             }
             data['question_answers'] = question_answers
+
+            if (!self.definition.questions_only) {
+                data["github_url"] = self.github_url
+                data["github_repo_name"] = $(self.refs.github_repo).dropdown('get text')
+                data["github_branch_name"] = $(self.refs.github_branch).dropdown('get text')
+                data["github_commit_hash"] = $(self.refs.github_commit_hash).dropdown('get text')
+            }
 
             if (window.USER_TEAM !== undefined) {
                 data['team'] = window.USER_TEAM

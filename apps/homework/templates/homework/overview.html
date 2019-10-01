@@ -104,10 +104,14 @@
                                                     <div class="ui divider"></div>
                                                     <h4 class="ui header">Submission Details:</h4>
                                                     <ul class="ui relaxed celled list">
-                                                        <div class="item"><a
-                                                                href="{{ submission.github_url }}"
-                                                                target="_blank" rel="noopener noreferrer"
-                                                                class="">Github URL for Submission</a></div>
+
+                                                        {% if not definition.questions_only %}
+                                                            <div class="item"><a
+                                                                    href="{{ submission.github_url }}"
+                                                                    target="_blank" rel="noopener noreferrer"
+                                                                    class="">Github URL for Submission</a></div>
+                                                        {% endif %}
+
                                                         {% if definition.ask_method_name %}
                                                             <div class="item">Method Name:
                                                                 {{ submission.method_name }}</div>{% endif %}
@@ -129,32 +133,36 @@
                                                        class="ui yellow fluid button">Re-Submit Homework</a>
                                                     <a href="{% url "homework:submission_list" definition_pk=definition.pk %}"
                                                        class="ui blue fluid button">View Submissions</a>
-                                                    <table class="ui table">
-                                                        <thead>
-                                                        <tr>
-                                                            <th>ID</th>
-                                                            <th>Status</th>
-                                                            <th>Score</th>
-                                                            <th>Phase</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        {% for tracker in submission.tracked_submissions.all %}
-                                                            <td>{{ tracker.remote_id }}</td>
-                                                            {% if tracker.status %}
-                                                                <td>{{tracker.status}}</td>
-                                                            {% else %}
-                                                                <td>No Status</td>
-                                                            {% endif %}
-                                                            {% if tracker.score %}
-                                                                <td>{{tracker.score}}</td>
-                                                            {% else %}
-                                                                <td>No Score</td>
-                                                            {% endif %}
-                                                            <td>{{ tracker.remote_phase }}</td>
-                                                        {% endfor %}
-                                                        </tbody>
-                                                    </table>
+
+                                                    {%  if not definition.questions_only %}
+                                                        <table class="ui table">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>ID</th>
+                                                                <th>Status</th>
+                                                                <th>Score</th>
+                                                                <th>Phase</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            {% for tracker in submission.tracked_submissions.all %}
+                                                                <td>{{ tracker.remote_id }}</td>
+                                                                {% if tracker.status %}
+                                                                    <td>{{tracker.status}}</td>
+                                                                {% else %}
+                                                                    <td>No Status</td>
+                                                                {% endif %}
+                                                                {% if tracker.score %}
+                                                                    <td>{{tracker.score}}</td>
+                                                                {% else %}
+                                                                    <td>No Score</td>
+                                                                {% endif %}
+                                                                <td>{{ tracker.remote_phase }}</td>
+                                                            {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    {% endif %}
+
                                                 {% else %}
                                                     <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk use_github=1 %}"
                                                        class="ui blue fluid button">Submit Homework</a>

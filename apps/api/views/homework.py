@@ -39,7 +39,8 @@ class SubmissionViewSet(ModelViewSet):
         if new_sub.pk and not new_sub.submitted_to_challenge:
             # from apps.homework.tasks import post_submission
             # post_submission.delay(new_sub.pk)
-            post_submission(new_sub.pk)
+            if not new_sub.definition.questions_only:
+                post_submission(new_sub.pk)
 
 
 class DefinitionViewSet(ModelViewSet):

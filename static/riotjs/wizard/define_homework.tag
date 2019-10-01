@@ -26,8 +26,17 @@
                        value="{definition.description}">
             </div>
         </div>
-        <!-- URL Fields -->
+
         <div class="fields">
+            <div class="four wide field">
+                <label>Custom Questions Only (No competition):</label>
+                <input class="ui checkbox" type="checkbox" name="questions_only" ref="questions_only"
+                       checked="{definition.questions_only}" onclick="{ update_questions_only }">
+            </div>
+        </div>
+
+        <!-- URL Fields -->
+        <div if="{ !definition.questions_only }" class="fields">
             <div class="eight wide required field">
                 <label>
                     <i class="pop-up question blue circle icon"
@@ -51,7 +60,7 @@
             </div>
         </div>
         <!-- Scoring Fields -->
-        <div class="fields">
+        <div if="{ !definition.questions_only }" class="fields">
             <div class="eight wide required field">
                 <label>
                     <i class="pop-up question blue circle icon"
@@ -108,7 +117,7 @@
 
         <!-- Team Challenge URL -->
 
-        <div style="width: 100%;" class="ui styled accordion">
+        <div if="{ !definition.questions_only }" style="width: 100%;" class="ui styled accordion">
             <virtual each="{team in definition.teams}">
                 <div class="title">
                     <i class="dropdown icon"></i>
@@ -450,10 +459,16 @@
                         $(self.refs['selection_dropdown_' + i]).dropdown('set selected', question.type)
                         console.info('updated', question)
                     }
+
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching definition: " + error.statusText)
                 })
+        }
+
+        self.update_questions_only = function () {
+            self.definition.questions_only = self.refs.questions_only.checked
+            self.update()
         }
 
         self.delete_question = function (pk) {
@@ -503,10 +518,7 @@
                 "due_date": self.refs.due_date.value,
                 "name": self.refs.name.value,
                 "description": self.refs.description.value,
-                "challenge_url": self.refs.challenge_url.value,
-                "starting_kit_github_url": self.refs.starting_kit_github_url.value,
-                "baseline_score": self.refs.baseline_score.value,
-                "target_score": self.refs.target_score.value,
+                "questions_only": self.definition.questions_only,
                 "ask_method_name": self.refs.ask_method_name.checked,
                 "ask_method_description": self.refs.ask_method_description.checked,
                 "ask_project_url": self.refs.ask_project_url.checked,
@@ -578,20 +590,27 @@
                 }
             }
 
-            self.definition.teams.forEach(function (team) {
-                if (self.refs["team_" + team.id + "_challenge_url"].value !== '') {
-                    temp_data = {
-                        //'definition': self.definition.id,
-                        'team': team.id,
-                        'challenge_url': self.refs["team_" + team.id + "_challenge_url"].value
+            if (!self.definition.questions_only) {
+                obj_data["challenge_url"] = self.refs.challenge_url.value
+                obj_data["starting_kit_github_url"] = self.refs.starting_kit_github_url.value
+                obj_data["baseline_score"] = self.refs.baseline_score.value
+                obj_data["target_score"] = self.refs.target_score.value
+
+                self.definition.teams.forEach(function (team) {
+                    if (self.refs["team_" + team.id + "_challenge_url"].value !== '') {
+                        temp_data = {
+                            //'definition': self.definition.id,
+                            'team': team.id,
+                            'challenge_url': self.refs["team_" + team.id + "_challenge_url"].value
+                        }
+                        if (self.refs["team_" + team.id + "_challenge_url"].dataset.customChallengeId !== undefined) {
+                            temp_data['id'] = self.refs["team_" + team.id + "_challenge_url"].dataset.customChallengeId
+                        }
+                        //console.log(temp_data)
+                        obj_data['custom_challenge_urls'].push(temp_data)
                     }
-                    if (self.refs["team_" + team.id + "_challenge_url"].dataset.customChallengeId !== undefined) {
-                        temp_data['id'] = self.refs["team_" + team.id + "_challenge_url"].dataset.customChallengeId
-                    }
-                    //console.log(temp_data)
-                    obj_data['custom_challenge_urls'].push(temp_data)
-                }
-            })
+                })
+            }
 
             if (window.DEFINITION != undefined) {
                 var endpoint = CHAGRADE.api.update_definition(DEFINITION, obj_data)

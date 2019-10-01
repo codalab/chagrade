@@ -22,10 +22,14 @@ class Definition(models.Model):
     name = models.CharField(default=None, max_length=100, null=False, blank=False)
     description = models.CharField(max_length=300, null=True, blank=True)
 
+    questions_only = models.BooleanField(default=False, null=False)
+
     challenge_url = models.URLField(default=None, null=True, blank=True)
     starting_kit_github_url = models.URLField(default=None, null=True, blank=True)
-    baseline_score = models.FloatField(default=0.0, null=False, blank=False)
-    target_score = models.FloatField(default=1.0, null=False, blank=False)
+
+    # Make required if not questions_only
+    baseline_score = models.FloatField(default=0.0, null=True, blank=False)
+    target_score = models.FloatField(default=1.0, null=True, blank=False)
 
 
     # These values for submissions will have to be grabbed from v1.5 API
@@ -213,8 +217,8 @@ class Question(models.Model):
     # ]
     #
     # The student's answer would be stored in the following form on the QuestionAnswer model:
-    # answer = {
-    #     'index': 3
+    # QuestionAnswer = {
+    #     'answer': 3
     # }
     #
     #
