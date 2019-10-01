@@ -147,12 +147,33 @@
         </div>
         <h2 class="ui dividing header">Extra Questions:</h2>
         <div each="{question, index in definition.custom_questions}" class="fields">
-            <div class="sixteen wide field">
+            <div if="{ question.type === 'TX' }" class="sixteen wide field">
                 <input name="{'question_id_' + index}" ref="{'question_id_' + index}" type="hidden"
                        value="{question.id}">
-                <label>{question.question}:</label>
+                <label>{question.question}</label>
+
                 <textarea data-question-id="" name="{'question_answer_' + index}" ref="{'question_answer_' + index}"
                           type="text" value="{question.prev_answer || ''}" rows="2"></textarea>
+            </div>
+
+            <div if="{ question.type === 'SS' }" class="grouped fields">
+                <label for="{ question.id }">{ question.question }</label>
+                <div class="field">
+                    <div class="ui radio checkbox">
+                        <input type="radio" name="{question.id}" tabindex="0" class="hidden">
+                        <label>{ candidate_answer }</label>
+                    </div>
+                </div>
+            </div>
+
+            <div if="{ question.type === 'MS' }" class="grouped fields">
+                <label for="{ question.id }">{ question.question }</label>
+                <div each="{ candidate_answer in question.candidate_answers }" class="inline field">
+                    <div class="ui checkbox">
+                        <input type="checkbox" tabindex="0" class="hidden">
+                        <label>{ candidate_answer }</label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -195,6 +216,8 @@
                 inline: true,
                 position: 'top left',
             })
+
+            $('.ui.checkbox').checkbox()
 
 
             $('.ui.dropdown.repository', self.root).dropdown({
@@ -401,8 +424,11 @@
         self.update_definition = function () {
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
-                        self.definition = data
-                        self.update()
+                    self.definition = data
+                    console.info('questions', data.custom_questions)
+                    self.update()
+
+                    $('.ui.checkbox').checkbox()
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching definition: " + error.statusText)
