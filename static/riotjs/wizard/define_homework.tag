@@ -167,7 +167,7 @@
                     <div class="six wide inline field">
                         <label>Answer:</label>
                         <input type="text" name="{'question' + '_answer_' + index}" maxlength="200"
-                               ref="{'question' + '_answer_' + index}" value="{question.answer}">
+                               ref="{'question' + '_answer_' + index}" value="{question.text}" onkeypress="{ () => focus_next_input(event, index, candidate_index)}" onkeyup="{ () => update_answer_candidate_text(event, index, null)}">
                     </div>
 
                     <!--<div class="four wide inline field">
@@ -318,6 +318,10 @@
             self.update()
             console.info('questions', self.questions)
 
+            self.update_dropdowns()
+        }
+
+        self.update_dropdowns = function () {
             for(let question_index = 0; question_index < self.questions.length; question_index++) {
                 $(self.refs['selection_dropdown_' + question_index])
                     .dropdown({
@@ -372,7 +376,11 @@
         }
 
         self.update_answer_candidate_text = function (event, index, candidate_index) {
-            self.questions[index].answer_candidates[candidate_index] = event.target.value
+            if (candidate_index === null) {
+                self.questions[index].text = event.target.value
+            } else {
+                self.questions[index].answer_candidates[candidate_index] = event.target.value
+            }
             self.update()
         }
 
@@ -431,6 +439,17 @@
                         position: 'top left',
                     });
                     console.log(data)
+                    self.update_dropdowns()
+                    for (let i = 0; i < self.questions.length; i++) {
+                        let question = self.questions[i]
+                        if (question.type === 'TX') {
+                            self.questions[i].text = question.candidate_answers
+                        } else if (question.type === 'SS' || question.type === 'MS') {
+                            self.questions[i].answer_candidates = question.candidate_answers
+                        }
+                        $(self.refs['selection_dropdown_' + i]).dropdown('set selected', question.type)
+                        console.info('updated', question)
+                    }
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching definition: " + error.statusText)
@@ -524,16 +543,39 @@
                 obj_data['criterias'].push(temp_data)
             }
 
+            // Strip empty questions off of questions array
+            self.questions = self.questions.filter( function (question) {
+                if (question.type === null) {
+                    return false
+                } else {
+                    return true
+                }
+            })
+
             for (var index = 0; index < self.questions.length; index++) {
-                var temp_data = {
-                    'question': self.refs['question' + '_question_' + index].value,
-                    'answer': self.refs['question' + '_answer_' + index].value,
-                    //'has_specific_answer': self.refs['question' + '_has_specific_answer_' + index].value,
+                let question = self.questions[index]
+                if (question.type !== null) {
+                    let answer_candidates = null
+                    if (question.type === 'TX') {
+                        answer_candidates = question.text
+                    } else if (question.type === 'MS' || question.type === 'SS') {
+                        answer_candidates = question.answer_candidates.filter(function (answer) {
+                            return answer !== ''
+                        })
+                    }
+
+                    var temp_data = {
+                        'question': self.refs['question' + '_question_' + index].value,
+                        'type': question.type,
+                        'candidate_answers': answer_candidates,
+                        //'answer': self.refs['question' + '_answer_' + index].value,
+                        //'has_specific_answer': self.refs['question' + '_has_specific_answer_' + index].value,
+                    }
+                    if (self.refs['question' + '_id_' + index].value !== "") {
+                        temp_data['id'] = self.refs['question' + '_id_' + index].value
+                    }
+                    obj_data['custom_questions'].push(temp_data)
                 }
-                if (self.refs['question' + '_id_' + index].value !== "") {
-                    temp_data['id'] = self.refs['question' + '_id_' + index].value
-                }
-                obj_data['custom_questions'].push(temp_data)
             }
 
             self.definition.teams.forEach(function (team) {
