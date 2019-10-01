@@ -1,4 +1,14 @@
 <grade-homework>
+    <h4>Other Homework Questions</h4>
+    <div class="ui relaxed celled list">
+        <ol>
+            <li each="{ question in definition.custom_questions }">{ question.question }
+                <ul>
+                    <li each="{ answer in question.student_answers }">{ answer }</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
 
     <h4 class="ui header">Grades:</h4>
     <div class="ui relaxed celled list">
@@ -124,10 +134,26 @@
             window.location = '/klasses/wizard/' + KLASS + '/grade_homework'
         }
 
-
         self.update_definition = function (pk) {
             CHAGRADE.api.get_definition(pk)
                 .done(function (data) {
+                    let question_answers = self.submission.question_answers
+                    for (let i = 0; i < question_answers.length; i++) {
+                        let question = _.find(data.custom_questions, function (question) {
+                            return question.id === question_answers[i].question
+                        })
+
+                        let answers = []
+                        if (question.type === 'MS' || question.type === 'SS') {
+                            for (let j = 0; j < question_answers[i].answer.length; j++) {
+                                answers.push(question.candidate_answers[parseInt(question_answers[i].answer[j])])
+                            }
+                        } else if (question.type === 'TX') {
+                            answers.push(question_answers[i].answer)
+                        }
+                        question.student_answers = answers
+                    }
+                    console.info('def questions', data.custom_questions)
                     self.update({
                         definition: data
                     })
@@ -156,6 +182,7 @@
         self.update_grade = function () {
             CHAGRADE.api.get_grade(GRADE)
                 .done(function (data) {
+                    console.info('grade', data)
                     self.update({
                         grade: data
                     })

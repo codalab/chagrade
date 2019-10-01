@@ -13,7 +13,7 @@ class QuestionAnswerSerializer(ModelSerializer):
         model = QuestionAnswer
         fields = [
             'question',
-            'text',
+            'answer',
             'is_correct',
             'id'
         ]

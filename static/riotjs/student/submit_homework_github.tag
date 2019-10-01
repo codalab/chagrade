@@ -152,14 +152,14 @@
                        value="{question.id}">
                 <label>{question.question}</label>
 
-                <textarea data-question-id="" name="{'question_answer_' + index}" ref="{'question_answer_' + index}"
+                <textarea data-question-id="" name="{'question_answer_' + index}" ref="{'question_answer_' + question.id}"
                           type="text" value="{question.prev_answer || ''}" rows="2"></textarea>
             </div>
 
             <div if="{ question.type === 'SS' }" class="grouped fields">
                 <label for="{ question.id }">{ question.question }</label>
-                <div class="field">
-                    <div class="ui radio checkbox">
+                <div each="{ candidate_answer, candidate_index in question.candidate_answers }" class="field">
+                    <div class="ui radio checkbox" ref="{'question_answer_' + question.id + '_' + candidate_index }">
                         <input type="radio" name="{question.id}" tabindex="0" class="hidden">
                         <label>{ candidate_answer }</label>
                     </div>
@@ -168,8 +168,8 @@
 
             <div if="{ question.type === 'MS' }" class="grouped fields">
                 <label for="{ question.id }">{ question.question }</label>
-                <div each="{ candidate_answer in question.candidate_answers }" class="inline field">
-                    <div class="ui checkbox">
+                <div each="{ candidate_answer, candidate_index in question.candidate_answers }" class="inline field">
+                    <div class="ui checkbox" ref="{'question_answer_' + question.id + '_' + candidate_index }">
                         <input type="checkbox" tabindex="0" class="hidden">
                         <label>{ candidate_answer }</label>
                     </div>
@@ -329,6 +329,33 @@
 
         self.submit_form = function () {
 
+            let question_answers = []
+
+            for (let i = 0; i < self.definition.custom_questions.length; i++) {
+                let question_answer = null
+                let question = self.definition.custom_questions[i]
+                if (question.type === 'MS' || question.type === 'SS') {
+                    question_answer = []
+                    for (let j = 0; j < question.candidate_answers.length; j++) {
+                        let reference_string = 'question_answer_' + question.id + '_' + j
+                        let checked = $(self.refs[reference_string]).checkbox('is checked')
+                        if (checked) {
+                            question_answer.push(j)
+                        }
+                    }
+                } else {
+                    let reference_string = 'question_answer_' + question.id
+                    question_answer = self.refs[reference_string].value
+                }
+
+                let answer = {
+                    question: question.id,
+                    answer: question_answer,
+                }
+                question_answers.push(answer)
+            }
+            console.info('question_answers', question_answers)
+
             if (!self.github_url) {
                 toastr.error("Please select a file before submitting.")
                 return
@@ -340,7 +367,6 @@
                     return
                 }
             }
-
 
             var data = {
                 "klass": KLASS,
@@ -361,18 +387,10 @@
                      }*/
                 ]
             }
-
+            data['question_answers'] = question_answers
 
             if (window.USER_TEAM !== undefined) {
                 data['team'] = window.USER_TEAM
-            }
-
-            for (var index = 0; index < self.definition.custom_questions.length; index++) {
-                var temp_data = {
-                    'question': self.refs['question_id_' + index].value,
-                    'text': self.refs['question_answer_' + index].value
-                }
-                data['question_answers'].push(temp_data)
             }
 
             CHAGRADE.api.create_submission(data)
