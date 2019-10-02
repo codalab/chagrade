@@ -120,51 +120,51 @@ def union_lists(common_key, list1_data, list2_data):
     # pairs.
 
     if not list1_data.get('sorted'):
-        l1 = sorted(list1_data['data'], key=lambda i: i[common_key])
+        list1_sorted = sorted(list1_data['data'], key=lambda i: i[common_key])
     else:
-        l1 = list1_data['data']
+        list1_sorted = list1_data['data']
     if not list2_data.get('sorted'):
-        l2 = sorted(list2_data['data'], key=lambda i: i[common_key])
+        list2_sorted = sorted(list2_data['data'], key=lambda i: i[common_key])
     else:
-        l2 = list2_data['data']
+        list2_sorted = list2_data['data']
 
     i = 0
     j = 0
-    l1_end = False
-    l2_end = False
+    list1_sorted_end = False
+    list2_sorted_end = False
     output_list = []
     while True:
 
-        if l1_end and l2_end:
+        if list1_sorted_end and list2_sorted_end:
             break
 
-        elif not l1_end and (l2_end or (l1[i][common_key] < l2[j][common_key])):
-            l1[i].update(list2_data.get('unique_pairs'))
-            output_list.append(l1[i])
-            if i < len(l1) - 1:
+        elif not list1_sorted_end and (list2_sorted_end or (list1_sorted[i][common_key] < list2_sorted[j][common_key])):
+            list1_sorted[i].update(list2_data.get('unique_pairs'))
+            output_list.append(list1_sorted[i])
+            if i < len(list1_sorted) - 1:
                 i += 1
             else:
-                l1_end = True
+                list1_sorted_end = True
 
-        elif not l2_end and (l1_end or (l2[j][common_key] < l1[i][common_key])):
-            l2[j].update(list1_data.get('unique_pairs'))
-            output_list.append(l2[j])
-            if j < len(l2) - 1:
+        elif not list2_sorted_end and (list1_sorted_end or (list2_sorted[j][common_key] < list1_sorted[i][common_key])):
+            list2_sorted[j].update(list1_data.get('unique_pairs'))
+            output_list.append(list2_sorted[j])
+            if j < len(list2_sorted) - 1:
                 j += 1
             else:
-                l2_end = True
+                list2_sorted_end = True
 
-        elif l1[i][common_key] == l2[j][common_key]:
-            l1[i].update(l2[j])
-            output_list.append(l1[i])
-            if j < len(l2) - 1:
+        elif list1_sorted[i][common_key] == list2_sorted[j][common_key]:
+            list1_sorted[i].update(list2_sorted[j])
+            output_list.append(list1_sorted[i])
+            if j < len(list2_sorted) - 1:
                 j += 1
             else:
-                l2_end = True
-            if i < len(l1) - 1:
+                list2_sorted_end = True
+            if i < len(list1_sorted) - 1:
                 i += 1
             else:
-                l1_end = True
+                list1_sorted_end = True
 
     return output_list
 
