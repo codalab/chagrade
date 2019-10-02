@@ -151,10 +151,11 @@ class GradeFactory(factory.django.DjangoModelFactory):
 class QuestionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Question
+    type = 'TX'
     definition = factory.SubFactory(DefinitionFactory)
     has_specific_answer = False
     question = factory.Faker('sentence')
-    answer = factory.Faker('paragraph')
+    candidate_answers = factory.Faker('paragraph')
 
 
 class QuestionAnswerFactory(factory.django.DjangoModelFactory):
@@ -162,7 +163,7 @@ class QuestionAnswerFactory(factory.django.DjangoModelFactory):
         model = QuestionAnswer
     submission = factory.SubFactory(SubmissionFactory)
     question = factory.SubFactory(QuestionFactory)
-    text = factory.Faker('text')
+    answer = factory.Faker('text')
     is_correct = factory.LazyAttribute(lambda o: random.random() > 0.5)
 
 

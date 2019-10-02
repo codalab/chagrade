@@ -3,7 +3,8 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.homework.models import Question, Definition
+from apps.homework.models import Definition
+from apps.factory.factories import QuestionFactory
 from apps.klasses.models import Klass
 from apps.profiles.models import Instructor
 
@@ -28,11 +29,7 @@ class QuestionGETMethodTests(TestCase):
             description='test',
             challenge_url=''
         )
-        self.question = Question.objects.create(
-            definition=self.definition,
-            question='Test Question',
-            answer='Test Answer'
-        )
+        self.question = QuestionFactory(definition=self.definition, question='Test Question')
 
     def test_anonymous_user_cannot_get_questions(self):
         resp = self.client.get(reverse('api:question-list', kwargs={'version': 'v1'}))
