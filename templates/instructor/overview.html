@@ -50,7 +50,7 @@
                             {% for klass in user.instructor.klasses.all %}
                                 <tr>
                                    <td>
-                                       {% if klass.image %}<img src="{{ klass.image.url }}" width="50">{% endif %}
+                                       {% if klass.image %}<img class="ui mini image" src="{{ klass.image.url }}" width="50">{% endif %}
                                    </td>
                                    <td>{{ klass.title }}</td>
                                    <td>{{ klass.course_number }}</td>

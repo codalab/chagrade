@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load klass_header %}
 
 {% block title %}Welcome{% endblock %}
 
@@ -21,42 +22,9 @@
         <div class="row">
         <a class="ui blue button" href="{% url 'profiles:instructor_overview' %}">Back to Instructor Overview</a>
             <div class="fourteen wide column">
-                <div class="ui centered grid segment">
-                    <div class="row">
-                        <div class="two wide column">
-                            {% if klass.image %}
-                                <img style="height: auto; width: auto;" src="{{ klass.image.url }}">
-                            {% else %}
-                                <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
-                            {% endif %}
-                        </div>
-                        <div class="fourteen wide column">
-                            <div class="ui grid">
-                                <div class="row no-padding">
-                                    <div class="twelve wide column">
-                                        <h1 class="ui header">{{klass.title}}</h1>
-                                        {% if klass.group %}
-                                            <h4 class="ui header condensed">From Group: {{ klass.group.name }}</h4>
-                                        {% endif %}
-                                        <h4 class="ui header condensed">Organized by: {{ klass.instructor.user.username }}</h4>
-                                    </div>
-                                    <div class="four wide column">
-                                        <a href="{% url "klasses:edit_klass" klass_pk=klass.pk %}" class="ui small yellow button">
-                                            Edit
-                                        </a>
-                                        <h5 class="ui header condensed">Created: {{klass.created.date}}</h5>
-                                        <h5 class="ui header condensed">Modified: {{klass.modified.date}}</h5>
-                                    </div>
-                                </div>
-                                <div class="row no-padding">
-                                    <div class="sixteen wide column">
-                                        Description: {{ klass.description }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+                {% klass_header klass %}
+
                 <div class="ui warning message">
                     Class Status: NOT IMPLEMENTED
                 </div>

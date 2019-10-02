@@ -109,6 +109,9 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'apps.profiles.context_processors.password_reset_requests_processor'
             ],
+            'libraries': {
+                'klass_header': 'apps.klasses.templatetags.klass_header',
+            }
         },
     },
 ]

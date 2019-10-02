@@ -79,6 +79,7 @@ class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
             submission = Submission.objects.get(pk=submission_pk)
             context['submission'] = submission
             context['definition'] = submission.definition
+            context['klass'] = submission.klass
         except ObjectDoesNotExist:
             raise Http404('Definition object not found')
         return context
