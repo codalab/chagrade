@@ -11,6 +11,8 @@
                 <input name="description" ref="description" type="text" value="{team.description}">
             </div>
         </div>
+
+
         <div class="fields">
             <div class="eight wide field">
                 <label>Members:</label>
@@ -129,7 +131,7 @@
                             if (student.team.id === self.team.id) {
                                 student.selected = true
                             }
-                            if (!!self.team.leader) {
+                            if (_.get(self, 'team.leader')) {
                                 if (student.id === self.team.leader.id) {
                                     student.leader = true
                                 }

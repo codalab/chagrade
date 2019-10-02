@@ -109,13 +109,22 @@ def merge_list_of_lists_of_dicts(input_list):
     return output_list
 
 
-def union_lists(union_key, list1_data, list2_data):
+def union_lists(common_key, list1_data, list2_data):
+    # Compute the union of two lists of dictionaries based on a common key.
+    # Logically, this combines two lists together and then combines the dictionaries
+    # where the [common_key] entry is the same.
+
+    # The lists are distinguished by unique key names that only exist in the respective list.
+    # When a match, based on the common key name, is found, the two dictionaries are combined.
+    # When a match is not found, the dictionary is updated with the other list's dictionary's unique
+    # pairs.
+
     if not list1_data.get('sorted'):
-        l1 = sorted(list1_data['data'], key=lambda i: i[union_key])
+        l1 = sorted(list1_data['data'], key=lambda i: i[common_key])
     else:
         l1 = list1_data['data']
     if not list2_data.get('sorted'):
-        l2 = sorted(list2_data['data'], key=lambda i: i[union_key])
+        l2 = sorted(list2_data['data'], key=lambda i: i[common_key])
     else:
         l2 = list2_data['data']
 
@@ -129,7 +138,7 @@ def union_lists(union_key, list1_data, list2_data):
         if l1_end and l2_end:
             break
 
-        elif not l1_end and (l2_end or (l1[i][union_key] < l2[j][union_key])):
+        elif not l1_end and (l2_end or (l1[i][common_key] < l2[j][common_key])):
             l1[i].update(list2_data.get('unique_pairs'))
             output_list.append(l1[i])
             if i < len(l1) - 1:
@@ -137,7 +146,7 @@ def union_lists(union_key, list1_data, list2_data):
             else:
                 l1_end = True
 
-        elif not l2_end and (l1_end or (l2[j][union_key] < l1[i][union_key])):
+        elif not l2_end and (l1_end or (l2[j][common_key] < l1[i][common_key])):
             l2[j].update(list1_data.get('unique_pairs'))
             output_list.append(l2[j])
             if j < len(l2) - 1:
@@ -145,7 +154,7 @@ def union_lists(union_key, list1_data, list2_data):
             else:
                 l2_end = True
 
-        elif l1[i][union_key] == l2[j][union_key]:
+        elif l1[i][common_key] == l2[j][common_key]:
             l1[i].update(l2[j])
             output_list.append(l1[i])
             if j < len(l2) - 1:
@@ -221,6 +230,8 @@ class ScoreDistributionMixin:
         maximum = 1.2
         delta = maximum - minimum
         bucket_quantity = 12
+
+        # Bucket intervals lie in between bucket values
         bucket_bounds = []
 
         for i in range(bucket_quantity + 1):
