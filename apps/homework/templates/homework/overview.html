@@ -81,10 +81,16 @@
                                                                 {{ submission.method_description }}</div>{% endif %}
                                                         {% if definition.ask_project_url %}
                                                             <div class="item">Project URL:
-                                                                {{ submission.project_url }}</div>{% endif %}
+                                                                <a href="{{ submission.project_url }}"
+                                                                   target="_blank" rel="noopener noreferrer"
+                                                                >{{ submission.project_url }}</a>
+                                                                </div>{% endif %}
                                                         {% if definition.ask_publication_url %}
                                                             <div class="item">Publication URL:
-                                                                {{ submission.publication_url }}</div>{% endif %}
+                                                                <a href="{{ submission.publication_url }}"
+                                                                   target="_blank" rel="noopener noreferrer"
+                                                                >{{ submission.publication_url }}</a>
+                                                                </div>{% endif %}
                                                     </ul>
                                                 {% endif %}
                                             </div>
