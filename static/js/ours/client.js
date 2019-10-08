@@ -31,6 +31,9 @@ CHAGRADE.api = {
     get_klass: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + 'klasses/' + pk)
     },
+    delete_klass: function(pk) {
+        return CHAGRADE.api.request('DELETE', URLS.API + 'klasses/' + pk)
+    },
     get_klasses: function(data) {
         return CHAGRADE.api.request('GET', URLS.API + 'klasses/', data)
     },
