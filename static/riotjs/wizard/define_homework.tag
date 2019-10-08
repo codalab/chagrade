@@ -307,14 +307,17 @@
         }
 
         self.remove_question = function (index) {
-            if (self.refs['question' + '_id_' + index].value !== "") {
-                self.delete_question(self.refs['question' + '_id_' + index].value)
-            }
-            self.questions.splice(index, 1)
-            self.update()
-            console.info('questions', self.questions)
+            var result = confirm('Are you sure you wish to delete this Question?')
+            if (result) {
+                if (self.refs['question' + '_id_' + index].value !== "") {
+                    self.delete_question(self.refs['question' + '_id_' + index].value)
+                }
+                self.questions.splice(index, 1)
+                self.update()
+                console.info('questions', self.questions)
 
-            self.update_dropdowns()
+                self.update_dropdowns()
+            }
         }
 
         self.update_dropdowns = function () {
@@ -464,19 +467,16 @@
         }
 
         self.delete_question = function (pk) {
-            var result = confirm('Are you sure you wish to delete this Question?')
-            if (result) {
-                CHAGRADE.api.delete_question(pk)
-                    .done(function (data) {
-                        toastr.success("Successfully deleted question")
-                    })
-                    .fail(function (response) {
-                        console.log(response)
-                        Object.keys(response.responseJSON).forEach(function (key) {
-                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
-                        });
-                    })
-            }
+            CHAGRADE.api.delete_question(pk)
+                .done(function (data) {
+                    toastr.success("Successfully deleted question")
+                })
+                .fail(function (response) {
+                    console.log(response)
+                    Object.keys(response.responseJSON).forEach(function (key) {
+                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    });
+                })
         }
 
         self.delete_criteria = function (pk) {
