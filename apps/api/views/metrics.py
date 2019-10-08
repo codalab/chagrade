@@ -12,6 +12,8 @@ from django.shortcuts import get_object_or_404
 
 from apps.api.serializers.metrics import InstructorMetricsSerializer, AdminMetricsSerializer
 
+from apps.api.permissions import InstructorOrSuperuserPermission
+
 from apps.profiles.models import StudentMembership, ChaUser, Instructor
 from apps.homework.models import Submission, Definition
 from apps.klasses.models import Klass
@@ -146,38 +148,6 @@ def union_lists(union_key, list1_data, list2_data):
     return output_list
 
 
-class InstructorOrSuperuserPermission(permissions.BasePermission):
-    message = 'You are not allowed to access this data.'
-
-    def has_permission(self, request, view):
-        if request.user.is_superuser:
-            return True
-
-        klass_pk = view.kwargs.get('klass_pk')
-        student_pk = view.kwargs.get('student_pk')
-        team_pk = view.kwargs.get('team_pk')
-
-        instructor = None
-        try:
-            instructor = request.user.instructor
-        except AttributeError:
-            return False
-
-        if klass_pk:
-            klass = get_object_or_404(Klass, pk=klass_pk)
-            if instructor == klass.instructor:
-                return True
-
-        elif student_pk:
-            student = get_object_or_404(StudentMembership, pk=student_pk)
-            if instructor == student.klass.instructor:
-                return True
-
-        elif team_pk:
-            team = get_object_or_404(Team, pk=team_pk)
-            if instructor == team.klass.instructor:
-                return True
-        return False
 
 
 class TimeDistributionMixin:

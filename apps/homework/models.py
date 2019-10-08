@@ -203,8 +203,7 @@ class Question(models.Model):
     candidate_answers = JSONField(blank=True, default='')
 
     # If Question is a single or multiple select is the type of the question, the candidate answers are in the
-    # form of an array in JSON. The student's selection(s) are stored on the Question Answer model in the form
-    # of indices that refer to entries in this candidate answer array.
+    # form of an array in JSON. The student's selection(s) are stored on the Question Answer model.
     #
     # E.g. If a question had a prompt that looked like this, "What is 5 + 5?", the candidate answers could look
     # like the following:
@@ -218,7 +217,7 @@ class Question(models.Model):
     #
     # The student's answer would be stored in the following form on the QuestionAnswer model:
     # QuestionAnswer = {
-    #     'answer': 3
+    #     'answer': '10
     # }
     #
     #

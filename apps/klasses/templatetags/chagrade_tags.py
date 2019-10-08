@@ -16,4 +16,19 @@ def get_submission(definition_pk, student_pk):
         print("Could not find a submission for that definition/student!")
     return None
 
+def format_json_array(json_array):
+    """Formats list (json array) as a string by appending each item together."""
+    outstring = ''
+    delimiter = ',\n'
+
+    for i, word in enumerate(json_array):
+        if i < len(json_array) - 1:
+            outstring += str(word) + delimiter
+        else:
+            outstring += str(word)
+    return outstring
+
+
+
 register.filter('get_submission', get_submission)
+register.filter('format_json_array', format_json_array)

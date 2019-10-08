@@ -119,7 +119,6 @@
                     window.location = '/klasses/wizard/' + KLASS + '/grade_homework'
                 })
                 .fail(function (response) {
-                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         if (key === 'criteria_answers') {
                             toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
@@ -142,18 +141,8 @@
                         let question = _.find(data.custom_questions, function (question) {
                             return question.id === question_answers[i].question
                         })
-
-                        let answers = []
-                        if (question.type === 'MS' || question.type === 'SS') {
-                            for (let j = 0; j < question_answers[i].answer.length; j++) {
-                                answers.push(question.candidate_answers[parseInt(question_answers[i].answer[j])])
-                            }
-                        } else if (question.type === 'TX') {
-                            answers.push(question_answers[i].answer)
-                        }
-                        question.student_answers = answers
+                        question.student_answers = question_answers[i].answer
                     }
-                    console.info('def questions', data.custom_questions)
                     self.update({
                         definition: data
                     })
@@ -182,7 +171,6 @@
         self.update_grade = function () {
             CHAGRADE.api.get_grade(GRADE)
                 .done(function (data) {
-                    console.info('grade', data)
                     self.update({
                         grade: data
                     })

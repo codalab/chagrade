@@ -112,6 +112,7 @@ class DefinitionFactory(factory.django.DjangoModelFactory):
     description = factory.Faker('paragraph')
     team_based = factory.LazyAttribute(lambda o: random.random() > 0.5)
     creator = factory.LazyAttribute(lambda o: o.klass.instructor)
+    questions_only = False
 
 
 class SubmissionFactory(factory.django.DjangoModelFactory):

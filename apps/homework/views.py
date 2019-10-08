@@ -50,7 +50,7 @@ class GradeEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
             context['definition'] = context['submission'].definition
             context['grade'] = Grade.objects.get(pk=self.kwargs.get('grade_pk'))
         except:
-            raise Http404("Could not find submission!")
+            raise Http404("Could not find object!")
         return context
 
 

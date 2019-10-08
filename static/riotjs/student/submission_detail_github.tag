@@ -111,18 +111,8 @@
                         let question = _.find(data.custom_questions, function (question) {
                             return question.id === question_answers[i].question
                         })
-
-                        let answers = []
-                        if (question.type === 'MS' || question.type === 'SS') {
-                            for (let j = 0; j < question_answers[i].answer.length; j++) {
-                                answers.push(question.candidate_answers[parseInt(question_answers[i].answer[j])])
-                            }
-                        } else if (question.type === 'TX') {
-                            answers.push(question_answers[i].answer)
-                        }
-                        question.student_answers = answers
+                        question.student_answers = question_answers[i].answer
                     }
-                    console.info('definition', data)
                     self.definition = data
                     self.update()
                     if (!data.questions_only) {

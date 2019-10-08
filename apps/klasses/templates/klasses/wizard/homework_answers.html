@@ -1,0 +1,97 @@
+{% extends 'klasses/wizard/wizard_base.html' %}
+{% load homework_tags %}
+{% load chagrade_tags %}
+
+{% block wizard_title %}
+    <h2 class="ui massive header" style="font-size: 56px;">Homework Answers</h2>
+{% endblock %}
+
+{% block wizard_content %}
+    <div class="ui centered grid">
+        <div class="row">
+            <div class="ui fourteen wide column message">
+                <div style="overflow-x: scroll;">
+                    <h1>{{ definition.name }}</h1>
+                    <span>
+
+{#                         CHANGE THIS TO THE ANSWERS CSV DOWNLOAD VIEW                              #}
+{#                        <a href="{% url 'homework:get_grades_csv' klass_pk=klass.pk %}" class="ui blue button">Download CSV</a>#}
+                        <a class="ui blue button" href="{% url 'api:homework_answers_CSV' version='v1' klass_pk=klass.pk definition_pk=definition.pk %}?format=csv" download="homework_answers_for_{{ klass.title }}_{{ definition.name }}.csv">Download CSV</a>
+                    </span>
+                    <table style="width: {{ question_quantity_sensitive_width }}%;" class="ui striped celled table">
+                        <thead>
+                        <tr>
+{#                            <th><div style="width: 200px;">#</div></th>#}
+                            <th>#</th>
+                            <th>Student Name</th>
+
+                            {% if definition.team_based %}
+                                <th>Team Name</th>
+                            {% endif %}
+
+                            {% if not definition.questions_only %}
+                                <th>Submission Score</th>
+                            {% endif %}
+
+                            {% for question in definition.custom_questions.all %}
+                                <th>{{ question.question }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for student in klass.enrolled_students.all %}
+                            <tr>
+                                <td>
+                                    {{ forloop.counter }}
+                                </td>
+                                <td>{{ student.user.username }}</td>
+
+                                {% if definition.team_based %}
+                                    <td>{{ student.team.name }}</td>
+                                {% endif %}
+
+                                {% with definition|get_last_submission:student.user.pk as submission %}
+                                    {% if not definition.questions_only %}
+                                        <td>
+                                            {% with submission.tracked_submissions.last as sub_tracker %}
+                                                <div style="width: 150px;">
+                                                    {% if sub_tracker.score %}
+                                                        {{ sub_tracker.score }}
+                                                    {% else %}
+                                                        No Score
+                                                    {% endif %}
+                                                </div>
+                                            {% endwith %}
+                                        </td>
+                                    {% endif %}
+
+                                    {% if submission %}
+                                        {% for answer in submission.question_answers.all %}
+                                            {% if answer.question.type == 'TX' %}
+{#                                                <td class="ui center aligned">#}
+                                                <td>
+                                                    <div style="min-width: 450px;">{{ answer.answer|format_json_array }}</div>
+                                                </td>
+                                            {% else %}
+{#                                                <td class="ui center aligned">#}
+                                                <td>
+                                                    <div style="min-width: 200px;">{{ answer.answer|format_json_array }}</div>
+                                                </td>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for question in question_quantity_range %}
+                                            <td></td>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

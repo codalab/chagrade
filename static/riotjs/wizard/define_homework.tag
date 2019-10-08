@@ -172,19 +172,6 @@
                         <a onclick="{remove_question.bind(this, index)}" class="ui red button">X</a>
                     </div>
                 </div>
-                <div if="{question.type === 'TX'}" class="one inline fields">
-                    <div class="six wide inline field">
-                        <label>Answer:</label>
-                        <input type="text" name="{'question' + '_answer_' + index}" maxlength="200"
-                               ref="{'question' + '_answer_' + index}" value="{question.text}" onkeypress="{ () => focus_next_input(event, index, candidate_index)}" onkeyup="{ () => update_answer_candidate_text(event, index, null)}">
-                    </div>
-
-                    <!--<div class="four wide inline field">
-                        <label>Has Answer:</label>
-                        <input class="ui checkbox" type="checkbox" name="{'question' + '_has_specific_answer_' + index}"
-                               ref="{'question' + '_has_specific_answer_' + index}" checked="{question.has_specific_answer}">
-                    </div>-->
-                </div>
 
                 <div if="{question.type === 'MS' || question.type === 'SS'}" each="{answer_candidate, candidate_index in question.answer_candidates}" class="two inline fields">
                     <div class="six wide inline field">
@@ -438,28 +425,33 @@
                             }
                         })
                     })
+
+                    console.log('new')
+
                     self.update({
                         definition: data,
                         questions: data.custom_questions,
                         criterias: data.criterias
                     })
+
                     $('.pop-up').popup({
                         inline: true,
                         position: 'top left',
-                    });
+                    })
+
                     console.log(data)
                     self.update_dropdowns()
                     for (let i = 0; i < self.questions.length; i++) {
                         let question = self.questions[i]
-                        if (question.type === 'TX') {
-                            self.questions[i].text = question.candidate_answers
-                        } else if (question.type === 'SS' || question.type === 'MS') {
+                       // if (question.type === 'TX') {
+                       //     self.questions[i].text = question.candidate_answers
+                       // } else
+                        if (question.type === 'SS' || question.type === 'MS') {
                             self.questions[i].answer_candidates = question.candidate_answers
                         }
                         $(self.refs['selection_dropdown_' + i]).dropdown('set selected', question.type)
                         console.info('updated', question)
                     }
-
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching definition: " + error.statusText)

@@ -47,7 +47,7 @@
                     <label class="">
                         <i class="pop-up question blue circle icon"
                            data-title="A URL from your github repo to a specific file"
-                           data-content="Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip"></i>
+                           data-content="Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip"> </i>
                         Github Submission (Must be zip file):
                     </label>
                 </span>
@@ -153,11 +153,11 @@
                 <label>{question.question}</label>
 
                 <textarea data-question-id="" name="{'question_answer_' + index}" ref="{'question_answer_' + question.id}"
-                          type="text" value="{question.prev_answer || ''}" rows="2"></textarea>
+                          type="text" value="{question.prev_answer || ''}" rows="2"> </textarea>
             </div>
 
             <div if="{ question.type === 'SS' }" class="grouped fields">
-                <label for="{ question.id }">{ question.question }</label>
+                <label>{ question.question }</label>
                 <div each="{ candidate_answer, candidate_index in question.candidate_answers }" class="field">
                     <div class="ui radio checkbox" ref="{'question_answer_' + question.id + '_' + candidate_index }">
                         <input type="radio" name="{question.id}" tabindex="0" class="hidden">
@@ -167,7 +167,7 @@
             </div>
 
             <div if="{ question.type === 'MS' }" class="grouped fields">
-                <label for="{ question.id }">{ question.question }</label>
+                <label>{ question.question }</label>
                 <div each="{ candidate_answer, candidate_index in question.candidate_answers }" class="inline field">
                     <div class="ui checkbox" ref="{'question_answer_' + question.id + '_' + candidate_index }">
                         <input type="checkbox" tabindex="0" class="hidden">
@@ -332,20 +332,19 @@
             let question_answers = []
 
             for (let i = 0; i < self.definition.custom_questions.length; i++) {
-                let question_answer = null
                 let question = self.definition.custom_questions[i]
+                let question_answer = []
                 if (question.type === 'MS' || question.type === 'SS') {
-                    question_answer = []
                     for (let j = 0; j < question.candidate_answers.length; j++) {
                         let reference_string = 'question_answer_' + question.id + '_' + j
                         let checked = $(self.refs[reference_string]).checkbox('is checked')
                         if (checked) {
-                            question_answer.push(j)
+                            question_answer.push(question.candidate_answers[j])
                         }
                     }
                 } else {
                     let reference_string = 'question_answer_' + question.id
-                    question_answer = self.refs[reference_string].value
+                    question_answer.push(self.refs[reference_string].value)
                 }
 
                 let answer = {

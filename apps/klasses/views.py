@@ -4,12 +4,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.http import Http404, JsonResponse, HttpResponse
+from django.db.models import Subquery, OuterRef, F, Max
 
 # Create your views here.
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, TemplateView, FormView, UpdateView
 
-from apps.homework.models import Grade, Submission
+from apps.homework.models import Definition, QuestionAnswer, Submission
+from apps.profiles.models import StudentMembership
 
 from apps.klasses.forms import KlassForm
 from apps.klasses.models import Klass
@@ -17,6 +19,7 @@ from apps.klasses.models import Klass
 from apps.klasses.mixins import WizardMixin
 
 # Todo: Replace Http404's with correct response for forbidden (Besides not found?)
+
 
 class CreationView(LoginRequiredMixin, FormView):
     template_name = 'klasses/klass_form.html'
@@ -97,9 +100,26 @@ class GradeHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
             raise Http404
 
         context['completely_graded'] = klass.homeworks_completely_graded()
-        print(context)
         return context
 
+
+class HomeworkAnswersView(LoginRequiredMixin, WizardMixin, TemplateView):
+    template_name = 'klasses/wizard/homework_answers.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            klass_pk = self.kwargs.get('klass_pk')
+            definition_pk = self.kwargs.get('definition_pk')
+            definition = Definition.objects.get(pk=definition_pk)
+            context['definition'] = definition
+            question_quantity = definition.custom_questions.count()
+            context['question_quantity_sensitive_width'] = question_quantity * 35
+            context['question_quantity_range'] = range(question_quantity)
+
+        except ObjectDoesNotExist:
+            raise Http404("Could not find object!")
+        return context
 
 
 # TODO: Make this into an API point/call
