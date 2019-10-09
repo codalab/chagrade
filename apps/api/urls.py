@@ -9,7 +9,7 @@ from apps.api.views.homework import DefinitionViewSet, CriteriaViewSet, Question
     GradeViewSet, CustomChallengeURLViewSet
 from apps.api.views.profiles import ProfileViewSet, StudentViewSet, create_students_from_csv, \
     TestStudentViewSet
-from apps.api.views.klasses import KlassViewSet, HomeworkAnswersView
+from apps.api.views.klasses import KlassViewSet, HomeworkAnswersCSVView, EnrollStudentsSampleCSVView
 from apps.api.views.groups import TeamViewSet
 from apps.api.views.metrics import chagrade_overall_metrics, StudentMetricsView, \
     InstructorMetricsView, KlassMetricsView, SubmissionMetricsView, KlassScoresView, \
@@ -63,6 +63,9 @@ urlpatterns = [
     # path('create_student/', create_student, name='create_student'),
     path('create_students_from_csv/', create_students_from_csv, name='create_students_from_csv'),
 
+    # Enroll Students Upload Sample CSV
+    path('enroll_students_sample_csv/', EnrollStudentsSampleCSVView.as_view(), name='enroll_students_sample_CSV'),
+
     # Metrics
     path('chagrade_overall_metrics/', chagrade_overall_metrics, name='chagrade_overall_metrics'),
     path('chagrade_student_metrics/', StudentMetricsView.as_view(), name='chagrade_student_metrics'),
@@ -87,7 +90,8 @@ urlpatterns = [
     path('submissions_csv/', AdminSubmissionCSVView.as_view(), name='submissions_CSV'),
 
     # Homework answers CSV
-    path('answers_csv/<int:klass_pk>/<int:definition_pk>/', HomeworkAnswersView.as_view(), name='homework_answers_CSV'),
+    path('answers_csv/<int:klass_pk>/<int:definition_pk>/', HomeworkAnswersCSVView.as_view(), name='homework_answers_CSV'),
+
 
     # Optionally, use "redoc" style
     # url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=None), name='schema-redoc'),

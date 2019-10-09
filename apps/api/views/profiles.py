@@ -52,7 +52,6 @@ def create_students_from_csv(request, version):
         for row in csv_reader:
             if line_count == 0:
                 print("First row")
-                # line_count += 1
             else:
                 if len(row) >= 6:
                     data = {
@@ -77,6 +76,8 @@ def create_students_from_csv(request, version):
                         new_student = new_student_serializer.save()
                         # If there's something in the student leader column
                         if len(row) == 7:
+                            print('row[6]', row[6])
+                            print('type', type(row[6]))
                             new_student.team.leader = new_student
                             new_student.team.save()
                 else:

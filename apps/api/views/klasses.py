@@ -34,6 +34,19 @@ def format_list_to_string(input_list):
     return outstring
 
 
+class EnrollStudentsRenderer(renderers.CSVRenderer):
+    labels = {
+        'first_name': 'First Name',
+        'last_name': 'Last Name',
+        'username': 'Username',
+        'student_id': 'Student ID',
+        'email': 'Student Email',
+        'team_name': 'Team Name',
+        'team_leader': 'Team Leader',
+    }
+    header = list(labels.keys())
+
+
 class HomeworkAnswersRenderer(renderers.CSVRenderer):
     labels = {
         'name': 'Student Name',
@@ -55,7 +68,7 @@ class KlassViewSet(ModelViewSet):
         return self.queryset
 
 
-class HomeworkAnswersView(APIView):
+class HomeworkAnswersCSVView(APIView):
     """Get homework scores and question answers for entire klass."""
     renderer_classes = (HomeworkAnswersRenderer,)
     permission_classes = (InstructorOrSuperuserPermission,)
@@ -121,3 +134,39 @@ class HomeworkAnswersView(APIView):
                     students_list[i]['q' + str(j)] = format_list_to_string(answers[j].answer)
 
         return Response(students_list)
+
+
+class EnrollStudentsSampleCSVView(APIView):
+    """Generate a sample csv in the proper upload format for student enrollment."""
+    renderer_classes = (EnrollStudentsRenderer,)
+
+    def get(self, request, **kwargs):
+        sample_output = [
+            {
+                'first_name': 'John',
+                'last_name': 'Smith',
+                'username': 'johnnyboy25',
+                'student_id': '1421141',
+                'email': 'john@email.com',
+                'team_name': 'Smashing Pumpkins',
+                'team_leader': 'True',
+            }, {
+                'first_name': 'Samantha',
+                'last_name': 'Higgs',
+                'username': 'samsam',
+                'student_id': '1421028',
+                'email': 'sam@email.com',
+                'team_name': 'Gradient Descenders',
+                'team_leader': 'True',
+            }, {
+                'first_name': 'Jane',
+                'last_name': 'Doe',
+                'username': 'itsjanedoe',
+                'student_id': '1421241',
+                'email': 'jane@email.com',
+                'team_name': 'Smashing Pumpkins',
+                'team_leader': '',
+            }
+        ]
+
+        return Response(sample_output)
