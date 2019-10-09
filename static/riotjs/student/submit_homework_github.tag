@@ -39,7 +39,35 @@
 
     <div class="ui form" style="margin-bottom: 2.5vh;">
         <h1 class="ui dividing header">Submission Form</h1>
-        <div if="{ !definition.questions_only }" class="fields">
+
+        <div if="{ !definition.questions_only && !github_active }" class="fields">
+            <div class="sixteen wide field">
+                <span>
+                    <!-- <i data-tooltip="Add users to your feed" class="question circle icon"></i> -->
+                    <label class="">
+                        <i class="pop-up question blue circle icon"
+                           data-title="A URL from your github repo to a specific zip file"
+                           data-content="Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip"> </i>
+                        Submission Github URL (Must be zip file):
+                    </label>
+                </span>
+                <input name="github_url" ref="github_url" type="text"
+                       value="{submission.github_url || ''}">
+            </div>
+            <div class="eight wide field">
+                <span>
+                    <label class="">
+                        <i class="pop-up question blue circle icon"
+                           data-title="A reference of to a point in the repo's history"
+                           data-content="Ex: a9dhe3 or master"> </i>
+                        Commit or Branch Name (Optional):
+                    </label>
+                </span>
+                <input name="github_ref" ref="github_ref" type="text">
+            </div>
+        </div>
+
+        <div if="{ !definition.questions_only && github_active }" class="fields">
             <div class="sixteen wide field">
                 <div class="row">
                 <span>
@@ -64,7 +92,7 @@
                     </div>
                     <div class="ui search selection dropdown branch" ref="github_branch">
                         <div if="{ submission.github_branch_name }" class="default text">{ submission.github_branch_name }</div>
-                        <div if="{ !submission.github_branch_name }" class="default text">Branch</div>
+                        <div if="{ !submission.github_branch_name }" class="default text">Branch (Optional)</div>
                         <i class="dropdown icon"></i>
                         <div class="menu">
                             <div each="{branch in github_branches}" class="item" data-text="{ branch.name }">{ branch.name }</div>
@@ -76,7 +104,7 @@
                     <div class="ui search selection dropdown commit" ref="github_commit_hash">
                         <i class="dropdown icon"></i>
                         <div if="{ submission.github_commit_hash }" class="default text">{ submission.github_commit_hash }</div>
-                        <div if="{ !submission.github_commit_hash }" class="default text">Commit</div>
+                        <div if="{ !submission.github_commit_hash }" class="default text">Commit (Optional)</div>
                         <div class="menu">
                             <div each="{commit in github_commits}" class="item" data-text="{ commit.sha }">
                                 <div class="ui container">
@@ -145,8 +173,8 @@
                        value="{submission.publication_url || ''}">
             </div>
         </div>
-        <h2 class="ui dividing header">Custom Questions:</h2>
-        <div each="{question, index in definition.custom_questions}" class="fields">
+        <h2 if="{_.get(definition.custom_questions, 'length', 0) > 0 }" class="ui dividing header">Custom Questions:</h2>
+        <div each="{ question, index in definition.custom_questions }" class="fields">
             <div if="{ question.type === 'TX' }" class="sixteen wide field">
                 <input name="{'question_id_' + index}" ref="{'question_id_' + index}" type="hidden"
                        value="{question.id}">
@@ -183,7 +211,6 @@
 
     <script>
 
-
         var self = this
         self.errors = []
         self.question_answers = []
@@ -208,8 +235,11 @@
         self.repo_value = null
         self.branch_value = null
         self.commit_value = null
+        self.github_active = false
 
         self.one('mount', function () {
+            self.github_active = self.opts.github === 'True'
+
             self.update_definition()
 
             $('.pop-up').popup({
@@ -217,63 +247,64 @@
                 position: 'top left',
             })
 
-            $('.ui.checkbox').checkbox()
+            if (self.github_active) {
+                $('.ui.checkbox').checkbox()
 
+                $('.ui.dropdown.repository', self.root).dropdown({
+                    onChange: function(value, text, $selectedItem) {
+                        if (self.repo_value === value) {
+                            return
+                        }
+                        self.repo_value = value
+                        self.github_repo = self.github_repositories[parseInt(value)]
+                        self.github_request(self.github_repo.branches_url.split('{')[0], function (branch_data) {
+                            self.github_branches = branch_data
+                            self.update()
+                        })
+                        self.github_request(self.github_repo.commits_url.split('{')[0], function (commit_data) {
+                            self.github_commits = commit_data
+                            self.update()
+                        })
+                        $('.ui.dropdown.branch', self.root).dropdown('restore defaults')
+                        $('.ui.dropdown.commit', self.root).dropdown('restore defaults')
 
-            $('.ui.dropdown.repository', self.root).dropdown({
-                onChange: function(value, text, $selectedItem) {
-                    if (self.repo_value === value) {
-                        return
+                        load_github_file_tree()
                     }
-                    self.repo_value = value
-                    self.github_repo = self.github_repositories[parseInt(value)]
-                    self.github_request(self.github_repo.branches_url.split('{')[0], function (branch_data) {
-                        self.github_branches = branch_data
-                        self.update()
-                    })
-                    self.github_request(self.github_repo.commits_url.split('{')[0], function (commit_data) {
-                        self.github_commits = commit_data
-                        self.update()
-                    })
-                    $('.ui.dropdown.branch', self.root).dropdown('restore defaults')
-                    $('.ui.dropdown.commit', self.root).dropdown('restore defaults')
-
-                    load_github_file_tree()
-                }
-            })
-            $('.ui.dropdown.branch', self.root).dropdown({
-                onChange: function(value, text, $selecteditem) {
+                })
+                $('.ui.dropdown.branch', self.root).dropdown({
+                    onChange: function(value, text, $selecteditem) {
                         if (self.branch_value === value) {
                             return
                         }
                         self.branch_value = value
                         self.github_ref = text
                         load_github_file_tree()
-                },
-            })
-            $('.ui.dropdown.commit', self.root).dropdown({
-                onChange: function(value, text, $selecteditem) {
+                    },
+                })
+                $('.ui.dropdown.commit', self.root).dropdown({
+                    onChange: function(value, text, $selecteditem) {
                         if (self.commit_value === value) {
                             return
                         }
                         self.commit_value = value
                         self.github_ref = text
                         load_github_file_tree()
-                },
-            })
+                    },
+                })
 
-            $(document).on('click', '.file.title', function clickkky(e) {
-                let file_element = $(e.target)
-                let url = file_element.parent().parent().attr('data-url')
-                if (!!url) {
-                    let parent = file_element.parent()
-                    parent.checkbox('check')
-                    let checkbox = file_element.siblings().first()
-                    self.github_url = url
-                    $('.file-label').removeClass('selected-file')
-                    file_element.addClass('selected-file')
-                }
-            })
+                $(document).on('click', '.file.title', function clickkky(e) {
+                    let file_element = $(e.target)
+                    let url = file_element.parent().parent().attr('data-url')
+                    if (!!url) {
+                        let parent = file_element.parent()
+                        parent.checkbox('check')
+                        let checkbox = file_element.siblings().first()
+                        self.github_url = url
+                        $('.file-label').removeClass('selected-file')
+                        file_element.addClass('selected-file')
+                    }
+                })
+            }
         })
 
         self.github_request = (url, done_function) => {
@@ -385,10 +416,22 @@
             data['question_answers'] = question_answers
 
             if (!self.definition.questions_only) {
+                if (!self.github_active) {
+                    let github_ref = self.refs.github_ref.value
+                    self.github_url = self.refs.github_url.value
+
+                    if (!!github_ref) {
+                        let split_url = self.github_url.split('/')
+                        split_url[6] = github_ref
+                        self.github_url = split_url.join('/')
+                    }
+                } else {
+                    data["github_repo_name"] = $(self.refs.github_repo).dropdown('get text')
+                    data["github_branch_name"] = $(self.refs.github_branch).dropdown('get text')
+                    data["github_commit_hash"] = $(self.refs.github_commit_hash).dropdown('get text')
+                }
+
                 data["github_url"] = self.github_url
-                data["github_repo_name"] = $(self.refs.github_repo).dropdown('get text')
-                data["github_branch_name"] = $(self.refs.github_branch).dropdown('get text')
-                data["github_commit_hash"] = $(self.refs.github_commit_hash).dropdown('get text')
             }
 
             if (window.USER_TEAM !== undefined) {
@@ -448,24 +491,28 @@
                     console.info('questions', data.custom_questions)
                     self.update()
 
-                    $('.ui.checkbox').checkbox()
+                    if (self.github_active) {
+                        $('.ui.checkbox').checkbox()
+                    }
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching definition: " + error.statusText)
                 })
 
-            CHAGRADE.api.get_cha_user(self.opts.pk)
-                .done(function (data) {
-                    self.github_information = data.github_info
+            if (self.github_active) {
+                CHAGRADE.api.get_cha_user(self.opts.pk)
+                    .done(function (data) {
+                        self.github_information = data.github_info
 
-                    self.github_request(self.github_information.repos_url.slice(0, 27) + '/repos', function (repo_data) {
-                        self.github_repositories = repo_data
-                        self.update()
+                        self.github_request(self.github_information.repos_url.slice(0, 27) + '/repos', function (repo_data) {
+                            self.github_repositories = repo_data
+                            self.update()
+                        })
                     })
-                })
-                .fail(function (error) {
-                    toastr.error("Error fetching user: " + error.statusText)
-                })
+                    .fail(function (error) {
+                        toastr.error("Error fetching user: " + error.statusText)
+                    })
+            }
 
             if (window.SUBMISSION !== undefined) {
                 self.update_submission()
