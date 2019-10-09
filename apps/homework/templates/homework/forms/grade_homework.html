@@ -45,9 +45,15 @@
                         {% if definition.ask_method_description %}
                             <li><b>Method Description:</b> {{ submission.method_description }}</li>{% endif %}
                         {% if definition.ask_project_url %}
-                            <li><b>Project URL:</b> {{ submission.project_url }}</li>{% endif %}
+                            <li><b>Project URL:</b>
+                                <a href="{{ submission.project_url }}"
+                                   target="_blank" rel="noopener noreferrer"
+                                >{{ submission.project_url }}</a></li>{% endif %}
                         {% if definition.ask_publication_url %}
-                            <li><b>Publication URL:</b> {{ submission.publication_url }}</li>{% endif %}
+                            <li><b>Publication URL:</b>
+                                <a href="{{ submission.publication_url }}"
+                                   target="_blank" rel="noopener noreferrer"
+                                >{{ submission.publication_url }}</a></li>{% endif %}
                     </ol>
                 </div>
                 <grade-homework></grade-homework>
