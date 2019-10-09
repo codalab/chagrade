@@ -35,6 +35,7 @@ services:
       - .:/app
     ports:
       - "8000:8000"
+      - "587:587"
     depends_on:
       - postgres
     links:
