@@ -1,4 +1,4 @@
-<submit-homework-github>
+<submit-homework>
     <style>
         .commit {
             width: 70%;
@@ -239,6 +239,7 @@
 
         self.one('mount', function () {
             self.github_active = self.opts.github === 'True'
+            self.update()
 
             self.update_definition()
 
@@ -246,66 +247,70 @@
                 inline: true,
                 position: 'top left',
             })
-
-            if (self.github_active) {
-                $('.ui.checkbox').checkbox()
-
-                $('.ui.dropdown.repository', self.root).dropdown({
-                    onChange: function(value, text, $selectedItem) {
-                        if (self.repo_value === value) {
-                            return
-                        }
-                        self.repo_value = value
-                        self.github_repo = self.github_repositories[parseInt(value)]
-                        self.github_request(self.github_repo.branches_url.split('{')[0], function (branch_data) {
-                            self.github_branches = branch_data
-                            self.update()
-                        })
-                        self.github_request(self.github_repo.commits_url.split('{')[0], function (commit_data) {
-                            self.github_commits = commit_data
-                            self.update()
-                        })
-                        $('.ui.dropdown.branch', self.root).dropdown('restore defaults')
-                        $('.ui.dropdown.commit', self.root).dropdown('restore defaults')
-
-                        load_github_file_tree()
-                    }
-                })
-                $('.ui.dropdown.branch', self.root).dropdown({
-                    onChange: function(value, text, $selecteditem) {
-                        if (self.branch_value === value) {
-                            return
-                        }
-                        self.branch_value = value
-                        self.github_ref = text
-                        load_github_file_tree()
-                    },
-                })
-                $('.ui.dropdown.commit', self.root).dropdown({
-                    onChange: function(value, text, $selecteditem) {
-                        if (self.commit_value === value) {
-                            return
-                        }
-                        self.commit_value = value
-                        self.github_ref = text
-                        load_github_file_tree()
-                    },
-                })
-
-                $(document).on('click', '.file.title', function clickkky(e) {
-                    let file_element = $(e.target)
-                    let url = file_element.parent().parent().attr('data-url')
-                    if (!!url) {
-                        let parent = file_element.parent()
-                        parent.checkbox('check')
-                        let checkbox = file_element.siblings().first()
-                        self.github_url = url
-                        $('.file-label').removeClass('selected-file')
-                        file_element.addClass('selected-file')
-                    }
-                })
-            }
         })
+
+        self.update_dropdowns_and_checkboxes = () => {
+            $('.ui.checkbox').checkbox()
+
+            $('.ui.dropdown.repository', self.root).dropdown({
+                onChange: function(value, text, $selectedItem) {
+                    if (self.repo_value === value) {
+                        return
+                    }
+                    self.repo_value = value
+                    self.github_repo = self.github_repositories[parseInt(value)]
+                    self.github_request(self.github_repo.branches_url.split('{')[0], function (branch_data) {
+                        self.github_branches = branch_data
+                        self.update()
+                    })
+                    self.github_request(self.github_repo.commits_url.split('{')[0], function (commit_data) {
+                        self.github_commits = commit_data
+                        self.update()
+                    })
+                    $('.ui.dropdown.branch', self.root).dropdown('restore defaults')
+                    $('.ui.dropdown.commit', self.root).dropdown('restore defaults')
+
+                    load_github_file_tree()
+                }
+            })
+
+            $('.ui.dropdown.branch', self.root).dropdown({
+                onChange: function(value, text, $selecteditem) {
+                    if (self.branch_value === value) {
+                        return
+                    }
+                    self.branch_value = value
+                    self.github_ref = text
+                    load_github_file_tree()
+                },
+            })
+
+            $('.ui.dropdown.commit', self.root).dropdown({
+                onChange: function(value, text, $selecteditem) {
+                    if (self.commit_value === value) {
+                        return
+                    }
+                    self.commit_value = value
+                    self.github_ref = text
+                    load_github_file_tree()
+                },
+            })
+
+
+
+            $(document).on('click', '.file.title', function clickkky(e) {
+                let file_element = $(e.target)
+                let url = file_element.parent().parent().attr('data-url')
+                if (!!url) {
+                    let parent = file_element.parent()
+                    parent.checkbox('check')
+                    let checkbox = file_element.siblings().first()
+                    self.github_url = url
+                    $('.file-label').removeClass('selected-file')
+                    file_element.addClass('selected-file')
+                }
+            })
+        }
 
         self.github_request = (url, done_function) => {
             $.ajax({
@@ -427,8 +432,19 @@
                     }
                 } else {
                     data["github_repo_name"] = $(self.refs.github_repo).dropdown('get text')
-                    data["github_branch_name"] = $(self.refs.github_branch).dropdown('get text')
-                    data["github_commit_hash"] = $(self.refs.github_commit_hash).dropdown('get text')
+                    let branch_name = $(self.refs.github_branch).dropdown('get text')
+                    if (branch_name !== 'Branch (Optional') {
+                        data["github_branch_name"] = branch_name
+                    } else {
+                        data["github_branch_name"] = null
+                    }
+
+                    let commit_hash = $(self.refs.github_commit_hash).dropdown('get text')
+                    if (commit_hash !== 'Commit (Optional)') {
+                        data["github_commit_hash"] = commit_hash
+                    } else {
+                        data["github_commit_hash"] = null
+                    }
                 }
 
                 data["github_url"] = self.github_url
@@ -508,6 +524,7 @@
                             self.github_repositories = repo_data
                             self.update()
                         })
+                        self.update_dropdowns_and_checkboxes()
                     })
                     .fail(function (error) {
                         toastr.error("Error fetching user: " + error.statusText)
@@ -519,4 +536,4 @@
             }
         }
     </script>
-</submit-homework-github>
+</submit-homework>

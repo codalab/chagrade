@@ -48,15 +48,15 @@
             let c_github_ref = 'master'
             let p_github_ref = 'master'
 
-            if (!!self.opts.c_github_commit_hash && self.opts.c_github_commit_hash !== 'Commit') {
+            if (!!self.opts.c_github_commit_hash && self.contains_only_hash_characters(self.opts.c_github_commit_hash)) {
                 c_github_ref = self.opts.c_github_commit_hash
-            } else if (!!self.opts.c_github_branch_name && self.opts.c_github_branch_name !== 'Branch') {
+            } else if (!!self.opts.c_github_branch_name && !self.opts.c_github_branch_name.includes('Branch')) {
                 c_github_ref = self.opts.c_github_branch_name
             }
 
-            if (!!self.opts.p_github_commit_hash && self.opts.p_github_commit_hash !== 'Commit') {
+            if (!!self.opts.p_github_commit_hash && self.contains_only_hash_characters(self.opts.p_github_commit_hash)) {
                 p_github_ref = self.opts.p_github_commit_hash
-            } else if (!!self.opts.p_github_branch_name && self.opts.p_github_branch_name !== 'Branch') {
+            } else if (!!self.opts.p_github_branch_name && !self.opts.c_github_branch_name.includes('Branch')) {
                 p_github_ref = self.opts.p_github_branch_name
             }
 
@@ -68,6 +68,17 @@
                     self.diff_request(p_github_ref, c_github_ref)
                 })
             }
+        }
+
+        self.contains_only_hash_characters = function (input_string) {
+            let possible_hash_characters = '#abcdefABCDEF0123456789'
+
+            for (let i = 0; i < input_string.length; i++) {
+                if (!possible_hash_characters.includes(input_string[i])) {
+                    return false
+                }
+            }
+            return true
         }
     </script>
     <style>

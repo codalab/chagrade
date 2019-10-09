@@ -3,9 +3,9 @@
 
         <a if="{ submission.github_url }" class="ui tiny black button" href="{ submission.github_url }">Submission File</a>
         <p>Submitted: { format_date(submission.created) }</p>
-        <p if="{ !!submission.commit_hash && submission.commit_hash !== 'Commit' }">Commit hash: { submission.commit_hash.slice(0,6) }</p>
+        <p if="{ !!submission.commit_hash && submission.commit_hash !== 'Commit (Optional)' }">Commit hash: { submission.commit_hash.slice(0,6) }</p>
         <p if="{ submission.github_repo_name }">Repository Name: { submission.github_repo_name }</p>
-        <p if="{ !!submission.github_branch_name && submission.github_branch_name !== 'Branch' }">Branch Name: { submission.github_branch_name }</p>
+        <p if="{ !!submission.github_branch_name && !submission.github_branch_name.includes('Branch') }">Branch Name: { submission.github_branch_name }</p>
 
         <h4>Custom Questions</h4>
         <div class="ui relaxed celled list">

@@ -106,12 +106,12 @@
                                                                 <a class="ui mini blue button" href="{% url "homework:submission_detail" submission_pk=submission.pk %}">Details</a>
                                                             </td>
                                                             <td>
-                                                                {% if submission.github_branch_name and submission.github_branch_name != "Branch" %}
+                                                                {% if submission.github_branch_name and submission.github_branch_name != "Branch (Optional)" and submission.github_branch_name != 'Branch' %}
                                                                     {{ submission.github_branch_name }}
-                                                                {% elif submission.github_commit_hash and submission.github_commit_hash != "Commit" %}
+                                                                {% elif submission.github_commit_hash and submission.github_commit_hash != "Commit (Optional)" and submission.github_commit_hash != "Commit" %}
                                                                     {{ submission.github_commit_hash|slice:'7' }}
                                                                 {% else %}
-                                                                    Master
+                                                                    master
                                                                 {% endif %}
                                                             </td>
                                                             {% with previous_submission=submissions|next:forloop.counter0 %}
