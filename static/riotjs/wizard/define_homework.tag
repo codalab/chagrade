@@ -1,5 +1,16 @@
 <define-homework>
 
+    <style>
+        textarea {
+            resize: none !important;
+            overflow: hidden;
+            height: 3em;
+            font-weight: bold;
+            font-size: 1.2em !important;
+        }
+    </style>
+
+
     <form class="ui form">
         <!-- Important information -->
         <div class="fields">
@@ -28,7 +39,7 @@
         </div>
 
         <div class="fields">
-            <div class="four wide field">
+            <div class="eight wide field">
                 <label>Custom Questions Only (No competition):</label>
                 <input class="ui checkbox" type="checkbox" name="questions_only" ref="questions_only"
                        checked="{definition.questions_only}" onclick="{ update_questions_only }">
@@ -145,21 +156,21 @@
 
             <div style="margin-top: 2.5vh; margin-bottom: 0.5vh;" each="{question, index in questions}">
                 <h4 style="margin-bottom: 2.5vh" class="ui dividing header">Question {index + 1}</h4>
-                <div class="three inline fields">
-                    <div class="seven wide inline field">
+                <div class="ui three fields">
+                    <div class="required inline field">
                         <label>Question:</label>
+                        <textarea type="text" name="{'question' + '_question_' + index}" rows="1"
+                                  ref="{'question' + '_question_' + index}" value="{question.question}"> </textarea>
                         <input type="hidden" name="{'question' + '_id_' + index}" ref="{'question' + '_id_' + index}"
                                value="{question.id}">
-                        <input type="text" name="{'question' + '_question_' + index}" maxlength="200"
-                               ref="{'question' + '_question_' + index}" value="{question.question}">
                     </div>
 
-                    <div class="ui field">
+                    <div class="ui required field">
                         <label>Type:</label>
                         <div class="ui selection dropdown" ref="{'selection_dropdown_' + index}">
                             <input type="hidden" name="type" ref="asdfs">
                             <div class="default text">Type</div>
-                            <i class="dropdown icon"></i>
+                            <i class="dropdown icon"> </i>
                             <div class="menu">
                                 <div class="item" data-value="MS">Multiple Select</div>
                                 <div class="item" data-value="SS">Single Select</div>
@@ -168,7 +179,7 @@
                         </div>
                     </div>
 
-                    <div class="six wide inline field">
+                    <div class="field">
                         <a onclick="{remove_question.bind(this, index)}" class="ui red button">X</a>
                     </div>
                 </div>
@@ -251,6 +262,7 @@
             } else {
                 self.update_teams()
             }
+
 
             $('.ui.accordion')
                 .accordion()
@@ -455,6 +467,15 @@
                         $(self.refs['selection_dropdown_' + i]).dropdown('set selected', question.type)
                         console.info('updated', question)
                     }
+
+                    let textareas = $('textarea')
+
+                    $('textarea').outerHeight(38).outerHeight(this.scrollHeight); // 38 or '1em' -min-height
+                    console.info('outside', $('textarea').element)
+                    $(document).on('input', 'textarea', function () {
+                        console.info('inside', this)
+                        $(this).outerHeight(38).outerHeight(this.scrollHeight); // 38 or '1em' -min-height
+                    });
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching definition: " + error.statusText)
