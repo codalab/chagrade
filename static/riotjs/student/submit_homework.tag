@@ -510,6 +510,7 @@
                     if (self.github_active) {
                         $('.ui.checkbox').checkbox()
                     }
+                    self.update_dropdowns_and_checkboxes()
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching definition: " + error.statusText)
