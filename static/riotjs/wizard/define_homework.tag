@@ -5,8 +5,11 @@
             resize: none !important;
             overflow: hidden;
             height: 3em;
-            font-weight: bold;
-            font-size: 1.2em !important;
+            font-size: 1.0em !important;
+        }
+
+        .delete-button {
+            cursor: pointer;
         }
     </style>
 
@@ -156,8 +159,8 @@
 
             <div style="margin-top: 2.5vh; margin-bottom: 0.5vh;" each="{question, index in questions}">
                 <h4 style="margin-bottom: 2.5vh" class="ui dividing header">Question {index + 1}</h4>
-                <div class="ui three fields">
-                    <div class="required inline field">
+                <div class="ui four inline fields">
+                    <div class="required six wide field">
                         <label>Question:</label>
                         <textarea type="text" name="{'question' + '_question_' + index}" rows="1"
                                   ref="{'question' + '_question_' + index}" value="{question.question}"> </textarea>
@@ -165,7 +168,9 @@
                                value="{question.id}">
                     </div>
 
-                    <div class="ui required field">
+                    <div class="ui four wide field"></div>
+
+                    <div class="ui four wide required field">
                         <label>Type:</label>
                         <div class="ui selection dropdown" ref="{'selection_dropdown_' + index}">
                             <input type="hidden" name="type" ref="asdfs">
@@ -179,24 +184,31 @@
                         </div>
                     </div>
 
-                    <div class="field">
-                        <a onclick="{remove_question.bind(this, index)}" class="ui red button">X</a>
+                    <div class="ui one wide field">
+                        <a onclick="{remove_question.bind(this, index)}" class="delete-button">
+                            <i class="ui large red icon trash alternate outline"> </i>
+                        </a>
                     </div>
                 </div>
 
-                <div if="{question.type === 'MS' || question.type === 'SS'}" each="{answer_candidate, candidate_index in question.answer_candidates}" class="two inline fields">
+                <div if="{ question.type === 'MS' || question.type === 'SS' }" each="{answer_candidate, candidate_index in question.answer_candidates}" class="two inline fields">
                     <div class="six wide inline field">
-                        <label><i class="ui circle outline icon"></i></label>
+                        <label>
+                            <i if="{ question.type === 'MS' }" class="ui grey square icon"> </i>
+                            <i if="{ question.type === 'SS' }" class="ui grey circle icon"> </i>
+                        </label>
                         <input type="text" name="{'question' + '_answer_' + index}" maxlength="200" placeholder="Option {candidate_index + 1}"
                                ref="{'answer_candidate_' + index + '_' + candidate_index}" value="{answer_candidate}" onkeypress="{ () => focus_next_input(event, index, candidate_index)}" onkeyup="{ () => update_answer_candidate_text(event, index, candidate_index)}">
                     </div>
                     <div class="six wide inline field">
-                        <a onclick="{remove_answer_candidate.bind(this, index, candidate_index)}" class="ui red button">X</a>
+                        <a onclick="{remove_answer_candidate.bind(this, index, candidate_index)}" class="delete-button">
+                            <i class="ui grey trash alternate outline icon"> </i>
+                        </a>
                     </div>
                 </div>
 
-                <button if="{question.type === 'MS' || question.type === 'SS'}" class="ui basic icon button add-answer-candidate" onclick="{ () => add_answer_candidate(event, index) }" ref="{'add_answer_candidate_button_' + index}">
-                    <i class="big plus square outline icon"></i>
+                <button if="{question.type === 'MS' || question.type === 'SS'}" class="ui basic green button add-answer-candidate" onclick="{ () => add_answer_candidate(event, index) }" ref="{'add_answer_candidate_button_' + index}">
+                    <i class="green plus icon"> </i> Add answer candidate
                 </button>
 
             </div>
@@ -233,7 +245,9 @@
                                ref="{'criteria' + '_upper_range_' + index}" value="{criteria.upper_range || 10}">
                     </div>
                     <div class="four wide inline field">
-                        <a onclick="{remove_criteria.bind(this, index)}" class="ui red button">X</a>
+                        <a onclick="{remove_criteria.bind(this, index)}" class="delete-button">
+                            <i class="ui large red trash alternate outline icon"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -246,6 +260,7 @@
 
         <span><a onclick="{submit_form}" class="ui green button">Submit</a><a onclick="{cancel_button}"
                                                                               class="ui red button">Cancel</a></span>
+        <div class="ui error message"></div>
 
     </form>
 
@@ -287,6 +302,7 @@
                 position: 'top left',
             });
 
+
         })
 
         self.focus_next_input = function (event, question_index, candidate_index) {
@@ -326,7 +342,6 @@
                 }
                 self.questions.splice(index, 1)
                 self.update()
-                console.info('questions', self.questions)
 
                 self.update_dropdowns()
             }
@@ -382,7 +397,6 @@
                         }
                     }
                 })
-            console.info('questions', self.questions)
             self.update()
         }
 
@@ -400,8 +414,6 @@
             if (question.hasOwnProperty('answer_candidates')) {
                 question.answer_candidates.splice(candidate_index, 1)
             }
-            console.log(self.questions)
-            console.log(question)
             self.update()
         }
 
@@ -441,7 +453,6 @@
                         })
                     })
 
-                    console.log('new')
 
                     self.update({
                         definition: data,
@@ -454,8 +465,11 @@
                         position: 'top left',
                     })
 
-                    console.log(data)
+
                     self.update_dropdowns()
+
+                    let fields = {}
+
                     for (let i = 0; i < self.questions.length; i++) {
                         let question = self.questions[i]
                        // if (question.type === 'TX') {
@@ -465,17 +479,36 @@
                             self.questions[i].answer_candidates = question.candidate_answers
                         }
                         $(self.refs['selection_dropdown_' + i]).dropdown('set selected', question.type)
-                        console.info('updated', question)
+
+                        let field = {}
+                        field.rules = [
+                            {
+                                type: 'minLength[1]',
+                                prompt: 'Question ' + (i + 1) + ' must not be empty.',
+                            }
+                        ]
+                        fields['question_question_' + i] = field
                     }
 
-                    let textareas = $('textarea')
 
-                    $('textarea').outerHeight(38).outerHeight(this.scrollHeight); // 38 or '1em' -min-height
-                    console.info('outside', $('textarea').element)
+                    $('.ui.form').form({
+                        fields: fields,
+                    })
+
                     $(document).on('input', 'textarea', function () {
-                        console.info('inside', this)
                         $(this).outerHeight(38).outerHeight(this.scrollHeight); // 38 or '1em' -min-height
                     });
+
+                    let textareas = $('textarea')
+                    _.forEach(textareas, textarea => {
+                        let event = new Event('input', {
+                            'bubbles': true,
+                            'cancelable': true
+                        });
+                        textarea.dispatchEvent(event)
+
+                    })
+
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching definition: " + error.statusText)
@@ -522,8 +555,13 @@
         }
 
         self.submit_form = function () {
+            let form = $('.ui.form')
+            form.form('validate form')
 
             //self.submit_team_changes()
+            if (!form.form('is valid')) {
+                return
+            }
 
             var obj_data = {
                 "klass": KLASS,
@@ -619,7 +657,6 @@
                         if (self.refs["team_" + team.id + "_challenge_url"].dataset.customChallengeId !== undefined) {
                             temp_data['id'] = self.refs["team_" + team.id + "_challenge_url"].dataset.customChallengeId
                         }
-                        //console.log(temp_data)
                         obj_data['custom_challenge_urls'].push(temp_data)
                     }
                 })
