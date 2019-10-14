@@ -129,6 +129,7 @@
         </div>
 
         <img class="logo" onclick="location.href='/'" alt="chagrade_logo" src="{% static 'images/chagrade_logo.png' %}">
+        <div class="ui title" style="position: absolute; font-size: 5em; margin-left: 40%; margin-top: -2%; color: white;">STAGING</div>
     </div>
 
 </header>
@@ -181,7 +182,7 @@
     {% if grade %}
         var GRADE = {{ grade.pk }}
     {% endif %}
-    {% if student and definition and definition.team_based %}
+    {% if student and definition and definition.team_based and student.team %}
         console.log("Definition is team based")
         var USER_TEAM = {{ student.team.pk }}
     {% endif %}
