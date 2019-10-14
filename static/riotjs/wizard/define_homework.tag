@@ -173,7 +173,7 @@
                     <div class="ui four wide required field">
                         <label>Type:</label>
                         <div class="ui selection dropdown" ref="{'selection_dropdown_' + index}">
-                            <input type="hidden" name="type" ref="asdfs">
+                            <input type="hidden" name="{ 'question_type_' + index }">
                             <div class="default text">Type</div>
                             <i class="dropdown icon"> </i>
                             <div class="menu">
@@ -348,6 +348,8 @@
         }
 
         self.update_dropdowns = function () {
+            let fields = {}
+
             for(let question_index = 0; question_index < self.questions.length; question_index++) {
                 $(self.refs['selection_dropdown_' + question_index])
                     .dropdown({
@@ -369,8 +371,31 @@
                             }
                         }
                     })
+
+                let question_field = {}
+                question_field.rules = [
+                    {
+                        type: 'minLength[1]',
+                        prompt: 'Question ' + (question_index + 1) + ' must not be empty.',
+                    }
+                ]
+                fields['question_question_' + question_index] = question_field
+
+                let type_field = {}
+                type_field.rules = [
+                    {
+                        type: 'minLength[2]',
+                        prompt: 'Question ' + (question_index + 1) + ' type selection must not be empty.',
+                    }
+                ]
+                fields['question_type_' + question_index] = type_field
             }
+
+            $('.ui.form').form({
+                fields: fields,
+            })
         }
+
 
         self.add_question = function (question_index) {
             self.questions[question_index] = {
@@ -398,6 +423,7 @@
                     }
                 })
             self.update()
+            self.update_dropdowns()
         }
 
         self.update_answer_candidate_text = function (event, index, candidate_index) {
@@ -468,32 +494,15 @@
 
                     self.update_dropdowns()
 
-                    let fields = {}
-
                     for (let i = 0; i < self.questions.length; i++) {
                         let question = self.questions[i]
-                       // if (question.type === 'TX') {
-                       //     self.questions[i].text = question.candidate_answers
-                       // } else
                         if (question.type === 'SS' || question.type === 'MS') {
                             self.questions[i].answer_candidates = question.candidate_answers
                         }
                         $(self.refs['selection_dropdown_' + i]).dropdown('set selected', question.type)
 
-                        let field = {}
-                        field.rules = [
-                            {
-                                type: 'minLength[1]',
-                                prompt: 'Question ' + (i + 1) + ' must not be empty.',
-                            }
-                        ]
-                        fields['question_question_' + i] = field
                     }
 
-
-                    $('.ui.form').form({
-                        fields: fields,
-                    })
 
                     $(document).on('input', 'textarea', function () {
                         $(this).outerHeight(38).outerHeight(this.scrollHeight); // 38 or '1em' -min-height
