@@ -71,6 +71,11 @@ class RequestResetView(TemplateView):
                 print("Could not create password reset request for non-existent user")
         return HttpResponseRedirect(reverse_lazy('index'))
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Home%20Page/Password%20Reset.md'
+        return context
+
 
 class ResetUserPasswordByEmailKeyView(TemplateView):
     template_name = 'profiles/email_password_reset.html'
@@ -175,7 +180,7 @@ class SignUpView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = ''
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Home%20Page/Sign%20Up.md'
         return context
 
 
