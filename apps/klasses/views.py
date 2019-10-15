@@ -32,6 +32,11 @@ class CreationView(LoginRequiredMixin, FormView):
         new_obj.save()
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Create%20Class.md'
+        return context
+
 
 class EditView(LoginRequiredMixin, UpdateView):
     template_name = 'klasses/klass_form.html'
@@ -58,6 +63,7 @@ class OverView(LoginRequiredMixin, DetailView):
             raise Http404
 
         context['completely_graded'] = klass.homeworks_completely_graded()
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Class%20Overview.md'
         return context
 
 
@@ -72,6 +78,7 @@ class EnrollmentView(LoginRequiredMixin, WizardMixin, TemplateView):
             raise Http404
 
         context['completely_graded'] = klass.homeworks_completely_graded()
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Enroll%20Students.md'
         return context
 
 
@@ -86,6 +93,7 @@ class DefineHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
             raise Http404
 
         context['completely_graded'] = klass.homeworks_completely_graded()
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Define%20Homework/Define%20Homework.md'
         return context
 
 
@@ -100,6 +108,7 @@ class GradeHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
             raise Http404
 
         context['completely_graded'] = klass.homeworks_completely_graded()
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Grade%20Homework/Grade%20Homework.md'
         return context
 
 
@@ -108,6 +117,7 @@ class HomeworkAnswersView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Grade%20Homework/Homework%20Answers.md'
         try:
             klass_pk = self.kwargs.get('klass_pk')
             definition_pk = self.kwargs.get('definition_pk')
@@ -162,6 +172,7 @@ class ActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
             raise Http404
 
         context['completely_graded'] = klass.homeworks_completely_graded()
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Activate%20Class.md'
         return context
 
 

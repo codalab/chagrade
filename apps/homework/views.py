@@ -14,6 +14,12 @@ from apps.klasses.models import Klass
 class DefinitionFormView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'homework/forms/define_homework.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context[
+            'wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Define%20Homework/Create%20and%20Edit%20Homework.md'
+        return context
+
 
 class DefinitionEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'homework/forms/define_homework.html'
@@ -22,6 +28,7 @@ class DefinitionEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
         try:
             context = super().get_context_data(**kwargs)
             context['definition'] = Definition.objects.get(pk=self.kwargs.get('definition_pk'))
+            context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Define%20Homework/Create%20and%20Edit%20Homework.md'
             return context
         except ObjectDoesNotExist:
             raise Http404("Failed to retrieve definition")
@@ -32,6 +39,7 @@ class GradeFormView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(GradeFormView, self).get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Grade%20Homework/Grade%20Submission.md'
         try:
             context['submission'] = Submission.objects.get(pk=kwargs.get('submission_pk'))
             context['definition'] = context['submission'].definition
@@ -45,6 +53,7 @@ class GradeEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Grade%20Homework/Grade%20Submission.md'
         try:
             context['submission'] = Submission.objects.get(pk=self.kwargs.get('submission_pk'))
             context['definition'] = context['submission'].definition
