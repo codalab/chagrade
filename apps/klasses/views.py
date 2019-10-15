@@ -49,6 +49,11 @@ class EditView(LoginRequiredMixin, UpdateView):
         if not self.success_url:
             return reverse_lazy('klasses:klass_details', kwargs={'klass_pk': self.object.pk})
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Create%20Class.md'
+        return context
+
 
 class OverView(LoginRequiredMixin, DetailView):
     template_name = 'klasses/wizard/overview.html'

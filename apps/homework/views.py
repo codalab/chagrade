@@ -206,6 +206,7 @@ class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, use_github=False, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Student%20View/Homework/Submissions/Submit%20Homework.md'
         try:
             klass = Klass.objects.get(pk=self.kwargs.get('klass_pk'))
             submission = Submission.objects.get(pk=self.kwargs.get('submission_pk'))
