@@ -129,6 +129,11 @@ class LoginView(FormView):
         login(self.request, user, backend="apps.profiles.auth_backends.EmailBackend")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Home%20Page/Log%20In.md'
+        return context
+
 
 class InstructorProfileCreationView(LoginRequiredMixin, FormView):
     template_name = 'profiles/instructor_signup.html'
