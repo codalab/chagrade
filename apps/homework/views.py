@@ -35,7 +35,7 @@ class GradeFormView(LoginRequiredMixin, WizardMixin, TemplateView):
         try:
             context['submission'] = Submission.objects.get(pk=kwargs.get('submission_pk'))
             context['definition'] = context['submission'].definition
-        except:
+        except ObjectDoesNotExist:
             raise Http404("Could not find submission!")
         return context
 
@@ -49,7 +49,7 @@ class GradeEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
             context['submission'] = Submission.objects.get(pk=self.kwargs.get('submission_pk'))
             context['definition'] = context['submission'].definition
             context['grade'] = Grade.objects.get(pk=self.kwargs.get('grade_pk'))
-        except:
+        except ObjectDoesNotExist:
             raise Http404("Could not find object!")
         return context
 

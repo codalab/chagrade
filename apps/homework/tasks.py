@@ -103,6 +103,7 @@ def post_submission(submission_pk):
         new_tracker = SubmissionTracker.objects.create(
             submission=submission,
             remote_phase=phase_id,
-            remote_id=result['id']
+            remote_id=result['id'],
+            stored_status='Submitted'
         )
     submission.submitted_to_challenge = True

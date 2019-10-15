@@ -17,15 +17,13 @@
                     <div class="item">Username: {{ submission.creator.user.username }}</div>
                     <div class="item">Email: {{ submission.creator.user.email }}</div>
                     <div class="item">Team Leader: {{ submission.team.leader }}</div>
-                    {% for tracker in submission.tracked_submissions.all %}
-                        {% with tracker.get_remote_submission_info as submission_info %}
-                            {% if submission_info %}
-                                <div class="item">Submission Info: ID - {{ tracker.remote_id }}; Score - {{ submission_info|get_item:'score' }}; Status - {{ submission_info|get_item:'status' }}; Phase - {{ tracker.remote_phase }}</div>
-                            {% else %}
-                                <div class="item">Waiting...</div>
-                            {% endif %}
-                        {% endwith %}
-                    {% endfor %}
+                    {% if submission.tracked_submissions.all %}
+                        {% for tracker in submission.tracked_submissions.all %}
+                            <div class="item">Submission Info: ID - {{ tracker.remote_id }}; Score - {{ tracker.score }}; Status - {{ tracker.status }}; Phase - {{ tracker.remote_phase }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="item">No Submission</div>
+                    {% endif %}
                 </div>
 
                 {% if not definition.questions_only %}
