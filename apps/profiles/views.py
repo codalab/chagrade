@@ -150,6 +150,11 @@ class InstructorProfileCreationView(LoginRequiredMixin, FormView):
             self.request.user.save()
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = ''
+        return context
+
 
 class InstructorOverView(LoginRequiredMixin, TemplateView):
     template_name = 'instructor/overview.html'
@@ -161,13 +166,28 @@ class InstructorOverView(LoginRequiredMixin, TemplateView):
         else:
             return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20List.md'
+        return context
+
 
 class StudentOverView(LoginRequiredMixin, TemplateView):
     template_name = 'student/overview.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Student%20View/Your%20Classes.md'
+        return context
+
 
 class MyProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'profiles/my_profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Profile/My%20Profile.md'
+        return context
 
 
 class SignUpView(FormView):

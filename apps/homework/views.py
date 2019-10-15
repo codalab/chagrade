@@ -60,6 +60,7 @@ class HomeworkOverView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(HomeworkOverView, self).get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Student%20View/Homework/Overview.md'
         klass_pk = self.kwargs.get('klass_pk')
         try:
             klass = Klass.objects.get(pk=klass_pk)
@@ -74,6 +75,7 @@ class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
 
     def get_context_data(self, **kwargs):
         context = super(SubmissionDetailView, self).get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Student%20View/Homework/Submissions/Submission%20Detail.md'
         submission_pk = self.kwargs.get('submission_pk')
         try:
             submission = Submission.objects.get(pk=submission_pk)
@@ -108,6 +110,7 @@ class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SubmissionListView, self).get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Student%20View/Homework/Submissions/Submission%20List.md'
         definition_pk = self.kwargs.get('definition_pk')
         submissions = None
         try:
@@ -168,6 +171,7 @@ class SubmissionFormView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, use_github=False, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Student%20View/Homework/Submissions/Submit%20Homework.md'
         try:
             if use_github and self.request.user.github_info:
                 context['github'] = True
@@ -186,6 +190,7 @@ class SubmissionFormView(LoginRequiredMixin, TemplateView):
         except ObjectDoesNotExist:
             raise Http404('User not part of klass.')
         return context
+
 
 class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
     template_name = 'homework/forms/submit.html'
