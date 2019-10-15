@@ -173,6 +173,11 @@ class SignUpView(FormView):
         login(self.request, user)
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = ''
+        return context
+
 
 class PasswordRequestsOverView(LoginRequiredMixin, TemplateView):
     template_name = 'profiles/password_reset_overview.html'
