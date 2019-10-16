@@ -89,10 +89,13 @@ class Klass(models.Model):
             if hw.team_based:
                 for team in self.teams.all():
                     team_graded = False
-                    for submission in Submission.objects.filter(team=team, definition=hw):
+                    submissions = Submission.objects.filter(team=team, definition=hw)
+                    for submission in submissions:
                         if Grade.objects.filter(submission=submission, published=True):
                             team_graded = True
                             break
+                    if not submissions:
+                        team_graded = True
                     if not team_graded:
                         return False
                 return True
@@ -100,10 +103,13 @@ class Klass(models.Model):
             else:
                 for student in self.enrolled_students.all():
                     student_graded = False
-                    for submission in Submission.objects.filter(creator=student, definition=hw):
+                    submissions = Submission.objects.filter(creator=student, definition=hw)
+                    for submission in submissions:
                         if Grade.objects.filter(submission=submission, published=True):
                             student_graded = True
                             break
+                    if not submissions:
+                        student_graded = True
                     if not student_graded:
                         return False
                 return True
