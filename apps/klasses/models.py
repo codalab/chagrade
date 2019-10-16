@@ -91,6 +91,8 @@ class Klass(models.Model):
                     team_graded = False
                     submissions = Submission.objects.filter(team=team, definition=hw)
                     for submission in submissions:
+                        if Grade.objects.filter(submission=submission, published=False):
+                            return False
                         if Grade.objects.filter(submission=submission, published=True):
                             team_graded = True
                             break
@@ -105,6 +107,8 @@ class Klass(models.Model):
                     student_graded = False
                     submissions = Submission.objects.filter(creator=student, definition=hw)
                     for submission in submissions:
+                        if Grade.objects.filter(submission=submission, published=False):
+                            return False
                         if Grade.objects.filter(submission=submission, published=True):
                             student_graded = True
                             break
