@@ -391,10 +391,6 @@
             }
             console.info('question_answers', question_answers)
 
-            if (!self.github_url && !self.definition.questions_only) {
-                toastr.error("Please select a file before submitting.")
-                return
-            }
 
             if (window.SUBMISSION !== undefined) {
                 var result = confirm("There is already an existing submission. Submitting again will overwrite the previous submission and any previously attached grades will be lost. Continue?")
@@ -448,6 +444,11 @@
                 }
 
                 data["github_url"] = self.github_url
+            }
+
+            if (!self.github_url && !self.definition.questions_only) {
+                toastr.error("Please select a file before submitting.")
+                return
             }
 
             if (window.USER_TEAM !== undefined) {
