@@ -389,7 +389,6 @@
                 }
                 question_answers.push(answer)
             }
-            console.info('question_answers', question_answers)
 
 
             if (window.SUBMISSION !== undefined) {
@@ -505,7 +504,6 @@
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
                     self.definition = data
-                    console.info('questions', data.custom_questions)
                     self.update()
 
                     if (self.github_active) {
