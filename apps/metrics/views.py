@@ -15,7 +15,7 @@ class AdminMetricsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(AdminMetricsView, self).get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Admin%20Features/Metrics.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Admin-Metrics'
         return context
 
 
@@ -37,7 +37,7 @@ class KlassMetricsView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(KlassMetricsView, self).get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Class%20Metrics.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Instructor-Metrics'
         klass_pk = self.kwargs['klass_pk']
         try:
             klass = Klass.objects.get(pk=klass_pk)

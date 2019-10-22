@@ -38,7 +38,7 @@
     </style>
 
     <div class="ui form" style="margin-bottom: 2.5vh;">
-        <h1 class="ui dividing header">Submission Form</h1>
+        <h1 class="ui dividing header">Submission Form for { definition.name } </h1>
 
         <div if="{ !definition.questions_only && !github_active }" class="fields">
             <div class="sixteen wide field">
@@ -178,14 +178,14 @@
             <div if="{ question.type === 'TX' }" class="sixteen wide field">
                 <input name="{'question_id_' + index}" ref="{'question_id_' + index}" type="hidden"
                        value="{question.id}">
-                <label>{question.question}</label>
+                <label><pre>{question.question}</pre></label>
 
                 <textarea data-question-id="" name="{'question_answer_' + index}" ref="{'question_answer_' + question.id}"
                           type="text" value="{question.prev_answer || ''}" rows="2"> </textarea>
             </div>
 
             <div if="{ question.type === 'SS' }" class="grouped fields">
-                <label>{ question.question }</label>
+                <label><pre>{question.question}</pre></label>
                 <div each="{ candidate_answer, candidate_index in question.candidate_answers }" class="field">
                     <div class="ui radio checkbox" ref="{'question_answer_' + question.id + '_' + candidate_index }">
                         <input type="radio" name="{question.id}" tabindex="0" class="hidden">
@@ -195,7 +195,7 @@
             </div>
 
             <div if="{ question.type === 'MS' }" class="grouped fields">
-                <label>{ question.question }</label>
+                <label><pre>{question.question}</pre></label>
                 <div each="{ candidate_answer, candidate_index in question.candidate_answers }" class="inline field">
                     <div class="ui checkbox" ref="{'question_answer_' + question.id + '_' + candidate_index }">
                         <input type="checkbox" tabindex="0" class="hidden">
@@ -504,6 +504,7 @@
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
                     self.definition = data
+                    console.info('quest', data.custom_questions)
                     self.update()
 
                     if (self.github_active) {

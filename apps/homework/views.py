@@ -17,7 +17,7 @@ class DefinitionFormView(LoginRequiredMixin, WizardMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context[
-            'wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Define%20Homework/Create%20and%20Edit%20Homework.md'
+            'wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Create-and-Edit-Homework'
         return context
 
 
@@ -28,7 +28,7 @@ class DefinitionEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
         try:
             context = super().get_context_data(**kwargs)
             context['definition'] = Definition.objects.get(pk=self.kwargs.get('definition_pk'))
-            context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Define%20Homework/Create%20and%20Edit%20Homework.md'
+            context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Create-and-Edit-Homework'
             return context
         except ObjectDoesNotExist:
             raise Http404("Failed to retrieve definition")
@@ -39,7 +39,7 @@ class GradeFormView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(GradeFormView, self).get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Grade%20Homework/Grade%20Submission.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Grade-Submission'
         try:
             context['submission'] = Submission.objects.get(pk=kwargs.get('submission_pk'))
             context['definition'] = context['submission'].definition
@@ -53,7 +53,7 @@ class GradeEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Grade%20Homework/Grade%20Submission.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Grade-Submission'
         try:
             context['submission'] = Submission.objects.get(pk=self.kwargs.get('submission_pk'))
             context['definition'] = context['submission'].definition
@@ -69,7 +69,7 @@ class HomeworkOverView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(HomeworkOverView, self).get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Student%20View/Homework/Overview.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Homework-Overview'
         klass_pk = self.kwargs.get('klass_pk')
         try:
             klass = Klass.objects.get(pk=klass_pk)
@@ -84,7 +84,7 @@ class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
 
     def get_context_data(self, **kwargs):
         context = super(SubmissionDetailView, self).get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Student%20View/Homework/Submissions/Submission%20Detail.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Submission-Detail'
         submission_pk = self.kwargs.get('submission_pk')
         try:
             submission = Submission.objects.get(pk=submission_pk)
@@ -119,7 +119,7 @@ class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SubmissionListView, self).get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Student%20View/Homework/Submissions/Submission%20List.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Submission-List'
         definition_pk = self.kwargs.get('definition_pk')
         submissions = None
         try:
@@ -180,7 +180,7 @@ class SubmissionFormView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, use_github=False, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Student%20View/Homework/Submissions/Submit%20Homework.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Submit-Homework'
         try:
             if use_github and self.request.user.github_info:
                 context['github'] = True
@@ -206,7 +206,7 @@ class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, use_github=False, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Student%20View/Homework/Submissions/Submit%20Homework.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Submit-Homework'
         try:
             klass = Klass.objects.get(pk=self.kwargs.get('klass_pk'))
             submission = Submission.objects.get(pk=self.kwargs.get('submission_pk'))

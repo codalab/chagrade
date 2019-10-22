@@ -23,7 +23,7 @@
         <div class="row">
         <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
             <div class="fourteen wide column">
-                {% klass_header klass %}
+                {% klass_header %}
 
                 <submit-homework github="{{ github }}" pk="{{ request.user.id }}"></submit-homework>
             </div>

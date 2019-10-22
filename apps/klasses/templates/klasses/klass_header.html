@@ -31,10 +31,15 @@
                             <div class="item">
                                 Description: {{ klass.description }}
                             </div>
+
                             {% if klass.syllabus %}
                                 <div class="item">
                                     <a href="{{ klass.syllabus.url }}">Syllabus</a>
                                 </div>
+                            {% endif %}
+
+                            {% if klass.instructor.user == request.user %}
+                                <a class="ui right floated blue button" style="margin-right: 60px; margin-bottom: 20px;" href="{% url "klasses:edit_klass" klass_pk=klass.pk %}">Edit</a>
                             {% endif %}
                         </ul>
                     </div>

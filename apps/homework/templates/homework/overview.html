@@ -25,7 +25,7 @@
             <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
             <div class="fourteen wide column">
 
-                {% klass_header klass %}
+                {% klass_header %}
 
                 <div class="ui header">Assignments for Class {{ klass.title }}</div>
                 {% for definition in klass.homework_definitions.all %}
@@ -46,15 +46,18 @@
 
                                                 <h4>Due Date: {{ definition.due_date }}</h4>
                                                 <p>{{ definition.description }}</p>
-                                                <a href="{{ definition.challenge_url }}"
-                                                   target="_blank" rel="noopener noreferrer"
-                                                   class="ui blue button">Codalab Challenge</a>
-                                                {% if definition.starting_kit_github_url %}
-                                                    <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">
-                                                        <i class="ui github icon"></i>
-                                                        Starting Kit</a>
-                                                    <br>
+                                                {% if not definition.questions_only %}
+                                                    <a href="{{ definition.challenge_url }}"
+                                                       target="_blank" rel="noopener noreferrer"
+                                                       class="ui blue button">Codalab Challenge</a>
+                                                    {% if definition.starting_kit_github_url %}
+                                                        <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">
+                                                            <i class="ui github icon"></i>
+                                                            Starting Kit</a>
+                                                        <br>
+                                                    {% endif %}
                                                 {% endif %}
+
                                                 {% if definition.team_based %}
                                                     <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
                                                          class="ui basic red label">Graded as teamwork

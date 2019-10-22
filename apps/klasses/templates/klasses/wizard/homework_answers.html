@@ -12,18 +12,22 @@
             <div class="ui fourteen wide column message">
                 <div style="overflow-x: scroll;">
                     <h1>{{ definition.name }}</h1>
-                    <span>
 
-{#                         CHANGE THIS TO THE ANSWERS CSV DOWNLOAD VIEW                              #}
-{#                        <a href="{% url 'homework:get_grades_csv' klass_pk=klass.pk %}" class="ui blue button">Download CSV</a>#}
+                    <span>
                         <a class="ui blue button" href="{% url 'api:homework_answers_CSV' version='v1' klass_pk=klass.pk definition_pk=definition.pk %}?format=csv" download="homework_answers_for_{{ klass.title }}_{{ definition.name }}.csv">Download CSV</a>
                     </span>
+
                     <table style="width: {{ question_quantity_sensitive_width }}%;" class="ui striped celled table">
                         <thead>
                         <tr>
-{#                            <th><div style="width: 200px;">#</div></th>#}
                             <th>#</th>
                             <th>Student Name</th>
+
+                            {% with definition|get_last_submission:instructor_student.user.pk as submission %}
+                                {% with submission.grades.last.get_total_possible as grade %}
+                                    <th>Grade (Out of {{ grade }})</th>
+                                {% endwith %}
+                            {% endwith %}
 
                             {% if definition.team_based %}
                                 <th>Team Name</th>
@@ -34,23 +38,25 @@
                             {% endif %}
 
                             {% for question in definition.custom_questions.all %}
-                                <th>{{ question.question }}</th>
+                                <th><pre>{{ question.question }}</pre></th>
                             {% endfor %}
                         </tr>
                         </thead>
                         <tbody>
-                        {% for student in klass.enrolled_students.all %}
-                            <tr>
-                                <td>
-                                    {{ forloop.counter }}
-                                </td>
+                        <tr class="ui active">
+                            {% with instructor_student as student %}
+                                <td>1</td>
                                 <td>{{ student.user.username }}</td>
 
-                                {% if definition.team_based %}
-                                    <td>{{ student.team.name }}</td>
-                                {% endif %}
-
                                 {% with definition|get_last_submission:student.user.pk as submission %}
+                                    {% with submission.grades.last.get_total_score as grade %}
+                                        <td>{{ grade }}</td>
+                                    {% endwith %}
+
+                                    {% if definition.team_based %}
+                                        <td>{{ student.team.name }}</td>
+                                    {% endif %}
+
                                     {% if not definition.questions_only %}
                                         <td>
                                             {% with submission.tracked_submissions.last as sub_tracker %}
@@ -68,12 +74,61 @@
                                     {% if submission %}
                                         {% for answer in submission.question_answers.all %}
                                             {% if answer.question.type == 'TX' %}
-{#                                                <td class="ui center aligned">#}
                                                 <td>
                                                     <div style="min-width: 450px;">{{ answer.answer|format_json_array }}</div>
                                                 </td>
                                             {% else %}
-{#                                                <td class="ui center aligned">#}
+                                                <td>
+                                                    <div style="min-width: 200px;">{{ answer.answer|format_json_array }}</div>
+                                                </td>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for question in question_quantity_range %}
+                                            <td></td>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endwith %}
+                            {% endwith %}
+                        </tr>
+
+                        {% for student in non_instructor_students %}
+                            <tr>
+                                <td>
+                                    {{ forloop.counter|add:1 }}
+                                </td>
+                                <td>{{ student.user.username }}</td>
+
+                                {% with definition|get_last_submission:student.user.pk as submission %}
+                                    {% with submission.grades.last.get_total_score as grade %}
+                                        <td>{{ grade }}</td>
+                                    {% endwith %}
+
+                                    {% if definition.team_based %}
+                                        <td>{{ student.team.name }}</td>
+                                    {% endif %}
+
+                                    {% if not definition.questions_only %}
+                                        <td>
+                                            {% with submission.tracked_submissions.last as sub_tracker %}
+                                                <div style="width: 150px;">
+                                                    {% if sub_tracker.score %}
+                                                        {{ sub_tracker.score }}
+                                                    {% else %}
+                                                        No Score
+                                                    {% endif %}
+                                                </div>
+                                            {% endwith %}
+                                        </td>
+                                    {% endif %}
+
+                                    {% if submission %}
+                                        {% for answer in submission.question_answers.all %}
+                                            {% if answer.question.type == 'TX' %}
+                                                <td>
+                                                    <div style="min-width: 450px;">{{ answer.answer|format_json_array }}</div>
+                                                </td>
+                                            {% else %}
                                                 <td>
                                                     <div style="min-width: 200px;">{{ answer.answer|format_json_array }}</div>
                                                 </td>

@@ -34,7 +34,7 @@ class CreationView(LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Create%20Class.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Create-Class'
         return context
 
 
@@ -51,7 +51,7 @@ class EditView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Create%20Class.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Create-Class'
         return context
 
 
@@ -68,7 +68,7 @@ class OverView(LoginRequiredMixin, DetailView):
             raise Http404
 
         context['completely_graded'] = klass.homeworks_completely_graded()
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Class%20Overview.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Instructor-Class-Detail'
         return context
 
 
@@ -83,7 +83,7 @@ class EnrollmentView(LoginRequiredMixin, WizardMixin, TemplateView):
             raise Http404
 
         context['completely_graded'] = klass.homeworks_completely_graded()
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Enroll%20Students.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Wizard-Enroll-Students'
         return context
 
 
@@ -98,7 +98,7 @@ class DefineHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
             raise Http404
 
         context['completely_graded'] = klass.homeworks_completely_graded()
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Define%20Homework/Define%20Homework.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Wizard-Homework-List'
         return context
 
 
@@ -113,7 +113,7 @@ class GradeHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
             raise Http404
 
         context['completely_graded'] = klass.homeworks_completely_graded()
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Grade%20Homework/Grade%20Homework.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Wizard-Grade-Homework'
         return context
 
 
@@ -122,9 +122,11 @@ class HomeworkAnswersView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Grade%20Homework/Homework%20Answers.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Homework-Answers'
+        klass_pk = self.kwargs.get('klass_pk')
+        klass = None
         try:
-            klass_pk = self.kwargs.get('klass_pk')
+            klass = Klass.objects.get(pk=klass_pk)
             definition_pk = self.kwargs.get('definition_pk')
             definition = Definition.objects.get(pk=definition_pk)
             context['definition'] = definition
@@ -134,6 +136,13 @@ class HomeworkAnswersView(LoginRequiredMixin, WizardMixin, TemplateView):
 
         except ObjectDoesNotExist:
             raise Http404("Could not find object!")
+
+        try:
+            instructor = klass.instructor
+            context['instructor_student'] = klass.enrolled_students.get(user__pk=instructor.user.pk)
+            context['non_instructor_students'] = klass.enrolled_students.all().exclude(user__pk=instructor.user.pk)
+        except ObjectDoesNotExist:
+            raise Http404("Instructor is not enrolled in class.")
         return context
 
 
@@ -177,7 +186,7 @@ class ActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
             raise Http404
 
         context['completely_graded'] = klass.homeworks_completely_graded()
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20Wizard/Activate%20Class.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Wizard-Activate-Class'
         return context
 
 

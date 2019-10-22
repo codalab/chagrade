@@ -70,6 +70,12 @@
 <header class="center aligned header-container">
     <div id="logo">
         <div class="button-suite">
+            <a class="ui icon button" href="{{ wiki_page_url }}" id="wiki-page-button"
+               target="_blank" rel="noopener noreferrer"
+               data-content="Wiki for this page."
+            >
+                <i class="question mark icon"></i>
+            </a>
             {% if user.is_authenticated %}
                 <span class="ui login-button dropdown button item">
                 <span class="text">
@@ -154,11 +160,6 @@
             <a class="item">
                 Work In Progress - Version 0.1
             </a>
-            <a class="item" href="{{ wiki_page_url }}"
-               target="_blank" rel="noopener noreferrer">
-                <i class="question mark icon"></i>
-                Wiki for this page
-            </a>
         </div>
     </footer>
 </div>
@@ -207,6 +208,8 @@
         particlesJS.load('particles-js', "{% static 'particles/particles.json' %}", function () {
             console.log('callback - particles.js config loaded');
         })
+
+        $('#wiki-page-button').popup()
     });
 
     riot.mount('*')

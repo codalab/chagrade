@@ -23,7 +23,7 @@
         <a class="ui blue button" href="{% url 'profiles:instructor_overview' %}">Back to Instructor Overview</a>
             <div class="fourteen wide column">
 
-                {% klass_header klass %}
+                {% klass_header %}
 
                 {% if object.active %}
                     <a href="{% url "metrics:klass" klass_pk=object.pk %}" class="ui basic blue button">

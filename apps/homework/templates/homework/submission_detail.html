@@ -27,7 +27,7 @@
             <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
             <div class="fourteen wide column">
 
-            {% klass_header klass %}
+            {% klass_header %}
 
                 <div class="ui header">Submission {{ submission.pk }} for homework {{ definition.name }}{% if team %} for team {{ team.name }}{% endif %}</div>
                 {% if definition %}

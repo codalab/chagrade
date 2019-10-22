@@ -58,10 +58,12 @@ class RequestResetView(TemplateView):
                     reset_request_link = reset_request.reset_link
                     html_message = f'Someone has requested you reset your password at {settings.SITE_DOMAIN}.\n' \
                                    f'To reset your password please follow the link below:<br>' \
-                                   f'<a href="{reset_request_link}">{reset_request_link}</a>'
+                                   f'<a href="{reset_request_link}">{reset_request_link}</a><br>' \
+                                   f"If you choose to change your password, it will be <span style='font-weight: bold;'>{user.email.split('@')[0]}</span>."
                     message = f'Someone has requested you reset your password at {settings.SITE_DOMAIN}.\n' \
                               f'To reset your password please follow the link below:<br>' \
-                              f'<a href="{reset_request_link}">{reset_request_link}</a>'
+                              f'<a href="{reset_request_link}">{reset_request_link}</a><br>' \
+                              f"If you choose to change your password, it will be <span style='font-weight: bold;'>{user.email.split('@')[0]}</span>."
                     subject = 'Chagrade: Password Reset Request'
                     send_chagrade_mail(users=[user], subject=subject, message=message, html_message=html_message)
                     print("Sent password reset request link to email")
@@ -69,11 +71,11 @@ class RequestResetView(TemplateView):
                     print("Password reset request already exists")
             except ChaUser.DoesNotExist:
                 print("Could not create password reset request for non-existent user")
-        return HttpResponseRedirect(reverse_lazy('index'))
+        return HttpResponseRedirect(reverse('profiles:request_password_reset', kwargs={'sent_message': 1}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Home%20Page/Password%20Reset.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Password-Reset'
         return context
 
 
@@ -132,7 +134,7 @@ class LoginView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Home%20Page/Log%20In.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Login'
         return context
 
 
@@ -153,7 +155,7 @@ class InstructorProfileCreationView(LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Create%20Instructor.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Create-Instructor'
         return context
 
 
@@ -169,7 +171,7 @@ class InstructorOverView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Instructor%20View/Class%20List.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Instructor-Class-List'
         return context
 
 
@@ -178,7 +180,7 @@ class StudentOverView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Student%20View/Your%20Classes.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Your-Classes'
         return context
 
 
@@ -187,7 +189,7 @@ class MyProfileView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Profile/My%20Profile.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/My-Profile'
         return context
 
 
@@ -206,7 +208,7 @@ class SignUpView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/blob/consolidation/wiki/Home%20Page/Sign%20Up.md'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Sign-Up'
         return context
 
 

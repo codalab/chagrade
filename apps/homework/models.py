@@ -172,6 +172,18 @@ class Grade(models.Model):
             total += criteria_answer.score
         return total, total_possible
 
+    def get_total_possible(self):
+        total_possible = 0
+        for criteria_answer in self.criteria_answers.all():
+            total_possible += criteria_answer.criteria.upper_range
+        return total_possible
+
+    def get_total_score(self):
+        total = 0
+        for criteria_answer in self.criteria_answers.all():
+            total += criteria_answer.score
+        return total
+
     def calculate_grade(self):
         total, total_possible = self.get_total_score_total_possible()
         self.text_grade = f"{total}/{total_possible}"

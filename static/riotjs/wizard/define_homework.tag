@@ -1,20 +1,6 @@
 <define-homework>
 
-    <style>
-        textarea {
-            resize: none !important;
-            overflow: hidden;
-            height: 3em;
-            font-size: 1.0em !important;
-        }
-
-        .delete-button {
-            cursor: pointer;
-        }
-    </style>
-
-
-    <form class="ui form">
+    <form class="ui form" ref="form" onsubmit="{  }">
         <!-- Important information -->
         <div class="fields">
             <div class="three wide field">
@@ -177,9 +163,15 @@
                             <div class="default text">Type</div>
                             <i class="dropdown icon"> </i>
                             <div class="menu">
-                                <div class="item" data-value="MS">Multiple Select</div>
-                                <div class="item" data-value="SS">Single Select</div>
-                                <div class="item" data-value="TX">Text</div>
+                                <div class="item" data-value="MS">
+                                    <i class="ui check square outline icon"></i> Multiple Select
+                                </div>
+                                <div class="item" data-value="SS">
+                                    <i class="ui dot circle outline icon"></i> Single Select
+                                </div>
+                                <div class="item" data-value="TX">
+                                    <i class="ui align left icon"></i> Text
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -278,7 +270,6 @@
                 self.update_teams()
             }
 
-
             $('.ui.accordion')
                 .accordion()
             ;
@@ -303,7 +294,17 @@
             });
 
 
+            $(document).on('submit', 'form', function(e){
+                /* on form submit find the trigger */
+                console.info('submit event', e)
+                if( $(e.delegateTarget.activeElement).not('input, textarea').length == 0 ){
+                    /* if the trigger is not between selectors list, return super false */
+                    e.preventDefault();
+                    return false;
+                }
+            });
         })
+
 
         self.focus_next_input = function (event, question_index, candidate_index) {
             if (event.which === 13) {
@@ -391,7 +392,8 @@
                 fields['question_type_' + question_index] = type_field
             }
 
-            $('.ui.form').form({
+            let form = $(self.refs.form)
+            form.form({
                 fields: fields,
             })
         }
@@ -564,11 +566,12 @@
         }
 
         self.submit_form = function () {
-            let form = $('.ui.form')
+            let form = $(self.refs.form)
             form.form('validate form')
 
             //self.submit_team_changes()
             if (!form.form('is valid')) {
+                console.log('not valid')
                 return
             }
 
@@ -697,4 +700,18 @@
         }
 
     </script>
+
+    <style>
+        textarea {
+            resize: none !important;
+            overflow: hidden;
+            height: 3em;
+            font-size: 1.0em !important;
+        }
+
+        .delete-button {
+            cursor: pointer;
+        }
+    </style>
+
 </define-homework>

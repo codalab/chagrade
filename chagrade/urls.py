@@ -38,6 +38,7 @@ class IndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Home-Page'
         return context
 
 urlpatterns.append(path('', IndexView.as_view(), name='index'))

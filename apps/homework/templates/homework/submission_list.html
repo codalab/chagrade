@@ -29,7 +29,7 @@
             <a class="ui blue button" href="{% url 'homework:overview' klass_pk=klass.pk %}">Back to Class Overview</a>
             <div class="fourteen wide column">
 
-                {% klass_header klass %}
+                {% klass_header %}
 
                 <div class="ui header">Submissions for homework {{ definition.name }}{% if team %} for team {{ team.name }}{% endif %}</div>
                 {% if definition %}
@@ -42,9 +42,13 @@
                                     <p>{{ definition.description }}</p>
                                     <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk use_github=1 %}"
                                        class="ui blue button">Submit Homework</a>
-                                    <a href="{{ definition.get_challenge_url }}"
-                                       target="_blank" rel="noopener noreferrer"
-                                       class="ui blue button">Codalab Challenge</a>
+
+                                    {% if not definition.questions_only %}
+                                        <a href="{{ definition.get_challenge_url }}"
+                                           target="_blank" rel="noopener noreferrer"
+                                           class="ui blue button">Codalab Challenge</a>
+                                    {% endif %}
+
                                     {% if definition.starting_kit_github_url %}
                                         <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">
                                             <i class="ui github icon"></i>
