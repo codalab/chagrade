@@ -23,7 +23,7 @@
                             <th>#</th>
                             <th>Student Name</th>
 
-                            {% with definition|get_last_submission:instructor_student.user.pk as submission %}
+                            {% with definition.submissions.last as submission %}
                                 {% with submission.grades.last.get_total_possible as grade %}
                                     <th>Grade (Out of {{ grade }})</th>
                                 {% endwith %}
@@ -44,52 +44,64 @@
                         </thead>
                         <tbody>
                         <tr class="ui active">
-                            {% with instructor_student as student %}
-                                <td>1</td>
-                                <td>{{ student.user.username }}</td>
+                            <td>1</td>
+                            {% if instructor_submission %}
+                                <td>{{ instructor_student.user.username }}</td>
 
-                                {% with definition|get_last_submission:student.user.pk as submission %}
-                                    {% with submission.grades.last.get_total_score as grade %}
-                                        <td>{{ grade }}</td>
-                                    {% endwith %}
+                                {% with instructor_submission.grades.last.get_total_score as grade %}
+                                    <td>{{ grade }}</td>
+                                {% endwith %}
 
-                                    {% if definition.team_based %}
-                                        <td>{{ student.team.name }}</td>
-                                    {% endif %}
+                                {% if definition.team_based %}
+                                    <td>{{ student.team.name }}</td>
+                                {% endif %}
 
-                                    {% if not definition.questions_only %}
+                                {% if not definition.questions_only %}
+                                    <td>
+                                        {% with instructor_submission.tracked_submissions.last as sub_tracker %}
+                                            <div style="width: 150px;">
+                                                {% if sub_tracker.score %}
+                                                    {{ sub_tracker.score }}
+                                                {% else %}
+                                                    No Score
+                                                {% endif %}
+                                            </div>
+                                        {% endwith %}
+                                    </td>
+                                {% endif %}
+
+                                {% for answer in instructor_submission.question_answers.all %}
+                                    {% if answer.question.type == 'TX' %}
                                         <td>
-                                            {% with submission.tracked_submissions.last as sub_tracker %}
-                                                <div style="width: 150px;">
-                                                    {% if sub_tracker.score %}
-                                                        {{ sub_tracker.score }}
-                                                    {% else %}
-                                                        No Score
-                                                    {% endif %}
-                                                </div>
-                                            {% endwith %}
+                                            <div style="min-width: 450px;">{{ answer.answer|format_json_array }}</div>
+                                        </td>
+                                    {% else %}
+                                        <td>
+                                            <div style="min-width: 200px;">{{ answer.answer|format_json_array }}</div>
                                         </td>
                                     {% endif %}
+                                {% endfor %}
 
-                                    {% if submission %}
-                                        {% for answer in submission.question_answers.all %}
-                                            {% if answer.question.type == 'TX' %}
-                                                <td>
-                                                    <div style="min-width: 450px;">{{ answer.answer|format_json_array }}</div>
-                                                </td>
-                                            {% else %}
-                                                <td>
-                                                    <div style="min-width: 200px;">{{ answer.answer|format_json_array }}</div>
-                                                </td>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% else %}
-                                        {% for question in question_quantity_range %}
-                                            <td></td>
-                                        {% endfor %}
-                                    {% endif %}
-                                {% endwith %}
-                            {% endwith %}
+                            {% else %}
+
+                                <td>No Instructor Submission.</td>
+
+                                {# No Grade #}
+                                <td></td>
+
+                                {% if definition.team_based %}
+                                    <td></td>
+                                {% endif %}
+
+                                {% if not definition.questions_only %}
+                                    <td></td>
+                                {% endif %}
+
+                                {% for question in question_quantity_range %}
+                                    <td></td>
+                                {% endfor %}
+
+                            {% endif %}
                         </tr>
 
                         {% for student in non_instructor_students %}
