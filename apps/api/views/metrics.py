@@ -223,7 +223,7 @@ class ScoreDistributionMixin:
         sub_sample = Submission.objects.filter(tracked_submissions__stored_score__isnull=False).order_by(
             '?').values(score=(F('tracked_submissions__stored_score') - F('definition__baseline_score')) / (
                 F('definition__target_score') - F('definition__baseline_score')))[:1000]
-        sorted_sample = sorted(list(sub_sample), key=lambda k: k['score'])
+        sorted_score_sample = sorted(list(sub_sample), key=lambda k: k['score'])
 
         # Histogram settings
         minimum = 0
@@ -238,20 +238,20 @@ class ScoreDistributionMixin:
             bucket_bound = round(minimum + (i * delta / bucket_quantity), 1)
             bucket_bounds.append(bucket_bound)
 
-        i = 0
-        j = 0
+        score_iterator = 0
+        bucket_bound_iterator = 0
         bucket = 0
         buckets = []
-        while j < len(bucket_bounds):
-            if i < len(sorted_sample) and sorted_sample[i].get('score') < bucket_bounds[j]:
-                if j != 0:
+        while bucket_bound_iterator < len(bucket_bounds):
+            if score_iterator < len(sorted_score_sample) and sorted_score_sample[score_iterator].get('score') < bucket_bounds[bucket_bound_iterator]:
+                if bucket_bound_iterator != 0:
                     bucket += 1
-                i += 1
+                score_iterator += 1
             else:
-                if j != 0:
+                if bucket_bound_iterator != 0:
                     buckets.append(bucket)
                     bucket = 0
-                j += 1
+                bucket_bound_iterator += 1
 
         data = {
             'values': buckets,
@@ -310,12 +310,12 @@ class KlassScorePerHWMixin:
                 )
             ).values_list('max_score', flat=True)[:1]
 
-            sum = 0
+            score_sum = 0
             for val in qs:
                 if val:
-                    sum += val
+                    score_sum += val
 
-            avg_score = sum / len(qs)
+            avg_score = score_sum / len(qs)
             target_score = definition.get('target_score')
             baseline_score = definition.get('baseline_score')
             scale_adjusted_score = (avg_score - baseline_score) / (target_score - baseline_score)
