@@ -101,6 +101,7 @@ class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
             return False
         return False
 
+
 class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'homework/submission_list.html'
 
@@ -160,13 +161,14 @@ class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             return False
         return False
 
+
 class SubmissionFormView(LoginRequiredMixin, TemplateView):
     template_name = 'homework/forms/submit.html'
 
-    def get_context_data(self, use_github=False, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            if use_github and self.request.user.github_info:
+            if self.kwargs.get('use_github') and self.request.user.github_info:
                 context['github'] = True
 
             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
@@ -184,10 +186,11 @@ class SubmissionFormView(LoginRequiredMixin, TemplateView):
             raise Http404('User not part of klass.')
         return context
 
+
 class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
     template_name = 'homework/forms/submit.html'
 
-    def get_context_data(self, use_github=False, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
             klass = Klass.objects.get(pk=self.kwargs.get('klass_pk'))
@@ -204,7 +207,7 @@ class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
                 if not submission.creator == student:
                     raise Http404("You do not have permission to view this")
 
-            if use_github and self.request.user.github_info:
+            if self.kwargs.get('use_github') and self.request.user.github_info:
                 context['github'] = True
 
             context['submission'] = submission
