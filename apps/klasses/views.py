@@ -140,7 +140,7 @@ class HomeworkAnswersView(LoginRequiredMixin, WizardMixin, TemplateView):
         try:
             instructor = klass.instructor
             context['instructor_student'] = klass.enrolled_students.get(user__pk=instructor.user.pk)
-            context['instructor_submission'] = context['instructor_student'].submitted_homeworks.last()
+            context['instructor_submission'] = Submission.objects.filter(definition=definition, creator=context['instructor_student']).last()
             context['non_instructor_students'] = klass.enrolled_students.all().exclude(user__pk=instructor.user.pk)
         except ObjectDoesNotExist:
             raise Http404("Instructor is not enrolled in class.")
