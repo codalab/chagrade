@@ -26,6 +26,7 @@ class WizardMixin(object):
         try:
             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
             context['klass'] = klass
+            context['completely_graded'] = klass.homeworks_completely_graded()
         except ObjectDoesNotExist:
             raise Http404('Klass object not found')
 

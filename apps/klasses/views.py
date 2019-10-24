@@ -42,64 +42,22 @@ class EditView(LoginRequiredMixin, UpdateView):
             return reverse_lazy('klasses:klass_details', kwargs={'klass_pk': self.object.pk})
 
 
-class OverView(LoginRequiredMixin, DetailView):
+class OverView(LoginRequiredMixin, WizardMixin, DetailView):
     template_name = 'klasses/wizard/overview.html'
     model = Klass
     pk_url_kwarg = 'klass_pk'
-
-    def get_context_data(self, **kwargs):
-        context = super(OverView, self).get_context_data(**kwargs)
-        try:
-            klass = kwargs.get('object')
-        except ObjectDoesNotExist:
-            raise Http404
-
-        context['completely_graded'] = klass.homeworks_completely_graded()
-        return context
 
 
 class EnrollmentView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/enroll.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        try:
-            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
-        except ObjectDoesNotExist:
-            raise Http404
-
-        context['completely_graded'] = klass.homeworks_completely_graded()
-        return context
-
 
 class DefineHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/define_homework.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        try:
-            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
-        except ObjectDoesNotExist:
-            raise Http404
-
-        context['completely_graded'] = klass.homeworks_completely_graded()
-        return context
-
 
 class GradeHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/grade_homework.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        try:
-            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
-        except ObjectDoesNotExist:
-            raise Http404
-
-        context['completely_graded'] = klass.homeworks_completely_graded()
-        print(context)
-        return context
-
 
 
 # TODO: Make this into an API point/call
@@ -132,17 +90,6 @@ class ActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
                 'errors': {'klass': "Klass object not found!"}
             }
             return JsonResponse(data, status=404)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        try:
-            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
-        except ObjectDoesNotExist:
-            raise Http404
-
-        context['completely_graded'] = klass.homeworks_completely_graded()
-        return context
 
 
 def get_klass_students_as_csv(request, klass_pk):
