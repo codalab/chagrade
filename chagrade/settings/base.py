@@ -28,7 +28,7 @@ SITE_DOMAIN = os.environ.get('SITE_DOMAIN', 'http://localhost')
 SECRET_KEY = 'n2q(v$c6@o^9j^0f=$lwwr7%p2xrjt$_6^4l&+6em^m^5l9y&4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DOCKER_DEBUG', False) == 'True'
 
 ALLOWED_HOSTS = ['*']
 
