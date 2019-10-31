@@ -72,44 +72,43 @@
         <div class="button-suite">
             <a class="ui icon button" href="{{ wiki_page_url }}" id="wiki-page-button"
                target="_blank" rel="noopener noreferrer"
-               data-content="Wiki for this page."
-            >
+               data-content="Wiki for this page.">
                 <i class="question mark icon"></i>
             </a>
             {% if user.is_authenticated %}
                 <span class="ui login-button dropdown button item">
-                <span class="text">
-                    <i class="icon user outline"></i>
-                    {{ user.username }}
+                    <span class="text">
+                        <i class="icon user outline"></i>
+                        {{ user.username }}
+                    </span>
+                    <i class="dropdown icon"></i>
+                    <span class="menu">
+                    {% if user.is_staff or user.is_superuser %}
+                        <div class="header">Django Admin</div>
+                        <a class="item" href="{% url 'admin:index' %}">Index</a>
+                        <a class="item" href="{% url 'admin:index' %}homework/">Homework</a>
+                        <a class="item" href="{% url 'admin:index' %}klasses/">Classes</a>
+                        <a class="item" href="{% url 'admin:index' %}profiles/">Profiles</a>
+                        <a class="item" href="{% url 'metrics:admin' %}">Metrics</a>
+                    {% endif %}
+                        <div class="ui divider"></div>
+                        <div class="header">Chasuite</div>
+                            <a class="item" href="https://competitions.codalab.org/">Codalab</a>
+                            <a class="item" href="https://chagrade.lri.fr/">Chagrade</a>
+                            <a class="item" href="https://chalab.lri.fr/">Chalab</a>
+                            <a class="item" href="#">Chagle</a>
+                        <div class="ui divider"></div>
+                        <div class="header">My Account</div>
+                        <a class="item" href="/profiles/my_profile">
+                            <i class="icon user"></i>
+                            My profile
+                        </a>
+                        <a class="item" href="{% url "profiles:logout" %}">
+                            <i class="icon sign out"></i>
+                            Logout
+                        </a>
+                    </span>
                 </span>
-                <i class="dropdown icon"></i>
-                <span class="menu">
-                {% if user.is_staff or user.is_superuser %}
-                    <div class="header">Django Admin</div>
-                    <a class="item" href="{% url 'admin:index' %}">Index</a>
-                    <a class="item" href="{% url 'admin:index' %}homework/">Homework</a>
-                    <a class="item" href="{% url 'admin:index' %}klasses/">Classes</a>
-                    <a class="item" href="{% url 'admin:index' %}profiles/">Profiles</a>
-                    <a class="item" href="{% url 'metrics:admin' %}">Metrics</a>
-                {% endif %}
-                    <div class="ui divider"></div>
-                    <div class="header">Chasuite</div>
-                        <a class="item" href="https://competitions.codalab.org/">Codalab</a>
-                        <a class="item" href="https://chagrade.lri.fr/">Chagrade</a>
-                        <a class="item" href="https://chalab.lri.fr/">Chalab</a>
-                        <a class="item" href="#">Chagle</a>
-                    <div class="ui divider"></div>
-                    <div class="header">My Account</div>
-                    <a class="item" href="/profiles/my_profile">
-                        <i class="icon user"></i>
-                        My profile
-                    </a>
-                    <a class="item" href="{% url "profiles:logout" %}">
-                        <i class="icon sign out"></i>
-                        Logout
-                    </a>
-                </span>
-            </span>
                 {% if user.is_staff or user.is_superuser %}
                     {% if password_reset_requests %}
                         <a class="item" href="{% url "profiles:password_reset_requests" %}">
