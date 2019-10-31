@@ -120,22 +120,11 @@
                     {% endif %}
                 {% endif %}
             {% else %}
-                <span class="ui login-button chasuite dropdown button item">
-                Chasuite
-                <i class="dropdown icon"></i>
-                <span class="menu">
-                    <a class="item" href="https://competitions.codalab.org/">Codalab</a>
-                        <a class="item" href="https://chagrade.lri.fr/">Chagrade</a>
-                        <a class="item" href="https://chalab.lri.fr/">Chalab</a>
-                        <a class="item" href="#">Chagle</a>
-                </span>
-            </span>
-                <a class="ui button" href="{% url "profiles:login" %}">Login</a>
+                <a class="ui button" href="{% url "profiles:login" %}">Login test</a>
             {% endif %}
         </div>
 
         <img class="logo" onclick="location.href='/'" alt="chagrade_logo" src="{% static 'images/chagrade_logo.png' %}">
-        <div class="ui title" style="position: absolute; font-size: 5em; margin-left: 40%; margin-top: -2%; color: white;">STAGING</div>
     </div>
 
 </header>
