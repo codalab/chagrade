@@ -11,6 +11,7 @@ services:
     volumes:
       - ./caddy/Caddyfile:/etc/Caddyfile
       - ./staticfiles:/var/www/chagrade/static
+      - ./certs/caddy:/etc/caddycerts
     ports:
       - "80:80"
       - "443:443"
