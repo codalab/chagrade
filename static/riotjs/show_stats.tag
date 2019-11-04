@@ -57,18 +57,7 @@
 
         self.on("mount", function () {
             self.update()
-//            self.get_chagrade_stats()
         });
-
-        self.get_chagrade_stats = function () {
-            CHAGRADE.api.get_overall_metrics()
-                .done(function (data) {
-                    self.stats = data
-                    self.update()
-                }).fail(function () {
-                console.log('Students not found.')
-            });
-        }
     </script>
 
     <style>
