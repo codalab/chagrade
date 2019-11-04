@@ -148,8 +148,6 @@ def union_lists(union_key, list1_data, list2_data):
     return output_list
 
 
-
-
 class TimeDistributionMixin:
     # Empty Default values
     time_distribution_model = None

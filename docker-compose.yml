@@ -29,8 +29,7 @@ services:
     build: .
     restart: unless-stopped
     hostname: django
-    #command: /usr/local/bin/gunicorn chagrade.wsgi:application -w 2 -b :8000 --reload
-    command: /usr/local/bin/gunicorn chagrade.wsgi:application -w 2 -b :8000 --reload --reload-extra-file templates/base.html
+    command: /usr/local/bin/gunicorn chagrade.wsgi:application -w 2 -b :8000 --reload
     env_file: .env
     volumes:
       - .:/app

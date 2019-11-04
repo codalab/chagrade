@@ -6,7 +6,7 @@
                 <div class="ui two tiny statistics">
                     <div class="statistic">
                         <div class="value">
-                            { stats.students }
+                            { opts.students }
                         </div>
                         <div class="label">
                             Students
@@ -14,7 +14,7 @@
                     </div>
                     <div class="statistic">
                         <div class="value">
-                            { stats.users }
+                            { opts.users }
                         </div>
                         <div class="label">
                             Users
@@ -26,7 +26,7 @@
                 <div class="ui two tiny statistics">
                     <div class="statistic">
                         <div class="value">
-                            { stats.submissions }
+                            { opts.submissions }
                         </div>
                         <div class="label">
                             Submissions
@@ -34,7 +34,7 @@
                     </div>
                     <div class="statistic">
                         <div class="value">
-                            { stats.klasses }
+                            { opts.klasses }
                         </div>
                         <div class="label">
                             Classes
@@ -56,7 +56,8 @@
         }
 
         self.on("mount", function () {
-            self.get_chagrade_stats()
+            self.update()
+//            self.get_chagrade_stats()
         });
 
         self.get_chagrade_stats = function () {

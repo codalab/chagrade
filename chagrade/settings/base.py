@@ -100,7 +100,6 @@ TEMPLATES = [
         'DIRS': [
             os.path.join(CHAGRADE_BASE_DIR, 'templates')
         ],
-        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -111,7 +110,12 @@ TEMPLATES = [
             ],
             'libraries': {
                 'klass_header': 'apps.klasses.templatetags.klass_header',
-            }
+            },
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ],
+            'debug': DEBUG,
         },
     },
 ]
