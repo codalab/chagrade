@@ -11,6 +11,7 @@ services:
     volumes:
       - ./caddy/Caddyfile:/etc/Caddyfile
       - ./staticfiles:/var/www/chagrade/static
+      - ./certs/caddy:/etc/caddycerts
     ports:
       - "80:80"
       - "443:443"
@@ -29,7 +30,7 @@ services:
     build: .
     restart: unless-stopped
     hostname: django
-    command: /usr/local/bin/gunicorn chagrade.wsgi:application -w 2 -b :8000 --reload
+    command: /usr/local/bin/gunicorn chagrade.wsgi:application -w 2 -b :8000 --reload --log-file=- --access-logfile=-
     env_file: .env
     volumes:
       - .:/app
@@ -43,8 +44,6 @@ services:
       options:
         max-size: "200k"
     container_name: django
-    stdin_open: true
-    tty: true
   # --------------------------------------------------------------------------
   # Database
   # --------------------------------------------------------------------------
