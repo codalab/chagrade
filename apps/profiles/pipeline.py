@@ -24,7 +24,6 @@ def create_or_find_user(strategy, details, backend, user=None, *args, **kwargs):
         temp_user = strategy.create_user(**fields)
     return {
         'is_new': True,
-        # 'user': strategy.create_user(**fields)
         'user': temp_user
     }
 

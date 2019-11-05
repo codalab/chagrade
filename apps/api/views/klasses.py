@@ -1,5 +1,3 @@
-import pprint
-
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.db.models import F, Subquery, OuterRef
@@ -17,7 +15,7 @@ from apps.api.permissions import InstructorOrSuperuserPermission
 
 from apps.klasses.models import Klass
 from apps.profiles.models import StudentMembership
-from apps.homework.models import Submission, QuestionAnswer, Definition
+from apps.homework.models import Submission, Definition
 
 User = get_user_model()
 
@@ -88,13 +86,11 @@ class HomeworkAnswersCSVView(APIView):
             values_fields.update({'score': F('score')})
 
             if definition.team_based:
-                print('team based')
                 students = students.annotate(score=Subquery(
                     definition.submissions.filter(team=OuterRef('team__pk')).order_by('-created').values(
                         'tracked_submissions__stored_score')[:1]))
                 self.renderer_classes[0].labels['score'] = 'Team Score'
             else:
-                print('not team based')
                 students = students.annotate(score=Subquery(
                     definition.submissions.filter(creator=OuterRef('pk')).order_by('-created').values(
                         'tracked_submissions__stored_score')[:1]))
