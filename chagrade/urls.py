@@ -17,8 +17,6 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.contrib import admin
-# from apps.profiles import urls as profile_urls
-# from apps.profiles import urls as profile_urls
 from django.urls import path
 from django.views.generic import TemplateView
 
@@ -29,13 +27,13 @@ from apps.profiles.models import StudentMembership, ChaUser, Instructor
 
 urlpatterns = [
     # Our includes
-    url(r'^admin/', admin.site.urls),
-    url(r'^profiles/', include('apps.profiles.urls', namespace='profiles')),
-    url(r'^klasses/', include('apps.klasses.urls', namespace='klasses')),
-    url(r'^metrics/', include('apps.metrics.urls', namespace='metrics')),
-    url(r'^homework/', include('apps.homework.urls', namespace='homework')),
-    url(r'^groups/', include('apps.groups.urls', namespace='groups')),
-    url(r'^social/', include('social_django.urls', namespace='social')),
+    path('admin/', admin.site.urls),
+    path('profiles/', include('apps.profiles.urls', namespace='profiles')),
+    path('klasses/', include('apps.klasses.urls', namespace='klasses')),
+    path('metrics/', include('apps.metrics.urls', namespace='metrics')),
+    path('homework/', include('apps.homework.urls', namespace='homework')),
+    path('groups/', include('apps.groups.urls', namespace='groups')),
+    path('social/', include('social_django.urls', namespace='social')),
     path('api/<str:version>/', include('apps.api.urls')),
 ]
 
