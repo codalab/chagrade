@@ -11,12 +11,7 @@ from apps.api.views.profiles import ProfileViewSet, StudentViewSet, create_stude
     TestStudentViewSet
 from apps.api.views.klasses import KlassViewSet, HomeworkAnswersCSVView, EnrollStudentsSampleCSVView
 from apps.api.views.groups import TeamViewSet
-from apps.api.views.metrics import chagrade_overall_metrics, StudentMetricsView, \
-    InstructorMetricsView, KlassMetricsView, SubmissionMetricsView, KlassScoresView, \
-    StudentScoresView, TeamScoresView, StudentSubmissionTimesView, TeamSubmissionTimesView, \
-    KlassSubmissionTimesView, TeamContributionsView, InstructorKlassCSVView, \
-    InstructorStudentCSVView, InstructorTeamCSVView, AdminKlassCSVView, AdminUserCSVView, \
-    AdminSubmissionCSVView
+from apps.api.views import metrics
 
 
 app_name = 'api'
@@ -66,27 +61,27 @@ urlpatterns = [
     path('enroll_students_sample_csv/', EnrollStudentsSampleCSVView.as_view(), name='enroll_students_sample_CSV'),
 
     # Metrics
-    path('chagrade_overall_metrics/', chagrade_overall_metrics, name='chagrade_overall_metrics'),
-    path('chagrade_student_metrics/', StudentMetricsView.as_view(), name='chagrade_student_metrics'),
-    path('chagrade_instructor_metrics/', InstructorMetricsView.as_view(), name='chagrade_instructor_metrics'),
-    path('chagrade_klass_metrics/', KlassMetricsView.as_view(), name='chagrade_klass_metrics'),
-    path('chagrade_submission_metrics/', SubmissionMetricsView.as_view(), name='chagrade_submission_metrics'),
-    path('student_submission_times/<int:student_pk>', StudentSubmissionTimesView.as_view(), name='student_submission_times'),
-    path('student_scores/<int:student_pk>', StudentScoresView.as_view(), name='student_scores'),
-    path('team_submission_times/<int:team_pk>', TeamSubmissionTimesView.as_view(), name='team_submission_times'),
-    path('team_scores/<int:team_pk>', TeamScoresView.as_view(), name='team_scores'),
-    path('team_contributions/<int:team_pk>', TeamContributionsView.as_view(), name='team_contributions'),
-    path('klass_submission_times/<int:klass_pk>', KlassSubmissionTimesView.as_view(), name='klass_submission_times'),
-    path('klass_scores/<int:klass_pk>', KlassScoresView.as_view(), name='klass_scores'),
+    path('chagrade_overall_metrics/', metrics.chagrade_overall_metrics, name='chagrade_overall_metrics'),
+    path('chagrade_student_metrics/', metrics.StudentMetricsView.as_view(), name='chagrade_student_metrics'),
+    path('chagrade_instructor_metrics/', metrics.InstructorMetricsView.as_view(), name='chagrade_instructor_metrics'),
+    path('chagrade_klass_metrics/', metrics.KlassMetricsView.as_view(), name='chagrade_klass_metrics'),
+    path('chagrade_submission_metrics/', metrics.SubmissionMetricsView.as_view(), name='chagrade_submission_metrics'),
+    path('student_submission_times/<int:student_pk>', metrics.StudentSubmissionTimesView.as_view(), name='student_submission_times'),
+    path('student_scores/<int:student_pk>', metrics.StudentScoresView.as_view(), name='student_scores'),
+    path('team_submission_times/<int:team_pk>', metrics.TeamSubmissionTimesView.as_view(), name='team_submission_times'),
+    path('team_scores/<int:team_pk>', metrics.TeamScoresView.as_view(), name='team_scores'),
+    path('team_contributions/<int:team_pk>', metrics.TeamContributionsView.as_view(), name='team_contributions'),
+    path('klass_submission_times/<int:klass_pk>', metrics.KlassSubmissionTimesView.as_view(), name='klass_submission_times'),
+    path('klass_scores/<int:klass_pk>', metrics.KlassScoresView.as_view(), name='klass_scores'),
 
     # CSV Metrics
-    path('klass_csv/<int:klass_pk>', InstructorKlassCSVView.as_view(), name='klass_CSV'),
-    path('student_csv/<int:student_pk>', InstructorStudentCSVView.as_view(), name='student_CSV'),
-    path('team_csv/<int:team_pk>', InstructorTeamCSVView.as_view(), name='team_CSV'),
+    path('klass_csv/<int:klass_pk>', metrics.InstructorKlassCSVView.as_view(), name='klass_CSV'),
+    path('student_csv/<int:student_pk>', metrics.InstructorStudentCSVView.as_view(), name='student_CSV'),
+    path('team_csv/<int:team_pk>', metrics.InstructorTeamCSVView.as_view(), name='team_CSV'),
 
-    path('klasses_csv/', AdminKlassCSVView.as_view(), name='klasses_CSV'),
-    path('users_csv/', AdminUserCSVView.as_view(), name='users_CSV'),
-    path('submissions_csv/', AdminSubmissionCSVView.as_view(), name='submissions_CSV'),
+    path('klasses_csv/', metrics.AdminKlassCSVView.as_view(), name='klasses_CSV'),
+    path('users_csv/', metrics.AdminUserCSVView.as_view(), name='users_CSV'),
+    path('submissions_csv/', metrics.AdminSubmissionCSVView.as_view(), name='submissions_CSV'),
 
     # Homework answers CSV
     path('answers_csv/<int:klass_pk>/<int:definition_pk>/', HomeworkAnswersCSVView.as_view(), name='homework_answers_CSV'),
