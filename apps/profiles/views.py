@@ -84,7 +84,6 @@ class ResetUserPasswordByEmailKeyView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         try:
-            print('RESET KEY:', self.kwargs.get('reset_key'))
             reset_request = PasswordResetRequest.objects.get(key=self.kwargs.get('reset_key'))
             user = reset_request.user
             user.set_password(user.email.split('@')[0])

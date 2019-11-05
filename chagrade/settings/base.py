@@ -70,18 +70,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
-
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-# STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
-# STATIC_ROOT = '/static/'
 STATICFILES_DIRS = (
     os.path.join(CHAGRADE_BASE_DIR, 'static'),
 )
-# STATIC_ROOT = os.path.join(CHAGRADE_BASE_DIR, 'static')
-#
+
 STATIC_ROOT = os.path.join(CHAGRADE_BASE_DIR, 'staticfiles')
+
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -257,9 +253,6 @@ FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.TemporaryFileUploadHand
 # S3 Storage
 # =============================================================================
 
-
-
-# S3 from AWS
 S3_USE_SIGV4 = os.environ.get("S3_USE_SIGV4", True)
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
@@ -275,18 +268,6 @@ AWS_QUERYSTRING_AUTH = os.environ.get(
 )
 if isinstance(AWS_QUERYSTRING_AUTH, str) and 'false' in AWS_QUERYSTRING_AUTH.lower():
     AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
-
-
-#
-#AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-#AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-#AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-#AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-#AWS_S3_OBJECT_PARAMETERS = {
-#    'CacheControl': 'max-age=86400',
-#}
-#AWS_LOCATION = os.environ.get('AWS_LOCATION', 'chagrade')
-## AWS_DEFAULT_ACL = None
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
