@@ -33,7 +33,6 @@
 
                 <div class="ui header">Submissions for homework {{ definition.name }}{% if team %} for team {{ team.name }}{% endif %}</div>
                 {% if definition %}
-                    {#                    {% if definition.team_based %}#}
                     {% with definition|get_last_submission:user.pk as submission %}
                         {% with submission|get_last_grade as grade %}
                             <div class="ui message">
@@ -120,7 +119,6 @@
                                                             </td>
                                                             {% with previous_submission=submissions|next:forloop.counter0 %}
                                                                 {% if submission.github_repo_name and previous_submission.github_repo_name == submission.github_repo_name %}
-<!--                                                                    <td><submission-diff repos_url="{{ request.user.github_info.repos_url }}" submission_pk="{{ submission.pk }}" previous_submission_pk="{{ previous_submission.pk }}" user_pk="{{ request.user.pk }}"></submission-diff></td> -->
                                                                     <td><submission-diff
                                                                             repos_url="{{ request.user.github_info.repos_url }}"
                                                                             c_github_commit_hash="{{ submission.github_commit_hash }}"
@@ -155,8 +153,6 @@
                                                 <div class="eight wide column">
                                                 </div>
                                                 <div class="eight wide column">
-{#                                                    <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk use_github=1 %}"#}
-{#                                                       class="ui blue button">Submit Homework</a>#}
                                                 </div>
                                             {% endif %}
                                         </div>

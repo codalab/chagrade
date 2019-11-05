@@ -26,24 +26,19 @@ def post_submission(submission_pk):
             os.environ.get('CODALAB_SUBMISSION_PASSWORD')
         )
     )
-    # competition/15595/submission/44798/4aba772a-a6c1-4e6f-a82b-fb9d23193cb6.zip
+
+    # Example of url format we're expecting: competition/15595/submission/44798/4aba772a-a6c1-4e6f-a82b-fb9d23193cb6.zip
+
     submission_data = resp.json()['id']
     submission_data_split = submission_data.split('/')
     submission_file_name = submission_data_split[-1]
     s3_file_url = resp.json()['url']
 
     with TemporaryFile() as f:
-        # repo_url = "{}/archive/master.zip".format(submission.submission_github_url)
-
-        # https://github.com/codalab/chalab/raw/develop/chalab/static/chalab/resource/iris.zip
-        # FROM
-        # https://github.com/codalab/chalab/blob/develop/chalab/static/chalab/resource/iris.zip
-
         parsed_repo_uri = urlparse(submission.github_url)
         repo_scheme = parsed_repo_uri.scheme
         repo_loc = parsed_repo_uri.netloc
         repo_path = parsed_repo_uri.path
-        # path_components = repo_path.split('/')
         path_components = [component if component != 'blob' else 'raw' for component in repo_path.split('/')]
         new_path = ""
         for index, component in enumerate(path_components):
@@ -61,16 +56,14 @@ def post_submission(submission_pk):
         storage_resp = requests.put(
             url=s3_file_url,
             data=f,
-            # data=get_github_submission_and_chunk(submission.submission_github_url),
             headers={
-                # "Content-Type": "application/zip",
                 "x-ms-blob-type": 'BlockBlob',
-                # "content-name": submission_file_name,
                 "Content-Length": temp_size,
-                # "Content-Encoding": "gzip",
             }
         )
-    # https://competitions.codalab.org/api/competition/20616/phases/
+
+    # Example of url format we're expecting: https://competitions.codalab.org/api/competition/20616/phases/
+
     phases_request_url = "{0}/api/competition/{1}/phases/".format(site_url, challenge_pk)
     phases_request = requests.get(url=phases_request_url, auth=HTTPBasicAuth(
         os.environ.get('CODALAB_SUBMISSION_USERNAME'),
@@ -88,10 +81,8 @@ def post_submission(submission_pk):
     custom_filename = "{username}_{date}.zip".format(username=submission.creator.user.username, date=submission.created)
     phase_final_resp = requests.post(finalize_url, data={
         'id': submission_data,
-        # 'name': 'master.zip',
         'name': custom_filename,
         'type': 'application/zip',
-        # 'size': ?
     }, auth=HTTPBasicAuth(
         os.environ.get('CODALAB_SUBMISSION_USERNAME'),
         os.environ.get('CODALAB_SUBMISSION_PASSWORD')
