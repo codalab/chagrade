@@ -4,14 +4,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.http import Http404, JsonResponse, HttpResponse
-from django.db.models import Subquery, OuterRef, F, Max
 
 # Create your views here.
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, TemplateView, FormView, UpdateView
 
-from apps.homework.models import Definition, QuestionAnswer, Submission
-from apps.profiles.models import StudentMembership
+from apps.homework.models import Definition, Submission
 
 from apps.klasses.forms import KlassForm
 from apps.klasses.models import Klass
