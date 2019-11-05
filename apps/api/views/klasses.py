@@ -96,7 +96,10 @@ class HomeworkAnswersCSVView(APIView):
                         'tracked_submissions__stored_score')[:1]))
                 self.renderer_classes[0].labels['score'] = 'Student Score'
 
-        # for every question with index N, call the field name on the csv 'qN' with human-readable
+        # Modifying the renderer labels and header is required to get a well-formatted header row in the
+        # CSV output.
+        #
+        # For every question with index N, call the field name on the csv q<N> with human-readable
         # label q.question.
 
         questions = definition.custom_questions.all()
