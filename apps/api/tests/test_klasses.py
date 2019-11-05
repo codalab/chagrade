@@ -1,6 +1,5 @@
 from io import StringIO
 import csv
-import pprint
 
 from django.urls import reverse
 from django.test import TestCase

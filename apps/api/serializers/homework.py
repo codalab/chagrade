@@ -39,7 +39,6 @@ class SubmissionSerializer(WritableNestedModelSerializer):
             'publication_url',
             'question_answers',
             'id',
-            # 'get_challenge_url',
             'team',
             'created',
         ]

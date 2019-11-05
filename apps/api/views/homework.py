@@ -1,7 +1,5 @@
 from django.contrib.auth import get_user_model
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 
 from apps.api.permissions import SubmissionPermissionCheck, GradePermissionCheck, DefinitionPermissionCheck, \
@@ -37,8 +35,6 @@ class SubmissionViewSet(ModelViewSet):
     def perform_create(self, serializer):
         new_sub = serializer.save()
         if new_sub.pk and not new_sub.submitted_to_challenge:
-            # from apps.homework.tasks import post_submission
-            # post_submission.delay(new_sub.pk)
             if not new_sub.definition.questions_only:
                 post_submission(new_sub.pk)
 

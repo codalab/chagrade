@@ -50,38 +50,33 @@ def create_students_from_csv(request, version):
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
         for row in csv_reader:
-            if line_count == 0:
-                print("First row")
-            else:
-                if len(row) >= 6:
-                    data = {
-                        'user': {
-                            'first_name': row[0],
-                            'last_name': row[1],
-                            'username': row[2],
-                            'email': row[4],
-                        },
-                        'student_id': row[3],
-                        'team': {
-                            'name': row[5],
-                            'klass': request.data.get('klass')
-                        },
-                        'klass': request.data.get('klass'),
-                    }
-                    new_student_serializer = TestStudentSerializer(data=data)
-                    new_student_serializer.is_valid(raise_exception=True)
-                    if new_student_serializer.errors:
-                        return Response({'errors': new_student_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-                    else:
-                        new_student = new_student_serializer.save()
-                        # If there's something in the student leader column
-                        if len(row) == 7:
-                            print('row[6]', row[6])
-                            print('type', type(row[6]))
-                            new_student.team.leader = new_student
-                            new_student.team.save()
+            if len(row) >= 6:
+                data = {
+                    'user': {
+                        'first_name': row[0],
+                        'last_name': row[1],
+                        'username': row[2],
+                        'email': row[4],
+                    },
+                    'student_id': row[3],
+                    'team': {
+                        'name': row[5],
+                        'klass': request.data.get('klass')
+                    },
+                    'klass': request.data.get('klass'),
+                }
+                new_student_serializer = TestStudentSerializer(data=data)
+                new_student_serializer.is_valid(raise_exception=True)
+                if new_student_serializer.errors:
+                    return Response({'errors': new_student_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    print("Row too short to read.")
+                    new_student = new_student_serializer.save()
+                    # If there's something in the student leader column
+                    if len(row) == 7:
+                        new_student.team.leader = new_student
+                        new_student.team.save()
+            else:
+                print("Row too short to read.")
             line_count += 1
         print('Processed {} lines.'.format(line_count))
     return Response({'response': 'success'})

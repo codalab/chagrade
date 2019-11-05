@@ -209,7 +209,6 @@ class Question(models.Model):
     has_specific_answer = models.BooleanField(default=False)
 
     question = models.CharField(max_length=300)
-#    answer = models.TextField(blank=True, default='')
     candidate_answers = JSONField(blank=True, default='')
 
     # If Question is a single or multiple select is the type of the question, the candidate answers are in the
@@ -254,7 +253,6 @@ class QuestionAnswer(models.Model):
     submission = models.ForeignKey('Submission', related_name='question_answers', on_delete=models.CASCADE)
     question = models.ForeignKey('Question', default=None, related_name='student_answers', on_delete=models.CASCADE)
 
-    #text = models.TextField(default='')
     answer = JSONField(default='')
     is_correct = models.BooleanField(default=False)
 

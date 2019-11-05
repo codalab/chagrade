@@ -60,7 +60,6 @@ urlpatterns = [
     url(r'^$', schema_view.with_ui('swagger', cache_timeout=None), name='docs'),
 
     # Custom API point for handling student creation
-    # path('create_student/', create_student, name='create_student'),
     path('create_students_from_csv/', create_students_from_csv, name='create_students_from_csv'),
 
     # Enroll Students Upload Sample CSV
@@ -91,8 +90,4 @@ urlpatterns = [
 
     # Homework answers CSV
     path('answers_csv/<int:klass_pk>/<int:definition_pk>/', HomeworkAnswersCSVView.as_view(), name='homework_answers_CSV'),
-
-
-    # Optionally, use "redoc" style
-    # url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=None), name='schema-redoc'),
 ]
