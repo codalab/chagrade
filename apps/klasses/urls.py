@@ -14,5 +14,5 @@ urlpatterns = [
     path('wizard/<int:klass_pk>/answers/<int:definition_pk>/', views.HomeworkAnswersView.as_view(), name='homework_answers'),
     path('wizard/<int:klass_pk>/activate', views.ActivateView.as_view(), name='klass_activate'),
     path('download_student_csv/<int:klass_pk>', views.get_klass_students_as_csv, name='klass_get_student_csv'),
-    # path('email_students/<int:klass_pk>/', views.EmailKlassStudentsView.as_view(), name='klass_emaiL_students'),
 ]
+
