@@ -1,42 +1,4 @@
 <submit-homework>
-    <style>
-        .commit {
-            width: 70%;
-        }
-
-        .commit-header {
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-        }
-
-        .sha {
-            color: #70c4ff;
-            font-weight: bold;
-            width: 15%;
-        }
-
-        .commit-message {
-            color: #636363;
-            width: 80%;
-        }
-
-        .commit-date {
-            color: #999999;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* this will only style the popup if inline is true */
-        .popup {
-{#            color: #FF0000 !important;#}
-        }
-
-
-    </style>
-
     <div class="ui form" style="margin-bottom: 2.5vh;">
         <h1 class="ui dividing header">Submission Form for { definition.name } </h1>
 
@@ -364,7 +326,6 @@
         }
 
         self.submit_form = function () {
-
             let question_answers = []
 
             for (let i = 0; i < self.definition.custom_questions.length; i++) {
@@ -428,17 +389,17 @@
                 } else {
                     data["github_repo_name"] = $(self.refs.github_repo).dropdown('get text')
                     let branch_name = $(self.refs.github_branch).dropdown('get text')
-                    if (branch_name !== 'Branch (Optional') {
+                    if (branch_name !== 'Branch (Optional)') {
                         data["github_branch_name"] = branch_name
                     } else {
-                        data["github_branch_name"] = null
+                        data["github_branch_name"] = ''
                     }
 
                     let commit_hash = $(self.refs.github_commit_hash).dropdown('get text')
                     if (commit_hash !== 'Commit (Optional)') {
                         data["github_commit_hash"] = commit_hash
                     } else {
-                        data["github_commit_hash"] = null
+                        data["github_commit_hash"] = ''
                     }
                 }
 
@@ -504,7 +465,6 @@
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
                     self.definition = data
-                    console.info('quest', data.custom_questions)
                     self.update()
 
                     if (self.github_active) {
@@ -537,4 +497,35 @@
             }
         }
     </script>
+
+    <style>
+        .commit {
+            width: 70%;
+        }
+
+        .commit-header {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .sha {
+            color: #70c4ff;
+            font-weight: bold;
+            width: 15%;
+        }
+
+        .commit-message {
+            color: #636363;
+            width: 80%;
+        }
+
+        .commit-date {
+            color: #999999;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </submit-homework>
