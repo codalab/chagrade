@@ -16,8 +16,7 @@ class DefinitionFormView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context[
-            'wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Create-and-Edit-Homework'
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Create-and-Edit-Homework'
         return context
 
 
@@ -142,7 +141,7 @@ class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             try:
                 klass_membership = self.request.user.klass_memberships.get(klass__pk=definition.klass.pk)
             except ObjectDoesNotExist:
-                raise Http404('Student Membership object not found')
+                raise HttpResponseForbidden('Student Membership object not found')
             try:
                 if definition.team_based:
                     team = klass_membership.team
@@ -151,7 +150,7 @@ class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
                 else:
                     submissions = Submission.objects.filter(definition=definition, creator=klass_membership)
             except ObjectDoesNotExist:
-                raise Http404('Submission object not found')
+                raise HttpResponseForbidden('Submission object not found')
         context['submissions'] = submissions
         context['user'] = self.request.user
         return context
@@ -197,7 +196,7 @@ class SubmissionFormView(LoginRequiredMixin, TemplateView):
         try:
             context['student'] = klass.enrolled_students.get(user=self.request.user)
         except ObjectDoesNotExist:
-            raise Http404('User not part of klass.')
+            raise HttpResponseForbidden('User not part of klass.')
         return context
 
 
@@ -217,10 +216,10 @@ class SubmissionEditFormView(LoginRequiredMixin, TemplateView):
 
             if definition.team_based:
                 if not submission.creator == student or not student in submission.team.members.all():
-                    raise Http404("You do not have permission to view this")
+                    raise HttpResponseForbidden("You do not have permission to view this")
             else:
                 if not submission.creator == student:
-                    raise Http404("You do not have permission to view this")
+                    raise HttpResponseForbidden("You do not have permission to view this")
 
             if use_github and self.request.user.github_info:
                 context['github'] = True

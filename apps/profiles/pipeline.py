@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from apps.profiles.models import GithubUserInfo
@@ -6,6 +8,7 @@ from social_core.exceptions import AuthAlreadyAssociated
 USER_FIELDS = ['username', 'email']
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 def create_or_find_user(strategy, details, backend, user=None, *args, **kwargs):
@@ -20,7 +23,7 @@ def create_or_find_user(strategy, details, backend, user=None, *args, **kwargs):
     try:
         temp_user = User.objects.get(username=fields['username'])
     except ObjectDoesNotExist:
-        print("Could not find user to associate in pipeline")
+        logger.info("Could not find user to associate in pipeline")
         temp_user = strategy.create_user(**fields)
     return {
         'is_new': True,
@@ -67,7 +70,7 @@ def _create_user_data(user, response, backend):
         else:
             # Only update if they're the same remote id
             if str(user.github_info.uid) == str(data['uid']):
-                print('updating github user info *****')
+                logger.info('Github User Info already exists: updating github user info')
                 GithubUserInfo.objects.filter(uid=str(data['uid'])).update(**data)
             else:
                 msg = 'User already associated with a Github account.'

@@ -113,7 +113,6 @@ def union_lists(union_key, list1_data, list2_data):
     l2_end = False
     output_list = []
     while True:
-
         if l1_end and l2_end:
             break
 
@@ -144,7 +143,6 @@ def union_lists(union_key, list1_data, list2_data):
                 i += 1
             else:
                 l1_end = True
-
     return output_list
 
 

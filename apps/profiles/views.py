@@ -1,4 +1,6 @@
 # Create your views here.
+import logging
+
 from django.conf import settings
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -13,6 +15,8 @@ from django.contrib.auth.forms import PasswordChangeForm
 from apps.profiles.forms import InstructorProfileForm, ChagradeCreationForm, ChagradeUserLoginForm
 from apps.profiles.models import ChaUser, PasswordResetRequest
 from apps.profiles.utils import send_chagrade_mail
+
+logger = logging.getLogger(__name__)
 
 
 def logout_view(request):
@@ -66,11 +70,11 @@ class RequestResetView(TemplateView):
                               f"If you choose to change your password, it will be <span style='font-weight: bold;'>{user.email.split('@')[0]}</span>."
                     subject = 'Chagrade: Password Reset Request'
                     send_chagrade_mail(users=[user], subject=subject, message=message, html_message=html_message)
-                    print("Sent password reset request link to email")
+                    logger.info("Sent password reset request link to email: %s", user.email)
                 else:
-                    print("Password reset request already exists")
+                    logger.info("Password reset request already exists for %s", user.email)
             except ChaUser.DoesNotExist:
-                print("Could not create password reset request for non-existent user")
+                logger.info("Could not create password reset request for non-existent user from email %s", self.request.POST.get('email'))
         return HttpResponseRedirect(reverse('profiles:request_password_reset', kwargs={'sent_message': 1}))
 
     def get_context_data(self, **kwargs):

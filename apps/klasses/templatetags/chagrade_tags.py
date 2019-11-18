@@ -1,9 +1,12 @@
+import logging
+
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
 
 from apps.homework.models import Submission
 
 register = template.Library()
+logger = logging.getLogger(__name__)
 
 
 def get_submission(definition_pk, student_pk):
@@ -13,8 +16,9 @@ def get_submission(definition_pk, student_pk):
         if sub:
             return sub
     except ObjectDoesNotExist:
-        print("Could not find a submission for that definition/student!")
+        logger.info("Could not find a submission for that definition/student!")
     return None
+
 
 def format_json_array(json_array):
     """Formats list (json array) as a string by appending each item together."""
@@ -27,7 +31,6 @@ def format_json_array(json_array):
         else:
             outstring += str(word)
     return outstring
-
 
 
 register.filter('get_submission', get_submission)

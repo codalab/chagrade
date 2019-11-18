@@ -1,4 +1,5 @@
 import random
+import logging
 
 from django.core.management.base import BaseCommand
 
@@ -6,6 +7,9 @@ from apps.factory.factories import KlassFactory, DefinitionFactory, StudentMembe
 from apps.klasses.models import Klass
 from apps.profiles.models import ChaUser
 from apps.homework.models import Submission
+
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -22,9 +26,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         num_klasses = options.get('num_klasses')
-        print('Original Number of Klasses:', Klass.objects.count())
-        print('Original Number of Submissions:', Submission.objects.count())
-        print('Original Number of Users:', ChaUser.objects.count())
+
+        logger.info('Original Number of Klasses: %s', Klass.objects.count())
+        logger.info('Original Number of Submissions: %s', Submission.objects.count())
+        logger.info('Original Number of Users: %s', ChaUser.objects.count())
 
         for i in range(num_klasses):
             klass = KlassFactory()
@@ -40,6 +45,6 @@ class Command(BaseCommand):
                     submission = SubmissionFactory(definition=definition, creator=student)
                     SubmissionTrackerFactory(submission=submission)
 
-        print('Final Number of Klasses:', Klass.objects.count())
-        print('Final Number of Submissions:', Submission.objects.count())
-        print('Final Number of Users:', ChaUser.objects.count())
+        logger.info('Final Number of Klasses: %s', Klass.objects.count())
+        logger.info('Final Number of Submissions: %s', Submission.objects.count())
+        logger.info('Final Number of Users: %s', ChaUser.objects.count())

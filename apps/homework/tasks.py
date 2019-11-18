@@ -1,4 +1,5 @@
 import os
+import logging
 from tempfile import TemporaryFile
 from urllib.parse import urlparse
 import requests
@@ -6,6 +7,9 @@ from requests.auth import HTTPBasicAuth
 from apps.homework.models import Submission, SubmissionTracker
 
 # TODO: Clean this up and possibly have a flag between running this as a task vs actually calling it? (Heroku vs Docker)
+
+
+logger = logging.getLogger(__name__)
 
 
 # @task
@@ -19,6 +23,7 @@ def post_submission(submission_pk):
     challenge_pk = path.split('/')[-1]
     site_url = "{0}://{1}".format(scheme, domain)
     submission_url = '{0}/api/competition/{1}/submission/sas'.format(site_url, challenge_pk)
+
     # Post our request to the submission SAS API endpoint
     resp = requests.post(
         url=submission_url, auth=HTTPBasicAuth(
@@ -31,7 +36,6 @@ def post_submission(submission_pk):
 
     submission_data = resp.json()['id']
     submission_data_split = submission_data.split('/')
-    submission_file_name = submission_data_split[-1]
     s3_file_url = resp.json()['url']
 
     with TemporaryFile() as f:
@@ -75,6 +79,10 @@ def post_submission(submission_pk):
         if phase.get('is_active'):
             phase_id = phase['id']
             break
+
+    if not phase_id:
+        logger.info(f'No is_active field on phase. Update Codalab to latest version.')
+
     sub_descr = "Chagrade_Submission_{0}".format(submission.id)
     finalize_url = "{0}/api/competition/{1}/submission?description={2}&phase_id={3}".format(site_url, challenge_pk,
                                                                                             sub_descr, phase_id)
@@ -97,4 +105,7 @@ def post_submission(submission_pk):
             remote_id=result['id'],
             stored_status='Submitted'
         )
+        logger.info(f'Succeeded posting submission with id {submission.id} to phase.')
+    else:
+        logger.info(f'Did not succeed in posting submission with id {submission.id} to phase.')
     submission.submitted_to_challenge = True
