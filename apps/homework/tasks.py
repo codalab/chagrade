@@ -35,7 +35,6 @@ def post_submission(submission_pk):
     # Example of url format we're expecting: competition/15595/submission/44798/4aba772a-a6c1-4e6f-a82b-fb9d23193cb6.zip
 
     submission_data = resp.json()['id']
-    submission_data_split = submission_data.split('/')
     s3_file_url = resp.json()['url']
 
     with TemporaryFile() as f:
