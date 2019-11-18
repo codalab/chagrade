@@ -137,7 +137,7 @@
         </div>
         <h2 if="{_.get(definition.custom_questions, 'length', 0) > 0 }" class="ui dividing header">Custom Questions:</h2>
         <div each="{ question, index in definition.custom_questions }" class="fields">
-            <div if="{ question.type === 'TX' }" class="sixteen wide field">
+            <div if="{ question.question_type === 'TX' }" class="sixteen wide field">
                 <input name="{'question_id_' + index}" ref="{'question_id_' + index}" type="hidden"
                        value="{question.id}">
                 <label><pre>{question.question}</pre></label>
@@ -146,7 +146,7 @@
                           type="text" value="{question.prev_answer || ''}" rows="2"> </textarea>
             </div>
 
-            <div if="{ question.type === 'SS' }" class="grouped fields">
+            <div if="{ question.question_type === 'SS' }" class="grouped fields">
                 <label><pre>{question.question}</pre></label>
                 <div each="{ candidate_answer, candidate_index in question.candidate_answers }" class="field">
                     <div class="ui radio checkbox" ref="{'question_answer_' + question.id + '_' + candidate_index }">
@@ -156,7 +156,7 @@
                 </div>
             </div>
 
-            <div if="{ question.type === 'MS' }" class="grouped fields">
+            <div if="{ question.question_type === 'MS' }" class="grouped fields">
                 <label><pre>{question.question}</pre></label>
                 <div each="{ candidate_answer, candidate_index in question.candidate_answers }" class="inline field">
                     <div class="ui checkbox" ref="{'question_answer_' + question.id + '_' + candidate_index }">
@@ -331,7 +331,7 @@
             for (let i = 0; i < self.definition.custom_questions.length; i++) {
                 let question = self.definition.custom_questions[i]
                 let question_answer = []
-                if (question.type === 'MS' || question.type === 'SS') {
+                if (question.question_type === 'MS' || question.question_type === 'SS') {
                     for (let j = 0; j < question.candidate_answers.length; j++) {
                         let reference_string = 'question_answer_' + question.id + '_' + j
                         let checked = $(self.refs[reference_string]).checkbox('is checked')

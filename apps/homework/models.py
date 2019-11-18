@@ -202,7 +202,7 @@ class Question(models.Model):
         (SINGLE_SELECT, 'Multiple Choice'),
         (TEXT, 'Text Answer'),
     ]
-    type = models.CharField(max_length=2, choices=TYPE_CHOICES, default=TEXT)
+    question_type = models.CharField(max_length=2, choices=TYPE_CHOICES, default=TEXT)
 
     definition = models.ForeignKey('Definition', related_name='custom_questions', on_delete=models.CASCADE)
 

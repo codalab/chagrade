@@ -152,7 +152,7 @@ class GradeFactory(factory.django.DjangoModelFactory):
 class QuestionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Question
-    type = 'TX'
+    question_type = 'TX'
     definition = factory.SubFactory(DefinitionFactory)
     has_specific_answer = False
     question = factory.Faker('sentence')

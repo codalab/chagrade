@@ -183,11 +183,11 @@
                     </div>
                 </div>
 
-                <div if="{ question.type === 'MS' || question.type === 'SS' }" each="{answer_candidate, candidate_index in question.answer_candidates}" class="two inline fields">
+                <div if="{ question.question_type === 'MS' || question.question_type === 'SS' }" each="{answer_candidate, candidate_index in question.answer_candidates}" class="two inline fields">
                     <div class="six wide inline field">
                         <label>
-                            <i if="{ question.type === 'MS' }" class="ui grey square icon"> </i>
-                            <i if="{ question.type === 'SS' }" class="ui grey circle icon"> </i>
+                            <i if="{ question.question_type === 'MS' }" class="ui grey square icon"> </i>
+                            <i if="{ question.question_type === 'SS' }" class="ui grey circle icon"> </i>
                         </label>
                         <input type="text" name="{'question' + '_answer_' + index}" maxlength="200" placeholder="Option {candidate_index + 1}"
                                ref="{'answer_candidate_' + index + '_' + candidate_index}" value="{answer_candidate}" onkeypress="{ () => focus_next_input(event, index, candidate_index)}" onkeyup="{ () => update_answer_candidate_text(event, index, candidate_index)}">
@@ -199,7 +199,7 @@
                     </div>
                 </div>
 
-                <button if="{question.type === 'MS' || question.type === 'SS'}" class="ui basic green button add-answer-candidate" onclick="{ () => add_answer_candidate(event, index) }" ref="{'add_answer_candidate_button_' + index}">
+                <button if="{question.question_type === 'MS' || question.question_type === 'SS'}" class="ui basic green button add-answer-candidate" onclick="{ () => add_answer_candidate(event, index) }" ref="{'add_answer_candidate_button_' + index}">
                     <i class="green plus icon"> </i> Add answer candidate
                 </button>
 
@@ -357,7 +357,7 @@
                         action: 'activate',
                         onChange: function (value, readable_name, element) {
                             let question = self.questions[question_index]
-                            question.type = value
+                            question.question_type = value
                             self.update()
 
                             if (value === 'MS' || value === 'SS') {
@@ -401,7 +401,7 @@
 
         self.add_question = function (question_index) {
             self.questions[question_index] = {
-                type: null,
+                question_type: null,
             }
             self.update()
             $(self.refs['selection_dropdown_' + question_index])
@@ -409,7 +409,7 @@
                     action: 'activate',
                     onChange: function (value, readable_name, element) {
                         let question = self.questions[question_index]
-                        question.type = value
+                        question.question_type = value
                         self.update()
 
                         if (value === 'MS' || value === 'SS') {
@@ -498,10 +498,10 @@
 
                     for (let i = 0; i < self.questions.length; i++) {
                         let question = self.questions[i]
-                        if (question.type === 'SS' || question.type === 'MS') {
+                        if (question.question_type === 'SS' || question.question_type === 'MS') {
                             self.questions[i].answer_candidates = question.candidate_answers
                         }
-                        $(self.refs['selection_dropdown_' + i]).dropdown('set selected', question.type)
+                        $(self.refs['selection_dropdown_' + i]).dropdown('set selected', question.question_type)
 
                     }
 
@@ -620,7 +620,7 @@
 
             // Strip empty questions off of questions array
             self.questions = self.questions.filter( function (question) {
-                if (question.type === null) {
+                if (question.question_type === null) {
                     return false
                 } else {
                     return true
@@ -629,11 +629,11 @@
 
             for (var index = 0; index < self.questions.length; index++) {
                 let question = self.questions[index]
-                if (question.type !== null) {
+                if (question.question_type !== null) {
                     let answer_candidates = null
-                    if (question.type === 'TX') {
+                    if (question.question_type === 'TX') {
                         answer_candidates = question.text
-                    } else if (question.type === 'MS' || question.type === 'SS') {
+                    } else if (question.question_type === 'MS' || question.question_type === 'SS') {
                         answer_candidates = question.answer_candidates.filter(function (answer) {
                             return answer !== ''
                         })
@@ -641,7 +641,7 @@
 
                     var temp_data = {
                         'question': self.refs['question' + '_question_' + index].value,
-                        'type': question.type,
+                        'question_type': question.question_type,
                         'candidate_answers': answer_candidates,
                         //'answer': self.refs['question' + '_answer_' + index].value,
                         //'has_specific_answer': self.refs['question' + '_has_specific_answer_' + index].value,

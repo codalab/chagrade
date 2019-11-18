@@ -71,7 +71,7 @@
                                 {% endif %}
 
                                 {% for answer in instructor_submission.question_answers.all %}
-                                    {% if answer.question.type == 'TX' %}
+                                    {% if answer.question.question_type == 'TX' %}
                                         <td>
                                             <div style="min-width: 450px;">{{ answer.answer|format_json_array }}</div>
                                         </td>
@@ -136,7 +136,7 @@
 
                                     {% if submission %}
                                         {% for answer in submission.question_answers.all %}
-                                            {% if answer.question.type == 'TX' %}
+                                            {% if answer.question.question_type == 'TX' %}
                                                 <td>
                                                     <div style="min-width: 450px;">{{ answer.answer|format_json_array }}</div>
                                                 </td>
