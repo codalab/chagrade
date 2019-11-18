@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load klass_header %}
 
 {% block title %}Welcome{% endblock %}
 
@@ -23,7 +22,7 @@
         <a class="ui blue button" href="{% url 'profiles:instructor_overview' %}">Back to Instructor Overview</a>
             <div class="fourteen wide column">
 
-                {% klass_header %}
+                {% include "klasses/klass_header.html" %}
 
                 {% if object.active %}
                     <a href="{% url "metrics:klass" klass_pk=object.pk %}" class="ui basic blue button">

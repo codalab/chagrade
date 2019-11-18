@@ -2,7 +2,6 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load homework_tags %}
-{% load klass_header %}
 
 {% block title %}Welcome{% endblock %}
 
@@ -29,7 +28,7 @@
             <a class="ui blue button" href="{% url 'homework:overview' klass_pk=klass.pk %}">Back to Class Overview</a>
             <div class="fourteen wide column">
 
-                {% klass_header %}
+                {% include "klasses/klass_header.html" %}
 
                 <div class="ui header">Submissions for homework {{ definition.name }}{% if team %} for team {{ team.name }}{% endif %}</div>
                 {% if definition %}

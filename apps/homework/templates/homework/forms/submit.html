@@ -1,7 +1,5 @@
-
 {% extends 'base.html' %}
 {% load static %}
-{% load klass_header %}
 
 {% block title %}Welcome{% endblock %}
 
@@ -23,7 +21,7 @@
         <div class="row">
         <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
             <div class="fourteen wide column">
-                {% klass_header %}
+                {% include "klasses/klass_header.html" %}
 
                 <submit-homework github="{{ github }}" pk="{{ request.user.id }}"></submit-homework>
             </div>

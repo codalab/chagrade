@@ -2,7 +2,6 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load homework_tags %}
-{% load klass_header %}
 
 {% block title %}Welcome{% endblock %}
 
@@ -50,7 +49,7 @@
             <a class="ui blue button" href="{% url 'klasses:klass_details' klass_pk=klass.pk %}">Back to Class Overview</a>
             <div class="fourteen wide column">
 
-                {% klass_header %}
+                {% include "klasses/klass_header.html" %}
 
                 <div class="ui header">Class Metrics</div>
                 <div class="ui grid">
