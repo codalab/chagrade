@@ -50,7 +50,7 @@ class GithubUserInfoSerializer(serializers.ModelSerializer):
 
 
 class ChaUserSerializer(WritableNestedModelSerializer):
-    github_info = GithubUserInfoSerializer(required=False)
+    github_info = GithubUserInfoSerializer(required=False, read_only=True, allow_null=True)
 
     class Meta:
         model = User
@@ -66,7 +66,6 @@ class ChaUserSerializer(WritableNestedModelSerializer):
         extra_kwargs = {
             'username': {'validators': [], 'required': False, 'allow_blank': True},
             'email': {'validators': []},
-            'github_info': {'read_only': True, 'required': False, 'allow_blank': True},
         }
 
     def validate(self, attrs):
