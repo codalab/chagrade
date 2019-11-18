@@ -245,7 +245,7 @@ class Question(models.Model):
     has_specific_answer = models.BooleanField(default=False)
 
     question = models.CharField(max_length=300)
-    candidate_answers = JSONField(blank=True, default='')
+    candidate_answers = JSONField(blank=True, default=list)
 
     def __str__(self):
         return self.question
@@ -255,7 +255,7 @@ class QuestionAnswer(models.Model):
     submission = models.ForeignKey('Submission', related_name='question_answers', on_delete=models.CASCADE)
     question = models.ForeignKey('Question', default=None, related_name='student_answers', on_delete=models.CASCADE)
 
-    answer = JSONField(default='')
+    answer = JSONField(default=dict)
     is_correct = models.BooleanField(default=False)
 
 

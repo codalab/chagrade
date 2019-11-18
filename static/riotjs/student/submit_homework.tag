@@ -258,8 +258,6 @@
                 },
             })
 
-
-
             $(document).on('click', '.file.title', function clickkky(e) {
                 let file_element = $(e.target)
                 let url = file_element.parent().parent().attr('data-url')
