@@ -193,6 +193,42 @@ class Grade(models.Model):
 
 
 class Question(models.Model):
+    """
+    If Question is of question_type: single select or multiple select, the candidate answers are in the
+    form of an array in JSON. The student's selection(s) are stored on the Question Answer model.
+
+    E.g. If a question had a prompt that looked like this, "What is 5 + 5?", the candidate answers could look
+    like the following:
+
+    candidate_answers = [
+        '2',
+        '3',
+        '8',
+        '10',
+    ]
+
+    The student's answer would be stored in the following form on the QuestionAnswer model:
+    QuestionAnswer = {
+        'answer': '10
+    }
+
+
+
+    If the Question is a 'Text Answer', the candidate_answers object would either be left blank or take
+    the following form:
+
+    Question: "What is my favorite color?"
+
+    candidate_answers = {
+        'red'
+    }
+
+    The student's answer would be stored like this:
+    answer = {
+        'text': 'green'
+    }
+    """
+
     MULTIPLE_SELECT = 'MS'
     SINGLE_SELECT = 'SS'
     TEXT = 'TX'
@@ -210,40 +246,6 @@ class Question(models.Model):
 
     question = models.CharField(max_length=300)
     candidate_answers = JSONField(blank=True, default='')
-
-    # If Question is a single or multiple select is the type of the question, the candidate answers are in the
-    # form of an array in JSON. The student's selection(s) are stored on the Question Answer model.
-    #
-    # E.g. If a question had a prompt that looked like this, "What is 5 + 5?", the candidate answers could look
-    # like the following:
-    #
-    # candidate_answers = [
-    #     '2',
-    #     '3',
-    #     '8',
-    #     '10',
-    # ]
-    #
-    # The student's answer would be stored in the following form on the QuestionAnswer model:
-    # QuestionAnswer = {
-    #     'answer': '10
-    # }
-    #
-    #
-    #
-    # If the Question is a 'Text Answer', the candidate_answers object would either be left blank or take
-    # the following form:
-    #
-    # Question: "What is my favorite color?"
-    #
-    # candidate_answers = {
-    #     'red'
-    # }
-    #
-    # The student's answer would be stored like this:
-    # answer = {
-    #     'text': 'green'
-    # }
 
     def __str__(self):
         return self.question
