@@ -20,15 +20,6 @@
             width: 350px;
         }
 
-        .condensed {
-            margin: 0.5vh 0 0 0 !important;
-            padding: 0.5vh 0 0 0 !important;
-        }
-
-        .no-padding {
-            padding: 1vh 0 0 0 !important;
-        }
-
         .selection-section {
             margin-top: 2rem !important;
         }
@@ -197,21 +188,25 @@
         })
 
         function tab_setup() {
-            $('.ui.tabular.menu .item').tab()
-            $('.ui.tabular.menu .item').on('click', e => {
+            let menu_items = $('.ui.tabular.menu .item')
+            let team_dropdown = $('#team-dropdown')
+            let student_dropdown = $('#student-dropdown')
+
+            menu_items.tab()
+            menu_items.on('click', e => {
                 tabname = $(e.target).data('tab')
                 if (tabname === 'overview') {
                     // hide both dropdowns
-                    $('#team-dropdown').hide()
-                    $('#student-dropdown').hide()
+                    team_dropdown.hide()
+                    student_dropdown.hide()
                 } else if (tabname === 'students') {
                     // hide teams and show students
-                    $('#team-dropdown').hide()
-                    $('#student-dropdown').show()
+                    team_dropdown.hide()
+                    student_dropdown.show()
                 } else if (tabname === 'teams') {
                     // hide students and show teams
-                    $('#student-dropdown').hide()
-                    $('#team-dropdown').show()
+                    student_dropdown.hide()
+                    team_dropdown.show()
                 }
             })
             $('.score-normalization-popup').popup()
@@ -256,8 +251,8 @@
                                     instructor_metrics.student_scores_chart.data.labels = data.name
                                     instructor_metrics.student_scores_chart.update()
                                 })
-                                .fail( (data) => {
-                                    console.info('student scores error', data)
+                                .fail( () => {
+                                    toastr.error('Failed to retrieve student scores.')
                                 })
 
                             CHAGRADE.api.get_student_submission_times_metrics(id)
@@ -270,8 +265,8 @@
                                     instructor_metrics.student_temporal_histogram.data.datasets[0].data = time_data
                                     instructor_metrics.student_temporal_histogram.update()
                                 })
-                                .fail( (data) => {
-                                    console.info('klass scores error', data)
+                                .fail( () => {
+                                    toastr.error('Failed to retrieve student submission times.')
                                 })
                         },
                     })
@@ -292,8 +287,8 @@
                                     instructor_metrics.team_scores_chart.data.labels = data.name
                                     instructor_metrics.team_scores_chart.update()
                                 })
-                                .fail( (data) => {
-                                    console.info('team scores error', data)
+                                .fail( () => {
+                                    toastr.error('Failed to retrieve team scores.')
                                 })
 
                             CHAGRADE.api.get_team_submission_times_metrics(id)
@@ -306,8 +301,8 @@
                                     instructor_metrics.team_temporal_histogram.data.datasets[0].data = time_data
                                     instructor_metrics.team_temporal_histogram.update()
                                 })
-                                .fail( (data) => {
-                                    console.info('klass scores error', data)
+                                .fail( () => {
+                                    toastr.error('Failed to retrieve team submission times.')
                                 })
 
                             CHAGRADE.api.get_team_contributions_metrics(id)
@@ -321,12 +316,15 @@
                                     instructor_metrics.team_codalab_activity_chart.data.labels = data.chagrade_submissions.cha_username
                                     instructor_metrics.team_codalab_activity_chart.update()
                                 })
+                                .fail(() => {
+                                    toastr.error('Failed to retrieve team contributions metrics.')
+                                })
 
                         },
                     })
                 })
-                .fail(error => {
-                    console.info('klass error', error)
+                .fail(() => {
+                    toastr.error('Failed to retrieve klass.')
                 })
         }
 
@@ -342,25 +340,6 @@
             instructor_metrics.team_github_activity_chart = new Chart($('#team_github_activity'), create_bar_chart_config('Commits'));
             instructor_metrics.team_codalab_activity_chart = new Chart($('#team_codalab_activity'), create_bar_chart_config('Submissions'));
 
-            function format_data_for_bar_chart(data) {
-                let labels = []
-                let values = []
-                for (let i = 0; i < data.length; i++) {
-                    labels.push(data[i].name)
-                    values.push(data[i].count)
-                }
-                return {
-                    labels: labels,
-                    values: values,
-                }
-            }
-
-            function update_chart(chart, data) {
-                chart.data.datasets[0].data = format_data_for_chart(data)
-                chart.update()
-            }
-
-
             CHAGRADE.api.get_klass_scores_metrics({{ klass.pk }})
                 .done( (data) => {
                     instructor_metrics.overview_scores_chart.data.datasets[0].label = 'Average Class Score'
@@ -368,8 +347,8 @@
                     instructor_metrics.overview_scores_chart.data.labels = data.name
                     instructor_metrics.overview_scores_chart.update()
                 })
-                .fail( (data) => {
-                    console.info('klass scores error', data)
+                .fail( () => {
+                    toastr.error('Failed to retrieve class scores.')
                 })
 
             CHAGRADE.api.get_klass_submission_times_metrics({{ klass.pk }})
@@ -382,8 +361,8 @@
                    instructor_metrics.overview_temporal_histogram.data.datasets[0].data = time_data
                    instructor_metrics.overview_temporal_histogram.update()
                 })
-                .fail( (data) => {
-                    console.info('klass scores error', data)
+                .fail( () => {
+                    toastr.error('Failed to retrieve class submission times.')
                 })
         }
 
@@ -464,42 +443,6 @@
                 lineTension: 0,
             })
             return config
-
-//            return {
-//                type: 'line',
-//                data: {
-//                    datasets: [
-//                        {
-//                            label: '',
-//                            data: [0.2, 0.3],
-//                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-//                            borderColor:'rgba(54, 112, 185, 1)',
-//                            borderWidth: 2.2,
-//                            lineTension: 0,
-//                        }
-//                    ],
-//                    labels: [],
-//                },
-//                options: {
-//                    legend: {
-//                        display: true,
-//                        position: 'bottom',
-//                    },
-//                    aspectRatio: 1.4,
-//                    scales: {
-//                        yAxes: [{
-//                            ticks: {
-//                                beginAtZero: true,
-//                                stepSize: 0.25,
-//                            }
-//                        }]
-//                    }
-//                }
-//            }
         }
-
-
-
-
     </script>
 {% endblock %}
