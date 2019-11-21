@@ -296,7 +296,6 @@
 
             $(document).on('submit', 'form', function(e){
                 /* on form submit find the trigger */
-                console.info('submit event', e)
                 if( $(e.delegateTarget.activeElement).not('input, textarea').length == 0 ){
                     /* if the trigger is not between selectors list, return super false */
                     e.preventDefault();
@@ -309,15 +308,11 @@
         self.focus_next_input = function (event, question_index, candidate_index) {
             if (event.which === 13) {
                 event.preventDefault()
-                let question = self.questions[question_index]
-                if (question.hasOwnProperty('answer_candidates')){
-                    if (question.answer_candidates.length - 1 <= candidate_index) {
-                        self.refs['add_answer_candidate_button_' + question_index].click()
-                    } else {
-                        $(self.refs['answer_candidate_' + question_index + '_' + (candidate_index + 1)]).focus()
-                    }
-                } else {
+                let answer_candidates_length = _.get(self, `questions.${question_index}.answer_candidates.length`, 0)
+                if (answer_candidates_length === 0 || answer_candidates_length - 1 <= candidate_index) {
                     self.refs['add_answer_candidate_button_' + question_index].click()
+                } else {
+                    $(self.refs['answer_candidate_' + question_index + '_' + (candidate_index + 1)]).focus()
                 }
             }
         }
@@ -325,8 +320,6 @@
         self.update_teams = function () {
             CHAGRADE.api.get_teams(KLASS)
                 .done(function (data) {
-                    //self.update({definition['teams']: data})
-                    console.log(data)
                     self.definition.teams = data
                     self.update()
                 })
@@ -361,12 +354,7 @@
                             self.update()
 
                             if (value === 'MS' || value === 'SS') {
-                                if (question.hasOwnProperty('answer_candidates')) {
-                                    if (question.answer_candidates.length === 0) {
-                                        self.refs['add_answer_candidate_button_' + question_index].click()
-                                    }
-                                } else {
-
+                                if (_.get(question, 'answer_candidates.length', 0) === 0) {
                                     self.refs['add_answer_candidate_button_' + question_index].click()
                                 }
                             }
@@ -413,12 +401,7 @@
                         self.update()
 
                         if (value === 'MS' || value === 'SS') {
-                            if (question.hasOwnProperty('answer_candidates')) {
-                                if (question.answer_candidates.length === 0) {
-                                    self.refs['add_answer_candidate_button_' + question_index].click()
-                                }
-                            } else {
-
+                            if (_.get(question, 'answer_candidates.length', 0) === 0) {
                                 self.refs['add_answer_candidate_button_' + question_index].click()
                             }
                         }
@@ -438,9 +421,9 @@
         }
 
         self.remove_answer_candidate = function (index, candidate_index) {
-            let question = self.questions[index]
-            if (question.hasOwnProperty('answer_candidates')) {
-                question.answer_candidates.splice(candidate_index, 1)
+            let answer_candidates = _.get(self, `questions.${index}.answer_candidates`, null)
+            if (answer_candidates) {
+                answer_candidates.splice(candidate_index, 1)
             }
             self.update()
         }
@@ -481,7 +464,6 @@
                         })
                     })
 
-
                     self.update({
                         definition: data,
                         questions: data.custom_questions,
@@ -493,7 +475,6 @@
                         position: 'top left',
                     })
 
-
                     self.update_dropdowns()
 
                     for (let i = 0; i < self.questions.length; i++) {
@@ -504,7 +485,6 @@
                         $(self.refs['selection_dropdown_' + i]).dropdown('set selected', question.question_type)
 
                     }
-
 
                     $(document).on('input', 'textarea', function () {
                         $(this).outerHeight(38).outerHeight(this.scrollHeight); // 38 or '1em' -min-height
@@ -537,7 +517,6 @@
                     toastr.success("Successfully deleted question")
                 })
                 .fail(function (response) {
-                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         toastr.error("Error with " + key + "! " + response.responseJSON[key])
                     });
@@ -553,7 +532,6 @@
                         self.update_criterias()
                     })
                     .fail(function (response) {
-                        console.log(response)
                         Object.keys(response.responseJSON).forEach(function (key) {
                             toastr.error("Error with " + key + "! " + response.responseJSON[key])
                         });
@@ -569,9 +547,7 @@
             let form = $(self.refs.form)
             form.form('validate form')
 
-            //self.submit_team_changes()
             if (!form.form('is valid')) {
-                console.log('not valid')
                 return
             }
 
@@ -603,8 +579,6 @@
                      }*/
                 ]
             }
-            console.table(obj_data)
-//            return
 
             for (var index = 0; index < self.criterias.length; index++) {
                 var temp_data = {
@@ -643,8 +617,6 @@
                         'question': self.refs['question' + '_question_' + index].value,
                         'question_type': question.question_type,
                         'candidate_answers': answer_candidates,
-                        //'answer': self.refs['question' + '_answer_' + index].value,
-                        //'has_specific_answer': self.refs['question' + '_has_specific_answer_' + index].value,
                     }
                     if (self.refs['question' + '_id_' + index].value !== "") {
                         temp_data['id'] = self.refs['question' + '_id_' + index].value
@@ -662,7 +634,6 @@
                 self.definition.teams.forEach(function (team) {
                     if (self.refs["team_" + team.id + "_challenge_url"].value !== '') {
                         temp_data = {
-                            //'definition': self.definition.id,
                             'team': team.id,
                             'challenge_url': self.refs["team_" + team.id + "_challenge_url"].value
                         }
@@ -681,14 +652,11 @@
                 var endpoint = CHAGRADE.api.create_definition(obj_data)
             }
 
-            console.log(obj_data)
-
             endpoint
                 .done(function (data) {
                     window.location = '/klasses/wizard/' + KLASS + '/define_homework'
                 })
                 .fail(function (response) {
-                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         if (key === 'criterias' || key === 'custom_questions') {
                             toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")

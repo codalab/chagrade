@@ -5,7 +5,6 @@
         <div if="{ !definition.questions_only && !github_active }" class="fields">
             <div class="sixteen wide field">
                 <span>
-                    <!-- <i data-tooltip="Add users to your feed" class="question circle icon"></i> -->
                     <label class="">
                         <i class="pop-up question blue circle icon"
                            data-title="A URL from your github repo to a specific zip file"
@@ -33,7 +32,6 @@
             <div class="sixteen wide field">
                 <div class="row">
                 <span>
-                    <!-- <i data-tooltip="Add users to your feed" class="question circle icon"></i> -->
                     <label class="">
                         <i class="pop-up question blue circle icon"
                            data-title="A URL from your github repo to a specific file"
@@ -527,3 +525,4 @@
         }
     </style>
 </submit-homework>
+
