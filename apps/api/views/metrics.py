@@ -78,8 +78,8 @@ class MetricsTeamRenderer(renderers.CSVRenderer):
     header = list(labels.keys())
 
 
-def list_of_dicts_to_dict_of_lists(l):
-    return {k: [d[k] for d in l] for k in l[0]}
+def list_of_dicts_to_dict_of_lists(input_list):
+    return {key: [dictionary[key] for dictionary in input_list] for key in input_list[0]}
 
 
 def merge_list_of_lists_of_dicts(input_list):
@@ -92,8 +92,8 @@ def merge_list_of_lists_of_dicts(input_list):
         return []
     while len(sorted_input_list) > 0:
         next_longest_list = sorted_input_list.pop(0)
-        for i in range(len(next_longest_list)):
-            output_list[i].update(next_longest_list[i])
+        for index in range(len(next_longest_list)):
+            output_list[index].update(next_longest_list[index])
     return output_list
 
 
@@ -668,14 +668,14 @@ class InstructorTeamCSVView(TimeDistributionMixin, ScorePerHWMixin, TeamContribu
         merged_team_data = []
 
         if type(team_data) == dict:
-            gc = team_data.get('github_contributions')
-            cs = team_data.get('chagrade_submissions')
+            github_contributions = team_data.get('github_contributions')
+            chagrade_submissions = team_data.get('chagrade_submissions')
         else:
-            gc = []
-            cs = []
+            github_contributions = []
+            chagrade_submissions = []
 
         data1_for_union = {
-            'data': gc,
+            'data': github_contributions,
             'unique_pairs': {
                 'commit_count': 0,
             },
@@ -683,7 +683,7 @@ class InstructorTeamCSVView(TimeDistributionMixin, ScorePerHWMixin, TeamContribu
         }
 
         data2_for_union = {
-            'data': cs,
+            'data': chagrade_submissions,
             'unique_pairs': {
                 'submission_count': 0,
             },
