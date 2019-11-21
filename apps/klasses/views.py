@@ -1,9 +1,10 @@
 import csv
 
+from django.http import Http404, JsonResponse, HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Prefetch
 from django.core.mail import send_mail
-from django.http import Http404, JsonResponse, HttpResponse
 
 # Create your views here.
 from django.urls import reverse_lazy
@@ -139,7 +140,11 @@ class HomeworkAnswersView(LoginRequiredMixin, WizardMixin, TemplateView):
             instructor = klass.instructor
             context['instructor_student'] = klass.enrolled_students.get(user__pk=instructor.user.pk)
             context['instructor_submission'] = Submission.objects.filter(definition=definition, creator=context['instructor_student']).last()
-            context['non_instructor_students'] = klass.enrolled_students.all().exclude(user__pk=instructor.user.pk)
+            context['non_instructor_students'] = klass.enrolled_students.all().exclude(user__pk=instructor.user.pk).prefetch_related(Prefetch(
+                'submitted_homeworks',
+                queryset=Submission.objects.filter(definition=definition).order_by('created').prefetch_related('question_answers', 'question_answers__question', 'tracked_submissions'),
+            ))
+
         except ObjectDoesNotExist:
             raise Http404("Instructor is not enrolled in class.")
         return context

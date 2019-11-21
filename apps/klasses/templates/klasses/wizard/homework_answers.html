@@ -111,7 +111,7 @@
                                 </td>
                                 <td>{{ student.user.username }}</td>
 
-                                {% with definition|get_last_submission:student.user.pk as submission %}
+                                {% with student.submitted_homeworks.last as submission %}
                                     {% with submission.grades.last.get_total_score as grade %}
                                         <td>{{ grade }}</td>
                                     {% endwith %}
