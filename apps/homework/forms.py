@@ -8,7 +8,7 @@ class SubmissionForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = [
-            'submission_github_url'
+            'github_url'
         ]
 
 
@@ -21,6 +21,8 @@ class DefinitionForm(forms.ModelForm):
             'description',
             'challenge_url',
             'starting_kit_github_url',
+            'baseline_score',
+            'target_score',
             'ask_method_name',
             'ask_method_description',
             'ask_project_url',
@@ -43,6 +45,8 @@ class DefinitionEditForm(forms.ModelForm):
             'description',
             'challenge_url',
             'starting_kit_github_url',
+            'baseline_score',
+            'target_score',
             'ask_method_name',
             'ask_method_description',
             'ask_project_url',

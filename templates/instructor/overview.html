@@ -41,7 +41,7 @@
                                 <th>Edit:</th>
                                 <th>Active:</th>
                                 <th>Grades:</th>
-                                <th>Submissions</th>
+{#                                <th>Submissions</th>#}
                                 <th>Delete:</th>
                             </tr>
                         </thead>
@@ -50,7 +50,7 @@
                             {% for klass in user.instructor.klasses.all %}
                                 <tr>
                                    <td>
-                                       {% if klass.image %}<img src="{{ klass.image.url }}" width="50">{% endif %}
+                                       {% if klass.image %}<img class="ui mini image" src="{{ klass.image.url }}" width="50">{% endif %}
                                    </td>
                                    <td>{{ klass.title }}</td>
                                    <td>{{ klass.course_number }}</td>
@@ -63,8 +63,8 @@
 {#                                       <a href="" class="ui grey mini disabled button">Download</a>#}
                                        <a href="{% url 'homework:get_grades_csv' klass_pk=klass.pk %}" class="ui mini green button">Download</a>
                                    </td>
-                                   <td><a href="" class="ui grey mini disabled button">Download</a></td>
-                                   <td><a href="" class="ui grey mini disabled button">X</a></td>
+{#                                   <td><a href="" class="ui grey mini disabled button">Download</a></td>#}
+                                   <td><a id="{{ klass.pk }}" class="ui red mini button delete-klass">X</a></td>
                                 </tr>
                             {% endfor %}
 
@@ -73,6 +73,33 @@
                 </div>
             </div>
         </div>
+{% endblock %}
 
+{% block extra_script %}
+    <script>
+        $(document).ready( function () {
 
+            function delete_klass(pk) {
+                CHAGRADE.api.delete_klass(pk)
+                    .done(function (data) {
+                        toastr.success("Successfully deleted class")
+                        window.location = '/profiles/instructor_overview/'
+                    })
+                    .fail(function (response) {
+                        console.log(response)
+                        Object.keys(response.responseJSON).forEach(function (key) {
+                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                        });
+                    })
+            }
+
+            $('.delete-klass').click( (e) => {
+                let pk = $(e.target).attr('id')
+                let affirmative = confirm('Are you sure you wish to delete this class?')
+                if (affirmative) {
+                    delete_klass(pk)
+                }
+            })
+        })
+    </script>
 {% endblock %}

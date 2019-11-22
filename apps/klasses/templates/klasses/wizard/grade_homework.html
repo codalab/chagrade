@@ -9,7 +9,7 @@
     <div class="ui centered grid">
         <div class="row">
             <div class="ui fourteen wide column message">
-                <div>
+                <div style="overflow-x: scroll;">
                     <h1>Students</h1>
                     <span>
                         <a href="{% url 'homework:get_grades_csv' klass_pk=klass.pk %}" class="ui blue button">Download CSV</a>
@@ -23,6 +23,9 @@
                             {% for homework_def in klass.homework_definitions.all %}
                                 <th colspan="2">
                                     {{ homework_def.name }}
+                                    <a href="{% url "klasses:homework_answers" definition_pk=homework_def.pk klass_pk=klass.pk %}" class="ui blue icon button">
+                                        <i class="ui th list icon"></i>
+                                    </a>
                                 </th>
                             {% endfor %}
                         </tr>

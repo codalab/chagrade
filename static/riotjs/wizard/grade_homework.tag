@@ -1,4 +1,14 @@
 <grade-homework>
+    <h4>Other Homework Questions</h4>
+    <div class="ui relaxed celled list">
+        <ol>
+            <li each="{ question in definition.custom_questions }">{ question.question }
+                <ul>
+                    <li each="{ answer in question.student_answers }">{ answer }</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
 
     <h4 class="ui header">Grades:</h4>
     <div class="ui relaxed celled list">
@@ -109,7 +119,6 @@
                     window.location = '/klasses/wizard/' + KLASS + '/grade_homework'
                 })
                 .fail(function (response) {
-                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         if (key === 'criteria_answers') {
                             toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
@@ -124,10 +133,16 @@
             window.location = '/klasses/wizard/' + KLASS + '/grade_homework'
         }
 
-
         self.update_definition = function (pk) {
             CHAGRADE.api.get_definition(pk)
                 .done(function (data) {
+                    let question_answers = self.submission.question_answers
+                    for (let i = 0; i < question_answers.length; i++) {
+                        let question = _.find(data.custom_questions, function (question) {
+                            return question.id === question_answers[i].question
+                        })
+                        question.student_answers = question_answers[i].answer
+                    }
                     self.update({
                         definition: data
                     })

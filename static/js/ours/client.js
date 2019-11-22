@@ -31,6 +31,9 @@ CHAGRADE.api = {
     get_klass: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + 'klasses/' + pk)
     },
+    delete_klass: function(pk) {
+        return CHAGRADE.api.request('DELETE', URLS.API + 'klasses/' + pk)
+    },
     get_klasses: function(data) {
         return CHAGRADE.api.request('GET', URLS.API + 'klasses/', data)
     },
@@ -50,6 +53,9 @@ CHAGRADE.api = {
     create_single_student: function(data) {
         //return CHAGRADE.api.request('POST', URLS.API + "create_student/", data)
         return CHAGRADE.api.request('POST', URLS.API + "test_students/", data)
+    },
+    get_cha_user: function(pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "users/" + pk)
     },
     get_student: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + "students/" + pk)
@@ -111,8 +117,59 @@ CHAGRADE.api = {
     delete_team: function(pk) {
         return CHAGRADE.api.request('DELETE', URLS.API + "teams/" + pk + "/")
     },
-    // General Stats
-    get_general_stats: function() {
-        return CHAGRADE.api.request('GET', URLS.API + "chagrade_general_stats/")
+    // Metrics
+    get_overall_metrics: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_overall_metrics/")
+    },
+    get_student_metrics: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_student_metrics/")
+    },
+    get_instructor_metrics: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_instructor_metrics/")
+    },
+    get_klass_metrics: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_klass_metrics/")
+    },
+    get_submission_metrics: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "chagrade_submission_metrics/")
+    },
+    get_student_scores_metrics: function(student_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "student_scores/" + student_pk)
+    },
+    get_student_submission_times_metrics: function(student_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "student_submission_times/" + student_pk)
+    },
+    get_team_scores_metrics: function(team_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "team_scores/" + team_pk)
+    },
+    get_team_submission_times_metrics: function(team_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "team_submission_times/" + team_pk)
+    },
+    get_klass_scores_metrics: function(klass_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "klass_scores/" + klass_pk)
+    },
+    get_klass_CSV: function(klass_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "klass_csv/" + klass_pk + "?format=csv")
+    },
+    get_klasses_CSV: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "klasses_csv/" + "?format=csv")
+    },
+    get_users_CSV: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "users_csv/" + "?format=csv")
+    },
+    get_submissions_CSV: function() {
+        return CHAGRADE.api.request('GET', URLS.API + "submissions_csv/" + "?format=csv")
+    },
+    get_student_CSV: function(student_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "student_csv/" + student_pk + "?format=csv")
+    },
+    get_team_CSV: function(team_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "team_csv/" + team_pk + "?format=csv")
+    },
+    get_klass_submission_times_metrics: function(klass_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "klass_submission_times/" + klass_pk)
+    },
+    get_team_contributions_metrics: function(team_pk) {
+        return CHAGRADE.api.request('GET', URLS.API + "team_contributions/" + team_pk)
     },
 }

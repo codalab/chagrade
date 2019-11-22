@@ -2,7 +2,9 @@ import os
 from urllib.parse import urlparse
 
 import requests
+
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 # Require an account type to determine users vs students?
 # Or should we abstract two seperate sub-models from this one?
@@ -20,8 +22,15 @@ class Definition(models.Model):
     name = models.CharField(default=None, max_length=100, null=False, blank=False)
     description = models.CharField(max_length=300, null=True, blank=True)
 
+    questions_only = models.BooleanField(default=False, null=False)
+
     challenge_url = models.URLField(default=None, null=True, blank=True)
     starting_kit_github_url = models.URLField(default=None, null=True, blank=True)
+
+    # Make required if not questions_only
+    baseline_score = models.FloatField(default=0.0, null=True, blank=False)
+    target_score = models.FloatField(default=1.0, null=True, blank=False)
+
 
     # These values for submissions will have to be grabbed from v1.5 API
     # We should almost set these automatically by an API request to the challenge and see if these options are enabled
@@ -39,7 +48,7 @@ class Definition(models.Model):
     def __str__(self):
         return "{}".format(self.name)
 
-    def get_challenge_domain(self):
+    def get_challenge_url(self):
         parsed_uri = urlparse(self.challenge_url)
         scheme = parsed_uri.scheme
         domain = parsed_uri.netloc
@@ -52,7 +61,10 @@ class Submission(models.Model):
     definition = models.ForeignKey('Definition', default=None, related_name='submissions', on_delete=models.CASCADE)
     creator = models.ForeignKey('profiles.StudentMembership', related_name='submitted_homeworks', on_delete=models.CASCADE)
 
-    submission_github_url = models.URLField(default=None, null=True, blank=True, validators=[validate_submission_github_url])
+    github_url = models.URLField(default=None, null=True, blank=True, validators=[validate_submission_github_url])
+    github_repo_name = models.CharField(max_length=150, default='', blank=True)
+    github_branch_name = models.CharField(max_length=150, default='', blank=True)
+    github_commit_hash = models.CharField(max_length=50, default='', blank=True)
 
     method_name = models.CharField(max_length=100, default='', null=True, blank=True)
     method_description = models.CharField(max_length=300, default='', null=True, blank=True)
@@ -66,17 +78,20 @@ class Submission(models.Model):
     team = models.ForeignKey('groups.Team', default=None, null=True, blank=True, related_name='submissions', on_delete=models.SET_NULL)
 
     def __str__(self):
-        return "{}".format(self.submission_github_url)
+        return "{}".format(self.github_url)
 
     @property
     def get_challenge_url(self):
-        if not self.definition.challenge_url or not self.submission_github_url:
-            print("No challenge URL or submission github URL given.")
+        if not self.definition.challenge_url:
+            print("No challenge URL given.")
+            return
+        if not self.github_url:
+            print("No submission github URL given.")
             return
         if self.definition.team_based:
             if not self.team:
                 print("Team not set")
-                return
+                return self.definition.challenge_url
             custom_urls = self.team.challenge_urls.filter(definition=self.definition)
             if not custom_urls:
                 print("No custom URL found, returning definition challenge url")
@@ -87,14 +102,21 @@ class Submission(models.Model):
         else:
             return self.definition.challenge_url
 
+    def filename(self):
+        return self.github_url.split('/')[-1]
+
+
 class SubmissionTracker(models.Model):
     submission = models.ForeignKey('Submission', related_name='tracked_submissions', null=True, blank=True, on_delete=models.CASCADE)
+
+    stored_status = models.CharField(max_length=20, null=True)
+    stored_score = models.FloatField(null=True)
 
     remote_id = models.CharField(max_length=10)
     remote_phase = models.CharField(max_length=10)
 
-    def get_remote_submission_info(self):
-        challenge_site_url = self.submission.definition.get_challenge_domain()
+    def retrieve_score_and_status(self):
+        challenge_site_url = self.submission.definition.get_challenge_url()
         score_api_url = "{0}/api/submission/{1}/get_score".format(challenge_site_url, self.remote_id)
         score_api_resp = requests.get(
             score_api_url,
@@ -103,25 +125,27 @@ class SubmissionTracker(models.Model):
                 os.environ.get('CODALAB_SUBMISSION_PASSWORD')
             )
         )
+
         if score_api_resp.status_code == 200:
             data = score_api_resp.json()
             if data.get('status'):
-                print("Data found for submission. Returning scores.")
-                return {
-                    'status': data.get('status'),
-                    'score': data.get('score', None)
-                }
-            else:
-                print("Could not retrieve complete data for submission")
-                return None
-        elif score_api_resp.status_code == 404:
-            print("Could not find submission or competition.")
-            return None
-        elif score_api_resp.status_code == 403:
-            print("Not authorized to make this request.")
-            return None
-        print("There was a problem making the request")
-        return None
+                self.stored_status = data.get('status')
+                self.stored_score = float(data.get('score', None))
+
+        self.save()
+        return
+
+    @property
+    def status(self):
+        if self.stored_status == None or self.stored_status == "Submitted":
+            self.retrieve_score_and_status()
+        return self.stored_status
+
+    @property
+    def score(self):
+        if self.stored_score == None:
+            self.retrieve_score_and_status()
+        return self.stored_score
 
 
 class Grade(models.Model):
@@ -138,7 +162,7 @@ class Grade(models.Model):
     published = models.BooleanField(default=False)
 
     def __str__(self):
-        return "{0}:{1}".format(self.submission.submission_github_url, self.evaluator.user.username)
+        return "{0}:{1}".format(self.submission.github_url, self.evaluator.user.username)
 
     def get_total_score_total_possible(self):
         total_possible = 0
@@ -147,6 +171,18 @@ class Grade(models.Model):
             total_possible += criteria_answer.criteria.upper_range
             total += criteria_answer.score
         return total, total_possible
+
+    def get_total_possible(self):
+        total_possible = 0
+        for criteria_answer in self.criteria_answers.all():
+            total_possible += criteria_answer.criteria.upper_range
+        return total_possible
+
+    def get_total_score(self):
+        total = 0
+        for criteria_answer in self.criteria_answers.all():
+            total += criteria_answer.score
+        return total
 
     def calculate_grade(self):
         total, total_possible = self.get_total_score_total_possible()
@@ -157,15 +193,70 @@ class Grade(models.Model):
 
 
 class Question(models.Model):
+    """
+    If Question is of question_type: single select or multiple select, the candidate answers are in the
+    form of an array in JSON. The student's selection(s) are stored on the Question Answer model.
+
+    E.g. If a question had a prompt that looked like this, "What is 5 + 5?", the candidate answers could look
+    like the following:
+
+    candidate_answers = [
+        '2',
+        '3',
+        '8',
+        '10',
+    ]
+
+    The student's answer would be stored in the following form on the QuestionAnswer model:
+    QuestionAnswer = {
+        'answer': '10
+    }
+
+
+
+    If the Question is a 'Text Answer', the candidate_answers object would either be left blank or take
+    the following form:
+
+    Question: "What is my favorite color?"
+
+    candidate_answers = {
+        'red'
+    }
+
+    The student's answer would be stored like this:
+    answer = {
+        'text': 'green'
+    }
+    """
+
+    MULTIPLE_SELECT = 'MS'
+    SINGLE_SELECT = 'SS'
+    TEXT = 'TX'
+
+    TYPE_CHOICES = [
+        (MULTIPLE_SELECT, 'Checkboxes'),
+        (SINGLE_SELECT, 'Multiple Choice'),
+        (TEXT, 'Text Answer'),
+    ]
+    question_type = models.CharField(max_length=2, choices=TYPE_CHOICES, default=TEXT)
+
     definition = models.ForeignKey('Definition', related_name='custom_questions', on_delete=models.CASCADE)
 
     has_specific_answer = models.BooleanField(default=False)
 
     question = models.CharField(max_length=300)
-    answer = models.CharField(max_length=200, null=True, blank=True)
+    candidate_answers = JSONField(blank=True, default=list)
 
     def __str__(self):
         return self.question
+
+
+class QuestionAnswer(models.Model):
+    submission = models.ForeignKey('Submission', related_name='question_answers', on_delete=models.CASCADE)
+    question = models.ForeignKey('Question', default=None, related_name='student_answers', on_delete=models.CASCADE)
+
+    answer = JSONField(default=dict)
+    is_correct = models.BooleanField(default=False)
 
 
 class Criteria(models.Model):
@@ -177,14 +268,6 @@ class Criteria(models.Model):
 
     def __str__(self):
         return "{0}-{1}".format(self.definition, self.pk)
-
-
-class QuestionAnswer(models.Model):
-    submission = models.ForeignKey('Submission', related_name='question_answers', on_delete=models.CASCADE)
-    question = models.ForeignKey('Question', default=None, related_name='student_answers', on_delete=models.CASCADE)
-
-    text = models.CharField(max_length=150, default='')
-    is_correct = models.BooleanField(default=False)
 
 
 class CriteriaAnswer(models.Model):

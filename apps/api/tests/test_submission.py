@@ -10,6 +10,8 @@ from apps.homework.models import Definition, Submission
 from apps.klasses.models import Klass
 from apps.profiles.models import Instructor, StudentMembership
 
+from unittest.mock import patch
+
 User = get_user_model()
 
 
@@ -51,7 +53,7 @@ class SubmissionAPIEndpointsTests(TestCase):
                 "klass": '',
                 "definition": '',
                 "creator": '',
-                "submission_github_url": "",
+                "github_url": "",
                 "method_name": "",
                 "method_description": "",
                 "project_url": "",
@@ -66,7 +68,7 @@ class SubmissionAPIEndpointsTests(TestCase):
                 "klass": '',
                 "definition": '',
                 "creator": '',
-                "submission_github_url": "",
+                "github_url": "",
                 "method_name": "",
                 "method_description": "",
                 "project_url": "",
@@ -123,16 +125,18 @@ class SubmissionAPIEndpointsTests(TestCase):
             status=201
         )
 
-        resp = self.client.post(
-            reverse('api:submission-list', kwargs={'version': 'v1'}),
-            data={
-                "klass": self.klass.pk,
-                "definition": self.definition.pk,
-                "creator": self.student.pk,
-                "submission_github_url": "https://github.com/Tthomas63/chagrade_test_submission",
-                "method_name": "student method",
-            }
-        )
+        with patch('apps.api.views.homework.post_submission') as post_submission:
+            resp = self.client.post(
+                reverse('api:submission-list', kwargs={'version': 'v1'}),
+                data={
+                    "klass": self.klass.pk,
+                    "definition": self.definition.pk,
+                    "creator": self.student.pk,
+                    "github_url": "https://github.com/Tthomas63/chagrade_test_submission/archive/master.zip",
+                    "method_name": "student method",
+                }
+            )
+            assert post_submission.called
 
         sub_id = resp.json()['id']
 
@@ -208,16 +212,19 @@ class SubmissionAPIEndpointsTests(TestCase):
             status=201
         )
 
-        resp = self.client.post(
-            reverse('api:submission-list', kwargs={'version': 'v1'}),
-            data={
-                "klass": self.klass.pk,
-                "definition": self.definition.pk,
-                "creator": self.student.pk,
-                "submission_github_url": "https://github.com/Tthomas63/chagrade_test_submission",
-                "method_name": "instructor method",
-            }
-        )
+        with patch('apps.api.views.homework.post_submission') as post_submission:
+            resp = self.client.post(
+                reverse('api:submission-list', kwargs={'version': 'v1'}),
+                data={
+                    "klass": self.klass.pk,
+                    "definition": self.definition.pk,
+                    "creator": self.student.pk,
+                    "github_url": "https://github.com/Tthomas63/chagrade_test_submission/archive/master.zip",
+                    "method_name": "instructor method",
+                }
+            )
+            assert post_submission.called
+
         sub_id = resp.json()['id']
         assert resp.json()['method_name'] == 'instructor method'
         assert resp.status_code == 201

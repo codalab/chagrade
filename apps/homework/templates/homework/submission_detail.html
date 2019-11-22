@@ -1,0 +1,77 @@
+{# TODO: Replace all the context/templatefilter/templatetag with proper context variables #}
+{% extends 'base.html' %}
+{% load static %}
+{% load homework_tags %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .condensed {
+            margin: 0.5vh 0 0 0 !important;
+            padding: 0.5vh 0 0 0 !important;
+        }
+
+        .no-padding {
+            padding: 1vh 0 0 0 !important;
+        }
+    </style>
+
+
+{% endblock %}
+
+{% block content %}
+    <div class="ui centered grid">
+        <div class="row">
+            <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
+            <div class="fourteen wide column">
+
+            {% include "klasses/klass_header.html" %}
+
+                <div class="ui header">Submission {{ submission.pk }} for homework {{ definition.name }}{% if team %} for team {{ team.name }}{% endif %}</div>
+                {% if definition %}
+                    {#                    {% if definition.team_based %}#}
+                    {% with definition|get_last_submission:user.pk as submission %}
+                        {% with submission|get_last_grade as grade %}
+                            <div class="ui message">
+                                <div class="content">
+                                    <a style="margin-bottom: 20px;" href="{% url "homework:overview" klass_pk=definition.klass.pk %}"
+                                       class="ui blue button">View Homeworks</a>
+                                    <a style="margin-bottom: 20px;" href="{% url "homework:submission_list" definition_pk=definition.pk %}"
+                                       class="ui blue button">View Submissions</a>
+
+                                    {% if not definition.questions_only %}
+                                        <a style="margin-bottom: 20px;" href="{{ definition.get_challenge_url }}"
+                                           target="_blank" rel="noopener noreferrer"
+                                           class="ui blue button">Codalab Challenge</a>
+                                    {% endif %}
+
+                                    {% if definition.starting_kit_github_url %}
+                                        <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">
+                                            <i class="ui github icon"></i>
+                                            Starting Kit</a><br>
+                                    {% endif %}
+                                    {% if definition.team_based %}
+                                        <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
+                                             class="ui basic red label">Graded as teamwork
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="ui grid">
+                                        <div class="column">
+                                            <div class="ui header">Submission Information</div>
+                                            <div class="ui divider"></div>
+
+                                            <submission-detail-github class="ui grid" submission_pk="{{ submission.pk }}" hash="{{ submission.commit_hash }}" user_pk="{{ request.user.pk }}"></submission-detail-github>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        {% endwith %}
+                    {% endwith %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

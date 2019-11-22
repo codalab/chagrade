@@ -1,4 +1,6 @@
 import uuid
+import requests
+import json
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -15,6 +17,8 @@ class ChaUser(AbstractUser):
 
     has_set_password = models.BooleanField(default=False, null=False, blank=False)
 
+    github_info = models.OneToOneField('GithubUserInfo', related_name='user', null=True, blank=True, on_delete=models.CASCADE)
+
     receive_emails_from_team = models.BooleanField(default=True)
     receive_emails_from_instructor = models.BooleanField(default=True)
     receive_emails_from_admins = models.BooleanField(default=True)
@@ -30,6 +34,8 @@ class Instructor(models.Model):
     university_name = models.CharField(max_length=200, null=True, blank=True)
 
     group = models.ForeignKey('groups.Group', related_name='instructor_members', null=True, blank=True, on_delete=models.PROTECT)
+
+    date_promoted = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return "{0}".format(self.user.username)
@@ -69,3 +75,34 @@ class PasswordResetRequest(models.Model):
     @property
     def reset_link(self):
         return '{0}{1}'.format(settings.SITE_DOMAIN, reverse('profiles:reset_password_by_email', kwargs={'reset_key': self.key}))
+
+
+class GithubUserInfo(models.Model):
+    # Required Info
+    uid = models.CharField(max_length=30, unique=True)
+
+    # Misc/Avatar/Profile
+    login = models.CharField(max_length=100, null=True, blank=True)  # username
+    avatar_url = models.URLField(max_length=100, null=True, blank=True)
+    gravatar_id = models.CharField(max_length=100, null=True, blank=True)
+    html_url = models.URLField(max_length=100, null=True, blank=True)  # Profile URL
+    name = models.CharField(max_length=100, null=True, blank=True)
+    company = models.CharField(max_length=100, null=True, blank=True)
+    bio = models.TextField(max_length=2000, null=True, blank=True)
+    location = models.CharField(max_length=120, null=True, blank=True)
+    created_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(null=True, blank=True)
+    access_token = models.CharField(max_length=100, null=True, blank=True)
+
+    # API Info
+    node_id = models.CharField(unique=True, max_length=50, default='')
+    url = models.URLField(max_length=100, null=True, blank=True)  # Base API URL
+    followers_url = models.URLField(max_length=100, null=True, blank=True)
+    following_url = models.URLField(max_length=100, null=True, blank=True)
+    gists_url = models.URLField(max_length=100, null=True, blank=True)
+    starred_url = models.URLField(max_length=100, null=True, blank=True)
+    subscriptions_url = models.URLField(max_length=100, null=True, blank=True)
+    organizations_url = models.URLField(max_length=100, null=True, blank=True)
+    repos_url = models.URLField(max_length=100, null=True, blank=True)
+    events_url = models.URLField(max_length=100, null=True, blank=True)
+    received_events_url = models.URLField(max_length=100, null=True, blank=True)

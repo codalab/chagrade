@@ -1,20 +1,23 @@
 import csv
 
+from django.http import Http404, JsonResponse, HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Prefetch
 from django.core.mail import send_mail
-from django.http import Http404, JsonResponse, HttpResponse
 
 # Create your views here.
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, TemplateView, FormView, UpdateView
+
+from apps.homework.models import Definition, Submission
 
 from apps.klasses.forms import KlassForm
 from apps.klasses.models import Klass
 
 from apps.klasses.mixins import WizardMixin
 
-# Todo: Replace Http404's with correct resposne for forbidden (Besides not found?)
+# Todo: Replace Http404's with correct response for forbidden (Besides not found?)
 
 
 class CreationView(LoginRequiredMixin, FormView):
@@ -28,6 +31,11 @@ class CreationView(LoginRequiredMixin, FormView):
         new_obj.save()
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Create-Class'
+        return context
+
 
 class EditView(LoginRequiredMixin, UpdateView):
     template_name = 'klasses/klass_form.html'
@@ -40,6 +48,11 @@ class EditView(LoginRequiredMixin, UpdateView):
         if not self.success_url:
             return reverse_lazy('klasses:klass_details', kwargs={'klass_pk': self.object.pk})
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Create-Class'
+        return context
+
 
 class OverView(LoginRequiredMixin, DetailView):
     template_name = 'klasses/wizard/overview.html'
@@ -48,6 +61,13 @@ class OverView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(OverView, self).get_context_data(**kwargs)
+        try:
+            klass = kwargs.get('object')
+        except ObjectDoesNotExist:
+            raise Http404
+
+        context['completely_graded'] = klass.homeworks_completely_graded()
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Instructor-Class-Detail'
         return context
 
 
@@ -56,15 +76,78 @@ class EnrollmentView(LoginRequiredMixin, WizardMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        try:
+            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+        except ObjectDoesNotExist:
+            raise Http404
+
+        context['completely_graded'] = klass.homeworks_completely_graded()
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Wizard-Enroll-Students'
         return context
 
 
 class DefineHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/define_homework.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+        except ObjectDoesNotExist:
+            raise Http404
+
+        context['completely_graded'] = klass.homeworks_completely_graded()
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Wizard-Homework-List'
+        return context
+
 
 class GradeHomeworkView(LoginRequiredMixin, WizardMixin, TemplateView):
     template_name = 'klasses/wizard/grade_homework.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+        except ObjectDoesNotExist:
+            raise Http404
+
+        context['completely_graded'] = klass.homeworks_completely_graded()
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Wizard-Grade-Homework'
+        return context
+
+
+class HomeworkAnswersView(LoginRequiredMixin, WizardMixin, TemplateView):
+    template_name = 'klasses/wizard/homework_answers.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Homework-Answers'
+        klass_pk = self.kwargs.get('klass_pk')
+        klass = None
+        try:
+            klass = Klass.objects.get(pk=klass_pk)
+            definition_pk = self.kwargs.get('definition_pk')
+            definition = Definition.objects.get(pk=definition_pk)
+            context['definition'] = definition
+            question_quantity = definition.custom_questions.count()
+            context['question_quantity_sensitive_width'] = question_quantity * 35
+            context['question_quantity_range'] = range(question_quantity)
+
+        except ObjectDoesNotExist:
+            raise Http404("Could not find object!")
+
+        try:
+            instructor = klass.instructor
+            context['instructor_student'] = klass.enrolled_students.get(user__pk=instructor.user.pk)
+            context['instructor_submission'] = Submission.objects.filter(definition=definition, creator=context['instructor_student']).last()
+            context['non_instructor_students'] = klass.enrolled_students.all().exclude(user__pk=instructor.user.pk).prefetch_related(Prefetch(
+                'submitted_homeworks',
+                queryset=Submission.objects.filter(definition=definition).order_by('created').prefetch_related('question_answers', 'question_answers__question', 'tracked_submissions'),
+            ))
+
+        except ObjectDoesNotExist:
+            raise Http404("Instructor is not enrolled in class.")
+        return context
 
 
 # TODO: Make this into an API point/call
@@ -77,7 +160,7 @@ class ActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
         #     return HttpResponse(status=403)
         try:
             klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
-            if request.user == klass.instructor.user:
+            if request.user == klass.instructor.user or request.user.is_superuser:
                 klass.active = not klass.active
                 klass.save()
                 data = {
@@ -98,6 +181,18 @@ class ActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
             }
             return JsonResponse(data, status=404)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        try:
+            klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+        except ObjectDoesNotExist:
+            raise Http404
+
+        context['completely_graded'] = klass.homeworks_completely_graded()
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Wizard-Activate-Class'
+        return context
+
 
 def get_klass_students_as_csv(request, klass_pk):
     if request.method == 'GET':
@@ -106,7 +201,7 @@ def get_klass_students_as_csv(request, klass_pk):
             klass = Klass.objects.get(pk=klass_pk)
             if not request.user.instructor:
                 return Http404("Not allowed")
-            if not request.user.instructor == klass.instructor:
+            if not request.user.instructor == klass.instructor or request.user.is_superuser:
                 return Http404("Not allowed")
         except Klass.DoesNotExist:
             raise Http404("Klass not found!")

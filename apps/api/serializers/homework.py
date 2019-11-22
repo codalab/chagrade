@@ -13,7 +13,7 @@ class QuestionAnswerSerializer(ModelSerializer):
         model = QuestionAnswer
         fields = [
             'question',
-            'text',
+            'answer',
             'is_correct',
             'id'
         ]
@@ -29,25 +29,31 @@ class SubmissionSerializer(WritableNestedModelSerializer):
             'klass',
             'definition',
             'creator',
-            'submission_github_url',
+            'github_url',
+            'github_repo_name',
+            'github_branch_name',
+            'github_commit_hash',
             'method_name',
             'method_description',
             'project_url',
             'publication_url',
             'question_answers',
             'id',
-            # 'get_challenge_url',
-            'team'
+            'team',
+            'created',
         ]
+
+        read_only_fields = ['created',]
 
 
 class QuestionSerializer(ModelSerializer):
     class Meta:
         model = Question
         fields = [
+            'question_type',
             'has_specific_answer',
             'question',
-            'answer',
+            'candidate_answers',
             'id'
         ]
 
@@ -98,8 +104,11 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'due_date',
             'name',
             'description',
+            'questions_only',
             'challenge_url',
             'starting_kit_github_url',
+            'baseline_score',
+            'target_score',
             'ask_method_name',
             'ask_method_description',
             'ask_project_url',

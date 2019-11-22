@@ -23,49 +23,9 @@
         <div class="row">
             <a class="ui blue button" href="{% url 'profiles:student_overview' %}">Back to Student Overview</a>
             <div class="fourteen wide column">
-                <div class="ui centered grid segment">
-                    <div class="row">
-                        <div class="two wide column">
-                            {% if klass.image %}
-                                <img style="height: 100px; width: auto;" src="{{ klass.image.url }}">
-                            {% else %}
-                                <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
-                            {% endif %}
-                        </div>
-                        <div class="fourteen wide column">
-                            <div class="ui grid">
-                                <div class="row no-padding">
-                                    <div class="twelve wide column">
-                                        <h1 class="ui header">{{ klass.title }}</h1>
-                                        {% if klass.group %}
-                                            <h4 class="ui header condensed">From Group: {{ klass.group.name }}</h4>
-                                        {% endif %}
-                                        <h4 class="ui header condensed">Organized
-                                            by: {{ klass.instructor.user.username }}</h4>
-                                    </div>
-                                    <div class="four wide column">
-                                        <h5 class="ui header condensed">Created: {{ klass.created.date }}</h5>
-                                        <h5 class="ui header condensed">Modified: {{ klass.modified.date }}</h5>
-                                    </div>
-                                </div>
-                                <div class="row no-padding">
-                                    <div class="sixteen wide column">
-                                        <ul class="ui relaxed list">
-                                            <div class="item">
-                                                Description: {{ klass.description }}
-                                            </div>
-                                            {% if klass.syllabus %}
-                                                <div class="item">
-                                                    <a href="{{ klass.syllabus.url }}">Syllabus</a>
-                                                </div>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+                {% include "klasses/klass_header.html" %}
+
                 <div class="ui header">Assignments for Class {{ klass.title }}</div>
                 {% for definition in klass.homework_definitions.all %}
                     {#                    {% if definition.team_based %}#}
@@ -73,33 +33,48 @@
                         {% with submission|get_last_grade as grade %}
                             <div class="ui message">
                                 <div class="content">
+
                                     <div class="header">
                                         {{ definition.name }}
                                     </div>
                                     <hr>
-                                    <h4>Due Date: {{ definition.due_date }}</h4>
-                                    <p>{{ definition.description }}</p>
-                                    <a href="{{ submission.get_challenge_url }}"
-                                       class="ui green button">View Challenge</a>
-                                    {% if definition.starting_kit_github_url %}
-                                        <a href="{{ definition.starting_kit_github_url }}" class="ui blue button">Goto Starting
-                                            Kit</a><br>
-                                    {% endif %}
-                                    {% if definition.team_based %}
-                                        <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
-                                             class="ui red label">Graded as teamwork
-                                        </div>
-                                    {% endif %}
+
                                     <div class="ui grid">
                                         <div class="row">
                                             <div class="eight wide column">
+
+                                                <h4>Due Date: {{ definition.due_date }}</h4>
+                                                <p>{{ definition.description }}</p>
+                                                {% if not definition.questions_only %}
+                                                    <a href="{{ definition.challenge_url }}"
+                                                       target="_blank" rel="noopener noreferrer"
+                                                       class="ui blue button">Codalab Challenge</a>
+                                                    {% if definition.starting_kit_github_url %}
+                                                        <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">
+                                                            <i class="ui github icon"></i>
+                                                            Starting Kit</a>
+                                                        <br>
+                                                    {% endif %}
+                                                {% endif %}
+
+                                                {% if definition.team_based %}
+                                                    <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
+                                                         class="ui basic red label">Graded as teamwork
+                                                    </div>
+                                                {% endif %}
+
                                                 {% if submission %}
                                                     <div class="ui divider"></div>
                                                     <h4 class="ui header">Submission Details:</h4>
                                                     <ul class="ui relaxed celled list">
-                                                        <div class="item"><a
-                                                                href="{{ submission.submission_github_url }}"
-                                                                class="">Github URL for Submission</a></div>
+
+                                                        {% if not definition.questions_only %}
+                                                            <div class="item"><a
+                                                                    href="{{ submission.github_url }}"
+                                                                    target="_blank" rel="noopener noreferrer"
+                                                                    class="">Github URL for Submission</a></div>
+                                                        {% endif %}
+
                                                         {% if definition.ask_method_name %}
                                                             <div class="item">Method Name:
                                                                 {{ submission.method_name }}</div>{% endif %}
@@ -108,44 +83,58 @@
                                                                 {{ submission.method_description }}</div>{% endif %}
                                                         {% if definition.ask_project_url %}
                                                             <div class="item">Project URL:
-                                                                {{ submission.project_url }}</div>{% endif %}
+                                                                <a href="{{ submission.project_url }}"
+                                                                   target="_blank" rel="noopener noreferrer"
+                                                                >{{ submission.project_url }}</a>
+                                                                </div>{% endif %}
                                                         {% if definition.ask_publication_url %}
                                                             <div class="item">Publication URL:
-                                                                {{ submission.publication_url }}</div>{% endif %}
+                                                                <a href="{{ submission.publication_url }}"
+                                                                   target="_blank" rel="noopener noreferrer"
+                                                                >{{ submission.publication_url }}</a>
+                                                                </div>{% endif %}
                                                     </ul>
                                                 {% endif %}
                                             </div>
                                             <div class="eight wide column">
                                                 {% if submission %}
-                                                    <a href="{% url "homework:edit_submission" klass_pk=klass.pk definition_pk=definition.pk submission_pk=submission.pk %}"
-                                                       class="ui yellow button">Edit/Re-Submit Homework</a>
-                                                    <table class="ui table">
-                                                        <thead>
-                                                        <tr>
-                                                            <th>ID</th>
-                                                            <th>Status</th>
-                                                            <th>Score</th>
-                                                            <th>Phase</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        {% for tracker in submission.tracked_submissions.all %}
-                                                            {% with tracker.get_remote_submission_info as submission_info %}
-                                                                {% if submission_info %}
-                                                                    <td>{{ tracker.remote_id }}</td>
-                                                                    <td>{{ submission_info|get_item:'status' }}</td>
-                                                                    <td>{{ submission_info|get_item:'score' }}</td>
-                                                                    <td>{{ tracker.remote_phase }}</td>
+                                                    <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk use_github=1 %}"
+                                                       class="ui yellow fluid button">Re-Submit Homework</a>
+                                                    <a href="{% url "homework:submission_list" definition_pk=definition.pk %}"
+                                                       class="ui blue fluid button">View Submissions</a>
+
+                                                    {%  if not definition.questions_only %}
+                                                        <table class="ui table">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>ID</th>
+                                                                <th>Status</th>
+                                                                <th>Score</th>
+                                                                <th>Phase</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            {% for tracker in submission.tracked_submissions.all %}
+                                                                <td>{{ tracker.remote_id }}</td>
+                                                                {% if tracker.status %}
+                                                                    <td>{{tracker.status}}</td>
                                                                 {% else %}
-                                                                    <td>Waiting...</td>
+                                                                    <td>No Status</td>
                                                                 {% endif %}
-                                                            {% endwith %}
-                                                        {% endfor %}
-                                                        </tbody>
-                                                    </table>
+                                                                {% if tracker.score %}
+                                                                    <td>{{tracker.score}}</td>
+                                                                {% else %}
+                                                                    <td>No Score Yet</td>
+                                                                {% endif %}
+                                                                <td>{{ tracker.remote_phase }}</td>
+                                                            {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    {% endif %}
+
                                                 {% else %}
-                                                    <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk %}"
-                                                       class="ui blue button">Submit Homework</a>
+                                                    <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk use_github=1 %}"
+                                                       class="ui blue fluid button">Submit Homework</a>
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -162,6 +151,7 @@
                                             </div>
                                         {% endif %}
                                     </div>
+
                                 </div>
                             </div>
                         {% endwith %}

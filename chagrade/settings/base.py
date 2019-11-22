@@ -28,7 +28,7 @@ SITE_DOMAIN = os.environ.get('SITE_DOMAIN', 'http://localhost')
 SECRET_KEY = 'n2q(v$c6@o^9j^0f=$lwwr7%p2xrjt$_6^4l&+6em^m^5l9y&4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DOCKER_DEBUG', False) == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'apps.groups',
     'apps.api',
     'apps.factory',
+    'apps.metrics',
 ]
 
 MIDDLEWARE = [
@@ -69,16 +70,17 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-# STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+if DEBUG:
+    MIDDLEWARE.insert(0, 'querycount.middleware.QueryCountMiddleware')
 
-# STATIC_ROOT = '/static/'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 STATICFILES_DIRS = (
     os.path.join(CHAGRADE_BASE_DIR, 'static'),
 )
-# STATIC_ROOT = os.path.join(CHAGRADE_BASE_DIR, 'static')
-#
+
 STATIC_ROOT = os.path.join(CHAGRADE_BASE_DIR, 'staticfiles')
+
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -97,7 +99,6 @@ TEMPLATES = [
         'DIRS': [
             os.path.join(CHAGRADE_BASE_DIR, 'templates')
         ],
-        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -106,6 +107,11 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'apps.profiles.context_processors.password_reset_requests_processor'
             ],
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ],
+            'debug': DEBUG,
         },
     },
 ]
@@ -140,11 +146,21 @@ AUTHENTICATION_BACKENDS = (
     # "apps.chahub_auth.oauth_backends.ChahubOAuth2",
     "django.contrib.auth.backends.ModelBackend",
     "apps.profiles.auth_backends.EmailBackend",
+    "social_core.backends.github.GithubOAuth2",
+
 )
 
 # =========================================================================
 # Social Auth
 # =========================================================================
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'apps.profiles.pipeline.user_details',
+)
 
 # Generic
 SOCIAL_AUTH_STRATEGY = 'social_django.strategy.DjangoStrategy'
@@ -166,6 +182,11 @@ SOCIAL_AUTH_DISCONNECT_REDIRECT_URL = 'index'
 
 LOGIN_URL = 'profiles:login'
 LOGIN_REDIRECT_URL = 'index'
+
+# Github
+SOCIAL_AUTH_GITHUB_KEY = os.environ.get('SOCIAL_AUTH_GITHUB_KEY')
+SOCIAL_AUTH_GITHUB_SECRET = os.environ.get('SOCIAL_AUTH_GITHUB_SECRET')
+SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'repo']
 
 # User Models
 # SOCIAL_AUTH_USER_MODEL = 'authenz.ClUser'
@@ -232,15 +253,21 @@ FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.TemporaryFileUploadHand
 # S3 Storage
 # =============================================================================
 
+S3_USE_SIGV4 = os.environ.get("S3_USE_SIGV4", True)
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
-}
-AWS_LOCATION = os.environ.get('AWS_LOCATION', 'chagrade')
-# AWS_DEFAULT_ACL = None
+AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
+AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
+AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL', '')
+AWS_DEFAULT_ACL = None  # Uses buckets security access policies
+AWS_QUERYSTRING_AUTH = os.environ.get(
+    # This stops signature/auths from appearing in saved URLs
+    'AWS_QUERYSTRING_AUTH',
+    False
+)
+if isinstance(AWS_QUERYSTRING_AUTH, str) and 'false' in AWS_QUERYSTRING_AUTH.lower():
+    AWS_QUERYSTRING_AUTH = False  # Was set to string, convert to bool
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
@@ -268,3 +295,30 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ALLOWED_SUBMISSION_DOMAINS = [
     'github.com'
 ]
+
+
+# =============================================================================
+# Logging
+# =============================================================================
+LOGGING = {
+    'disable_existing_loggers': False,
+    'version': 1,
+    'handlers': {
+        'console': {
+            # logging handler that outputs log messages to terminal
+            'class': 'logging.StreamHandler',
+            'level': 'DEBUG',  # message level to be written to console
+        },
+    },
+    'loggers': {
+        '': {
+            # this sets root level logger to log debug and higher level
+            # logs to console. All other loggers inherit settings from
+            # root level logger.
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,  # this tells logger to send logging message
+                                 # to its parent (will send if set to True)
+        },
+    },
+}

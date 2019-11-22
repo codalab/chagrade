@@ -1,25 +1,67 @@
 from django.contrib.auth import get_user_model
 from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
-
 from apps.api.serializers.homework import SubmissionSerializer
 from apps.api.utils import get_unique_username
 from apps.groups.models import Team
-from apps.profiles.models import StudentMembership, ChaUser
+from apps.profiles.models import StudentMembership, ChaUser, GithubUserInfo
 
 User = get_user_model()
 
 
+class GithubUserInfoSerializer(serializers.ModelSerializer):
+    access_token = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GithubUserInfo
+
+        fields = (
+            'login',
+            'avatar_url',
+            'gravatar_id',
+            'html_url',
+            'name',
+            'company',
+            'bio',
+            'location',
+            'created_at',
+            'updated_at',
+            'node_id',
+            'url',
+            'followers_url',
+            'following_url',
+            'gists_url',
+            'starred_url',
+            'subscriptions_url',
+            'organizations_url',
+            'repos_url',
+            'events_url',
+            'received_events_url',
+            'access_token',
+        )
+
+    def get_access_token(self, obj):
+        request = self.context.get('request')
+        if request:
+            if request.user.is_authenticated:
+                if request.user.pk == obj.user.pk:
+                    return obj.access_token
+        return None
+
+
 class ChaUserSerializer(WritableNestedModelSerializer):
+    github_info = GithubUserInfoSerializer(required=False, read_only=True, allow_null=True)
 
     class Meta:
         model = User
+        depth = 2
         fields = (
             'username',
             'id',
             'first_name',
             'last_name',
             'email',
+            'github_info',
         )
         extra_kwargs = {
             'username': {'validators': [], 'required': False, 'allow_blank': True},

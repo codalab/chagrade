@@ -1,4 +1,6 @@
 # Create your views here.
+import logging
+
 from django.conf import settings
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -13,6 +15,8 @@ from django.contrib.auth.forms import PasswordChangeForm
 from apps.profiles.forms import InstructorProfileForm, ChagradeCreationForm, ChagradeUserLoginForm
 from apps.profiles.models import ChaUser, PasswordResetRequest
 from apps.profiles.utils import send_chagrade_mail
+
+logger = logging.getLogger(__name__)
 
 
 def logout_view(request):
@@ -58,18 +62,25 @@ class RequestResetView(TemplateView):
                     reset_request_link = reset_request.reset_link
                     html_message = f'Someone has requested you reset your password at {settings.SITE_DOMAIN}.\n' \
                                    f'To reset your password please follow the link below:<br>' \
-                                   f'<a href="{reset_request_link}">{reset_request_link}</a>'
+                                   f'<a href="{reset_request_link}">{reset_request_link}</a><br>' \
+                                   f"If you choose to change your password, it will be <span style='font-weight: bold;'>{user.email.split('@')[0]}</span>."
                     message = f'Someone has requested you reset your password at {settings.SITE_DOMAIN}.\n' \
                               f'To reset your password please follow the link below:<br>' \
-                              f'<a href="{reset_request_link}">{reset_request_link}</a>'
+                              f'<a href="{reset_request_link}">{reset_request_link}</a><br>' \
+                              f"If you choose to change your password, it will be <span style='font-weight: bold;'>{user.email.split('@')[0]}</span>."
                     subject = 'Chagrade: Password Reset Request'
                     send_chagrade_mail(users=[user], subject=subject, message=message, html_message=html_message)
-                    print("Sent password reset request link to email")
+                    logger.info("Sent password reset request link to email: %s", user.email)
                 else:
-                    print("Password reset request already exists")
+                    logger.info("Password reset request already exists for %s", user.email)
             except ChaUser.DoesNotExist:
-                print("Could not create password reset request for non-existant user")
-        return HttpResponseRedirect(reverse_lazy('index'))
+                logger.info("Could not create password reset request for non-existent user from email %s", self.request.POST.get('email'))
+        return HttpResponseRedirect(reverse('profiles:request_password_reset', kwargs={'sent_message': 1}))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Password-Reset'
+        return context
 
 
 class ResetUserPasswordByEmailKeyView(TemplateView):
@@ -86,7 +97,7 @@ class ResetUserPasswordByEmailKeyView(TemplateView):
             return self.render_to_response(context)
 
         except PasswordResetRequest.DoesNotExist:
-            return Http404("We're sorry, but there's no existing password reset request.")
+            raise Http404("We're sorry, but there's no existing password reset request.")
 
 
 class ResetUserPasswordView(LoginRequiredMixin, View):
@@ -124,6 +135,11 @@ class LoginView(FormView):
         login(self.request, user, backend="apps.profiles.auth_backends.EmailBackend")
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Login'
+        return context
+
 
 class InstructorProfileCreationView(LoginRequiredMixin, FormView):
     template_name = 'profiles/instructor_signup.html'
@@ -140,6 +156,11 @@ class InstructorProfileCreationView(LoginRequiredMixin, FormView):
             self.request.user.save()
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Create-Instructor'
+        return context
+
 
 class InstructorOverView(LoginRequiredMixin, TemplateView):
     template_name = 'instructor/overview.html'
@@ -151,13 +172,28 @@ class InstructorOverView(LoginRequiredMixin, TemplateView):
         else:
             return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Instructor-Class-List'
+        return context
+
 
 class StudentOverView(LoginRequiredMixin, TemplateView):
     template_name = 'student/overview.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Your-Classes'
+        return context
+
 
 class MyProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'profiles/my_profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/My-Profile'
+        return context
 
 
 class SignUpView(FormView):
@@ -172,6 +208,11 @@ class SignUpView(FormView):
         user = authenticate(username=username, password=raw_password)
         login(self.request, user)
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Sign-Up'
+        return context
 
 
 class PasswordRequestsOverView(LoginRequiredMixin, TemplateView):

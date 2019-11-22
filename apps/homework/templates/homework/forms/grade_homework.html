@@ -17,21 +17,24 @@
                     <div class="item">Username: {{ submission.creator.user.username }}</div>
                     <div class="item">Email: {{ submission.creator.user.email }}</div>
                     <div class="item">Team Leader: {{ submission.team.leader }}</div>
-                    {% for tracker in submission.tracked_submissions.all %}
-                        {% with tracker.get_remote_submission_info as submission_info %}
-                            {% if submission_info %}
-                                <div class="item">Submission Info: ID - {{ tracker.remote_id }}; Score - {{ submission_info|get_item:'score' }}; Status - {{ submission_info|get_item:'status' }}; Phase - {{ tracker.remote_phase }}</div>
-                            {% else %}
-                                <div class="item">Waiting...</div>
-                            {% endif %}
-                        {% endwith %}
-                    {% endfor %}
+                    {% if submission.tracked_submissions.all %}
+                        {% for tracker in submission.tracked_submissions.all %}
+                            <div class="item">Submission Info: ID - {{ tracker.remote_id }}; Score - {{ tracker.score }}; Status - {{ tracker.status }}; Phase - {{ tracker.remote_phase }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="item">No Submission</div>
+                    {% endif %}
                 </div>
-                <h4 class="ui header">Challenge Rules</h4>
-                <div class="ui relaxed celled list">
-                    <a href="{{ definition.get_challenge_url }}" class="item">Link to challenge website</a>
-                    <a href="{{ submission.submission_github_url }}" class="item">Link to Github repo of submission</a>
-                </div>
+
+                {% if not definition.questions_only %}
+                    <h4 class="ui header">Challenge Rules</h4>
+                    <div class="ui relaxed celled list">
+                        <a href="{{ definition.challenge_url }}" class="item" target="_blank" rel="noopener noreferrer">Link to challenge competition</a>
+                        <a href="{{ submission.github_url }}" class="item" target="_blank" rel="noopener noreferrer">Link to Github repo of submission</a>
+                        <a class="ui mini blue button" href="{% url "homework:submission_detail" submission_pk=submission.pk %}">Submission Details</a>
+                    </div>
+                {% endif %}
+
                 <h4>Questions</h4>
                 <div class="ui relaxed celled list">
                     <ol>
@@ -40,21 +43,17 @@
                         {% if definition.ask_method_description %}
                             <li><b>Method Description:</b> {{ submission.method_description }}</li>{% endif %}
                         {% if definition.ask_project_url %}
-                            <li><b>Project URL:</b> {{ submission.project_url }}</li>{% endif %}
+                            <li><b>Project URL:</b>
+                                <a href="{{ submission.project_url }}"
+                                   target="_blank" rel="noopener noreferrer"
+                                >{{ submission.project_url }}</a></li>{% endif %}
                         {% if definition.ask_publication_url %}
-                            <li><b>Publication URL:</b> {{ submission.publication_url }}</li>{% endif %}
+                            <li><b>Publication URL:</b>
+                                <a href="{{ submission.publication_url }}"
+                                   target="_blank" rel="noopener noreferrer"
+                                >{{ submission.publication_url }}</a></li>{% endif %}
                     </ol>
                 </div>
-                {% if definition.custom_questions.count > 0 %}
-                    <h4>Other Homework Questions</h4>
-                    <div class="ui relaxed celled list">
-                        <ol>
-                            {% for answer in submission.question_answers.all %}
-                                <li>{{ answer.question.question }}: {{ answer.text }}</li>
-                            {% endfor %}
-                        </ol>
-                    </div>
-                {% endif %}
                 <grade-homework></grade-homework>
             </div>
         </div>

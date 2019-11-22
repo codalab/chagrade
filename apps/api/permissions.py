@@ -1,7 +1,10 @@
+from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import permissions
 
 from apps.profiles.models import StudentMembership
+from apps.klasses.models import Klass
+from apps.groups.models import Team
 
 
 class ChagradeAuthCheckMixin(object):
@@ -184,3 +187,37 @@ class CustomChallengeURLPermissionCheck(ChagradeAuthCheckMixin, permissions.Base
             return request.user.instructor == obj.definition.klass.instructor
         else:
             return False
+
+
+class InstructorOrSuperuserPermission(permissions.BasePermission):
+    message = 'You are not allowed to access this data.'
+
+    def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
+
+        klass_pk = view.kwargs.get('klass_pk')
+        student_pk = view.kwargs.get('student_pk')
+        team_pk = view.kwargs.get('team_pk')
+
+        instructor = None
+        try:
+            instructor = request.user.instructor
+        except AttributeError:
+            return False
+
+        if klass_pk:
+            klass = get_object_or_404(Klass, pk=klass_pk)
+            if instructor == klass.instructor:
+                return True
+
+        elif student_pk:
+            student = get_object_or_404(StudentMembership, pk=student_pk)
+            if instructor == student.klass.instructor:
+                return True
+
+        elif team_pk:
+            team = get_object_or_404(Team, pk=team_pk)
+            if instructor == team.klass.instructor:
+                return True
+        return False

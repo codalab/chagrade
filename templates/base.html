@@ -19,12 +19,16 @@
 
     <script src="//cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.14/lodash.min.js"></script>
+
     <!-- Riot -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/riot/3.11.2/riot+compiler.min.js"></script>
 
     <script src="{% static "js/jquery.form.serializer.js" %}"></script>
 
     <script src="{% static "js/ours/client.js" %}"></script>
+
+    <link rel="shortcut icon" href="{% static 'images/chagrade_C.png' %}">
 
     <link rel="stylesheet" href="//use.fontawesome.com/26ae41ff0f.css">
     <link href="//fonts.googleapis.com/css?family=Cabin|Raleway" rel="stylesheet">
@@ -47,6 +51,9 @@
     <script src="{% static "riotjs/wizard/define_extra_questions.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/wizard/define_criteria.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/student/submit_homework.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/student/submission_detail_github.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/student/submission_diff.tag" %}" type="riot/tag"></script>
+    <script src="{% static "riotjs/student/accordion_file_tree.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/wizard/grade_homework.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/wizard/define_homework.tag" %}" type="riot/tag"></script>
     <script src="{% static "riotjs/wizard/create_team.tag" %}" type="riot/tag"></script>
@@ -59,42 +66,48 @@
 
 <body class="main-background">
 <div id="particles-js"></div>
+
 <header class="center aligned header-container">
     <div id="logo">
         <div class="button-suite">
+            <a class="ui icon button" href="{{ wiki_page_url }}" id="wiki-page-button"
+               target="_blank" rel="noopener noreferrer"
+               data-content="Wiki for this page.">
+                <i class="question mark icon"></i>
+            </a>
             {% if user.is_authenticated %}
                 <span class="ui login-button dropdown button item">
-                <span class="text">
-                    <i class="icon user outline"></i>
-                    {{ user.username }}
+                    <span class="text">
+                        <i class="icon user outline"></i>
+                        {{ user.username }}
+                    </span>
+                    <i class="dropdown icon"></i>
+                    <span class="menu">
+                    {% if user.is_staff or user.is_superuser %}
+                        <div class="header">Django Admin</div>
+                        <a class="item" href="{% url 'admin:index' %}">Index</a>
+                        <a class="item" href="{% url 'admin:index' %}homework/">Homework</a>
+                        <a class="item" href="{% url 'admin:index' %}klasses/">Classes</a>
+                        <a class="item" href="{% url 'admin:index' %}profiles/">Profiles</a>
+                        <a class="item" href="{% url 'metrics:admin' %}">Metrics</a>
+                    {% endif %}
+                        <div class="ui divider"></div>
+                        <div class="header">Chasuite</div>
+                            <a class="item" href="https://competitions.codalab.org/">Codalab</a>
+                            <a class="item" href="https://chahub.org/">Chahub</a>
+                            <a class="item" href="https://chalab.lri.fr/">Chalab</a>
+                        <div class="ui divider"></div>
+                        <div class="header">My Account</div>
+                        <a class="item" href="/profiles/my_profile">
+                            <i class="icon user"></i>
+                            My profile
+                        </a>
+                        <a class="item" href="{% url "profiles:logout" %}">
+                            <i class="icon sign out"></i>
+                            Logout
+                        </a>
+                    </span>
                 </span>
-                <i class="dropdown icon"></i>
-                <span class="menu">
-                {% if user.is_staff or user.is_superuser %}
-                    <div class="header">Django Admin</div>
-                    <a class="item" href="{% url 'admin:index' %}">Index</a>
-                    <a class="item" href="{% url 'admin:index' %}homework/">Homework</a>
-                    <a class="item" href="{% url 'admin:index' %}klasses/">Classes</a>
-                    <a class="item" href="{% url 'admin:index' %}profiles/">Profiles</a>
-                {% endif %}
-                    <div class="ui divider"></div>
-                    <div class="header">Chasuite</div>
-                        <a class="item" href="https://competitions.codalab.org/">Codalab</a>
-                        <a class="item" href="https://chagrade.lri.fr/">Chagrade</a>
-                        <a class="item" href="https://chalab.lri.fr/">Chalab</a>
-                        <a class="item" href="#">Chagle</a>
-                    <div class="ui divider"></div>
-                    <div class="header">My Account</div>
-                    <a class="item" href="/profiles/my_profile">
-                        <i class="icon user"></i>
-                        My profile
-                    </a>
-                    <a class="item" href="/accounts/logout/">
-                        <i class="icon sign out"></i>
-                        Logout
-                    </a>
-                </span>
-            </span>
                 {% if user.is_staff or user.is_superuser %}
                     {% if password_reset_requests %}
                         <a class="item" href="{% url "profiles:password_reset_requests" %}">
@@ -105,16 +118,6 @@
                     {% endif %}
                 {% endif %}
             {% else %}
-                <span class="ui login-button chasuite dropdown button item">
-                Chasuite
-                <i class="dropdown icon"></i>
-                <span class="menu">
-                    <a class="item" href="https://competitions.codalab.org/">Codalab</a>
-                        <a class="item" href="https://chagrade.lri.fr/">Chagrade</a>
-                        <a class="item" href="https://chalab.lri.fr/">Chalab</a>
-                        <a class="item" href="#">Chagle</a>
-                </span>
-            </span>
                 <a class="ui button" href="{% url "profiles:login" %}">Login</a>
             {% endif %}
         </div>
@@ -136,7 +139,8 @@
     </div>
     <footer class="ui footer segment">
         <div class="ui horizontal link list">
-            <a class="item" href="https://github.com/codalab/chagrade/issues">
+            <a class="item" href="https://github.com/codalab/chagrade/issues"
+               target="_blank" rel="noopener noreferrer">
                 <i class="github icon"></i>
                 Join us on Github for contact & Bug Reports.
             </a>
@@ -150,35 +154,35 @@
 <script>
 
     // Load in URLs or other django generated goodies
-    URLS = {
+    var URLS = {
         API: "/api/v1/"
     }
-    USER_AUTHENTICATED = ("{{ user.is_authenticated }}" === "True")
+    var USER_AUTHENTICATED = ("{{ user.is_authenticated }}" === "True")
     {% if klass %}
-        KLASS = {{ klass.pk }}
+        var KLASS = {{ klass.pk }}
     {% endif %}
     {% if definition %}
-        DEFINITION = {{ definition.pk }}
+        var DEFINITION = {{ definition.pk }}
     {% endif %}
     {% if user.is_authenticated and user.instructor %}
-        INSTRUCTOR = {{ user.instructor.pk }}
+        var INSTRUCTOR = {{ user.instructor.pk }}
     {% endif %}
     {% if submission %}
-        SUBMISSION = {{ submission.pk }}
+        var SUBMISSION = {{ submission.pk }}
     {% endif %}
     {% if student %}
-        STUDENT = {{ student.pk }}
+        var STUDENT = {{ student.pk }}
     {% endif %}
     {% if grade %}
-        GRADE = {{ grade.pk }}
+        var GRADE = {{ grade.pk }}
     {% endif %}
-    {% if student and definition and definition.team_based %}
+    {% if student and definition and definition.team_based and student.team %}
         console.log("Definition is team based")
-        USER_TEAM = {{ student.team.pk }}
+        var USER_TEAM = {{ student.team.pk }}
     {% endif %}
     {# This one is passed as a PK like the rest should probably be #}
     {% if team %}
-        TEAM = {{ team }}
+        var TEAM = {{ team.pk }}
     {% endif %}
 
     {% block extra_js_context %}
@@ -186,11 +190,13 @@
 
     $('document').ready(function () {
         $('table').tablesort();
-        $('.dropdown').dropdown();
+        $('.dropdown.login-button').dropdown();
 
         particlesJS.load('particles-js', "{% static 'particles/particles.json' %}", function () {
             console.log('callback - particles.js config loaded');
         })
+
+        $('#wiki-page-button').popup()
     });
 
     riot.mount('*')

@@ -1,0 +1,54 @@
+{% load static %}
+
+<div class="ui centered grid segment">
+    <div class="row">
+        <div class="two wide column" style="display: flex; align-items: center;">
+            {% if klass.image %}
+                <img class="ui small image" src="{{ klass.image.url }}">
+            {% else %}
+                <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
+            {% endif %}
+        </div>
+        <div class="fourteen wide column">
+            <div class="ui grid">
+                <div class="row no-padding">
+                    <div class="twelve wide column">
+                        <h1 class="ui header">{{ klass.title }}</h1>
+                        {% if klass.group %}
+                            <h4 class="ui header condensed">From Group: {{ klass.group.name }}</h4>
+                        {% endif %}
+                        <h4 class="ui header condensed">Organized
+                            by: {{ klass.instructor.user.username }}</h4>
+                    </div>
+                    <div class="four wide column">
+                        <h5 class="ui header condensed">Created: {{ klass.created.date }}</h5>
+                        <h5 class="ui header condensed">Modified: {{ klass.modified.date }}</h5>
+                    </div>
+                </div>
+                <div class="row no-padding">
+                    <div class="sixteen wide column">
+                        <ul class="ui relaxed list">
+                            <div class="item">
+                                Description: {{ klass.description }}
+                            </div>
+
+                            {% if klass.syllabus %}
+                                <div class="item">
+                                    <a href="{{ klass.syllabus.url }}"
+                                       target="_blank" rel="noopener noreferrer">
+                                        Syllabus
+                                    </a>
+                                </div>
+                            {% endif %}
+
+                            {% if klass.instructor.user == request.user %}
+                                <a class="ui right floated blue button" style="margin-right: 60px; margin-bottom: 20px;" href="{% url "klasses:edit_klass" klass_pk=klass.pk %}">Edit</a>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

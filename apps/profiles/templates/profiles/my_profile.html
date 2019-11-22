@@ -29,10 +29,27 @@
                         </span>
                     </div>
                 </div>
-                <a style="margin-top: 5vh;" href="{% url "profiles:change_password" %}" class="ui yellow icon button">
-                    <i class="ui wrench icon"></i>
-                    Change Password
-                </a>
+                <div class="ui center aligned grid" style="margin-top: 5vh;" >
+                    <div class="row">
+                        <a href="{% url "profiles:change_password" %}" class="ui yellow icon button">
+                            <i class="ui wrench icon"></i>
+                            Change Password
+                        </a>
+                    </div>
+                    <div class="row">
+                        {% if not user.github_info %}
+                            <a href="{% url "social:begin" "github" %}" class="ui green icon button">
+                                <i class="ui github icon"></i>
+                                Connect To GitHub
+                            </a>
+                        {% else %}
+                            <div class="ui green icon disabled button">
+                                <i class="ui github icon"></i>
+                                Connected To GitHub
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

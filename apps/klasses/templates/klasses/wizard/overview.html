@@ -21,45 +21,20 @@
         <div class="row">
         <a class="ui blue button" href="{% url 'profiles:instructor_overview' %}">Back to Instructor Overview</a>
             <div class="fourteen wide column">
-                <div class="ui centered grid segment">
-                    <div class="row">
-                        <div class="two wide column">
-                            {% if klass.image %}
-                                <img style="height: 100px; width: auto;" src="{{ klass.image.url }}">
-                            {% else %}
-                                <img style="height: 100px; width: auto;" src="{% static "images/dark-triangles.png" %}">
-                            {% endif %}
-                        </div>
-                        <div class="fourteen wide column">
-                            <div class="ui grid">
-                                <div class="row no-padding">
-                                    <div class="twelve wide column">
-                                        <h1 class="ui header">{{klass.title}}</h1>
-                                        {% if klass.group %}
-                                            <h4 class="ui header condensed">From Group: {{ klass.group.name }}</h4>
-                                        {% endif %}
-                                        <h4 class="ui header condensed">Organized by: {{ klass.instructor.user.username }}</h4>
-                                    </div>
-                                    <div class="four wide column">
-                                        <a href="{% url "klasses:edit_klass" klass_pk=klass.pk %}" class="ui small yellow button">
-                                            Edit
-                                        </a>
-                                        <h5 class="ui header condensed">Created: {{klass.created.date}}</h5>
-                                        <h5 class="ui header condensed">Modified: {{klass.modified.date}}</h5>
-                                    </div>
-                                </div>
-                                <div class="row no-padding">
-                                    <div class="sixteen wide column">
-                                        Description: {{ klass.description }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
+                {% include "klasses/klass_header.html" %}
+
+                {% if object.active %}
+                    <a href="{% url "metrics:klass" klass_pk=object.pk %}" class="ui basic blue button">
+                        <i class="ui chart bar outline icon"></i>
+                        Metrics
+                    </a>
+                {% else %}
+                    <div class="ui warning message">
+                        Class Status: NOT ACTIVE
                     </div>
-                </div>
-                <div class="ui warning message">
-                    Class Status: NOT IMPLEMENTED
-                </div>
+                {% endif %}
+
                 <div class="ui vertical steps" style="width: 100%">
                     <a href="{% url "klasses:klass_enrollment" klass_pk=klass.pk %}" class="{% if klass.enrolled_students.count > 0 %}completed {% endif %}step">
                         <i class="users icon"></i>
@@ -68,14 +43,14 @@
                             <div class="description">Choose your shipping options</div>
                         </div>
                     </a>
-                    <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="step">
+                    <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="{% if klass.homework_definitions.count > 0 %}completed {% endif %}step">
                         <i class="student icon"></i>
                         <div class="content">
                             <div class="title">Define Homework</div>
                             <div class="description">Attach competitions to homework and define deadlines</div>
                         </div>
                     </a>
-                    <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="step">
+                    <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="{% if completely_graded %}completed {% endif %}step">
                         <i class="pencil alternate icon"></i>
                         <div class="content">
                             <div class="title">Grade Homework</div>

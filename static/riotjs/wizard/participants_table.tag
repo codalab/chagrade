@@ -66,8 +66,9 @@
     <div style="">
         <span>
             <a onclick="{download_csv}" class="ui yellow button">Download CSV</a>
-            <a class="ui blue button"
+            <a class="ui blue button" data-tooltip="Format: First Name,Last Name,Display Name,Student ID,Email,Team,TeamLeader(Optional bool)"
                onclick="document.getElementById('hidden_file_input').click()">Upload CSV</a>
+            <a href="/api/v1/enroll_students_sample_csv/?format=csv" class="ui blue button" download="sample_student_enroll.csv">Sample Students CSV Download</a>
             <input id="hidden_file_input" hidden type="file" onchange="{do_csv_upload}"/>
             <a class="ui green icon button" onclick="{ show_student_modal }">
                 <i class="add square icon"></i> Add new student

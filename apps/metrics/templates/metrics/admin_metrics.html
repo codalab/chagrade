@@ -1,0 +1,379 @@
+{# TODO: Replace all the context/templatefilter/templatetag with proper context variables #}
+{% extends 'base.html' %}
+{% load static %}
+{% load homework_tags %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .metrics {
+            margin-top: 40px !important;
+        }
+
+        .charts-container {
+            margin: 20px 80px 20px 80px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .chart-container {
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        canvas {
+            margin: 20px 0 20px 0;
+        }
+
+        .stat-row {
+            justify-content: center !important;
+            text-align: center !important;
+            margin-top: 60px;
+        }
+
+        .submissions-charts-container {
+            display: flex;
+            justify-content: space-between !important;
+        }
+
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="ui centered grid">
+        <div class="row">
+            <div class="fourteen wide column">
+                <div class="ui header">Chagrade Metrics</div>
+                <div class="ui grid metrics">
+
+                    <div class="ui top attached tabular menu">
+                        <a class="active item" data-tab="users">Users</a>
+                        <a class="item" data-tab="klasses">Classes</a>
+                        <a class="item" data-tab="submissions">Submissions</a>
+                    </div>
+
+                    <div class="ui bottom attached active tab segment" data-tab="users">
+
+                        <div class='charts-container'>
+                            <div class='chart-container'>
+                                <div class="ui one column centered grid">
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Total
+                                            </div>
+                                            <div id="users_stat" class="value">
+                                                0
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Students
+                                            </div>
+                                            <div id="students_stat" class="value">
+                                                0
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Instructors
+                                            </div>
+                                            <div id="instructors_stat" class="value">
+                                                0
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class='chart-container'>
+                                <canvas id="students_chart"></canvas>
+                                <canvas id="instructors_chart"></canvas>
+                            </div>
+                        </div>
+                        <a class="ui basic blue button" href="{% url 'api:users_CSV' version='v1' %}?format=csv" download="site_wide_users.csv">Download</a>
+                    </div>
+
+                    <div class="ui bottom attached tab segment" data-tab="klasses">
+                        <div class='charts-container'>
+                            <div class='chart-container'>
+                                <div class="ui one column grid">
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Total Classes
+                                            </div>
+                                            <div id="klasses_stat" class="value">
+                                                330
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Ave. Students per Class
+                                            </div>
+                                            <div id="students_per_klass_stat" class="value">
+                                                330
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Ave. Homeworks per Class
+                                            </div>
+                                            <div id="definitions_per_klass_stat" class="value">
+                                                330
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row stat-row">
+                                        <div class="ui small statistic">
+                                            <div class="label">
+                                                Ave. Submissions per HW Definition
+                                            </div>
+                                            <div id="submissions_per_definition_stat" class="value">
+                                                330
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class='chart-container'>
+                                <canvas id="klasses_chart"></canvas>
+                            </div>
+                        </div>
+                        <a class="ui basic blue button" href="{% url 'api:klasses_CSV' version='v1' %}?format=csv" download="site_wide_klasses.csv">Download</a>
+                    </div>
+
+                    <div class="ui bottom attached tab segment" data-tab="submissions">
+                        <div class='charts-container'>
+                            <div class="ui grid">
+                                <div class="row stat-row">
+                                    <div class="ui small statistic">
+                                        <div class="label">
+                                            Total Submissions
+                                        </div>
+                                        <div id="submissions_stat" class="value">
+                                            0
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row submissions-charts-container">
+                                    <div class='chart-container'>
+                                        <canvas id="submissions_chart"></canvas>
+                                    </div>
+                                    <div class='chart-container'>
+                                        <canvas id="submissions_score_histogram"></canvas>
+                                        <div class="ui three wide label score-normalization-popup"
+                                             data-title="Score Normalization"
+                                             data-content="Each homework's score has been normalized to a linear scale based off of the homework's respective baseline and target scores.
+                                                     A score of 1.0 is representative of the target score, while a score of 0.0 is representative of the
+                                                     baseline score."
+                                        >
+                                            <i class="blue question circle outline icon"></i>
+                                            Score Normalization
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a class="ui basic blue button" href="{% url 'api:submissions_CSV' version='v1' %}?format=csv" download="site_wide_submissions.csv">Download</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_script %}
+
+    <script>
+        var admin_metrics = {}
+        const DateTime = luxon.DateTime
+
+        $(document).ready(function () {
+            $('.tabular.menu .item').tab()
+            $('.score-normalization-popup').popup()
+
+            update_totals()
+
+            admin_metrics.students_chart = new Chart($('#students_chart'), create_time_chart_config('Students Joined'))
+            admin_metrics.instructors_chart = new Chart($('#instructors_chart'), create_time_chart_config('Instructors Joined'))
+            admin_metrics.klasses_chart = new Chart($('#klasses_chart'), create_time_chart_config('Classes Created'))
+            admin_metrics.submissions_score_histogram = new Chart($('#submissions_score_histogram'), create_histogram_chart_config())
+            admin_metrics.submissions_chart = new Chart($('#submissions_chart'), create_time_chart_config('Submissions Made'))
+            update_charts()
+
+        })
+
+        function update_totals() {
+            CHAGRADE.api.get_overall_metrics()
+                .done( (stats) => {
+                    $('#users_stat').html(stats.users)
+                    $('#students_stat').html(stats.students)
+                    $('#instructors_stat').html(stats.instructors)
+                    $('#klasses_stat').html(stats.klasses)
+                    $('#submissions_stat').html(stats.submissions)
+                })
+        }
+
+        function update_charts() {
+            function format_data_for_chart(data) {
+                return _.map(data, (datapoint) => {
+                    return {
+                        x: new DateTime.fromISO(datapoint.date).toJSDate(),
+                        y: datapoint.count,
+                    }
+                })
+            }
+
+            function update_chart(chart, data) {
+                chart.data.datasets[0].data = format_data_for_chart(data)
+                chart.update()
+            }
+
+            CHAGRADE.api.get_student_metrics()
+                .done( (data) => {
+                    update_chart(admin_metrics.students_chart, data)
+                })
+                .fail( (data) => {
+                    toastr.error(data)
+                })
+
+            CHAGRADE.api.get_instructor_metrics()
+                .done( (data) => {
+                    update_chart(admin_metrics.instructors_chart, data)
+                })
+                .fail( (data) => {
+                    toastr.error(data)
+                })
+
+            CHAGRADE.api.get_klass_metrics()
+                .done( (data) => {
+                    let klasses_canvas = document.getElementById('klasses_chart')
+                    let height = 600
+                    let width = 600
+                    update_chart(admin_metrics.klasses_chart, data.klasses_created)
+                    klasses_canvas.width = width
+                    klasses_canvas.height = height
+                    klasses_canvas.style.width = width
+                    klasses_canvas.style.height = height
+                    $('#students_per_klass_stat').html(data.ave_students)
+                    $('#definitions_per_klass_stat').html(data.ave_definitions)
+                    $('#submissions_per_definition_stat').html(data.ave_subs)
+                })
+                .fail( (data) => {
+                    toastr.error(data)
+                })
+
+            CHAGRADE.api.get_submission_metrics()
+                .done( data => {
+                    let score_histogram = admin_metrics.submissions_score_histogram
+                    let submissions_chart = admin_metrics.submissions_chart
+
+                    score_histogram.data.labels = data.submission_scores.labels
+                    score_histogram.data.datasets[0].data = data.submission_scores.values
+                    score_histogram.options.scales.xAxes[0].ticks.max = data.submission_scores.labels[data.submission_scores.labels.length - 2]
+                    score_histogram.options.scales.xAxes[1].ticks.max = data.submission_scores.labels[data.submission_scores.labels.length - 1]
+                    score_histogram.update()
+
+                    update_chart(submissions_chart, data.submissions_made)
+                })
+                .fail( (data) => {
+                    toastr.error(data)
+                })
+        }
+
+        function create_histogram_chart_config () {
+            return {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Score Distribution',
+                        data: [],
+                        borderColor: 'rgba(54, 162, 235, 0.7)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    }]
+                },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            display: false,
+                            barPercentage: 1.3,
+                            ticks: {
+                            }
+                        }, {
+                            display: true,
+                            ticks: {
+                                autoSkip: true,
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                precision: 1,
+                                beginAtZero: true,
+                            }
+                        }]
+                    }
+                }
+            }
+        }
+
+        function create_time_chart_config(label) {
+            return {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: label,
+                            data: [],
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor:'rgba(54, 162, 235, 0.8)',
+                            lineTension: 0,
+                        }
+                    ],
+                },
+                options: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                    },
+                    aspectRatio: 1.4,
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                unit: 'year',
+                            },
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                precision: 0,
+                            }
+                        }]
+                    }
+                }
+            }
+        }
+    </script>
+{% endblock %}

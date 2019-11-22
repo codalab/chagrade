@@ -44,7 +44,7 @@
                     <tbody>
                     <tr each="{klass in klasses}">
                         <td>
-                            <img show="{klass.image}" src="{ klass.image }" width="50">
+                            <img class="ui tiny image" show="{klass.image}" src="{ klass.image }" width="50">
                         </td>
                         <td>{ klass.title }</td>
                         <td>{ klass.course_number }</td>

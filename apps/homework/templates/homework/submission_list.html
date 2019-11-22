@@ -1,0 +1,193 @@
+{# TODO: Replace all the context/templatefilter/templatetag with proper context variables #}
+{% extends 'base.html' %}
+{% load static %}
+{% load homework_tags %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .condensed {
+            margin: 0.5vh 0 0 0 !important;
+            padding: 0.5vh 0 0 0 !important;
+        }
+
+        .no-padding {
+            padding: 1vh 0 0 0 !important;
+        }
+
+        .popup-container {
+            padding: 20px !important;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="ui centered grid">
+        <div class="row">
+            <a class="ui blue button" href="{% url 'homework:overview' klass_pk=klass.pk %}">Back to Class Overview</a>
+            <div class="fourteen wide column">
+
+                {% include "klasses/klass_header.html" %}
+
+                <div class="ui header">Submissions for homework {{ definition.name }}{% if team %} for team {{ team.name }}{% endif %}</div>
+                {% if definition %}
+                    {% with definition|get_last_submission:user.pk as submission %}
+                        {% with submission|get_last_grade as grade %}
+                            <div class="ui message">
+                                <div class="content">
+                                    <h4>Due Date: {{ definition.due_date }}</h4>
+                                    <p>{{ definition.description }}</p>
+                                    <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk use_github=1 %}"
+                                       class="ui blue button">Submit Homework</a>
+
+                                    {% if not definition.questions_only %}
+                                        <a href="{{ definition.get_challenge_url }}"
+                                           target="_blank" rel="noopener noreferrer"
+                                           class="ui blue button">Codalab Challenge</a>
+                                    {% endif %}
+
+                                    {% if definition.starting_kit_github_url %}
+                                        <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">
+                                            <i class="ui github icon"></i>
+                                            Starting Kit</a><br>
+                                    {% endif %}
+                                    {% if definition.team_based %}
+                                        <div style="margin-top: 2vh; margin-bottom: 2.5vh; margin-left: 0;"
+                                             class="ui basic red label">Graded as teamwork
+                                        </div>
+                                    {% endif %}
+                                    <div class="ui grid">
+                                        <div class="row">
+                                            {% if submissions %}
+                                                <div class="sixteen wide column">
+                                                    <table class="ui table">
+                                                        <thead>
+                                                        <tr>
+                                                            <th class="two wide">Date</th>
+                                                            {% if team or instructor_view %}
+                                                                <th>User</th>
+                                                            {% endif %}
+                                                            <th>File</th>
+                                                            <th>Details</th>
+                                                            <th>Commit</th>
+                                                            <th data-tooltip="Diff tells you how many commits were made since the last submission."
+                                                                data-position="top left">
+                                                                Diff
+                                                                <i id="diff-header" class="question blue circle icon"></i>
+                                                            </th>
+                                                            <th>Score</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        {% for submission in submissions %}
+                                                            {% if submission.github_repo_name %}
+                                                            <div id="popup-{{ submission.pk }}" class="ui popup top right transition popup-container">
+                                                                <div class="ui grid">
+                                                                    <div class="row">Repo: {{ submission.github_repo_name }}</div>
+                                                                </div>
+                                                            </div>
+                                                            {% endif %}
+                                                            <tr id="row-{{ submission.pk }}">
+                                                            <td>{{ submission.created|timesince }} ago</td>
+                                                            {% if team or instructor_view %}
+                                                                <td>{{ submission.creator.user }}</td>
+                                                            {% endif %}
+                                                            <td>
+                                                                {% if submission.github_url %}
+                                                                    <a class="ui mini blue icon button" href="{{ submission.github_url }}" target="_blank" rel="noopener noreferrer">
+                                                                        <i class="file code icon"></i>
+                                                                    </a>
+                                                                {% else %}
+                                                                    <a class="ui mini blue icon disabled button">
+                                                                        <i class="file code icon"></i>
+                                                                    </a>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                <a class="ui mini blue button" href="{% url "homework:submission_detail" submission_pk=submission.pk %}">Details</a>
+                                                            </td>
+                                                            <td>
+                                                                {% if submission.github_branch_name and submission.github_branch_name != "Branch (Optional)" and submission.github_branch_name != 'Branch' %}
+                                                                    {{ submission.github_branch_name }}
+                                                                {% elif submission.github_commit_hash and submission.github_commit_hash != "Commit (Optional)" and submission.github_commit_hash != "Commit" %}
+                                                                    {{ submission.github_commit_hash|slice:'7' }}
+                                                                {% else %}
+                                                                    master
+                                                                {% endif %}
+                                                            </td>
+                                                            {% with previous_submission=submissions|next:forloop.counter0 %}
+                                                                {% if submission.github_repo_name and previous_submission.github_repo_name == submission.github_repo_name %}
+                                                                    <td><submission-diff
+                                                                            repos_url="{{ request.user.github_info.repos_url }}"
+                                                                            c_github_commit_hash="{{ submission.github_commit_hash }}"
+                                                                            c_github_branch_name="{{ submission.github_branch_name }}"
+                                                                            p_github_commit_hash="{{ previous_submission.github_commit_hash }}"
+                                                                            p_github_branch_name="{{ previous_submission.github_branch_name }}"
+                                                                            repo_name="{{ submission.github_repo_name }}"
+                                                                            github_access_token="{{ request.user.github_info.access_token }}"
+                                                                    ></submission-diff></td>
+                                                                {% else %}
+                                                                    <td>No Diff</td>
+                                                                {% endif %}
+                                                            {% endwith %}
+
+                                                                {% if submission.tracked_submissions.all %}
+                                                                    {% for tracker in submission.tracked_submissions.all %}
+                                                                        {% if tracker.score %}
+                                                                            <td>{{tracker.score}}</td>
+                                                                        {% else %}
+                                                                            <td>No Score</td>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% else %}
+                                                                    <td>No Submission</td>
+                                                                {% endif %}
+                                                            </tr>
+                                                        {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            {% else %}
+                                                <div class="eight wide column">
+                                                </div>
+                                                <div class="eight wide column">
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        {% if grade %}
+                                            <div class="row">
+                                                <div class="center aligned sixteen wide column">
+                                                    <div class="ui divider"></div>
+                                                    <h3 class="ui header">Grade: </h3>{{ grade.text_grade }}
+                                                    <div class="ui stacked segment message">
+                                                        <h4 class="ui header">Teacher comments: </h4>
+                                                        {{ grade.teacher_comments }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endwith %}
+                    {% endwith %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_script %}
+    <script>
+        $(document).ready( function () {
+            {% for submission in submissions %}
+                {% if submission.github_repo_name %}
+                    $('#row-{{ submission.pk }}').popup({
+                        popup: '#popup-{{ submission.pk }}'
+                    })
+                {% endif %}
+            {% endfor %}
+        })
+    </script>
+{% endblock extra_script%}
