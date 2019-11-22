@@ -255,7 +255,7 @@
                     update_chart(admin_metrics.students_chart, data)
                 })
                 .fail( (data) => {
-                    console.log(data)
+                    toastr.error(data)
                 })
 
             CHAGRADE.api.get_instructor_metrics()
@@ -263,13 +263,12 @@
                     update_chart(admin_metrics.instructors_chart, data)
                 })
                 .fail( (data) => {
-                    console.log(data)
+                    toastr.error(data)
                 })
 
             CHAGRADE.api.get_klass_metrics()
                 .done( (data) => {
                     let klasses_canvas = document.getElementById('klasses_chart')
-                    console.log(klasses_canvas)
                     let height = 600
                     let width = 600
                     update_chart(admin_metrics.klasses_chart, data.klasses_created)
@@ -282,24 +281,24 @@
                     $('#submissions_per_definition_stat').html(data.ave_subs)
                 })
                 .fail( (data) => {
-                    console.log(data)
+                    toastr.error(data)
                 })
 
             CHAGRADE.api.get_submission_metrics()
                 .done( data => {
-                    let SH = admin_metrics.submissions_score_histogram
-                    let SC = admin_metrics.submissions_chart
+                    let score_histogram = admin_metrics.submissions_score_histogram
+                    let submissions_chart = admin_metrics.submissions_chart
 
-                    SH.data.labels = data.submission_scores.labels
-                    SH.data.datasets[0].data = data.submission_scores.values
-                    SH.options.scales.xAxes[0].ticks.max = data.submission_scores.labels[data.submission_scores.labels.length - 2]
-                    SH.options.scales.xAxes[1].ticks.max = data.submission_scores.labels[data.submission_scores.labels.length - 1]
-                    SH.update()
+                    score_histogram.data.labels = data.submission_scores.labels
+                    score_histogram.data.datasets[0].data = data.submission_scores.values
+                    score_histogram.options.scales.xAxes[0].ticks.max = data.submission_scores.labels[data.submission_scores.labels.length - 2]
+                    score_histogram.options.scales.xAxes[1].ticks.max = data.submission_scores.labels[data.submission_scores.labels.length - 1]
+                    score_histogram.update()
 
-                    update_chart(SC, data.submissions_made)
+                    update_chart(submissions_chart, data.submissions_made)
                 })
                 .fail( (data) => {
-                    console.log(data)
+                    toastr.error(data)
                 })
         }
 
