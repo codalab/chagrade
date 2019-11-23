@@ -29,7 +29,6 @@ class MetricsTests(APITestCase):
         random_submission = Submission.objects.first()
         self.team = TeamFactory(klass=random_submission.klass)
         self.student = random_submission.creator
-#        self.team.leader = self.student
         self.team.members.add(self.student)
         self.team.save()
         definition = random_submission.definition
@@ -261,7 +260,7 @@ class MetricsTests(APITestCase):
         scores = resp.json()
         total = len(scores['score'])
 
-        assert self.team.klass.homework_definitions.count() == total
+        assert self.team.klass.homework_definitions.filter(team_based=True).count() == total
 
     def test_team_contributions_returns_404_when_no_team_leader_exists(self):
         self.client.login(username='admin', password='test')
