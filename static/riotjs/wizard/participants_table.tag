@@ -259,9 +259,11 @@
                     self.update_teams()
                 })
                 .fail(function (response) {
-                    console.log(response)
-                    Object.keys(response.responseJSON).forEach(function (key) {
-                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                    Object.keys(response.responseJSON).forEach(function (key_outer) {
+                        Object.keys(response.responseJSON[key_outer]).forEach(function (key_inner) {
+                            console.log("Error with " + key_outer + " - " + key_inner + ": " + response.responseJSON[key_outer][key_inner][0])
+                            toastr.error("Error with " + key_outer + " - " + key_inner + ": " + response.responseJSON[key_outer][key_inner][0])
+                        });
                     });
                 })
         }
