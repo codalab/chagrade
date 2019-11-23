@@ -44,17 +44,17 @@
                         {team.name}
                     </td>
                     <td>
-                        {team.leader.student_id}
+                        { _.get(team, 'leader.student_id', '') }
                     </td>
                     <td>
-                        {team.members.length}
+                        { _.get(team, 'members.length', '') }
                     </td>
                     <td class="center aligned">
                         <div onclick="{delete_team.bind(this, team.id)}" class="ui mini red button">x</div>
                         <div onclick="{edit_team.bind(this, team.id)}" class="ui mini yellow icon button"><i class="wrench icon"></i></div>
                     </td>
                     <td>
-                        {team.submissions.length}
+                        { _.get(team, 'submissions.length', '') }
                     </td>
                 </tr>
             </tbody>
@@ -110,7 +110,7 @@
                         { student.user.email }
                     </td>
                     <td>
-                        { student.team.name || '' }
+                        { _.get(student, 'team.name', '') }
                     </td>
                     <td>
                         <div onclick="{delete_student.bind(this, student.id)}" class="ui mini red button">x</div>
