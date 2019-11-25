@@ -35,9 +35,8 @@
 
                         {% for membership in user.klass_memberships.all reversed %}
                             {% with membership.klass as klass %}
-                                {% if klass.active %}
+                                {% if klass.active or klass.instructor.user == request.user %}
                                     <tr>
-{#                                        <td>{{ klass.image }}</td>#}
                                         <td>
                                             {% if klass.image %}
                                                 <img class="ui tiny image" src="{{ klass.image.url }}" width="50">
