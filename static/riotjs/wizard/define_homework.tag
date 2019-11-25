@@ -10,7 +10,7 @@
                     </label>
                     <div class="ui input left icon datepicker">
                         <i class="calendar icon"></i>
-                        <input name="due_date" ref="due_date" type="text" value="{definition.due_date}">
+                        <input name="due_date" ref="due_date" type="text" value="{definition.due_date}" autocomplete="off">
                     </div>
                 </div>
             </div>
