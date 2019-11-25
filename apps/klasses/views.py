@@ -14,8 +14,10 @@ from apps.homework.models import Definition, Submission
 
 from apps.klasses.forms import KlassForm
 from apps.klasses.models import Klass
-
 from apps.klasses.mixins import WizardMixin
+from apps.profiles.models import StudentMembership
+
+from apps.api.utils import get_unique_username
 
 # Todo: Replace Http404's with correct response for forbidden (Besides not found?)
 
@@ -27,8 +29,11 @@ class CreationView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         new_obj = form.save(commit=False)
-        new_obj.instructor = self.request.user.instructor
+        user = self.request.user
+        new_obj.instructor = user.instructor
         new_obj.save()
+        StudentMembership.objects.create(user=user, klass=new_obj,
+                                         student_id=get_unique_username(user.username, user.email))
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
