@@ -28,7 +28,6 @@
                             <th>Next Homework</th>
                             <th>Current Grade</th>
                             <th>Download Grades</th>
-{#                            <th>Download Submissions</th>#}
                         </tr>
                         </thead>
                         <tbody>
@@ -48,7 +47,6 @@
                                         <td><a href="{% url "homework:overview" klass_pk=klass.pk %}" class="ui blue button">View Homework</a></td>
                                         <td></td>
                                         <td></td>
-{#                                        <td></td>#}
                                     </tr>
                                 {% endif %}
                             {% endwith %}
