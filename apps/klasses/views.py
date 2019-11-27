@@ -32,8 +32,7 @@ class CreationView(LoginRequiredMixin, FormView):
         user = self.request.user
         new_obj.instructor = user.instructor
         new_obj.save()
-        StudentMembership.objects.create(user=user, klass=new_obj,
-                                         student_id=get_unique_username(user.username, user.email))
+        StudentMembership.objects.create(user=user, klass=new_obj, student_id=get_unique_username(user.username, user.email))
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
