@@ -33,6 +33,7 @@ class SubmissionViewSet(ModelViewSet):
     permission_classes = (SubmissionPermissionCheck,)
 
     def perform_create(self, serializer):
+        serializer.is_valid(raise_exception=True)
         new_sub = serializer.save()
         if new_sub.pk and not new_sub.submitted_to_challenge:
             if not new_sub.definition.questions_only:

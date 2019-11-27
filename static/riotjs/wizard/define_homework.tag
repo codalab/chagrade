@@ -33,6 +33,11 @@
                 <input class="ui checkbox" type="checkbox" name="questions_only" ref="questions_only"
                        checked="{definition.questions_only}" onclick="{ update_questions_only }">
             </div>
+            <div class="eight wide field">
+                <label>Maximum Number of Submissions Per Student (0-40):</label>
+                <input type="number" name="max_submissions_per_student" max="40" min="0" ref="max_submissions_per_student"
+                       value="{definition.max_submissions_per_student}">
+            </div>
         </div>
 
         <!-- URL Fields -->
@@ -563,6 +568,7 @@
                 "ask_project_url": self.refs.ask_project_url.checked,
                 "ask_publication_url": self.refs.ask_publication_url.checked,
                 "team_based": self.refs.team_based.checked,
+                "max_submissions_per_student": self.refs.max_submissions_per_student.value,
                 "criterias": [
                     /*{
                      "description": "string",
@@ -659,9 +665,9 @@
                 .fail(function (response) {
                     Object.keys(response.responseJSON).forEach(function (key) {
                         if (key === 'criterias' || key === 'custom_questions') {
-                            toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
+                            toastr.error("An error occured with " + key.replace(/_/g, ' ') + "! Please make sure you did not leave any fields blank.")
                         } else {
-                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                            toastr.error("Error with " + key.replace(/_/g, ' ') + "! " + response.responseJSON[key])
                         }
                     });
                 })

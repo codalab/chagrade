@@ -5,6 +5,7 @@ import requests
 
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Require an account type to determine users vs students?
 # Or should we abstract two seperate sub-models from this one?
@@ -30,6 +31,8 @@ class Definition(models.Model):
     # Make required if not questions_only
     baseline_score = models.FloatField(default=0.0, null=True, blank=False)
     target_score = models.FloatField(default=1.0, null=True, blank=False)
+
+    max_submissions_per_student = models.IntegerField(default=20, null=False, validators=[MaxValueValidator(40), MinValueValidator(0)])
 
 
     # These values for submissions will have to be grabbed from v1.5 API
