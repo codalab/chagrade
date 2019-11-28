@@ -6,6 +6,8 @@ import requests
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 
+from cached_property import cached_property_with_ttl
+
 # Require an account type to determine users vs students?
 # Or should we abstract two seperate sub-models from this one?
 from requests.auth import HTTPBasicAuth
@@ -115,6 +117,8 @@ class SubmissionTracker(models.Model):
     remote_id = models.CharField(max_length=10)
     remote_phase = models.CharField(max_length=10)
 
+    stored_logs = JSONField(default=dict, null=True, blank=True)
+
     def retrieve_score_and_status(self):
         challenge_site_url = self.submission.definition.get_challenge_url()
         score_api_url = "{0}/api/submission/{1}/get_score".format(challenge_site_url, self.remote_id)
@@ -130,8 +134,9 @@ class SubmissionTracker(models.Model):
             data = score_api_resp.json()
             if data.get('status'):
                 self.stored_status = data.get('status')
-                self.stored_score = float(data.get('score', None))
-
+                # .get should already return a default value of None.
+                self.stored_score = float(data.get('score'))
+                self.stored_logs = data.get('logs')
         self.save()
         return
 
@@ -146,6 +151,14 @@ class SubmissionTracker(models.Model):
         if self.stored_score == None:
             self.retrieve_score_and_status()
         return self.stored_score
+
+    # Our SAS urls will expire in 24 hours, so invalidate our cache automatically every 24 hours
+    @cached_property_with_ttl(ttl=60 * 24)
+    def logs(self):
+        if self.stored_logs == None:
+            self.retrieve_score_and_status()
+        return self.stored_logs
+
 
 
 class Grade(models.Model):

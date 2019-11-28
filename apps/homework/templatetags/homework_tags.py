@@ -48,11 +48,23 @@ def get_last_grade_teacher(submission):
 def get_item(dictionary, key):
     return dictionary.get(key)
 
+
+def has_item(dictionary, key):
+    return key in dictionary
+
+
+def polish_log_name(log_name):
+    parts = log_name.split("_")
+    log_name = " ".join(parts).capitalize()
+    return log_name
+
+
 def previous(some_list, current_index):
     try:
         return some_list[int(current_index) - 1]
     except IndexError:
         return ''
+
 
 def next(some_list, current_index):
     try:
@@ -64,5 +76,7 @@ register.filter('get_last_submission', get_last_submission)
 register.filter('get_last_grade', get_last_grade)
 register.filter('get_last_grade_teacher', get_last_grade_teacher)
 register.filter('get_item', get_item)
+register.filter('has_item', has_item)
+register.filter('polish_log_name', polish_log_name)
 register.filter('previous', previous)
 register.filter('next', next)

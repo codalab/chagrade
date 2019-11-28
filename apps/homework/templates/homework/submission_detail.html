@@ -66,6 +66,24 @@
                                         </div>
                                     </div>
 
+                                    <div class="ui grid">
+                                        <div class="column">
+                                            {% for tracker in submission.tracked_submissions.all %}
+                                                {% if tracker.logs %}
+                                                    <div class="ui header">Submission Logs</div>
+                                                    <div class="ui divider"></div>
+                                                    {% for log_name in logs_possible %}
+                                                        {% if tracker.logs|has_item:log_name %}
+                                                            <a class="ui blue button" href="{{ tracker.logs|get_item:log_name }}">{{ log_name|polish_log_name }}</a>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <td>No Logs Yet</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         {% endwith %}
