@@ -32,6 +32,7 @@ def post_submission(submission_pk):
         )
     )
 
+
     # Example of url format we're expecting: competition/15595/submission/44798/4aba772a-a6c1-4e6f-a82b-fb9d23193cb6.zip
 
     submission_data = resp.json()['id']
@@ -80,7 +81,8 @@ def post_submission(submission_pk):
             break
 
     if not phase_id:
-        logger.info(f'No is_active field on phase. Update Codalab to latest version.')
+        logger.info(f'No is_active field on phase. Update Codalab to latest version. Not POSTing a submission to Codalab.')
+        return
 
     sub_descr = "Chagrade_Submission_{0}".format(submission.id)
     finalize_url = "{0}/api/competition/{1}/submission?description={2}&phase_id={3}".format(site_url, challenge_pk,
