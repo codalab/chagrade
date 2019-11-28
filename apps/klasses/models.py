@@ -35,7 +35,7 @@ class Klass(models.Model):
     instructor = models.ForeignKey('profiles.Instructor', related_name='klasses', on_delete=models.CASCADE)
 
     title = models.CharField(max_length=60, null=False, blank=False, default="New Course")
-    course_number = models.SlugField(max_length=60, null=False, blank=False, unique=False, default=None)
+    course_number = models.SlugField(max_length=60, null=False, blank=False, unique=False)
     description = models.CharField(max_length=300, null=True, blank=True, default="")
 
     created = models.DateTimeField(editable=False, default=timezone.now, null=True, blank=True)
