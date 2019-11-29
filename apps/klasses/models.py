@@ -17,14 +17,14 @@ from apps.homework.models import Submission, Grade
 def upload_image(instance, filename):
     file_split = filename.split('.')
     file_extension = file_split[len(file_split) - 1]
-    path = "images/{0}/{1}/class_image.{2}".format(instance.pk, instance.course_number, file_extension)
+    path = f'images/{instance.pk}/{instance.course_number}/class_image.{file_extension}'
     return path
 
 
 def upload_syllabus(instance, filename):
     file_split = filename.split('.')
     file_extension = file_split[len(file_split) - 1]
-    path = "syllabi/{0}/{1}/class_syllabus.{2}".format(instance.pk, instance.course_number, file_extension)
+    path = f'syllabi/{instance.pk}/{instance.course_number}/class_syllabus.{file_extension}'
     return path
 
 

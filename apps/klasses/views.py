@@ -189,6 +189,7 @@ class ActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
         except ObjectDoesNotExist:
             raise Http404
 
+        context['klass'] = klass
         context['completely_graded'] = klass.homeworks_completely_graded()
         context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Wizard-Activate-Class'
         return context

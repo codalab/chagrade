@@ -8,7 +8,7 @@
                 </div>
             </div>
             <div class="ui center aligned eight wide column">
-                <a href="{ opts.student_view_url }" class="ui yellow button wide-button">Test</a>
+                <a href="{ opts.student_homework_view_url }" class="ui yellow button wide-button">Test</a>
             </div>
         </div>
         <div class="row">
