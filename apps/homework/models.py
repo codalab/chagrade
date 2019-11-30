@@ -129,13 +129,11 @@ class SubmissionTracker(models.Model):
                 os.environ.get('CODALAB_SUBMISSION_PASSWORD')
             )
         )
-
         if score_api_resp.status_code == 200:
             data = score_api_resp.json()
             if data.get('status'):
                 self.stored_status = data.get('status')
-                # .get should already return a default value of None.
-                self.stored_score = float(data.get('score'))
+                self.stored_score = float(data.get('score', 0))
                 self.stored_logs = data.get('logs')
         self.save()
         return
