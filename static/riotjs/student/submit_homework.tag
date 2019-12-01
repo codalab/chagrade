@@ -2,9 +2,14 @@
     <div class="ui form" style="margin-bottom: 2.5vh;">
         <h1 class="ui dividing header" id="submission_header">
             Submission Form for { definition.name }
-            <a if={ definition.challenge_url } href="{ definition.challenge_url }"
-               target="_blank" rel="noopener noreferrer" id="challenge_button"
-               class="ui blue button">Codalab Challenge</a>
+            <a if={ definition.challenge_url }
+               href="{ definition.challenge_url }"
+               target="_blank"
+               rel="noopener noreferrer"
+               id="challenge_button"
+               class="ui blue button">
+               Codalab Challenge
+            </a>
         </h1>
 
         <div if="{ !definition.questions_only && !github_active }" class="fields">
