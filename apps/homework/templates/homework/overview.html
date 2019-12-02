@@ -134,7 +134,7 @@
                                                                 {% endif %}
                                                                 {% if tracker.logs %}
 {#                                                                    <td>{{tracker.logs}}</td>#}
-                                                                    <td>{% url "homework:submission_detail" pk=submission.pk %}</td>
+                                                                    <td><a href="{% url "homework:submission_detail" submission_pk=submission.pk %}" class="ui blue label">Logs</a></td>
                                                                 {% else %}
                                                                     <td>No Logs Yet</td>
                                                                 {% endif %}

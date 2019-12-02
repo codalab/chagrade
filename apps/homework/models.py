@@ -2,17 +2,16 @@ import os
 from urllib.parse import urlparse
 
 import requests
-
-from django.db import models
+import logging
 from django.contrib.postgres.fields import JSONField
-
-from cached_property import cached_property_with_ttl
-
+from django.db import models
 # Require an account type to determine users vs students?
 # Or should we abstract two seperate sub-models from this one?
 from requests.auth import HTTPBasicAuth
 
 from apps.homework.validators import validate_submission_github_url
+
+logger = logging.getLogger(__name__)
 
 
 class Definition(models.Model):
@@ -150,11 +149,17 @@ class SubmissionTracker(models.Model):
             self.retrieve_score_and_status()
         return self.stored_score
 
-    # Our SAS urls will expire in 24 hours, so invalidate our cache automatically every 24 hours
-    @cached_property_with_ttl(ttl=60 * 24)
+    @property
     def logs(self):
-        if self.stored_logs == None:
+        if self.stored_logs == None or len(self.stored_logs.keys()) == 0:
             self.retrieve_score_and_status()
+        else:
+            # Try the first URL in our logs
+            sas_url = self.stored_logs[list(self.stored_logs.keys())[0]]
+            resp = requests.get(sas_url)
+            if not resp.ok:
+                logger.info("Submission SAS urls for logs appear expired, retrieving new ones.")
+                self.retrieve_score_and_status()
         return self.stored_logs
 
 
