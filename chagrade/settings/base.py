@@ -296,29 +296,26 @@ ALLOWED_SUBMISSION_DOMAINS = [
     'github.com'
 ]
 
-
 # =============================================================================
 # Logging
 # =============================================================================
 LOGGING = {
-    'disable_existing_loggers': False,
     'version': 1,
+    'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            # logging handler that outputs log messages to terminal
             'class': 'logging.StreamHandler',
-            'level': 'DEBUG',  # message level to be written to console
         },
     },
     'loggers': {
         '': {
-            # this sets root level logger to log debug and higher level
-            # logs to console. All other loggers inherit settings from
-            # root level logger.
             'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,  # this tells logger to send logging message
-                                 # to its parent (will send if set to True)
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
         },
     },
 }
+

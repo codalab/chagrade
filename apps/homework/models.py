@@ -6,7 +6,7 @@ import logging
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 # Require an account type to determine users vs students?
-# Or should we abstract two seperate sub-models from this one?
+# Or should we abstract two separate sub-models from this one?
 from requests.auth import HTTPBasicAuth
 
 from apps.homework.validators import validate_submission_github_url
@@ -203,9 +203,12 @@ class Grade(models.Model):
     def calculate_grade(self):
         total, total_possible = self.get_total_score_total_possible()
         self.text_grade = f"{total}/{total_possible}"
-        if total_possible != 0 and total != 0:
-            self.overall_grade = total/total_possible
+        if total_possible != 0 and total is not None:
+            self.overall_grade = total / total_possible
+            self.save()
+            return self.overall_grade
         self.save()
+        return None
 
 
 class Question(models.Model):

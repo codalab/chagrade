@@ -27,17 +27,14 @@
                             <th>Organizer:</th>
                             <th>Next Homework</th>
                             <th>Current Grade</th>
-                            <th>Download Grades</th>
-{#                            <th>Download Submissions</th>#}
                         </tr>
                         </thead>
                         <tbody>
 
                         {% for membership in user.klass_memberships.all reversed %}
                             {% with membership.klass as klass %}
-                                {% if klass.active %}
+                                {% if klass.active or klass.instructor.user == request.user %}
                                     <tr>
-{#                                        <td>{{ klass.image }}</td>#}
                                         <td>
                                             {% if klass.image %}
                                                 <img class="ui tiny image" src="{{ klass.image.url }}" width="50">
@@ -47,9 +44,7 @@
                                         <td>{{ klass.course_number }}</td>
                                         <td>{{ klass.instructor }}</td>
                                         <td><a href="{% url "homework:overview" klass_pk=klass.pk %}" class="ui blue button">View Homework</a></td>
-                                        <td></td>
-                                        <td></td>
-{#                                        <td></td>#}
+                                        <td>{{ membership.klass_grade }}</td>
                                     </tr>
                                 {% endif %}
                             {% endwith %}

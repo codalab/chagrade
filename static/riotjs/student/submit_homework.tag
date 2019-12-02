@@ -1,6 +1,16 @@
 <submit-homework>
     <div class="ui form" style="margin-bottom: 2.5vh;">
-        <h1 class="ui dividing header">Submission Form for { definition.name } </h1>
+        <h1 class="ui dividing header" id="submission_header">
+            Submission Form for { definition.name }
+            <a if={ definition.challenge_url }
+               href="{ definition.challenge_url }"
+               target="_blank"
+               rel="noopener noreferrer"
+               id="challenge_button"
+               class="ui blue button">
+               Codalab Challenge
+            </a>
+        </h1>
 
         <div if="{ !definition.questions_only && !github_active }" class="fields">
             <div class="sixteen wide field">
@@ -522,6 +532,15 @@
 
         .hidden {
             display: none;
+        }
+
+        #challenge_button {
+            margin-bottom: 10px;
+            margin-left: 3em;
+        }
+
+        #submission_header {
+            padding-top: 10px;
         }
     </style>
 </submit-homework>

@@ -8,7 +8,7 @@
                 </div>
             </div>
             <div class="ui center aligned eight wide column">
-                <a class="ui yellow disabled button wide-button">Test</a>
+                <a href="{ opts.student_homework_view_url }" class="ui yellow button wide-button">View as Student</a>
             </div>
         </div>
         <div class="row">
@@ -21,17 +21,6 @@
             <div class="ui center aligned eight wide column">
                 <a class="ui {red: klass.active}{green: !klass.active} button wide-button"
                    onclick="{send_activate_klass}">{De-Activate: klass.active}{Activate: !klass.active}</a>
-            </div>
-        </div>
-        <div class="row">
-            <div class="eight wide column">
-                <h2 class="ui header">Download Your bundle</h2>
-                <div class="ui sub header">
-
-                </div>
-            </div>
-            <div class="ui center aligned eight wide column">
-                <a class="ui blue disabled button wide-button">Download</a>
             </div>
         </div>
     </div>
