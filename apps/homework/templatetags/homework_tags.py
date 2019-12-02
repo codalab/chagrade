@@ -53,7 +53,7 @@ def has_item(dictionary, key):
     return key in dictionary
 
 
-def polish_log_name(log_name):
+def format_log_name(log_name):
     parts = log_name.split("_")
     log_name = " ".join(parts).capitalize()
     return log_name
@@ -77,6 +77,6 @@ register.filter('get_last_grade', get_last_grade)
 register.filter('get_last_grade_teacher', get_last_grade_teacher)
 register.filter('get_item', get_item)
 register.filter('has_item', has_item)
-register.filter('polish_log_name', polish_log_name)
+register.filter('format_log_name', format_log_name)
 register.filter('previous', previous)
 register.filter('next', next)

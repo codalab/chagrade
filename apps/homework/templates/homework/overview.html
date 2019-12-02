@@ -76,8 +76,8 @@
                                                         {% endif %}
                                                         {% if definition.ask_method_name %}
                                                             <div class="item">Method Name:
-                                                                {{ submission.method_name }
-                                                            }</div>
+                                                                {{ submission.method_name }}
+                                                            </div>
                                                         {% endif %}
                                                         {% if definition.ask_method_description %}
                                                             <div class="item">Method Description:
@@ -133,7 +133,6 @@
                                                                     <td>No Score Yet</td>
                                                                 {% endif %}
                                                                 {% if tracker.logs %}
-{#                                                                    <td>{{tracker.logs}}</td>#}
                                                                     <td><a href="{% url "homework:submission_detail" submission_pk=submission.pk %}" class="ui blue label">Logs</a></td>
                                                                 {% else %}
                                                                     <td>No Logs Yet</td>

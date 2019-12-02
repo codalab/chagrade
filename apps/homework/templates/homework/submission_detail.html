@@ -74,7 +74,7 @@
                                                     <div class="ui divider"></div>
                                                     {% for log_name in logs_possible %}
                                                         {% if tracker.logs|has_item:log_name %}
-                                                            <a class="ui blue button" href="{{ tracker.logs|get_item:log_name }}">{{ log_name|polish_log_name }}</a>
+                                                            <a class="ui small blue button" href="{{ tracker.logs|get_item:log_name }}">{{ log_name|format_log_name }}</a>
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% else %}
