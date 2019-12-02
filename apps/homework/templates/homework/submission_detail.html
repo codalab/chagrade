@@ -75,7 +75,11 @@
                                                     <div class="ui horizontal inline list">
                                                         {% for log_name in logs_possible %}
                                                             {% if tracker.logs|has_item:log_name %}
-                                                                <a class="item" href="{{ tracker.logs|get_item:log_name }}">{{ log_name|format_log_name }}</a>
+                                                                <a class="item"
+                                                                   href="{{ tracker.logs|get_item:log_name }}"
+                                                                   target="_blank">
+                                                                    {{ log_name|format_log_name }}
+                                                                </a>
                                                             {% endif %}
                                                         {% endfor %}
                                                     </div>

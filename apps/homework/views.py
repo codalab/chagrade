@@ -96,7 +96,6 @@ class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
                 'private_output_file',
                 'stdout_file',
                 'stderr_file',
-                'history_file',
                 'scores_file',
                 'detailed_results_file',
                 'prediction_runfile',
