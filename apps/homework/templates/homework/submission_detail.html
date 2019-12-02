@@ -72,11 +72,13 @@
                                                 {% if tracker.logs %}
                                                     <div class="ui header">Submission Logs</div>
                                                     <div class="ui divider"></div>
-                                                    {% for log_name in logs_possible %}
-                                                        {% if tracker.logs|has_item:log_name %}
-                                                            <a class="ui small blue button" href="{{ tracker.logs|get_item:log_name }}">{{ log_name|format_log_name }}</a>
-                                                        {% endif %}
-                                                    {% endfor %}
+                                                    <div class="ui horizontal inline list">
+                                                        {% for log_name in logs_possible %}
+                                                            {% if tracker.logs|has_item:log_name %}
+                                                                <a class="item" href="{{ tracker.logs|get_item:log_name }}">{{ log_name|format_log_name }}</a>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
                                                 {% else %}
                                                     <td>No Logs Yet</td>
                                                 {% endif %}
