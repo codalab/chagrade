@@ -27,7 +27,6 @@
                             <th>Organizer:</th>
                             <th>Next Homework</th>
                             <th>Current Grade</th>
-                            <th>Download Grades</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -45,8 +44,7 @@
                                         <td>{{ klass.course_number }}</td>
                                         <td>{{ klass.instructor }}</td>
                                         <td><a href="{% url "homework:overview" klass_pk=klass.pk %}" class="ui blue button">View Homework</a></td>
-                                        <td></td>
-                                        <td></td>
+                                        <td>{{ membership.klass_grade }}</td>
                                     </tr>
                                 {% endif %}
                             {% endwith %}
