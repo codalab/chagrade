@@ -59,6 +59,24 @@ class StudentMembership(models.Model):
     def __str__(self):
         return "{0}:{1} - {2}".format(self.user.username, self.student_id, self.klass.title)
 
+    @property
+    def klass_grade(self):
+        grade_quantity = 0
+        grade_total = 0
+        for definition in self.klass.homework_definitions.all():
+            submission = self.submitted_homeworks.filter(definition=definition).order_by('created').last()
+            if submission:
+                grade_object = submission.grades.last()
+                if grade_object:
+                    calculated_grade = grade_object.calculate_grade()
+                    if calculated_grade is not None:
+                        grade_quantity += 1
+                        grade_total += calculated_grade
+        if grade_quantity > 0:
+            return str(round(grade_total * 100.0 / grade_quantity, 1)) + '%'
+        else:
+            return 'No grades yet'
+
 
 class AssistantMembership(models.Model):
     instructor = models.ForeignKey('Instructor', related_name='assistant_memberships', null=False, blank=False, on_delete=models.CASCADE)

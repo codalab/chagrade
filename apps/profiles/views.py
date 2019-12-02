@@ -16,6 +16,7 @@ from apps.profiles.forms import InstructorProfileForm, ChagradeCreationForm, Cha
 from apps.profiles.models import ChaUser, PasswordResetRequest
 from apps.profiles.utils import send_chagrade_mail
 
+
 logger = logging.getLogger(__name__)
 
 

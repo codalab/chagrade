@@ -82,6 +82,7 @@ class Klass(models.Model):
 
     def homeworks_completely_graded(self):
         for hw in self.homework_definitions.all():
+            hw_graded = False
             if hw.team_based:
                 for team in self.teams.all():
                     team_graded = False
@@ -96,7 +97,7 @@ class Klass(models.Model):
                         team_graded = True
                     if not team_graded:
                         return False
-                return True
+                hw_graded = True
 
             else:
                 for student in self.enrolled_students.all():
@@ -112,4 +113,7 @@ class Klass(models.Model):
                         student_graded = True
                     if not student_graded:
                         return False
-                return True
+                hw_graded = True
+            if not hw_graded:
+                return False
+        return True
