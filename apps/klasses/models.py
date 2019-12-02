@@ -17,14 +17,14 @@ from apps.homework.models import Submission, Grade
 def upload_image(instance, filename):
     file_split = filename.split('.')
     file_extension = file_split[len(file_split) - 1]
-    path = "images/{0}/class_image.{1}".format(instance.course_number, file_extension)
+    path = f'images/{instance.pk}/{instance.course_number}/class_image.{file_extension}'
     return path
 
 
 def upload_syllabus(instance, filename):
     file_split = filename.split('.')
     file_extension = file_split[len(file_split) - 1]
-    path = "syllabuses/{0}/class_syllabus.{1}".format(instance.course_number, file_extension)
+    path = f'syllabi/{instance.pk}/{instance.course_number}/class_syllabus.{file_extension}'
     return path
 
 
@@ -35,7 +35,7 @@ class Klass(models.Model):
     instructor = models.ForeignKey('profiles.Instructor', related_name='klasses', on_delete=models.CASCADE)
 
     title = models.CharField(max_length=60, null=False, blank=False, default="New Course")
-    course_number = models.SlugField(max_length=60, null=False, blank=False, unique=True, default=None)
+    course_number = models.SlugField(max_length=60, null=False, blank=False)
     description = models.CharField(max_length=300, null=True, blank=True, default="")
 
     created = models.DateTimeField(editable=False, default=timezone.now, null=True, blank=True)
@@ -58,7 +58,6 @@ class Klass(models.Model):
 
     def create_copy(self):
         new_klass = Klass()
-        # self.pk = None
         new_klass.instructor = self.instructor
         new_klass.title = self.title
         new_klass.description = self.description
@@ -70,10 +69,7 @@ class Klass(models.Model):
             new_klass.syllabus = ContentFile(self.syllabus.read())
         new_klass.group = self.group
 
-        # new_klass.created = timezone.now()
-        # new_klass.modified = timezone.now()
-        new_klass.course_number = self.course_number + "_{}".format(str(uuid.uuid4())[0:5])
-        # new_klass = self.save()
+        new_klass.course_number = self.course_number
         new_klass.save()
         return new_klass
 
