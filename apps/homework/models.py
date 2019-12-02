@@ -2,15 +2,16 @@ import os
 from urllib.parse import urlparse
 
 import requests
-
-from django.db import models
+import logging
 from django.contrib.postgres.fields import JSONField
-
+from django.db import models
 # Require an account type to determine users vs students?
 # Or should we abstract two separate sub-models from this one?
 from requests.auth import HTTPBasicAuth
 
 from apps.homework.validators import validate_submission_github_url
+
+logger = logging.getLogger(__name__)
 
 
 class Definition(models.Model):
@@ -115,6 +116,8 @@ class SubmissionTracker(models.Model):
     remote_id = models.CharField(max_length=10)
     remote_phase = models.CharField(max_length=10)
 
+    stored_logs = JSONField(default=dict, null=True, blank=True)
+
     def retrieve_score_and_status(self):
         challenge_site_url = self.submission.definition.get_challenge_url()
         score_api_url = "{0}/api/submission/{1}/get_score".format(challenge_site_url, self.remote_id)
@@ -125,13 +128,12 @@ class SubmissionTracker(models.Model):
                 os.environ.get('CODALAB_SUBMISSION_PASSWORD')
             )
         )
-
         if score_api_resp.status_code == 200:
             data = score_api_resp.json()
             if data.get('status'):
                 self.stored_status = data.get('status')
-                self.stored_score = float(data.get('score', None))
-
+                self.stored_score = float(data.get('score', 0))
+                self.stored_logs = data.get('logs')
         self.save()
         return
 
@@ -146,6 +148,20 @@ class SubmissionTracker(models.Model):
         if self.stored_score == None:
             self.retrieve_score_and_status()
         return self.stored_score
+
+    @property
+    def logs(self):
+        if self.stored_logs == None or len(self.stored_logs.keys()) == 0:
+            self.retrieve_score_and_status()
+        else:
+            # Try the first URL in our logs
+            sas_url = self.stored_logs[list(self.stored_logs.keys())[0]]
+            resp = requests.get(sas_url)
+            if not resp.ok:
+                logger.info("Submission SAS urls for logs appear expired, retrieving new ones.")
+                self.retrieve_score_and_status()
+        return self.stored_logs
+
 
 
 class Grade(models.Model):

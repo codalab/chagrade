@@ -90,6 +90,22 @@ class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
             context['submission'] = submission
             context['definition'] = submission.definition
             context['klass'] = submission.klass
+            context['logs_possible'] = [
+                'inputfile',
+                'output_file',
+                'private_output_file',
+                'stdout_file',
+                'stderr_file',
+                'scores_file',
+                'detailed_results_file',
+                'prediction_runfile',
+                'prediction_output_file',
+                'exception_details',
+                'prediction_stdout_file',
+                'prediction_stderr_file',
+                'ingestion_program_stdout_file',
+                'ingestion_program_stderr_file',
+            ]
         except ObjectDoesNotExist:
             raise Http404('Definition object not found')
         return context
