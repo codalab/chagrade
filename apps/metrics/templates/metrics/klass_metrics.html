@@ -55,7 +55,7 @@
 
                         <div class='charts-container'>
                             <div class='chart-container'>
-                                <h5>Class Average Scores
+                                <h5>Class Average Performance
                                     <i class="ui blue question circle icon outline score-normalization-popup"
                                        data-title="Score Normalization"
                                        data-content="Each homework's score has been normalized to a linear scale based off of the homework's respective baseline and target scores.
@@ -94,7 +94,7 @@
 
                         <div class='charts-container'>
                             <div class='student-chart chart-container'>
-                                <h5>Scores
+                                <h5>Performance
                                     <i class="ui blue question circle icon outline score-normalization-popup"
                                        data-title="Score Normalization"
                                        data-content="Each homework's score has been normalized to a linear scale based off of the homework's respective baseline and target scores.
@@ -246,6 +246,8 @@
 
                             CHAGRADE.api.get_student_scores_metrics(id)
                                 .done( (data) => {
+                                    instructor_metrics.student_scores_chart.data.datasets[1].label = 'Student Grades'
+                                    instructor_metrics.student_scores_chart.data.datasets[1].data = data.grade
                                     instructor_metrics.student_scores_chart.data.datasets[0].label = 'Student Scores'
                                     instructor_metrics.student_scores_chart.data.datasets[0].data = data.score
                                     instructor_metrics.student_scores_chart.data.labels = data.name
@@ -293,6 +295,10 @@
 
                             CHAGRADE.api.get_team_submission_times_metrics(id)
                                 .done( (sub_times) => {
+                                    if (_.isEmpty(sub_times)) {
+                                        toastr.error('Failed to retrieve team submission times.')
+                                        return
+                                    }
                                     let time_data = _.fill(Array(24), 0)
                                     _.forEach(sub_times, (time) => {
                                         time_data[time.time] = time.count
@@ -344,6 +350,8 @@
                 .done( (data) => {
                     instructor_metrics.overview_scores_chart.data.datasets[0].label = 'Average Class Score'
                     instructor_metrics.overview_scores_chart.data.datasets[0].data = data.score
+                    instructor_metrics.overview_scores_chart.data.datasets[1].label = 'Average Class Grade'
+                    instructor_metrics.overview_scores_chart.data.datasets[1].data = data.average_grade
                     instructor_metrics.overview_scores_chart.data.labels = data.name
                     instructor_metrics.overview_scores_chart.update()
                 })
@@ -439,6 +447,15 @@
                 data: [],
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 borderColor:'rgba(54, 112, 185, 1)',
+                borderWidth: 2.2,
+                lineTension: 0,
+            })
+
+            config.data.datasets.push({
+                label: '',
+                data: [],
+                backgroundColor: 'rgba(171, 31, 24, 0.2)',
+                borderColor:'rgba(171, 31, 24, 1)',
                 borderWidth: 2.2,
                 lineTension: 0,
             })
