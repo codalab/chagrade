@@ -72,6 +72,8 @@ class Submission(models.Model):
     project_url = models.URLField(max_length=200, default='', null=True, blank=True)
     publication_url = models.URLField(max_length=200, default='', null=True, blank=True)
 
+    is_direct_upload = models.BooleanField(default=False)
+
     created = models.DateTimeField(auto_now_add=True)
 
     submitted_to_challenge = models.BooleanField(default=False)
@@ -86,9 +88,10 @@ class Submission(models.Model):
         if not self.definition.challenge_url:
             print("No challenge URL given.")
             return
-        if not self.github_url:
-            print("No submission github URL given.")
-            return
+        # Pulled for now, as with direct file upload it's possible to not be given a github_url
+        # if not self.github_url:
+        #     print("No submission github URL given.")
+        #     return
         if self.definition.team_based:
             if not self.team:
                 print("Team not set")

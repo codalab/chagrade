@@ -116,6 +116,7 @@
                                                                 <th>Status</th>
                                                                 <th>Score</th>
                                                                 <th>Logs</th>
+                                                                <th>Direct Upload?</th>
                                                                 <th>Phase</th>
                                                             </tr>
                                                             </thead>
@@ -137,6 +138,11 @@
                                                                 {% else %}
                                                                     <td>No Logs Yet</td>
                                                                 {% endif %}
+                                                                <td class="center aligned">
+                                                                    {% if submission.is_direct_upload %}
+                                                                        <i class="ui checkmark icon"></i>
+                                                                    {% endif %}
+                                                                </td>
                                                                 <td>{{ tracker.remote_phase }}</td>
                                                             {% endfor %}
                                                             </tbody>

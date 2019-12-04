@@ -41,6 +41,7 @@ class SubmissionSerializer(WritableNestedModelSerializer):
             'id',
             'team',
             'created',
+            'is_direct_upload',
         ]
 
         read_only_fields = ['created',]

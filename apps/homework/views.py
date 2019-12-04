@@ -105,6 +105,8 @@ class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
                 'prediction_stderr_file',
                 'ingestion_program_stdout_file',
                 'ingestion_program_stderr_file',
+                's3_file',
+                'file',
             ]
         except ObjectDoesNotExist:
             raise Http404('Definition object not found')
