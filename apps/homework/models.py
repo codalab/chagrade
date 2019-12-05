@@ -88,10 +88,6 @@ class Submission(models.Model):
         if not self.definition.challenge_url:
             print("No challenge URL given.")
             return
-        # Pulled for now, as with direct file upload it's possible to not be given a github_url
-        # if not self.github_url:
-        #     print("No submission github URL given.")
-        #     return
         if self.definition.team_based:
             if not self.team:
                 print("Team not set")

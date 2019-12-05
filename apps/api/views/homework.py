@@ -10,7 +10,7 @@ from apps.api.permissions import SubmissionPermissionCheck, GradePermissionCheck
 from apps.api.serializers.homework import DefinitionSerializer, QuestionSerializer, CriteriaSerializer, \
     SubmissionSerializer, GradeSerializer, TeamCustomChallengeURLSerializer
 from apps.homework.models import Definition, Question, Criteria, Submission, Grade, TeamCustomChallengeURL
-from apps.homework.tasks import post_submission
+from apps.homework.tasks import post_submission, SubmissionPostException
 
 User = get_user_model()
 
@@ -36,10 +36,13 @@ class SubmissionViewSet(ModelViewSet):
     serializer_class = SubmissionSerializer
     permission_classes = (SubmissionPermissionCheck,)
 
+    # Overwritten so we can return responses or default from post_submission
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        response = self.perform_create(serializer)
+        if response:
+            return response
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -47,14 +50,23 @@ class SubmissionViewSet(ModelViewSet):
         new_sub = serializer.save()
         if new_sub.pk and not new_sub.submitted_to_challenge:
             if not new_sub.definition.questions_only and new_sub.github_url:
-                logger.info("Submission is a github submission!")
+                logger.info(f"Submission {new_sub.pk} is a github submission!")
                 post_submission.delay(new_sub.pk)
             elif self.request.data['file']:
-                logger.info("Submission is a direct upload!")
+                logger.info(f"Submission {new_sub.pk} is a direct upload!")
                 new_sub.is_direct_upload = True
                 new_sub.save()
-                # We can't serialize TemporaryUploadedFiles for celery
-                post_submission(new_sub.pk, self.request.data['file'])
+                try:
+                    post_submission(new_sub.pk, self.request.data['file'])
+                except SubmissionPostException as e:
+                    if e.sub_type == 'connection':
+                        return Response("Could not communicate with Codalab instance!", status=status.HTTP_504_GATEWAY_TIMEOUT)
+                    else:
+                        return Response(
+                            "Could not determine data to send to Codalab. Check you supplied a proper github_url, or a "
+                            "file for direct upload.",
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
 
 
 class DefinitionViewSet(ModelViewSet):

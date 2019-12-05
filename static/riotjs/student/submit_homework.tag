@@ -19,7 +19,7 @@
             <div class="fields">
                 <div class="sixteen wide field">
                     <span>
-                        <label class="">
+                        <label>
                             <i class="pop-up question blue circle icon"
                                data-title="A URL from your github repo to a specific zip file"
                                data-content="Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip"> </i>
@@ -31,7 +31,7 @@
                 </div>
                 <div class="eight wide field">
                     <span>
-                        <label class="">
+                        <label>
                             <i class="pop-up question blue circle icon"
                                data-title="A reference of to a point in the repo's history"
                                data-content="Ex: a9dhe3 or master"> </i>
@@ -55,7 +55,7 @@
             <div class="sixteen wide field">
                 <div class="row">
                 <span>
-                    <label class="">
+                    <label>
                         <i class="pop-up question blue circle icon"
                            data-title="A URL from your github repo to a specific file"
                            data-content="Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip"> </i>
