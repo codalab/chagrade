@@ -87,8 +87,6 @@ def post_submission(submission_pk, data_file=None):
             )
             logger.info(f"Pushing data to S3 url for submission: {submission.pk}")
         else:
-            logger.info(data_file)
-            logger.info(data_to_upload)
             logger.warning("Failed to read file, or retrieve direct upload")
             raise SubmissionPostException("Failed to read file, or retrieve direct upload file.", sub_type='data')
 
