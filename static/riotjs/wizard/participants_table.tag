@@ -134,8 +134,10 @@
                     <field name="Team Name (Optional)" ref="team_name"></field>
                 </form>
             </div>
+            <div class="actions">
                 <a class="ui blue button" onclick="{add_student}">Add Student</a>
-                <div class="ui cancel button">Cancel</div>
+                <div class="ui red cancel button" >Cancel</div>
+            </div>
         </div>
 
         <!--<div id="message_form_modal" class="ui modal">
@@ -272,6 +274,10 @@
         self.show_student_modal = function () {
             $("#student_form_modal").modal('show')
         }
+        self.hide_student_modal = function () {
+            $("#student_form_modal").modal('hide')
+        }
+
 
         self.show_message_modal = function () {
             $("#message_form_modal").modal('show')
@@ -347,9 +353,10 @@
                     $("#student_form_modal").modal('hide')
                 })
                 .fail(function (response) {
-                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
-                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                        Object.keys(response.responseJSON[key]).forEach(function (key_inner) {
+                            toastr.error(response.responseJSON[key][key_inner])
+                        });
                     });
                 })
         }
