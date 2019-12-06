@@ -164,6 +164,11 @@ class TimeDistributionMixin:
         filter = {
             self.time_distribution_filter_name: kwarg,
         }
+
+        if kwargs.get('questions_only'):
+            filter['definition__questions_only'] = True
+
+
         data = self.time_distribution_model.objects.filter(**filter).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
         return data
 
@@ -212,19 +217,26 @@ class TimeSeriesObjectCreationQueryMixin:
     time_series_model = None
     time_series_creation_date_field_name = None
 
-    def time_series_query(self, count_field_name='count'):
+    def time_series_query(self, count_field_name='count', questions_only=False):
         output_fields = {
             count_field_name: Count('pk'),
             'date': F('datefield')
         }
+
         time_series_data = self.time_series_model.objects.dates(self.time_series_creation_date_field_name, 'year').values(**output_fields)
         return time_series_data
 
 
 class GradePerHWMixin:
-    def grade_per_hw_query(self, student):
+    def grade_per_hw_query(self, student, questions_only=False):
         grades = []
-        for definition in student.klass.homework_definitions.order_by('due_date').all():
+
+        if questions_only:
+            definitions = student.klass.homework_definitions.filter(questions_only=questions_only).order_by('due_date').all()
+        else:
+            definitions = student.klass.homework_definitions.order_by('due_date').all()
+
+        for definition in definitions:
             homework_grade = {
                 'name': definition.name,
                 'grade': 0.0,
@@ -265,12 +277,20 @@ class KlassGradePerHWMixin:
     def klass_grade_per_hw_query(self, **kwargs):
         klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
         instructor_student = klass.enrolled_students.filter(user=klass.instructor.user).first()
-        grades = []
+
         if instructor_student:
             students = klass.enrolled_students.exclude(pk=instructor_student.pk).all().prefetch_related('submitted_homeworks', 'submitted_homeworks__grades')
         else:
             students = klass.enrolled_students.all().prefetch_related('submitted_homeworks', 'submitted_homeworks__grades')
-        for definition in klass.homework_definitions.order_by('due_date').all():
+
+        questions_only = kwargs.get('questions_only')
+        if questions_only:
+            definitions = klass.homework_definitions.filter(questions_only=questions_only).order_by('due_date').all()
+        else:
+            definitions = klass.homework_definitions.order_by('due_date').all()
+
+        grades = []
+        for definition in definitions:
             grade_quantity = 0
             grade_total = 0
             for student in students:
@@ -597,6 +617,9 @@ class StudentSubmissionTimesView(TimeDistributionMixin, APIView):
     time_distribution_filter_name = 'creator'
 
     def get(self, request, **kwargs):
+        if request.query_params.get('questions_only'):
+            kwargs['questions_only'] = True
+
         data = self.time_distribution_query(**kwargs)
         return Response(data)
 
@@ -608,6 +631,9 @@ class TeamSubmissionTimesView(TimeDistributionMixin, APIView):
     time_distribution_filter_name = 'team'
 
     def get(self, request, **kwargs):
+        if request.query_params.get('questions_only'):
+            kwargs['questions_only'] = True
+
         data = self.time_distribution_query(**kwargs)
         return Response(data)
 
@@ -634,6 +660,9 @@ class KlassSubmissionTimesView(TimeDistributionMixin, APIView):
     time_distribution_filter_name = 'klass'
 
     def get(self, request, **kwargs):
+        if self.request.query_params.get('questions_only'):
+            kwargs['questions_only'] = True
+
         data = self.time_distribution_query(**kwargs)
         return Response(data)
 
@@ -644,9 +673,14 @@ class StudentScoresView(ScorePerHWMixin, GradePerHWMixin, APIView):
 
     def get(self, request, **kwargs):
         student = get_object_or_404(StudentMembership, pk=kwargs.get('student_pk'))
-        score_data = self.score_per_hw_query(student)
-        grade_data = self.grade_per_hw_query(student)
-        data = merge_list_of_lists_of_dicts([list(score_data), list(grade_data)])
+
+        if request.query_params.get('questions_only'):
+            data = self.grade_per_hw_query(student, questions_only=True)
+        else:
+            score_data = self.score_per_hw_query(student)
+            grade_data = self.grade_per_hw_query(student)
+            data = merge_list_of_lists_of_dicts([list(score_data), list(grade_data)])
+
         formatted_data = list_of_dicts_to_dict_of_lists(data)
         return Response(formatted_data)
 
@@ -667,9 +701,16 @@ class KlassScoresView(KlassScorePerHWMixin, KlassGradePerHWMixin, APIView):
     score_per_hw_filter_name = 'team'
 
     def get(self, request, **kwargs):
-        scores = self.klass_score_per_hw_query(**kwargs)
-        grades = self.klass_grade_per_hw_query(**kwargs)
-        data = merge_list_of_lists_of_dicts([list(scores), list(grades)])
+        questions_only = request.query_params.get('questions_only')
+
+        if questions_only:
+            kwargs['questions_only'] = True
+            data = self.klass_grade_per_hw_query(**kwargs)
+        else:
+            scores = self.klass_score_per_hw_query(**kwargs)
+            grades = self.klass_grade_per_hw_query(**kwargs)
+            data = merge_list_of_lists_of_dicts([list(scores), list(grades)])
+
         formatted_data = list_of_dicts_to_dict_of_lists(data)
         return Response(formatted_data)
 
