@@ -125,8 +125,7 @@ class SubmissionAPIEndpointsTests(TestCase):
             status=201
         )
 
-        # Updated to work with Celery task call
-        with patch('apps.api.views.homework.post_submission.delay') as post_submission:
+        with patch('apps.api.views.homework.post_submission') as post_submission:
             resp = self.client.post(
                 reverse('api:submission-list', kwargs={'version': 'v1'}),
                 data={
@@ -213,8 +212,7 @@ class SubmissionAPIEndpointsTests(TestCase):
             status=201
         )
 
-        # Updated to work with Celery task call
-        with patch('apps.api.views.homework.post_submission.delay') as post_submission:
+        with patch('apps.api.views.homework.post_submission') as post_submission:
             resp = self.client.post(
                 reverse('api:submission-list', kwargs={'version': 'v1'}),
                 data={
