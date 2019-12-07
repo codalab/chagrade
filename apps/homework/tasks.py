@@ -76,13 +76,14 @@ def post_submission(submission_pk, data_file=None):
             logger.info(f"Succesfully read file from Github for submission: {submission.pk}")
         else:
             data_to_upload = data_file
+            temp_size = str(data_to_upload.size)
         if data_to_upload:
             storage_resp = requests.put(
                 url=s3_file_url,
                 data=data_to_upload,
                 headers={
                     "x-ms-blob-type": 'BlockBlob',
-                    "Content-Length": str(data_to_upload.size) if data_file else temp_size,
+                    "Content-Length": temp_size,
                 }
             )
             logger.info(f"Pushing data to S3 url for submission: {submission.pk}")

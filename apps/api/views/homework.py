@@ -36,8 +36,8 @@ class SubmissionViewSet(ModelViewSet):
     serializer_class = SubmissionSerializer
     permission_classes = (SubmissionPermissionCheck,)
 
-    # Overwritten so we can return responses or default from post_submission
     def create(self, request, *args, **kwargs):
+        """Overwritten so we can return responses or default from post_submission"""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         response = self.perform_create(serializer)
@@ -49,15 +49,16 @@ class SubmissionViewSet(ModelViewSet):
     def perform_create(self, serializer):
         new_sub = serializer.save()
         if new_sub.pk and not new_sub.submitted_to_challenge:
-            if not new_sub.definition.questions_only and new_sub.github_url:
-                logger.info(f"Submission {new_sub.pk} is a github submission!")
-                post_submission.delay(new_sub.pk)
-            elif self.request.data['file']:
-                logger.info(f"Submission {new_sub.pk} is a direct upload!")
-                new_sub.is_direct_upload = True
-                new_sub.save()
+            file_to_submit = self.request.data.get('file')
+            if not new_sub.definition.questions_only and ( new_sub.github_url or file_to_submit ):
+                if file_to_submit:
+                    logger.info(f"Submission {new_sub.pk} is a direct upload!")
+                    new_sub.is_direct_upload = True
+                    new_sub.save()
+                else:
+                    logger.info(f"Submission {new_sub.pk} is a github submission!")
                 try:
-                    post_submission(new_sub.pk, self.request.data['file'])
+                    post_submission(new_sub.pk, file_to_submit)
                 except SubmissionPostException as e:
                     if e.sub_type == 'connection':
                         return Response("Could not communicate with Codalab instance!", status=status.HTTP_504_GATEWAY_TIMEOUT)
