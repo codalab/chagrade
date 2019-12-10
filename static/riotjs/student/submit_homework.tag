@@ -41,8 +41,8 @@
                     <input name="github_ref" ref="github_ref" type="text">
                 </div>
             </div>
-            <div class="ui divider"></div>
-            <div class="fields">
+            <div if="{ !_.get(definition, 'force_github', false) }" class="ui divider"></div>
+            <div if="{ !_.get(definition, 'force_github', false) }" class="fields">
                 <div class="sixteen wide field">
                     <h1>OR</h1>
                     <label>Direct File Upload:</label>
@@ -346,6 +346,7 @@
         }
 
         self.submit_form = function () {
+            self.update({loading: true})
             let question_answers = []
 
             for (let i = 0; i < self.definition.custom_questions.length; i++) {
@@ -375,6 +376,7 @@
             if (window.SUBMISSION !== undefined) {
                 var result = confirm("There is already an existing submission. Submitting again will overwrite the previous submission and any previously attached grades will be lost. Continue?")
                 if (!result) {
+                    self.update({loading: false})
                     return
                 }
             }
@@ -407,33 +409,28 @@
                         self.github_url = split_url.join('/')
                     }
 
-                    if (!!self.refs.direct_file.files && !_.isEmpty(self.refs.direct_file.files)) {
-                        self.update({loading: true})
-                        var formData = new FormData();
+                    if (!_.get(self.definition, 'force_github', false)) {
+                        if (!!self.refs.direct_file.files && !_.isEmpty(self.refs.direct_file.files)) {
+                            var formData = new FormData();
 
-                        for (var key in data) {
-                            formData.append(key, data[key]);
-                        }
+                            for (var key in data) {
+                                formData.append(key, data[key]);
+                            }
 
-                        // add assoc key values, this will be posts values
-                        formData.append("file", self.refs.direct_file.files[0], self.refs.direct_file.files[0].name);
-                        formData.append("upload_file", true);
+                            // add assoc key values, this will be posts values
+                            formData.append("file", self.refs.direct_file.files[0], self.refs.direct_file.files[0].name);
+                            formData.append("upload_file", true);
 
-                        CHAGRADE.api.form_request('POST', URLS.API + "submissions/", formData)
-                            .done(function (data) {
-                                 window.location = '/homework/overview/' + KLASS
-                            })
-                            .fail(function (response) {
-                                Object.keys(response.responseJSON).forEach(function (key) {
+                            CHAGRADE.api.form_request('POST', URLS.API + "submissions/", formData)
+                                .done(function (data) {
+                                    window.location = '/homework/overview/' + KLASS
+                                })
+                                .fail(function (response) {
+                                    toastr.error(response.responseText)
                                     self.update({loading: false})
-                                    if (key === 'question_answers') {
-                                        toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
-                                    } else {
-                                        toastr.error("Error with " + key + "! " + response.responseJSON[key])
-                                    }
-                                });
-                            })
-                        return
+                                })
+                            return
+                        }
                     }
                 } else {
                     data["github_repo_name"] = $(self.refs.github_repo).dropdown('get text')
@@ -456,6 +453,7 @@
             }
 
             if (!self.github_url && !self.definition.questions_only && !data.files) {
+                self.update({loading: false})
                 toastr.error("Please select a file before submitting.")
                 return
             }
@@ -473,6 +471,7 @@
                         if (key === 'question_answers') {
                             toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
                         } else {
+                            self.update({loading: false})
                             toastr.error("Error with " + key + "! " + response.responseJSON[key])
                         }
                     });
@@ -502,6 +501,7 @@
                     self.update_question_answers()
                 })
                 .fail(function (error) {
+                    self.update({loading: false})
                     toastr.error("Error fetching submission: " + error.statusText)
                 })
         }

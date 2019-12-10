@@ -119,7 +119,8 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'custom_questions',
             'custom_challenge_urls',
             'teams',
-            'id'
+            'id',
+            'force_github'
         ]
 
 

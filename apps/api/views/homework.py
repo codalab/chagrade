@@ -52,6 +52,13 @@ class SubmissionViewSet(ModelViewSet):
             file_to_submit = self.request.data.get('file')
             if not new_sub.definition.questions_only and ( new_sub.github_url or file_to_submit ):
                 if file_to_submit:
+                    # If we were given a file even though this definition only accepts github submissions, return an error
+                    if new_sub.definition.force_github:
+                        logger.warning(f"Submission {new_sub.pk} is a direct upload and it should be a github submission!")
+                        return Response(
+                            "This homework only takes github submissions!",
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
                     logger.info(f"Submission {new_sub.pk} is a direct upload!")
                     new_sub.is_direct_upload = True
                     new_sub.save()
@@ -61,7 +68,10 @@ class SubmissionViewSet(ModelViewSet):
                     post_submission(new_sub.pk, file_to_submit)
                 except SubmissionPostException as e:
                     if e.sub_type == 'connection':
-                        return Response("Could not communicate with Codalab instance!", status=status.HTTP_504_GATEWAY_TIMEOUT)
+                        return Response(
+                            "Could not communicate with Codalab instance!",
+                            status=status.HTTP_504_GATEWAY_TIMEOUT
+                        )
                     else:
                         return Response(
                             "Could not determine data to send to Codalab. Check you supplied a proper github_url, or a "

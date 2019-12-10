@@ -32,6 +32,7 @@ class Definition(models.Model):
     baseline_score = models.FloatField(default=0.0, null=True, blank=False)
     target_score = models.FloatField(default=1.0, null=True, blank=False)
 
+    force_github = models.BooleanField(default=False)
 
     # These values for submissions will have to be grabbed from v1.5 API
     # We should almost set these automatically by an API request to the challenge and see if these options are enabled
