@@ -1,4 +1,6 @@
 import json
+import os
+from unittest.mock import patch
 
 import responses
 from django.contrib.auth import get_user_model
@@ -9,8 +11,6 @@ from django.utils import timezone
 from apps.homework.models import Definition, Submission
 from apps.klasses.models import Klass
 from apps.profiles.models import Instructor, StudentMembership
-
-from unittest.mock import patch
 
 User = get_user_model()
 
@@ -42,6 +42,27 @@ class SubmissionAPIEndpointsTests(TestCase):
             klass=self.klass,
             creator=self.student
         )
+
+        self.test_file_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'files/test_submission.zip'
+        )
+
+        assert os.path.exists(self.test_file_path)
+
+    def _direct_file_upload_helper(self):
+        with open(self.test_file_path, 'rb') as submission_file:
+            resp = self.client.post(
+                reverse('api:submission-list', kwargs={'version': 'v1'}),
+                data={
+                    "klass": self.klass.pk,
+                    "definition": self.definition.pk,
+                    "creator": self.student.pk,
+                    "file": submission_file,
+                    "method_name": "instructor method",
+                }
+            )
+            return resp
 
     def test_anonymous_user_cannot_perform_crud_methods_on_submissions(self):
         resp = self.client.get(reverse('api:submission-list', kwargs={'version': 'v1'}))
@@ -249,3 +270,21 @@ class SubmissionAPIEndpointsTests(TestCase):
 
         resp = self.client.delete(reverse('api:submission-detail', kwargs={'version': 'v1', 'pk': sub_id}))
         assert resp.status_code == 403
+
+    def test_cannot_submit_file_to_github_only_definition(self):
+        self.client.login(username='student_user', password='pass')
+
+        self.definition.force_github = True
+        self.definition.save()
+
+        resp = self._direct_file_upload_helper()
+        assert resp.status_code == 400
+        assert resp.content.decode('UTF-8') == '"This homework only takes github submissions!"'
+
+    def test_can_submit_direct_upload_file(self):
+        self.client.login(username='student_user', password='pass')
+
+        with patch('apps.api.views.homework.post_submission') as post_submission:
+            resp = self._direct_file_upload_helper()
+            assert resp.status_code == 201
+            assert post_submission.called

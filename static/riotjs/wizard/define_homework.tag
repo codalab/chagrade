@@ -33,6 +33,11 @@
                 <input class="ui checkbox" type="checkbox" name="questions_only" ref="questions_only"
                        checked="{definition.questions_only}" onclick="{ update_questions_only }">
             </div>
+            <div class="eight wide field">
+                <label>Only allow github submissions (No direct file upload):</label>
+                <input class="ui checkbox" type="checkbox" name="force_github" ref="force_github"
+                       checked="{definition.force_github}">
+            </div>
         </div>
 
         <!-- URL Fields -->
@@ -563,6 +568,7 @@
                 "ask_project_url": self.refs.ask_project_url.checked,
                 "ask_publication_url": self.refs.ask_publication_url.checked,
                 "team_based": self.refs.team_based.checked,
+                "force_github": self.refs.force_github.checked,
                 "criterias": [
                     /*{
                      "description": "string",

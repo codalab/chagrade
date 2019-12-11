@@ -32,6 +32,7 @@ class Definition(models.Model):
     baseline_score = models.FloatField(default=0.0, null=True, blank=False)
     target_score = models.FloatField(default=1.0, null=True, blank=False)
 
+    force_github = models.BooleanField(default=False)
 
     # These values for submissions will have to be grabbed from v1.5 API
     # We should almost set these automatically by an API request to the challenge and see if these options are enabled
@@ -72,6 +73,8 @@ class Submission(models.Model):
     project_url = models.URLField(max_length=200, default='', null=True, blank=True)
     publication_url = models.URLField(max_length=200, default='', null=True, blank=True)
 
+    is_direct_upload = models.BooleanField(default=False)
+
     created = models.DateTimeField(auto_now_add=True)
 
     submitted_to_challenge = models.BooleanField(default=False)
@@ -85,9 +88,6 @@ class Submission(models.Model):
     def get_challenge_url(self):
         if not self.definition.challenge_url:
             print("No challenge URL given.")
-            return
-        if not self.github_url:
-            print("No submission github URL given.")
             return
         if self.definition.team_based:
             if not self.team:
