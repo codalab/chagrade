@@ -43,6 +43,27 @@ class SubmissionAPIEndpointsTests(TestCase):
             creator=self.student
         )
 
+        self.test_file_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'files/test_submission.zip'
+        )
+
+        assert os.path.exists(self.test_file_path)
+
+    def _direct_file_upload_helper(self):
+        with open(self.test_file_path, 'rb') as submission_file:
+            resp = self.client.post(
+                reverse('api:submission-list', kwargs={'version': 'v1'}),
+                data={
+                    "klass": self.klass.pk,
+                    "definition": self.definition.pk,
+                    "creator": self.student.pk,
+                    "file": submission_file,
+                    "method_name": "instructor method",
+                }
+            )
+            return resp
+
     def test_anonymous_user_cannot_perform_crud_methods_on_submissions(self):
         resp = self.client.get(reverse('api:submission-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 401
@@ -256,49 +277,14 @@ class SubmissionAPIEndpointsTests(TestCase):
         self.definition.force_github = True
         self.definition.save()
 
-        test_file_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            'files/test_submission.zip'
-        )
-
-        assert os.path.exists(test_file_path)
-
-        with open(test_file_path, 'rb') as submission_file:
-            resp = self.client.post(
-                reverse('api:submission-list', kwargs={'version': 'v1'}),
-                data={
-                    "klass": self.klass.pk,
-                    "definition": self.definition.pk,
-                    "creator": self.student.pk,
-                    "file": submission_file,
-                    "method_name": "instructor method",
-                }
-            )
-
-            assert resp.status_code == 400
-            assert resp.content.decode('UTF-8') == '"This homework only takes github submissions!"'
+        resp = self._direct_file_upload_helper()
+        assert resp.status_code == 400
+        assert resp.content.decode('UTF-8') == '"This homework only takes github submissions!"'
 
     def test_can_submit_direct_upload_file(self):
         self.client.login(username='student_user', password='pass')
 
-        test_file_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            'files/test_submission.zip'
-        )
-
-        assert os.path.exists(test_file_path)
-
         with patch('apps.api.views.homework.post_submission') as post_submission:
-            with open(test_file_path, 'rb') as submission_file:
-                resp = self.client.post(
-                    reverse('api:submission-list', kwargs={'version': 'v1'}),
-                    data={
-                        "klass": self.klass.pk,
-                        "definition": self.definition.pk,
-                        "creator": self.student.pk,
-                        "file": submission_file,
-                        "method_name": "instructor method",
-                    }
-                )
-                assert resp.status_code == 201
-                assert post_submission.called
+            resp = self._direct_file_upload_helper()
+            assert resp.status_code == 201
+            assert post_submission.called
