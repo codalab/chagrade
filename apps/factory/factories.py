@@ -113,6 +113,7 @@ class DefinitionFactory(factory.django.DjangoModelFactory):
     team_based = factory.LazyAttribute(lambda o: random.random() > 0.5)
     creator = factory.LazyAttribute(lambda o: o.klass.instructor)
     questions_only = False
+    max_submissions_per_student = 40
 
 
 class SubmissionFactory(factory.django.DjangoModelFactory):
