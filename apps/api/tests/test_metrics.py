@@ -344,7 +344,6 @@ class MetricsTests(APITestCase):
         resp = self.client.get(reverse('api:klass_scores', kwargs={'version': 'v1', 'klass_pk': self.klass.pk}))
         scores = resp.json()
         total = len(scores['score'])
-        print(scores)
 
         assert self.klass.homework_definitions.count() == total
 
