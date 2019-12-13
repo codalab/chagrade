@@ -168,7 +168,6 @@ class TimeDistributionMixin:
         if kwargs.get('questions_only'):
             filter['definition__questions_only'] = True
 
-
         data = self.time_distribution_model.objects.filter(**filter).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
         return data
 
@@ -217,7 +216,7 @@ class TimeSeriesObjectCreationQueryMixin:
     time_series_model = None
     time_series_creation_date_field_name = None
 
-    def time_series_query(self, count_field_name='count', questions_only=False):
+    def time_series_query(self, count_field_name='count'):
         output_fields = {
             count_field_name: Count('pk'),
             'date': F('datefield')
