@@ -1,5 +1,8 @@
 <submit-homework>
     <div class="ui form" style="margin-bottom: 2.5vh;">
+        <div if="{loading}" class="ui active dimmer">
+            <div class="ui text loader">Submitting</div>
+        </div>
         <h1 class="ui dividing header" id="submission_header">
             Submission Form for { definition.name }
             <a if={ definition.challenge_url }
@@ -12,29 +15,39 @@
             </a>
         </h1>
 
-        <div if="{ !definition.questions_only && !github_active }" class="fields">
-            <div class="sixteen wide field">
-                <span>
-                    <label class="">
-                        <i class="pop-up question blue circle icon"
-                           data-title="A URL from your github repo to a specific zip file"
-                           data-content="Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip"> </i>
-                        Submission Github URL (Must be zip file):
-                    </label>
-                </span>
-                <input name="github_url" ref="github_url" type="text"
-                       value="{submission.github_url || ''}">
+        <div if="{ !definition.questions_only && !github_active }">
+            <div class="fields">
+                <div class="sixteen wide field">
+                    <span>
+                        <label>
+                            <i class="pop-up question blue circle icon"
+                               data-title="A URL from your github repo to a specific zip file"
+                               data-content="Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip"> </i>
+                            Submission Github URL (Must be zip file):
+                        </label>
+                    </span>
+                    <input name="github_url" ref="github_url" type="text"
+                           value="{submission.github_url || ''}">
+                </div>
+                <div class="eight wide field">
+                    <span>
+                        <label>
+                            <i class="pop-up question blue circle icon"
+                               data-title="A reference of to a point in the repo's history"
+                               data-content="Ex: a9dhe3 or master"> </i>
+                            Commit or Branch Name (Optional):
+                        </label>
+                    </span>
+                    <input name="github_ref" ref="github_ref" type="text">
+                </div>
             </div>
-            <div class="eight wide field">
-                <span>
-                    <label class="">
-                        <i class="pop-up question blue circle icon"
-                           data-title="A reference of to a point in the repo's history"
-                           data-content="Ex: a9dhe3 or master"> </i>
-                        Commit or Branch Name (Optional):
-                    </label>
-                </span>
-                <input name="github_ref" ref="github_ref" type="text">
+            <div if="{ !_.get(definition, 'force_github', false) }" class="ui divider"></div>
+            <div if="{ !_.get(definition, 'force_github', false) }" class="fields">
+                <div class="sixteen wide field">
+                    <h1>OR</h1>
+                    <label>Direct File Upload:</label>
+                    <input type="file" accept="application/zip, .zip" ref="direct_file">
+                </div>
             </div>
         </div>
 
@@ -42,7 +55,7 @@
             <div class="sixteen wide field">
                 <div class="row">
                 <span>
-                    <label class="">
+                    <label>
                         <i class="pop-up question blue circle icon"
                            data-title="A URL from your github repo to a specific file"
                            data-content="Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip"> </i>
@@ -182,6 +195,7 @@
     <script>
 
         var self = this
+        self.loading = false
         self.errors = []
         self.question_answers = []
         self.definition = {
@@ -332,6 +346,7 @@
         }
 
         self.submit_form = function () {
+            self.update({loading: true})
             let question_answers = []
 
             for (let i = 0; i < self.definition.custom_questions.length; i++) {
@@ -361,6 +376,7 @@
             if (window.SUBMISSION !== undefined) {
                 var result = confirm("There is already an existing submission. Submitting again will overwrite the previous submission and any previously attached grades will be lost. Continue?")
                 if (!result) {
+                    self.update({loading: false})
                     return
                 }
             }
@@ -392,6 +408,30 @@
                         split_url[6] = github_ref
                         self.github_url = split_url.join('/')
                     }
+
+                    if (!_.get(self.definition, 'force_github', false)) {
+                        if (!!self.refs.direct_file.files && !_.isEmpty(self.refs.direct_file.files)) {
+                            var formData = new FormData();
+
+                            for (var key in data) {
+                                formData.append(key, data[key]);
+                            }
+
+                            // add assoc key values, this will be posts values
+                            formData.append("file", self.refs.direct_file.files[0], self.refs.direct_file.files[0].name);
+                            formData.append("upload_file", true);
+
+                            CHAGRADE.api.form_request('POST', URLS.API + "submissions/", formData)
+                                .done(function (data) {
+                                    window.location = '/homework/overview/' + KLASS
+                                })
+                                .fail(function (response) {
+                                    toastr.error(response.responseText)
+                                    self.update({loading: false})
+                                })
+                            return
+                        }
+                    }
                 } else {
                     data["github_repo_name"] = $(self.refs.github_repo).dropdown('get text')
                     let branch_name = $(self.refs.github_branch).dropdown('get text')
@@ -412,7 +452,8 @@
                 data["github_url"] = self.github_url
             }
 
-            if (!self.github_url && !self.definition.questions_only) {
+            if (!self.github_url && !self.definition.questions_only && !data.files) {
+                self.update({loading: false})
                 toastr.error("Please select a file before submitting.")
                 return
             }
@@ -430,6 +471,7 @@
                         if (key === 'question_answers') {
                             toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
                         } else {
+                            self.update({loading: false})
                             toastr.error("Error with " + key + "! " + response.responseJSON[key])
                         }
                     });
@@ -459,6 +501,7 @@
                     self.update_question_answers()
                 })
                 .fail(function (error) {
+                    self.update({loading: false})
                     toastr.error("Error fetching submission: " + error.statusText)
                 })
         }

@@ -44,6 +44,7 @@ class SubmissionSerializer(WritableNestedModelSerializer):
             'id',
             'team',
             'created',
+            'is_direct_upload',
         ]
 
         read_only_fields = ['created',]
@@ -132,7 +133,8 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'custom_questions',
             'custom_challenge_urls',
             'teams',
-            'id'
+            'id',
+            'force_github'
         ]
 
 

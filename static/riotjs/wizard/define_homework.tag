@@ -28,15 +28,20 @@
         </div>
 
         <div class="fields">
-            <div class="eight wide field">
+            <div class="five wide field">
+                <label>Max Number of Submissions Per Student (0-40):</label>
+                <input type="number" name="max_submissions_per_student" max="40" min="0" ref="max_submissions_per_student"
+                       value="{definition.max_submissions_per_student}">
+            </div>
+            <div class="five wide field">
                 <label>Custom Questions Only (No competition):</label>
                 <input class="ui checkbox" type="checkbox" name="questions_only" ref="questions_only"
                        checked="{definition.questions_only}" onclick="{ update_questions_only }">
             </div>
-            <div class="eight wide field">
-                <label>Maximum Number of Submissions Per Student (0-40):</label>
-                <input type="number" name="max_submissions_per_student" max="40" min="0" ref="max_submissions_per_student"
-                       value="{definition.max_submissions_per_student}">
+            <div class="six wide field">
+                <label>Only allow Github submissions (No direct file upload):</label>
+                <input class="ui checkbox" type="checkbox" name="force_github" ref="force_github"
+                       checked="{definition.force_github}">
             </div>
         </div>
 
@@ -569,6 +574,7 @@
                 "ask_publication_url": self.refs.ask_publication_url.checked,
                 "team_based": self.refs.team_based.checked,
                 "max_submissions_per_student": self.refs.max_submissions_per_student.value,
+                "force_github": self.refs.force_github.checked,
                 "criterias": [
                     /*{
                      "description": "string",

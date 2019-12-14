@@ -66,6 +66,30 @@
                                         </div>
                                     </div>
 
+                                    <div class="ui grid">
+                                        <div class="column">
+                                            {% for tracker in submission.tracked_submissions.all %}
+                                                {% if tracker.logs %}
+                                                    <div class="ui header">Submission Logs</div>
+                                                    <div class="ui divider"></div>
+                                                    <div class="ui horizontal inline list">
+                                                        {% for log_name in logs_possible %}
+                                                            {% if tracker.logs|has_item:log_name %}
+                                                                <a class="item"
+                                                                   href="{{ tracker.logs|get_item:log_name }}"
+                                                                   target="_blank">
+                                                                    {{ log_name|format_log_name }}
+                                                                </a>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% else %}
+                                                    <td>No Logs Yet</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         {% endwith %}
