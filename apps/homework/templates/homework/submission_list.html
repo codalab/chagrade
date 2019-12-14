@@ -77,6 +77,7 @@
                                                                 <i id="diff-header" class="question blue circle icon"></i>
                                                             </th>
                                                             <th>Score</th>
+                                                            <th>Is Direct Upload?</th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
@@ -143,6 +144,11 @@
                                                                 {% else %}
                                                                     <td>No Submission</td>
                                                                 {% endif %}
+                                                            <td class="center aligned">
+                                                                {% if submission.is_direct_upload %}
+                                                                    <i class="ui checkmark icon"></i>
+                                                                {% endif %}
+                                                            </td>
                                                             </tr>
                                                         {% endfor %}
                                                         </tbody>

@@ -74,25 +74,30 @@
                                                                     target="_blank" rel="noopener noreferrer"
                                                                     class="">Github URL for Submission</a></div>
                                                         {% endif %}
-
                                                         {% if definition.ask_method_name %}
                                                             <div class="item">Method Name:
-                                                                {{ submission.method_name }}</div>{% endif %}
+                                                                {{ submission.method_name }}
+                                                            </div>
+                                                        {% endif %}
                                                         {% if definition.ask_method_description %}
                                                             <div class="item">Method Description:
-                                                                {{ submission.method_description }}</div>{% endif %}
+                                                                {{ submission.method_description }}
+                                                            </div>
+                                                        {% endif %}
                                                         {% if definition.ask_project_url %}
                                                             <div class="item">Project URL:
                                                                 <a href="{{ submission.project_url }}"
                                                                    target="_blank" rel="noopener noreferrer"
                                                                 >{{ submission.project_url }}</a>
-                                                                </div>{% endif %}
+                                                                </div>
+                                                        {% endif %}
                                                         {% if definition.ask_publication_url %}
                                                             <div class="item">Publication URL:
                                                                 <a href="{{ submission.publication_url }}"
                                                                    target="_blank" rel="noopener noreferrer"
                                                                 >{{ submission.publication_url }}</a>
-                                                                </div>{% endif %}
+                                                            </div>
+                                                        {% endif %}
                                                     </ul>
                                                 {% endif %}
                                             </div>
@@ -110,6 +115,8 @@
                                                                 <th>ID</th>
                                                                 <th>Status</th>
                                                                 <th>Score</th>
+                                                                <th>Logs</th>
+                                                                <th>Direct Upload?</th>
                                                                 <th>Phase</th>
                                                             </tr>
                                                             </thead>
@@ -126,6 +133,16 @@
                                                                 {% else %}
                                                                     <td>No Score Yet</td>
                                                                 {% endif %}
+                                                                {% if tracker.logs %}
+                                                                    <td><a href="{% url "homework:submission_detail" submission_pk=submission.pk %}" class="ui blue label">Logs</a></td>
+                                                                {% else %}
+                                                                    <td>No Logs Yet</td>
+                                                                {% endif %}
+                                                                <td class="center aligned">
+                                                                    {% if submission.is_direct_upload %}
+                                                                        <i class="ui checkmark icon"></i>
+                                                                    {% endif %}
+                                                                </td>
                                                                 <td>{{ tracker.remote_phase }}</td>
                                                             {% endfor %}
                                                             </tbody>

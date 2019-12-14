@@ -28,6 +28,15 @@ CHAGRADE.api = {
             dataType: 'json'
         })
     },
+    form_request: function (method, url, data) {
+        return $.ajax({
+            type: method,
+            url: url,
+            data: data,
+            contentType: false,
+            processData: false,
+        })
+    },
     get_klass: function(pk) {
         return CHAGRADE.api.request('GET', URLS.API + 'klasses/' + pk)
     },
