@@ -142,11 +142,19 @@ CHAGRADE.api = {
     get_submission_metrics: function() {
         return CHAGRADE.api.request('GET', URLS.API + "chagrade_submission_metrics/")
     },
-    get_student_scores_metrics: function(student_pk) {
-        return CHAGRADE.api.request('GET', URLS.API + "student_scores/" + student_pk)
+    get_student_scores_metrics: function(student_pk, questions_only) {
+        let url = URLS.API + "student_scores/" + student_pk
+        if (questions_only) {
+            url += '?questions_only=true'
+        }
+        return CHAGRADE.api.request('GET', url)
     },
-    get_student_submission_times_metrics: function(student_pk) {
-        return CHAGRADE.api.request('GET', URLS.API + "student_submission_times/" + student_pk)
+    get_student_submission_times_metrics: function(student_pk, questions_only) {
+        let url = URLS.API + "student_submission_times/" + student_pk
+        if (questions_only) {
+            url += '?questions_only=true'
+        }
+        return CHAGRADE.api.request('GET', url)
     },
     get_team_scores_metrics: function(team_pk) {
         return CHAGRADE.api.request('GET', URLS.API + "team_scores/" + team_pk)
@@ -154,8 +162,19 @@ CHAGRADE.api = {
     get_team_submission_times_metrics: function(team_pk) {
         return CHAGRADE.api.request('GET', URLS.API + "team_submission_times/" + team_pk)
     },
-    get_klass_scores_metrics: function(klass_pk) {
-        return CHAGRADE.api.request('GET', URLS.API + "klass_scores/" + klass_pk)
+    get_klass_scores_metrics: function(klass_pk, questions_only) {
+        let url = URLS.API + "klass_scores/" + klass_pk
+        if (questions_only) {
+            url += '?questions_only=true'
+        }
+        return CHAGRADE.api.request('GET', url)
+    },
+    get_klass_submission_times_metrics: function(klass_pk, questions_only) {
+        let url = URLS.API + "klass_submission_times/" + klass_pk
+        if (questions_only) {
+            url += '?questions_only=true'
+        }
+        return CHAGRADE.api.request('GET', url)
     },
     get_klass_CSV: function(klass_pk) {
         return CHAGRADE.api.request('GET', URLS.API + "klass_csv/" + klass_pk + "?format=csv")
@@ -174,9 +193,6 @@ CHAGRADE.api = {
     },
     get_team_CSV: function(team_pk) {
         return CHAGRADE.api.request('GET', URLS.API + "team_csv/" + team_pk + "?format=csv")
-    },
-    get_klass_submission_times_metrics: function(klass_pk) {
-        return CHAGRADE.api.request('GET', URLS.API + "klass_submission_times/" + klass_pk)
     },
     get_team_contributions_metrics: function(team_pk) {
         return CHAGRADE.api.request('GET', URLS.API + "team_contributions/" + team_pk)

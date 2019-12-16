@@ -49,13 +49,21 @@
                         <a class="active item" data-tab="overview">Overview</a>
                         <a class="item" data-tab="students">Students</a>
                         <a class="item" data-tab="teams">Teams</a>
+                        <div class="ui field" style="margin-left: auto;">
+                            <input class="ui checkbox"
+                                   type="checkbox"
+                                   name="questions_only"
+                                   id="questions_only_checkbox"
+                                   onclick="update_questions_only()">
+                            <label class="ui label">Questions Only Homework</label>
+                        </div>
                     </div>
 
                     <div class="ui bottom attached active tab segment" data-tab="overview">
 
                         <div class='charts-container'>
                             <div class='chart-container'>
-                                <h5>Class Average Scores
+                                <h5>Class Average Performance
                                     <i class="ui blue question circle icon outline score-normalization-popup"
                                        data-title="Score Normalization"
                                        data-content="Each homework's score has been normalized to a linear scale based off of the homework's respective baseline and target scores.
@@ -94,7 +102,7 @@
 
                         <div class='charts-container'>
                             <div class='student-chart chart-container'>
-                                <h5>Scores
+                                <h5>Performance
                                     <i class="ui blue question circle icon outline score-normalization-popup"
                                        data-title="Score Normalization"
                                        data-content="Each homework's score has been normalized to a linear scale based off of the homework's respective baseline and target scores.
@@ -169,7 +177,8 @@
 
 {% block extra_script %}
     <script>
-
+        var questions_only = false
+        var student_id = ''
         var instructor_metrics = {}
 
         var team_download_url = "{% url 'api:team_CSV' version='v1' team_pk=99  %}?format=csv".replace('99', 'team_pk')
@@ -180,12 +189,23 @@
         var student_download_button = document.getElementById('student_download_button')
         var student_download_filename = 'student_metrics_for_NAME.csv'
 
+
         $(document).ready( function () {
             tab_setup()
             chart_setup()
             dropdown_setup()
-
+            update_questions_only()
         })
+
+
+        function update_questions_only() {
+            questions_only = $('#questions_only_checkbox')[0].checked
+            charts_update()
+            if (student_id != '') {
+                update_student_charts()
+            }
+        }
+
 
         function tab_setup() {
             let menu_items = $('.ui.tabular.menu .item')
@@ -212,8 +232,8 @@
             $('.score-normalization-popup').popup()
         }
 
-        function dropdown_setup() {
 
+        function dropdown_setup() {
             CHAGRADE.api.get_klass({{ klass.pk }})
                 .done(klass => {
                     let students = []
@@ -243,31 +263,9 @@
                             student_download_button.href = student_download_url.replace('student_pk', id)
                             student_download_button.download = student_download_filename.replace('NAME', name)
                             student_download_button.classList.remove('hidden')
+                            student_id = id
 
-                            CHAGRADE.api.get_student_scores_metrics(id)
-                                .done( (data) => {
-                                    instructor_metrics.student_scores_chart.data.datasets[0].label = 'Student Scores'
-                                    instructor_metrics.student_scores_chart.data.datasets[0].data = data.score
-                                    instructor_metrics.student_scores_chart.data.labels = data.name
-                                    instructor_metrics.student_scores_chart.update()
-                                })
-                                .fail( () => {
-                                    toastr.error('Failed to retrieve student scores.')
-                                })
-
-                            CHAGRADE.api.get_student_submission_times_metrics(id)
-                                .done( (sub_times) => {
-                                    let time_data = _.fill(Array(24), 0)
-                                    _.forEach(sub_times, (time) => {
-                                        time_data[time.time] = time.count
-                                    })
-
-                                    instructor_metrics.student_temporal_histogram.data.datasets[0].data = time_data
-                                    instructor_metrics.student_temporal_histogram.update()
-                                })
-                                .fail( () => {
-                                    toastr.error('Failed to retrieve student submission times.')
-                                })
+                            update_student_charts()
                         },
                     })
 
@@ -293,6 +291,10 @@
 
                             CHAGRADE.api.get_team_submission_times_metrics(id)
                                 .done( (sub_times) => {
+                                    if (_.isEmpty(sub_times)) {
+                                        toastr.error('Failed to retrieve team submission times.')
+                                        return
+                                    }
                                     let time_data = _.fill(Array(24), 0)
                                     _.forEach(sub_times, (time) => {
                                         time_data[time.time] = time.count
@@ -328,22 +330,50 @@
                 })
         }
 
-        function chart_setup() {
-            instructor_metrics.overview_scores_chart = new Chart($('#overview_scores'), create_score_chart_config('Submission Scores'));
-            instructor_metrics.overview_temporal_histogram = new Chart($('#overview_temporal_histogram'), create_temporal_bar_chart_config('Commit Frequency'));
 
-            instructor_metrics.student_scores_chart = new Chart($('#student_scores'), create_score_chart_config('Submission Scores'));
-            instructor_metrics.student_temporal_histogram = new Chart($('#student_temporal_histogram'), create_temporal_bar_chart_config('Commit Frequency'));
-
-            instructor_metrics.team_scores_chart = new Chart($('#team_scores'), create_score_chart_config('Submission Scores'));
-            instructor_metrics.team_temporal_histogram = new Chart($('#team_temporal_histogram'), create_temporal_bar_chart_config('Commit Frequency'));
-            instructor_metrics.team_github_activity_chart = new Chart($('#team_github_activity'), create_bar_chart_config('Commits'));
-            instructor_metrics.team_codalab_activity_chart = new Chart($('#team_codalab_activity'), create_bar_chart_config('Submissions'));
-
-            CHAGRADE.api.get_klass_scores_metrics({{ klass.pk }})
+        function update_student_charts() {
+            CHAGRADE.api.get_student_scores_metrics(student_id, questions_only)
                 .done( (data) => {
-                    instructor_metrics.overview_scores_chart.data.datasets[0].label = 'Average Class Score'
-                    instructor_metrics.overview_scores_chart.data.datasets[0].data = data.score
+                    if (!questions_only) {
+                        instructor_metrics.student_scores_chart.data.datasets[1].label = 'Student Scores'
+                        instructor_metrics.student_scores_chart.data.datasets[1].data = data.score
+                    }
+
+                    instructor_metrics.student_scores_chart.data.datasets[0].label = 'Student Grades'
+                    instructor_metrics.student_scores_chart.data.datasets[0].data = data.grade
+                    instructor_metrics.student_scores_chart.data.labels = data.name
+                    instructor_metrics.student_scores_chart.update()
+                })
+                .fail( () => {
+                    toastr.error('Failed to retrieve student scores.')
+                })
+
+            CHAGRADE.api.get_student_submission_times_metrics(student_id, questions_only)
+                .done( (sub_times) => {
+                    let time_data = _.fill(Array(24), 0)
+                    _.forEach(sub_times, (time) => {
+                        time_data[time.time] = time.count
+                    })
+
+                    instructor_metrics.student_temporal_histogram.data.datasets[0].data = time_data
+                    instructor_metrics.student_temporal_histogram.update()
+                })
+                .fail( () => {
+                    toastr.error('Failed to retrieve student submission times.')
+                })
+        }
+
+
+        function update_klass_charts() {
+            CHAGRADE.api.get_klass_scores_metrics({{ klass.pk }}, questions_only)
+                .done( (data) => {
+                    if (!questions_only) {
+                        instructor_metrics.overview_scores_chart.data.datasets[1].label = 'Average Class Score'
+                        instructor_metrics.overview_scores_chart.data.datasets[1].data = data.score
+                    }
+
+                    instructor_metrics.overview_scores_chart.data.datasets[0].label = 'Average Class Grade'
+                    instructor_metrics.overview_scores_chart.data.datasets[0].data = data.average_grade
                     instructor_metrics.overview_scores_chart.data.labels = data.name
                     instructor_metrics.overview_scores_chart.update()
                 })
@@ -351,20 +381,57 @@
                     toastr.error('Failed to retrieve class scores.')
                 })
 
-            CHAGRADE.api.get_klass_submission_times_metrics({{ klass.pk }})
+            CHAGRADE.api.get_klass_submission_times_metrics({{ klass.pk }}, questions_only)
                 .done( (sub_times) => {
                     let time_data = _.fill(Array(24), 0)
                     _.forEach(sub_times, (time) => {
                         time_data[time.time] = time.count
                     })
 
-                   instructor_metrics.overview_temporal_histogram.data.datasets[0].data = time_data
-                   instructor_metrics.overview_temporal_histogram.update()
+                    instructor_metrics.overview_temporal_histogram.data.datasets[0].data = time_data
+                    instructor_metrics.overview_temporal_histogram.update()
                 })
                 .fail( () => {
                     toastr.error('Failed to retrieve class submission times.')
                 })
         }
+
+
+        function chart_setup() {
+            instructor_metrics.overview_scores_chart = new Chart($('#overview_scores'), create_score_chart_config(!questions_only, true));
+            instructor_metrics.overview_temporal_histogram = new Chart($('#overview_temporal_histogram'), create_temporal_bar_chart_config('Commit Frequency'));
+
+            instructor_metrics.student_scores_chart = new Chart($('#student_scores'), create_score_chart_config(!questions_only, true));
+            instructor_metrics.student_temporal_histogram = new Chart($('#student_temporal_histogram'), create_temporal_bar_chart_config('Commit Frequency'));
+
+            instructor_metrics.team_scores_chart = new Chart($('#team_scores'), create_score_chart_config(true, false));
+            instructor_metrics.team_temporal_histogram = new Chart($('#team_temporal_histogram'), create_temporal_bar_chart_config('Commit Frequency'));
+            instructor_metrics.team_github_activity_chart = new Chart($('#team_github_activity'), create_bar_chart_config('Commits'));
+            instructor_metrics.team_codalab_activity_chart = new Chart($('#team_codalab_activity'), create_bar_chart_config('Submissions'));
+            update_klass_charts()
+        }
+
+
+        function charts_update() {
+            function update_config(chart, config) {
+                chart.config = config
+                chart.update()
+            }
+
+            update_config(instructor_metrics.overview_scores_chart, create_score_chart_config(!questions_only, true))
+            update_config(instructor_metrics.overview_temporal_histogram, create_temporal_bar_chart_config('Commit Frequency'))
+
+            update_config(instructor_metrics.student_scores_chart, create_score_chart_config(!questions_only, true))
+            update_config(instructor_metrics.student_temporal_histogram, create_temporal_bar_chart_config('Commit Frequency'))
+
+            update_config(instructor_metrics.team_scores_chart, create_score_chart_config(true, false))
+            update_config(instructor_metrics.team_temporal_histogram, create_temporal_bar_chart_config('Commit Frequency'))
+            update_config(instructor_metrics.team_github_activity_chart, create_bar_chart_config('Commits'))
+            update_config(instructor_metrics.team_codalab_activity_chart, create_bar_chart_config('Submissions'))
+
+            update_klass_charts()
+        }
+
 
         function create_default_chart_config() {
             return {
@@ -395,6 +462,7 @@
             }
         }
 
+
         function create_bar_chart_config(label) {
             let config = create_default_chart_config()
             config.data.datasets.push(
@@ -422,7 +490,8 @@
             return config
         }
 
-        function create_score_chart_config() {
+        function create_score_chart_config(scores, grades) {
+
             let config = create_default_chart_config()
             config.type = 'line'
             config.options.scales = {
@@ -434,14 +503,30 @@
                 }]
             }
 
-            config.data.datasets.push({
-                label: '',
-                data: [],
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor:'rgba(54, 112, 185, 1)',
-                borderWidth: 2.2,
-                lineTension: 0,
-            })
+            if (grades) {
+                // Red lines for grades
+                config.data.datasets.push({
+                    label: '',
+                    data: [],
+                    backgroundColor: 'rgba(171, 31, 24, 0.2)',
+                    borderColor:'rgba(171, 31, 24, 1)',
+                    borderWidth: 2.2,
+                    lineTension: 0,
+                })
+            }
+
+            if (scores) {
+                // Blue lines for scores
+                config.data.datasets.push({
+                    label: '',
+                    data: [],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor:'rgba(54, 112, 185, 1)',
+                    borderWidth: 2.2,
+                    lineTension: 0,
+                })
+            }
+
             return config
         }
     </script>
