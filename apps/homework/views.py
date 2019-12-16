@@ -3,8 +3,10 @@ import csv
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse, HttpResponseForbidden
-
+from django.db.models import Subquery, OuterRef, F, Count, When, Case, Value, BooleanField
 from django.views.generic import TemplateView
+
+from rest_framework.exceptions import PermissionDenied
 
 from apps.homework.models import Definition, Grade, Submission
 from apps.klasses.mixins import WizardMixin
@@ -75,6 +77,17 @@ class HomeworkOverView(LoginRequiredMixin, TemplateView):
             context['klass'] = klass
         except ObjectDoesNotExist:
             raise Http404('Klass object not found')
+
+        student = klass.enrolled_students.get(user=self.request.user)
+        context['definitions'] = klass.homework_definitions.all().annotate(
+            number_of_submissions_made=Subquery(Submission.objects.filter(creator=student, definition=OuterRef('pk')).values('definition__pk').annotate(total_subs=Count('pk')).values('total_subs'))
+        ).annotate(
+            max_submission_limit_met=Case(
+                When(number_of_submissions_made__gte=F('max_submissions_per_student'), then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField()
+            )
+        )
         return context
 
 
@@ -215,6 +228,11 @@ class SubmissionFormView(LoginRequiredMixin, TemplateView):
             context['student'] = klass.enrolled_students.get(user=self.request.user)
         except ObjectDoesNotExist:
             raise HttpResponseForbidden('User not part of klass.')
+
+        student = klass.enrolled_students.get(user=self.request.user)
+        submission_count = Submission.objects.filter(definition=definition, creator=student).count()
+        if submission_count >= definition.max_submissions_per_student:
+            raise PermissionDenied("You've reached the submission limit for this homework.")
         return context
 
 

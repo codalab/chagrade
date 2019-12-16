@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework.serializers import ModelSerializer
+from rest_framework.exceptions import PermissionDenied
 from drf_writable_nested import WritableNestedModelSerializer
+
+
 from apps.groups.models import Team
 from apps.homework.models import Definition, Criteria, Question, Submission, QuestionAnswer, Grade, CriteriaAnswer, \
     TeamCustomChallengeURL
@@ -45,6 +48,16 @@ class SubmissionSerializer(WritableNestedModelSerializer):
         ]
 
         read_only_fields = ['created',]
+
+    def validate(self, data):
+        request = self.context['request']
+        definition = data['definition'].pk
+        submission_count = Submission.objects.filter(creator__user=request.user,
+                                                definition=definition).count()
+        max_subs = Definition.objects.get(pk=definition).max_submissions_per_student
+        if submission_count >= max_subs:
+            raise PermissionDenied("You've reached the submission limit for this homework.")
+        return data
 
 
 class QuestionSerializer(ModelSerializer):
@@ -110,6 +123,7 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'starting_kit_github_url',
             'baseline_score',
             'target_score',
+            'max_submissions_per_student',
             'ask_method_name',
             'ask_method_description',
             'ask_project_url',

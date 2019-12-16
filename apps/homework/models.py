@@ -4,7 +4,9 @@ from urllib.parse import urlparse
 import requests
 import logging
 from django.contrib.postgres.fields import JSONField
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 # Require an account type to determine users vs students?
 # Or should we abstract two separate sub-models from this one?
 from requests.auth import HTTPBasicAuth
@@ -32,6 +34,7 @@ class Definition(models.Model):
     baseline_score = models.FloatField(default=0.0, null=True, blank=False)
     target_score = models.FloatField(default=1.0, null=True, blank=False)
 
+    max_submissions_per_student = models.IntegerField(default=20, null=False, validators=[MaxValueValidator(40), MinValueValidator(0)])
     force_github = models.BooleanField(default=False)
 
     # These values for submissions will have to be grabbed from v1.5 API

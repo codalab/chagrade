@@ -47,6 +47,7 @@ class SubmissionViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
+        serializer.is_valid(raise_exception=True)
         new_sub = serializer.save()
         if new_sub.pk and not new_sub.submitted_to_challenge:
             file_to_submit = self.request.data.get('file')

@@ -130,7 +130,7 @@ class SubmissionPermissionCheck(ChagradeAuthCheckMixin, permissions.BasePermissi
         if request.method in permissions.SAFE_METHODS and request.user.instructor:
             if request.user.instructor == obj.definition.klass.instructor:
                 return True
-        # If we're a student, and there's teams, allow students in the team, or the creator
+        # If we're a student, and there are teams, allow students in the team, or the creator
         if student:
             if obj.team:
                 if student in obj.team.members.all():

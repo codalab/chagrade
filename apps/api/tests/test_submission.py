@@ -35,7 +35,7 @@ class SubmissionAPIEndpointsTests(TestCase):
             due_date=timezone.now(),
             name='test',
             description='test',
-            challenge_url='http://example.com/competitions/1'
+            challenge_url='http://example.com/competitions/1',
         )
         self.submission = Submission.objects.create(
             definition=self.definition,
@@ -63,6 +63,92 @@ class SubmissionAPIEndpointsTests(TestCase):
                 }
             )
             return resp
+
+    def add_all_responses(self):
+        responses.add(
+            responses.POST,
+            url='http://example.com/api/competition/1/submission/sas',
+            body=json.dumps({
+                'id': 'competition/15595/submission/44798/4aba772a-a6c1-4e6f-a82b-fb9d23193cb6.zip',
+                'url': 'https://github.com/Tthomas63/chagrade_test_submission'
+            }),
+            status=201
+        )
+        responses.add(
+            responses.GET,
+            url='https://github.com/Tthomas63/chagrade_test_submission/archive/master.zip',
+            status=200,
+            body=json.dumps({})
+        )
+        responses.add(
+            responses.PUT,
+            url='https://github.com/Tthomas63/chagrade_test_submission',
+            status=200,
+            body=json.dumps({'text': 'testtext'})
+        )
+        responses.add(
+            responses.GET,
+            url='http://example.com/api/competition/1/phases/',
+            status=200,
+            body=json.dumps([{'phases': [{'id': '1', 'is_active': True}]}])
+        )
+        new_sub_pk = self.submission.pk + 1
+        responses.add(
+            responses.POST,
+            url='http://example.com/api/competition/1/submission?description=Chagrade_Submission_{}&phase_id=1'
+                .format(new_sub_pk),
+            body=json.dumps({'id': '1'}),
+            status=201
+        )
+
+    @responses.activate
+    def test_maximum_submissions_per_user_limit(self):
+        self.add_all_responses()
+
+        self.client.login(username='student_user', password='pass')
+        resp = self.client.get(reverse('api:submission-list', kwargs={'version': 'v1'}))
+        assert resp.status_code == 200
+
+        definition_for_submission_limits = Definition.objects.create(
+            klass=self.klass,
+            creator=self.instructor,
+            due_date=timezone.now(),
+            name='Sub Limits',
+            description='test',
+            challenge_url='http://example.com/competitions/1',
+            max_submissions_per_student=1,
+        )
+
+        with patch('apps.api.views.homework.post_submission') as post_submission:
+            # First submission POST should work.
+            resp1 = self.client.post(
+                reverse('api:submission-list', kwargs={'version': 'v1'}),
+                data={
+                    "klass": self.klass.pk,
+                    "definition": definition_for_submission_limits.pk,
+                    "creator": self.student.pk,
+                    "github_url": "https://github.com/Tthomas63/chagrade_test_submission/archive/master.zip",
+                    "method_name": "student method",
+                }
+            )
+
+            assert post_submission.called
+            assert resp1.status_code == 201
+
+            # Second submission POST should get permission denied error (403) due to hitting submission limit.
+            resp2 = self.client.post(
+                reverse('api:submission-list', kwargs={'version': 'v1'}),
+                data={
+                    "klass": self.klass.pk,
+                    "definition": definition_for_submission_limits.pk,
+                    "creator": self.student.pk,
+                    "github_url": "https://github.com/Tthomas63/chagrade_test_submission/archive/master.zip",
+                    "method_name": "student method",
+                }
+            )
+
+            assert post_submission.called
+            assert resp2.status_code == 403
 
     def test_anonymous_user_cannot_perform_crud_methods_on_submissions(self):
         resp = self.client.get(reverse('api:submission-list', kwargs={'version': 'v1'}))
@@ -110,41 +196,7 @@ class SubmissionAPIEndpointsTests(TestCase):
         resp = self.client.get(reverse('api:submission-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 200
 
-        responses.add(
-            responses.POST,
-            url='http://example.com/api/competition/1/submission/sas',
-            body=json.dumps({
-                'id': 'competition/15595/submission/44798/4aba772a-a6c1-4e6f-a82b-fb9d23193cb6.zip',
-                'url': 'https://github.com/Tthomas63/chagrade_test_submission'
-            }),
-            status=201
-        )
-        responses.add(
-            responses.GET,
-            url='https://github.com/Tthomas63/chagrade_test_submission/archive/master.zip',
-            status=200,
-            body=json.dumps({})
-        )
-        responses.add(
-            responses.PUT,
-            url='https://github.com/Tthomas63/chagrade_test_submission',
-            status=200,
-            body=json.dumps({'text': 'testtext'})
-        )
-        responses.add(
-            responses.GET,
-            url='http://example.com/api/competition/1/phases/',
-            status=200,
-            body=json.dumps([{'phases': [{'id': '1'}]}])
-        )
-        new_sub_pk = self.submission.pk + 1
-        responses.add(
-            responses.POST,
-            url='http://example.com/api/competition/1/submission?description=Chagrade_Submission_{}&phase_id=1'
-                .format(new_sub_pk),
-            body=json.dumps({'id': '1'}),
-            status=201
-        )
+        self.add_all_responses()
 
         with patch('apps.api.views.homework.post_submission') as post_submission:
             resp = self.client.post(
@@ -195,43 +247,7 @@ class SubmissionAPIEndpointsTests(TestCase):
         resp = self.client.get(reverse('api:submission-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 200
 
-        responses.add(
-            responses.POST,
-            url='http://example.com/api/competition/1/submission/sas',
-            body=json.dumps({
-                'id': 'competition/15595/submission/44798/4aba772a-a6c1-4e6f-a82b-fb9d23193cb6.zip',
-                'url': 'https://github.com/Tthomas63/chagrade_test_submission'
-            }),
-            status=201
-        )
-        responses.add(
-            responses.GET,
-            url='https://github.com/Tthomas63/chagrade_test_submission/archive/master.zip',
-            status=200,
-            body=json.dumps({})
-        )
-        responses.add(
-            responses.PUT,
-            url='https://github.com/Tthomas63/chagrade_test_submission',
-            status=200,
-            body=json.dumps({'text': 'testtext'})
-        )
-        responses.add(
-            responses.GET,
-            url='http://example.com/api/competition/1/phases/',
-            status=200,
-            body=json.dumps([{'phases': [{
-                'id': '1'
-            }]}]))
-
-        new_sub_pk = self.submission.pk + 1
-        responses.add(
-            responses.POST,
-            url='http://example.com/api/competition/1/submission?description=Chagrade_Submission_{}&phase_id=1'.format(
-                new_sub_pk),
-            body=json.dumps({'id': '2'}),
-            status=201
-        )
+        self.add_all_responses()
 
         with patch('apps.api.views.homework.post_submission') as post_submission:
             resp = self.client.post(
