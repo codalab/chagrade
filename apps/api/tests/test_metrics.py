@@ -1,11 +1,16 @@
 from django.urls import reverse
+from django.utils.http import urlencode
+from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
 from apps.factory.factories import UserFactory, SubmissionFactory, SubmissionTrackerFactory, DefinitionFactory, KlassFactory, TeamFactory, InstructorFactory
 
 from apps.profiles.models import StudentMembership, Instructor
-from apps.homework.models import Submission
+from apps.homework.models import Submission, Definition
 from apps.klasses.models import Klass
+
+
+User = get_user_model()
 
 
 class MetricsTests(APITestCase):
@@ -36,6 +41,9 @@ class MetricsTests(APITestCase):
         definition.save()
 
         DefinitionFactory(klass=self.klass)
+        self.questions_only_definition = DefinitionFactory(klass=self.klass, questions_only=True)
+        submission = SubmissionFactory(creator=self.student, klass=self.klass, definition=self.questions_only_definition)
+        SubmissionTrackerFactory(submission=submission)
 
         submission = SubmissionFactory(creator=self.student, klass=random_submission.klass, definition=random_submission.definition, team=self.team)
         SubmissionTrackerFactory(submission=submission)
@@ -44,11 +52,11 @@ class MetricsTests(APITestCase):
         resp = self.client.get(reverse('api:chagrade_overall_metrics', kwargs={'version': 'v1'}))
         data = resp.json()
 
-        assert data['users'] == 22
-        assert data['students'] == 10
-        assert data['instructors'] == 10
-        assert data['klasses'] == 10
-        assert data['submissions'] == 11
+        assert data['users'] == User.objects.count()
+        assert data['students'] == StudentMembership.objects.count()
+        assert data['instructors'] == Instructor.objects.count()
+        assert data['klasses'] == Klass.objects.count()
+        assert data['submissions'] == Submission.objects.count()
 
     # Admin Metrics
 
@@ -88,7 +96,7 @@ class MetricsTests(APITestCase):
         data = resp.json()
 
         klasses = data['klasses_created']
-        ave_submissions_per_klass = data['ave_subs']
+        ave_submissions_per_definition = data['ave_subs']
         ave_definitions_per_klass = data['ave_definitions']
         ave_students_per_klass = data['ave_students']
 
@@ -96,10 +104,15 @@ class MetricsTests(APITestCase):
         for date in klasses:
             total += date['count']
 
+        student_quantity = StudentMembership.objects.count()
+        definition_quantity = Definition.objects.count()
+        submission_quantity = Submission.objects.count()
+        klass_quantity = Klass.objects.count()
+
         assert Klass.objects.count() == total
-        assert ave_definitions_per_klass == 1.1
-        assert ave_submissions_per_klass == 1.0
-        assert ave_students_per_klass == 1.0
+        assert ave_definitions_per_klass == definition_quantity / klass_quantity
+        assert ave_submissions_per_definition == submission_quantity / definition_quantity
+        assert ave_students_per_klass == student_quantity / klass_quantity
 
     def test_instructors_time_series_query_returns_correct_total_number_of_objects(self):
         self.client.login(username='admin', password='test')
@@ -227,13 +240,24 @@ class MetricsTests(APITestCase):
     def test_student_submission_times_query_return_correct_total_number_of_objects(self):
         self.client.login(username='admin', password='test')
         resp = self.client.get(reverse('api:student_submission_times', kwargs={'version': 'v1', 'student_pk': self.student.pk}))
-        scores = resp.json()
+        times = resp.json()
 
         total = 0
-        for score in scores:
-            total += score['count']
+        for time in times:
+            total += time['count']
 
         assert Submission.objects.filter(creator=self.student.pk).count() == total
+
+        url = reverse('api:student_submission_times', kwargs={'version': 'v1', 'student_pk': self.student.pk})
+        query_parameters = urlencode({'questions_only': True})
+        resp = self.client.get(f'{url}?{query_parameters}')
+        times = resp.json()
+
+        total = 0
+        for time in times:
+            total += time['count']
+
+        assert Submission.objects.filter(creator=self.student.pk, definition__questions_only=True).count() == total
 
     def test_student_score_per_hw_query_return_correct_total_number_of_objects(self):
         self.client.login(username='admin', password='test')
@@ -242,6 +266,14 @@ class MetricsTests(APITestCase):
         total = len(scores['score'])
 
         assert self.student.klass.homework_definitions.count() == total
+
+        url = reverse('api:student_scores', kwargs={'version': 'v1', 'student_pk': self.student.pk})
+        query_parameters = urlencode({'questions_only': True})
+        resp = self.client.get(f'{url}?{query_parameters}')
+        scores = resp.json()
+        total = len(scores['grade'])
+
+        assert self.student.klass.homework_definitions.filter(questions_only=True).count() == total
 
     def test_team_submission_times_query_return_correct_total_number_of_objects(self):
         self.client.login(username='admin', password='test')
@@ -253,6 +285,17 @@ class MetricsTests(APITestCase):
             total += submission['count']
 
         assert Submission.objects.filter(team=self.team.pk).count() == total
+
+        url = reverse('api:team_submission_times', kwargs={'version': 'v1', 'team_pk': self.team.pk})
+        query_parameters = urlencode({'questions_only': True})
+        resp = self.client.get(f'{url}?{query_parameters}')
+        submissions = resp.json()
+
+        total = 0
+        for submission in submissions:
+            total += submission['count']
+
+        assert Submission.objects.filter(team=self.team.pk, definition__questions_only=True).count() == total
 
     def test_team_submission_scores_query_return_correct_total_number_of_objects(self):
         self.client.login(username='admin', password='test')
@@ -285,11 +328,29 @@ class MetricsTests(APITestCase):
 
         assert Submission.objects.filter(klass=self.klass.pk).count() == total
 
+        url = reverse('api:klass_submission_times', kwargs={'version': 'v1', 'klass_pk': self.klass.pk})
+        query_parameters = urlencode({'questions_only': True})
+        resp = self.client.get(f'{url}?{query_parameters}')
+        submissions = resp.json()
+
+        total = 0
+        for submission in submissions:
+            total += submission['count']
+
+        assert Submission.objects.filter(klass=self.klass.pk, definition__questions_only=True).count() == total
+
     def test_klass_submission_scores_query_return_correct_total_number_of_objects(self):
         self.client.login(username='admin', password='test')
         resp = self.client.get(reverse('api:klass_scores', kwargs={'version': 'v1', 'klass_pk': self.klass.pk}))
         scores = resp.json()
         total = len(scores['score'])
-        print(scores)
 
         assert self.klass.homework_definitions.count() == total
+
+        url = reverse('api:klass_scores', kwargs={'version': 'v1', 'klass_pk': self.klass.pk})
+        query_parameters = urlencode({'questions_only': True})
+        resp = self.client.get(f'{url}?{query_parameters}')
+        scores = resp.json()
+        total = len(scores['average_grade'])
+
+        assert self.klass.homework_definitions.filter(questions_only=True).count() == total

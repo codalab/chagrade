@@ -29,6 +29,7 @@ class KlassRenderer(renderers.CSVRenderer):
     labels = {
         'name': 'Homework Name',
         'score': 'Average Homework Score',
+        'average_grade': 'Average Homework Grade',
         'time': 'Time of Day',
         'count': 'Submission Count',
     }
@@ -79,22 +80,28 @@ class MetricsTeamRenderer(renderers.CSVRenderer):
 
 
 def list_of_dicts_to_dict_of_lists(input_list):
-    return {key: [dictionary[key] for dictionary in input_list] for key in input_list[0]}
+    if len(input_list) > 0:
+        return {key: [dictionary[key] for dictionary in input_list] for key in input_list[0]}
+    else:
+        return {}
 
 
 def merge_list_of_lists_of_dicts(input_list):
-    # Sort list by lengths of the sub-lists from greatest length to shortest length
-    sorted_input_list = sorted(input_list, key=lambda i: -len(i))
-    output_list = []
-    if len(sorted_input_list) > 0:
-        output_list = deepcopy(sorted_input_list.pop(0))
+    if len(input_list) > 0:
+        # Sort list by lengths of the sub-lists from greatest length to shortest length
+        sorted_input_list = sorted(input_list, key=lambda i: -len(i))
+        output_list = []
+        if len(sorted_input_list) > 0:
+            output_list = deepcopy(sorted_input_list.pop(0))
+        else:
+            return []
+        while len(sorted_input_list) > 0:
+            next_longest_list = sorted_input_list.pop(0)
+            for index in range(len(next_longest_list)):
+                output_list[index].update(next_longest_list[index])
+        return output_list
     else:
-        return []
-    while len(sorted_input_list) > 0:
-        next_longest_list = sorted_input_list.pop(0)
-        for index in range(len(next_longest_list)):
-            output_list[index].update(next_longest_list[index])
-    return output_list
+        return input_list
 
 
 def union_lists(union_key, list1_data, list2_data):
@@ -157,6 +164,10 @@ class TimeDistributionMixin:
         filter = {
             self.time_distribution_filter_name: kwarg,
         }
+
+        if kwargs.get('questions_only'):
+            filter['definition__questions_only'] = True
+
         data = self.time_distribution_model.objects.filter(**filter).extra({'time': "EXTRACT(HOUR FROM created)"}).values('time').order_by('time').annotate(count=Count('pk'))
         return data
 
@@ -210,8 +221,34 @@ class TimeSeriesObjectCreationQueryMixin:
             count_field_name: Count('pk'),
             'date': F('datefield')
         }
+
         time_series_data = self.time_series_model.objects.dates(self.time_series_creation_date_field_name, 'year').values(**output_fields)
         return time_series_data
+
+
+class GradePerHWMixin:
+    def grade_per_hw_query(self, student, questions_only=False):
+        grades = []
+
+        if questions_only:
+            definitions = student.klass.homework_definitions.filter(questions_only=questions_only).order_by('due_date').all()
+        else:
+            definitions = student.klass.homework_definitions.order_by('due_date').all()
+
+        for definition in definitions:
+            homework_grade = {
+                'name': definition.name,
+                'grade': 0.0,
+            }
+            submission = student.submitted_homeworks.filter(definition=definition).order_by('created').last()
+            if submission:
+                grade_object = submission.grades.last()
+                if grade_object:
+                    calculated_grade = grade_object.calculate_grade()
+                    if calculated_grade is not None:
+                        homework_grade['grade'] = calculated_grade
+            grades.append(homework_grade)
+        return grades
 
 
 class ScorePerHWMixin:
@@ -233,6 +270,47 @@ class ScorePerHWMixin:
             )
         ).order_by('due_date').annotate(score=((F('non_normalized_score') - F('baseline_score')) / (F('target_score') - F('baseline_score')))).values('name', 'score')
         return data
+
+
+class KlassGradePerHWMixin:
+    def klass_grade_per_hw_query(self, **kwargs):
+        klass = Klass.objects.get(pk=kwargs.get('klass_pk'))
+        instructor_student = klass.enrolled_students.filter(user=klass.instructor.user).first()
+
+        if instructor_student:
+            students = klass.enrolled_students.exclude(pk=instructor_student.pk).all().prefetch_related('submitted_homeworks', 'submitted_homeworks__grades')
+        else:
+            students = klass.enrolled_students.all().prefetch_related('submitted_homeworks', 'submitted_homeworks__grades')
+
+        questions_only = kwargs.get('questions_only')
+        if questions_only:
+            definitions = klass.homework_definitions.filter(questions_only=questions_only).order_by('due_date').all()
+        else:
+            definitions = klass.homework_definitions.order_by('due_date').all()
+
+        grades = []
+        for definition in definitions:
+            grade_quantity = 0
+            grade_total = 0
+            for student in students:
+                submission = student.submitted_homeworks.filter(definition=definition).order_by('created').last()
+                if submission:
+                    grade_object = submission.grades.last()
+                    if grade_object:
+                        calculated_grade = grade_object.calculate_grade()
+                        if calculated_grade is not None:
+                            grade_quantity += 1
+                            grade_total += calculated_grade
+
+            if grade_quantity > 0:
+                average_grade = round(grade_total / grade_quantity, 1)
+            else:
+                average_grade = 0.0
+            grades.append({
+                'name': definition.name,
+                'average_grade': average_grade,
+            })
+        return grades
 
 
 class KlassScorePerHWMixin:
@@ -538,6 +616,9 @@ class StudentSubmissionTimesView(TimeDistributionMixin, APIView):
     time_distribution_filter_name = 'creator'
 
     def get(self, request, **kwargs):
+        if request.query_params.get('questions_only'):
+            kwargs['questions_only'] = True
+
         data = self.time_distribution_query(**kwargs)
         return Response(data)
 
@@ -549,6 +630,9 @@ class TeamSubmissionTimesView(TimeDistributionMixin, APIView):
     time_distribution_filter_name = 'team'
 
     def get(self, request, **kwargs):
+        if request.query_params.get('questions_only'):
+            kwargs['questions_only'] = True
+
         data = self.time_distribution_query(**kwargs)
         return Response(data)
 
@@ -575,17 +659,27 @@ class KlassSubmissionTimesView(TimeDistributionMixin, APIView):
     time_distribution_filter_name = 'klass'
 
     def get(self, request, **kwargs):
+        if self.request.query_params.get('questions_only'):
+            kwargs['questions_only'] = True
+
         data = self.time_distribution_query(**kwargs)
         return Response(data)
 
 
-class StudentScoresView(ScorePerHWMixin, APIView):
+class StudentScoresView(ScorePerHWMixin, GradePerHWMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     score_per_hw_filter_name = 'creator'
 
     def get(self, request, **kwargs):
         student = get_object_or_404(StudentMembership, pk=kwargs.get('student_pk'))
-        data = self.score_per_hw_query(student)
+
+        if request.query_params.get('questions_only'):
+            data = self.grade_per_hw_query(student, questions_only=True)
+        else:
+            score_data = self.score_per_hw_query(student)
+            grade_data = self.grade_per_hw_query(student)
+            data = merge_list_of_lists_of_dicts([list(score_data), list(grade_data)])
+
         formatted_data = list_of_dicts_to_dict_of_lists(data)
         return Response(formatted_data)
 
@@ -601,17 +695,26 @@ class TeamScoresView(ScorePerHWMixin, APIView):
         return Response(data)
 
 
-class KlassScoresView(KlassScorePerHWMixin, APIView):
+class KlassScoresView(KlassScorePerHWMixin, KlassGradePerHWMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     score_per_hw_filter_name = 'team'
 
     def get(self, request, **kwargs):
-        data = self.klass_score_per_hw_query(**kwargs)
+        questions_only = request.query_params.get('questions_only')
+
+        if questions_only:
+            kwargs['questions_only'] = True
+            data = self.klass_grade_per_hw_query(**kwargs)
+        else:
+            scores = self.klass_score_per_hw_query(**kwargs)
+            grades = self.klass_grade_per_hw_query(**kwargs)
+            data = merge_list_of_lists_of_dicts([list(scores), list(grades)])
+
         formatted_data = list_of_dicts_to_dict_of_lists(data)
         return Response(formatted_data)
 
 
-class InstructorKlassCSVView(TimeDistributionMixin, KlassScorePerHWMixin, APIView):
+class InstructorKlassCSVView(TimeDistributionMixin, KlassScorePerHWMixin, KlassGradePerHWMixin, APIView):
     permission_classes = (InstructorOrSuperuserPermission,)
     renderer_classes = (KlassRenderer,)
 
@@ -621,8 +724,9 @@ class InstructorKlassCSVView(TimeDistributionMixin, KlassScorePerHWMixin, APIVie
 
     def get(self, request, **kwargs):
         score_data = self.klass_score_per_hw_query(**kwargs)
+        grade_data = self.klass_grade_per_hw_query(**kwargs)
         time_data = self.time_distribution_query(**kwargs)
-        data = merge_list_of_lists_of_dicts([list(time_data), list(score_data)])
+        data = merge_list_of_lists_of_dicts([list(time_data), list(score_data), list(grade_data)])
 
         serializer = InstructorMetricsSerializer(data=data, many=True)
         serializer.is_valid(raise_exception=True)
