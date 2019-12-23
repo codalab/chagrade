@@ -94,7 +94,6 @@
                 }
             }
 
-            console.log(obj_data)
             if (window.TEAM != undefined) {
                 var endpoint = CHAGRADE.api.update_team(TEAM, obj_data)
             }
@@ -107,7 +106,6 @@
                     window.location='/klasses/wizard/' + KLASS + '/enroll'
                 })
                 .fail(function (response) {
-                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         toastr.error("Error with " + key + "! " + response.responseJSON[key])
                     });
