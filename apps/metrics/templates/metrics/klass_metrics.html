@@ -236,12 +236,11 @@
         function dropdown_setup() {
             CHAGRADE.api.get_klass({{ klass.pk }})
                 .done(klass => {
-                    let students = []
-                    _.forEach(klass.enrolled_students, (student) => {
-                        students.push({
+                    let students = klass.enrolled_students.map( (student) => {
+                        return {
                             name: student.user.username,
                             value: student.id,
-                        })
+                        }
                     })
 
                     let teams = []
@@ -282,7 +281,9 @@
                                 .done( (data) => {
                                     instructor_metrics.team_scores_chart.data.datasets[0].label = 'Team Scores'
                                     instructor_metrics.team_scores_chart.data.datasets[0].data = data.score
-                                    instructor_metrics.team_scores_chart.data.labels = data.name
+                                    if (data.name) {
+                                        instructor_metrics.team_scores_chart.data.labels = data.name
+                                    }
                                     instructor_metrics.team_scores_chart.update()
                                 })
                                 .fail( () => {
@@ -292,7 +293,7 @@
                             CHAGRADE.api.get_team_submission_times_metrics(id)
                                 .done( (sub_times) => {
                                     if (_.isEmpty(sub_times)) {
-                                        toastr.error('Failed to retrieve team submission times.')
+                                        toastr.error('No submissions for this team.')
                                         return
                                     }
                                     let time_data = _.fill(Array(24), 0)
@@ -318,8 +319,8 @@
                                     instructor_metrics.team_codalab_activity_chart.data.labels = data.chagrade_submissions.cha_username
                                     instructor_metrics.team_codalab_activity_chart.update()
                                 })
-                                .fail(() => {
-                                    toastr.error('Failed to retrieve team contributions metrics.')
+                                .fail((error) => {
+                                    toastr.error(error.responseJSON)
                                 })
 
                         },
@@ -374,7 +375,9 @@
 
                     instructor_metrics.overview_scores_chart.data.datasets[0].label = 'Average Class Grade'
                     instructor_metrics.overview_scores_chart.data.datasets[0].data = data.average_grade
-                    instructor_metrics.overview_scores_chart.data.labels = data.name
+                    if (data.name) {
+                        instructor_metrics.overview_scores_chart.data.labels = data.name
+                    }
                     instructor_metrics.overview_scores_chart.update()
                 })
                 .fail( () => {
