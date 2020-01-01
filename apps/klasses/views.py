@@ -1,3 +1,4 @@
+
 import csv
 
 from django.http import Http404, JsonResponse, HttpResponse
@@ -5,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Prefetch
 from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 from django.urls import reverse_lazy
@@ -18,6 +20,7 @@ from apps.klasses.mixins import WizardMixin
 from apps.profiles.models import StudentMembership
 
 from apps.api.utils import get_unique_username
+
 
 # Todo: Replace Http404's with correct response for forbidden (Besides not found?)
 
@@ -202,14 +205,10 @@ class ActivateView(LoginRequiredMixin, WizardMixin, TemplateView):
 def get_klass_students_as_csv(request, klass_pk):
     if request.method == 'GET':
         # Create the HttpResponse object with the appropriate CSV header.
-        try:
-            klass = Klass.objects.get(pk=klass_pk)
-            if not request.user.instructor:
-                return Http404("Not allowed")
-            if not request.user.instructor == klass.instructor or request.user.is_superuser:
-                return Http404("Not allowed")
-        except Klass.DoesNotExist:
-            raise Http404("Klass not found!")
+        klass = get_object_or_404(Klass, pk=klass_pk)
+        if not (request.user.instructor == klass.instructor or request.user.is_superuser):
+            raise Http404("Not allowed")
+
         response = HttpResponse(content_type='text/csv')
         temp_filename = 'class_{0}_students.csv'.format(klass_pk)
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(temp_filename)
@@ -217,7 +216,7 @@ def get_klass_students_as_csv(request, klass_pk):
         writer = csv.writer(response)
         writer.writerow(['First Name', 'Last Name', 'Display Name', 'Student ID', 'Email', 'Team'])
         for student in klass.enrolled_students.all():
-            writer.writerow([student.user.first_name or '', student.user.last_name or '', student.user.username, student.student_id, student.user.email, student.team.name or ''])
+            writer.writerow([student.user.first_name or '', student.user.last_name or '', student.user.username, student.student_id, student.user.email, student.team.name if student.team else ''])
         return response
     else:
         raise Http404("Only HTTP method GET is allowed.")
