@@ -61,12 +61,16 @@ def create_students_from_csv(request, version):
                         'email': row[4],
                     },
                     'student_id': row[3],
-                    'team': {
-                        'name': row[5],
-                        'klass': request.data.get('klass')
-                    },
                     'klass': request.data.get('klass'),
                 }
+
+                contains_valid_team_name = any(character.isalpha() for character in row[5])
+
+                if contains_valid_team_name:
+                    data['team'] = {
+                        'name': row[5],
+                        'klass': request.data.get('klass')
+                    }
                 new_student_serializer = TestStudentSerializer(data=data)
                 new_student_serializer.is_valid(raise_exception=True)
                 if new_student_serializer.errors:
@@ -74,7 +78,7 @@ def create_students_from_csv(request, version):
                 else:
                     new_student = new_student_serializer.save()
                     # If there's something in the student leader column
-                    if len(row) == 7:
+                    if len(row) == 7 and contains_valid_team_name and row[6] in ['t', 'T', 'true', 'True', 'TRUE']:
                         new_student.team.leader = new_student
                         new_student.team.save()
             else:

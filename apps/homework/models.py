@@ -166,7 +166,6 @@ class SubmissionTracker(models.Model):
         return self.stored_logs
 
 
-
 class Grade(models.Model):
     submission = models.ForeignKey('Submission', related_name='grades', on_delete=models.CASCADE)
     evaluator = models.ForeignKey('profiles.Instructor', related_name='assigned_grades', on_delete=models.CASCADE)
