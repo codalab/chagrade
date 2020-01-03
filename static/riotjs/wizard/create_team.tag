@@ -14,18 +14,11 @@
         <div class="fields">
             <div class="eight wide field">
                 <label>Members:</label>
-
                 <div class="ui multiple selection dropdown" ref="members">
                     <input name="leader" type="hidden">
                     <div class="default text">Members</div>
                     <div class="menu"></div>
                 </div>
-
-<!--                <select id="members" multiple name="members" ref="members"> -->
-<!--                    <option value="">-- None --</option> -->
-<!--                    <option each="{student, index in klass.enrolled_students}" selected="{student.selected}" value="{student.id}" id="{'id_' + student.id}" data-user-id="{student.user.id}" data-username="{student.user.username}" data-student-id="{student.student_id}">{student.user.username}{student.team ? ' - ' + student.team.name : ''}</option> -->
-<!--                </select> -->
-
             </div>
             <div class="eight wide field">
                 <label>Leader:</label>
@@ -34,11 +27,6 @@
                     <div class="default text">Leader</div>
                     <div class="menu"></div>
                 </div>
-
-<!--                <select id="leader" name="leader" ref="leader"> -->
-<!--                    <option value="">-- None --</option> -->
-<!--                    <option each="{student, index in klass.enrolled_students}" selected="{window.TEAM && _.get(window, 'TEAM.leader.id') == student.id}" value="{student.id}" id="{'id_leader_' + student.id}" data-user-id="{student.user.id}" data-username="{student.user.username}" data-student-id="{student.student_id}">{student.user.username}{student.team ? ' - ' + student.team.name : ''}</option> -->
-<!--                </select> -->
             </div>
         </div>
         <span><a onclick="{submit_form}" class="ui green button">Submit</a><a onclick="{cancel_button}" class="ui red button">Cancel</a></span>
