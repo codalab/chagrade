@@ -17,55 +17,51 @@
 {% endblock %}
 
 {% block content %}
-    <div class="ui centered grid">
-        <div class="row">
-        <a class="ui blue button" href="{% url 'profiles:instructor_overview' %}">Back to Instructor Overview</a>
-            <div class="fourteen wide column">
+    <a class="ui blue button" href="{% url 'profiles:instructor_overview' %}">Back to Instructor Overview</a>
+    <div class="fourteen wide column">
 
-                {% include "klasses/klass_header.html" %}
+        {% include "klasses/klass_header.html" %}
 
-                {% if object.active %}
-                    <a href="{% url "metrics:klass" klass_pk=object.pk %}" class="ui basic blue button">
-                        <i class="ui chart bar outline icon"></i>
-                        Metrics
-                    </a>
-                {% else %}
-                    <div class="ui warning message">
-                        Class Status: NOT ACTIVE
-                    </div>
-                {% endif %}
-
-                <div class="ui vertical steps" style="width: 100%">
-                    <a href="{% url "klasses:klass_enrollment" klass_pk=klass.pk %}" class="{% if klass.enrolled_students.count > 0 %}completed {% endif %}step">
-                        <i class="users icon"></i>
-                        <div class="content">
-                            <div class="title">Enroll Students</div>
-                            <div class="description">Choose your shipping options</div>
-                        </div>
-                    </a>
-                    <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="{% if klass.homework_definitions.count > 0 %}completed {% endif %}step">
-                        <i class="student icon"></i>
-                        <div class="content">
-                            <div class="title">Define Homework</div>
-                            <div class="description">Attach competitions to homework and define deadlines</div>
-                        </div>
-                    </a>
-                    <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="{% if completely_graded %}completed {% endif %}step">
-                        <i class="pencil alternate icon"></i>
-                        <div class="content">
-                            <div class="title">Grade Homework</div>
-                            <div class="description">Make grades, publish them</div>
-                        </div>
-                    </a>
-                    <a href="{% url "klasses:klass_activate" klass_pk=klass.pk %}" class="{% if klass.active %}completed {% endif %}step">
-                        <i class="info icon"></i>
-                        <div class="content">
-                            <div class="title">Activate Class</div>
-                            <div class="description">Make class visible to students</div>
-                        </div>
-                    </a>
-                </div>
+        {% if object.active %}
+            <a href="{% url "metrics:klass" klass_pk=object.pk %}" class="ui basic blue button">
+                <i class="ui chart bar outline icon"></i>
+                Metrics
+            </a>
+        {% else %}
+            <div class="ui warning message">
+                Class Status: NOT ACTIVE
             </div>
+        {% endif %}
+
+        <div class="ui vertical steps" style="width: 100%">
+            <a href="{% url "klasses:klass_enrollment" klass_pk=klass.pk %}" class="{% if klass.enrolled_students.count > 0 %}completed {% endif %}step">
+                <i class="users icon"></i>
+                <div class="content">
+                    <div class="title">Enroll Students</div>
+                    <div class="description">Choose your shipping options</div>
+                </div>
+            </a>
+            <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="{% if klass.homework_definitions.count > 0 %}completed {% endif %}step">
+                <i class="student icon"></i>
+                <div class="content">
+                    <div class="title">Define Homework</div>
+                    <div class="description">Attach competitions to homework and define deadlines</div>
+                </div>
+            </a>
+            <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="{% if completely_graded %}completed {% endif %}step">
+                <i class="pencil alternate icon"></i>
+                <div class="content">
+                    <div class="title">Grade Homework</div>
+                    <div class="description">Make grades, publish them</div>
+                </div>
+            </a>
+            <a href="{% url "klasses:klass_activate" klass_pk=klass.pk %}" class="{% if klass.active %}completed {% endif %}step">
+                <i class="info icon"></i>
+                <div class="content">
+                    <div class="title">Activate Class</div>
+                    <div class="description">Make class visible to students</div>
+                </div>
+            </a>
         </div>
     </div>
 {% endblock %}

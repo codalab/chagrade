@@ -105,12 +105,9 @@ class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
             context['klass'] = submission.klass
             context['logs_possible'] = [
                 'inputfile',
-                'output_file',
-                'private_output_file',
                 'stdout_file',
                 'stderr_file',
                 'scores_file',
-                'detailed_results_file',
                 'prediction_runfile',
                 'prediction_output_file',
                 'exception_details',
@@ -118,6 +115,11 @@ class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
                 'prediction_stderr_file',
                 'ingestion_program_stdout_file',
                 'ingestion_program_stderr_file',
+            ]
+            context['files_possible'] = [
+                'output_file',
+                'private_output_file',
+                'detailed_results_file',
                 's3_file',
                 'file',
             ]
