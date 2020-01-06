@@ -142,7 +142,8 @@ class SubmissionTracker(models.Model):
 
     @property
     def status(self):
-        if self.stored_status == None or self.stored_status == "Submitted":
+        bad_statuses = [None, "Submitted", "Running"]
+        if self.stored_status in bad_statuses:
             self.retrieve_score_and_status()
         return self.stored_status
 
