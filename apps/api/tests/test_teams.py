@@ -113,3 +113,19 @@ class TeamsAPIEndpointsTests(TestCase):
         resp = self.client.delete(reverse('api:team-detail', kwargs={'version': 'v1', 'pk': new_team_pk}))
         assert resp.status_code == 204
 
+    def test_update_with_empty_members_does_not_delete_student_instance(self):
+        initial_student_count = StudentMembership.objects.count()
+        self.team.members.add(self.student)
+
+        self.client.login(username='user', password='pass')
+        resp = self.client.patch(
+            reverse('api:team-detail', kwargs={'version': 'v1', 'pk': self.team.pk}),
+            data=json.dumps({
+                "klass": self.klass.pk,
+                "members": []
+            }),
+            content_type='application/json'
+        )
+        assert resp.data['name'] == 'test'
+        assert resp.status_code == 200
+        assert initial_student_count == StudentMembership.objects.count()
