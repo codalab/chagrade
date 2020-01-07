@@ -14,17 +14,19 @@
         <div class="fields">
             <div class="eight wide field">
                 <label>Members:</label>
-                <select id="members" multiple name="members" ref="members">
-                    <option value="">-- None --</option>
-                    <option each="{student, index in klass.enrolled_students}" selected="{student.selected}" value="{student.id}" id="{'id_' + student.id}" data-user-id="{student.user.id}" data-username="{student.user.username}" data-student-id="{student.student_id}">{student.user.username} - {student.team.name}</option>
-                </select>
+                <div class="ui multiple selection dropdown" ref="members">
+                    <input name="leader" type="hidden">
+                    <div class="default text">Members</div>
+                    <div class="menu"></div>
+                </div>
             </div>
             <div class="eight wide field">
                 <label>Leader:</label>
-                <select id="leader" name="leader" ref="leader">
-                    <option value="">-- None --</option>
-                    <option each="{student, index in klass.enrolled_students}" selected="{student.leader}" value="{student.id}" id="{'id_leader_' + student.id}" data-user-id="{student.user.id}" data-username="{student.user.username}" data-student-id="{student.student_id}">{student.user.username} - {student.team.name}</option>
-                </select>
+                <div class="ui selection dropdown" ref="leader">
+                    <input name="leader" type="hidden">
+                    <div class="default text">Leader</div>
+                    <div class="menu"></div>
+                </div>
             </div>
         </div>
         <span><a onclick="{submit_form}" class="ui green button">Submit</a><a onclick="{cancel_button}" class="ui red button">Cancel</a></span>
@@ -39,6 +41,8 @@
         self.team = {}
 
         self.one('mount', function () {
+            $(self.refs.members).dropdown()
+            $(self.refs.leader).dropdown()
             if (window.TEAM != undefined) {
                self.update_team()
             }
@@ -50,46 +54,32 @@
         }
 
         self.submit_form = function () {
+            const members = self.klass.enrolled_students.filter( (student) => {
+                return student.on_team
+            }).map( (student) => {
+                return {
+                    id: student.id,
+                    klass: KLASS,
+                    student_id: student.student_id,
+                }
+            })
+
+            const student_leader = self.klass.enrolled_students.find( (student) => {
+                return student.leader
+            })
 
             var obj_data = {
                 'klass': KLASS,
                 'name': self.refs.name.value,
                 'description': self.refs.description.value,
-                'members': []
+                'members': members,
             }
-
-            if (self.refs.leader.value !== '') {
-                var selector_string = '#id_leader_' + self.refs.leader.value
-                var select_elem = document.querySelector(selector_string);
-                obj_data['leader'] = {
-                    'id': self.refs.leader.value,
-                    'klass': KLASS,
-                    'student_id': select_elem.dataset.studentId
+            if (student_leader) {
+                obj_data.leader = {
+                    id: student_leader.id,
+                    klass: KLASS,
+                    student_id: student_leader.student_id,
                 }
-            }
-
-            var temp_member_list = $('#members').val()
-
-            if (temp_member_list === null || temp_member_list === undefined)
-            {
-                //toastr.warning("No members selected for team")
-                var confirm_members = confirm("No members selected. Continue?")
-                if (confirm_members){
-                    temp_member_list = []
-                } else {
-                    return
-                }
-            }
-
-            for (var index = 0; index < temp_member_list.length; index++) {
-                var selector_string = '#id_' + temp_member_list[index]
-                var select_elem = document.querySelector(selector_string);
-                var temp_data = {
-                    'id': temp_member_list[index],
-                    'klass': KLASS,
-                    'student_id': select_elem.dataset.studentId,
-                }
-                obj_data['members'].push(temp_data)
             }
 
             if (window.TEAM != undefined) {
@@ -104,11 +94,33 @@
                     window.location='/klasses/wizard/' + KLASS + '/enroll'
                 })
                 .fail(function (response) {
-                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         toastr.error("Error with " + key + "! " + response.responseJSON[key])
                     });
                 })
+        }
+
+        self.get_eligible_leaders = () => {
+            return self.klass.enrolled_students.filter( (student) => {
+                return student.on_team
+            })
+                .map( (student) => {
+                    return {
+                        name: _.get(student, 'user.first_name') + ' ' + _.get(student, 'user.last_name'),
+                        value: student.id,
+                        selected: student.leader
+                    }
+                })
+        }
+
+        self.leader_dropdown_on_change = (value, text, $selectedItem) => {
+            let leader_index = self.klass.enrolled_students.findIndex( (student) => {
+                return student.id == value
+            })
+
+            for (let i = 0; i < self.klass.enrolled_students.length; i++) {
+                self.klass.enrolled_students[i].leader = leader_index === i
+            }
         }
 
         self.update_team = function () {
@@ -126,17 +138,47 @@
                 .done(function (data) {
                     if (window.TEAM != undefined) {
                         data.enrolled_students.forEach(function (student) {
-                            if (student.team.id === self.team.id) {
-                                student.selected = true
+                            if (_.get(student, 'team.id') === _.get(self, 'team.id')) {
+                                student.on_team = true
+                            } else {
+                                student.on_team = false
                             }
-                            if (!!self.team.leader) {
-                                if (student.id === self.team.leader.id) {
+                            if (_.get(self, 'team.leader')) {
+                                if (student.id === _.get(self, 'team.leader.id')) {
                                     student.leader = true
                                 }
                             }
                         })
                     }
-                    self.update({klass: data})
+                    self.klass = data
+
+                    self.update()
+                    let members_dropdown_formatted = self.klass.enrolled_students.map( (student) => {
+                        return {
+                            name: _.get(student, 'user.first_name') + ' ' + _.get(student, 'user.last_name'),
+                            value: student.id,
+                            selected: student.on_team
+                        }
+                    })
+
+                    $(self.refs.members).dropdown({
+                        values: members_dropdown_formatted,
+                        onChange: function(value, text, $selectedItem) {
+                            const student_ids = value.split(',')
+                            for (let i = 0; i < self.klass.enrolled_students.length; i++) {
+                                self.klass.enrolled_students[i].on_team = student_ids.includes(String(self.klass.enrolled_students[i].id))
+                            }
+
+                            $(self.refs.leader).dropdown({
+                                values: self.get_eligible_leaders(),
+                                onChange: self.leader_dropdown_on_change
+                            })
+                        }
+                    })
+                    $(self.refs.leader).dropdown({
+                        values: self.get_eligible_leaders(),
+                        onChange: self.leader_dropdown_on_change
+                    })
                 })
                 .fail(function (error) {
                     toastr.error("Error fetching students: " + error.statusText)

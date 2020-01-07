@@ -159,8 +159,8 @@ class SubmissionListView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         except ObjectDoesNotExist:
             raise Http404('Definition object not found')
 
-        # if user is instructor of the class
-        if self.request.user.instructor and self.request.user.instructor == definition.klass.instructor:
+        # if user is instructor of the class or is superuser
+        if self.request.user.instructor and self.request.user.instructor == definition.klass.instructor or self.request.user.is_superuser:
             try:
                 submissions = Submission.objects.filter(definition=definition)
                 context['instructor_view'] = True
