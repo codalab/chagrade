@@ -26,7 +26,11 @@ djangorestframework==3.9.1
 djangorestframework-csv==2.1.0
 docutils==0.14
 drf-extensions==0.3.1
-drf-writable-nested==0.5.1
+
+# TODO: Install updated version of drf-writable-nested from PyPi rather than Bailey's fork
+# Old version -> #drf-writable-nested==0.5.1
+-e git+https://github.com/gibsonbailey/drf-writable-nested.git@master#egg=drf-writable-nested
+
 drf-yasg==1.9.1
 Faker==1.0.1
 flex==6.13.2
@@ -98,3 +102,4 @@ factory-boy==2.12.0
 
 # Debug query counts
 django-querycount==0.7.0
+
