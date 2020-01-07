@@ -47,7 +47,6 @@
 
                 <div class="ui header">Submission {{ submission.pk }} for homework {{ definition.name }}{% if team %} for team {{ team.name }}{% endif %}</div>
                 {% if definition %}
-                    {#                    {% if definition.team_based %}#}
                     {% with definition|get_last_submission:user.pk as submission %}
                         {% with submission|get_last_grade as grade %}
                             <div class="ui message">
