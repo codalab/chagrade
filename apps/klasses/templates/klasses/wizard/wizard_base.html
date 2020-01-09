@@ -3,82 +3,101 @@
 {% block content %}
     <div class="ui centered grid">
         <div class="row">
-            <div class="twelve wide column">
+            <div class="sixteen wide column">
                 <div class="ui centered grid">
                     <div class="row">
                         <div class="ui center aligned container" style="">
-                            <h2 class="ui massive header" style="font-size: 56px;">{% block wizard_title %}{% endblock %}</h2>
-                                {% block wizard_description %}{% endblock %}
+                            <h2 class="ui massive header" style="font-size: 56px;">
+                                {% block wizard_title %}{% endblock %}</h2>
+                            {% block wizard_description %}{% endblock %}
                         </div>
                     </div>
                     <div class="row">
-                        <a href="{% url "klasses:klass_details" klass_pk=klass.pk %}" class="ui green button">Back to Class Overview</a>
+                        <a href="{% url "klasses:klass_details" klass_pk=klass.pk %}" class="ui green button">Back to
+                            Class Overview</a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="ui centered grid wizard-steps">
-        <div class="ui mini steps">
-            <a href="{% url "klasses:klass_enrollment" klass_pk=klass.pk %}" class="{% if klass.enrolled_students.count > 0 %}completed {% endif %}{% if wizard_current == 'klass_enrollment' %}active {% endif %}step">
-                <i class="users icon"></i>
-                <div class="content">
-                    <div class="title">Enroll Students</div>
+        <div class="row">
+            <div class="sixteen wide center aligned column">
+                <div class="ui mini steps">
+                    <a href="{% url "klasses:klass_enrollment" klass_pk=klass.pk %}"
+                       class="{% if klass.enrolled_students.count > 0 %}completed {% endif %}{% if wizard_current == 'klass_enrollment' %}active {% endif %}step">
+                        <i class="users icon"></i>
+                        <div class="content">
+                            <div class="title">Enroll Students</div>
+                        </div>
+                    </a>
+                    <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}"
+                       class="{% if klass.homework_definitions.count > 0 %}completed {% endif %}{% if wizard_current == 'klass_homework' or wizard_current == 'define_homework' %}active {% endif %}step">
+                        <i class="student icon"></i>
+                        <div class="content">
+                            <div class="title">Define Homework</div>
+                        </div>
+                    </a>
+                    <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}"
+                       class="{% if completely_graded %}completed {% endif %}{% if wizard_current == 'klass_grading' or wizard_current == 'grade_homework' %}active {% endif %}step">
+                        <i class="pencil alternate icon"></i>
+                        <div class="content">
+                            <div class="title">Grade Homework</div>
+                        </div>
+                    </a>
+                    <a href="{% url "klasses:klass_activate" klass_pk=klass.pk %}"
+                       class="{% if klass.active %}completed {% endif %}{% if wizard_current == 'klass_activate' %}active {% endif %}step">
+                        <i class="info icon"></i>
+                        <div class="content">
+                            <div class="title">Activate Class</div>
+                        </div>
+                    </a>
                 </div>
-            </a>
-            <a href="{% url "klasses:klass_homework" klass_pk=klass.pk %}" class="{% if klass.homework_definitions.count > 0 %}completed {% endif %}{% if wizard_current == 'klass_homework' or wizard_current == 'define_homework' %}active {% endif %}step">
-                <i class="student icon"></i>
-                <div class="content">
-                    <div class="title">Define Homework</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="sixteen wide column">
+                <div class="ui blue inverted mini menu" style="margin-top: 5vh;">
+                    {% if wizard_previous %}
+                        <a href="{{ wizard_previous }}" class="item">
+                            Previous
+                        </a>
+                    {% endif %}
+                    {% if wizard_next %}
+                        <div class="right menu">
+                            <a href="{{ wizard_next }}" class="item">
+                                Next
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
-            </a>
-            <a href="{% url "klasses:klass_grading" klass_pk=klass.pk %}" class="{% if completely_graded %}completed {% endif %}{% if wizard_current == 'klass_grading' or wizard_current == 'grade_homework' %}active {% endif %}step">
-                <i class="pencil alternate icon"></i>
-                <div class="content">
-                    <div class="title">Grade Homework</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="sixteen wide column">
+                {% block wizard_content %}
+                {% endblock %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="sixteen wide column">
+                <div class="ui blue inverted mini menu" style="margin-top: 5vh;">
+                    {% if wizard_previous %}
+                        <a href="{{ wizard_previous }}" class="item">
+                            Previous
+                        </a>
+                    {% endif %}
+                    {% if wizard_next %}
+                        <div class="right menu">
+                            <a href="{{ wizard_next }}" class="item">
+                                Next
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
-            </a>
-            <a href="{% url "klasses:klass_activate" klass_pk=klass.pk %}" class="{% if klass.active %}completed {% endif %}{% if wizard_current == 'klass_activate' %}active {% endif %}step">
-                <i class="info icon"></i>
-                <div class="content">
-                    <div class="title">Activate Class</div>
-                </div>
-            </a>
+            </div>
         </div>
     </div>
-
-    <div class="ui blue inverted mini menu" style="margin-top: 5vh;">
-        {% if wizard_previous %}
-            <a href="{{ wizard_previous }}" class="item">
-                Previous
-            </a>
-        {% endif %}
-        {% if wizard_next %}
-            <div class="right menu">
-                <a href="{{ wizard_next }}" class="item">
-                    Next
-                </a>
-            </div>
-        {% endif %}
-    </div>
-
-    {% block wizard_content %}
-    {% endblock %}
-
-    <div class="ui blue inverted mini menu" style="margin-top: 5vh;">
-        {% if wizard_previous %}
-            <a href="{{ wizard_previous }}" class="item">
-                Previous
-            </a>
-        {% endif %}
-        {% if wizard_next %}
-            <div class="right menu">
-                <a href="{{ wizard_next }}" class="item">
-                    Next
-                </a>
-            </div>
-        {% endif %}
-    </div>
-
 {% endblock %}

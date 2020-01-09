@@ -248,3 +248,7 @@ body {
     text-align: justify;
     margin: 2em auto !important;
 }
+
+.table-header-link {
+    margin-left: 1em !important;
+}

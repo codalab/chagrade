@@ -5,53 +5,48 @@
 {% endblock %}
 
 {% block wizard_content %}
-    <div class="ui centered grid">
-        <div class="row">
-            <div class="ui fourteen wide column message">
-                <div>
-                    <span>
-                        <a href="{% url "homework:define_homework" klass_pk=klass.pk %}" class="ui yellow button">Create Homework</a>
-                    </span>
-                    <h1>Homework</h1>
-                    <table class="ui sortable table">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Creator</th>
-                            <th>Last Modified</th>
-                            <th>Due Date</th>
-                            <th>Submissions</th>
-                            <th></th>
-                            <th>Entries</th>
-                            <th>Avg. Grade</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for homework_def in klass.homework_definitions.all %}
-                            <tr>
-                                <td>
-                                    {{ forloop.counter }}
-                                </td>
-                                <td>{{ homework_def.name }}</td>
-                                <td>{{ homework_def.creator }}</td>
-                                <td>{{ homework_def.modified }}</td>
-                                <td>{{ homework_def.due_date }}</td>
-                                <td>
-                                    <a class="ui mini blue button" href="{% url "homework:submission_list" definition_pk=homework_def.pk %}">Submissions</a>
-                                </td>
-                                <td>
-                                    <a class="ui mini yellow button" href="{% url "homework:edit_homework_def" klass_pk=klass.pk definition_pk=homework_def.pk %}">Edit</a>
-                                </td>
-                                <td>{{ homework_def.submissions.count }}</td>
-                                <td>{{ homework_def.avg_grade }}</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="ui fourteen wide column message">
+        <div>
+            <span>
+                <a href="{% url "homework:define_homework" klass_pk=klass.pk %}" class="ui yellow button">Create Homework</a>
+            </span>
+            <h1>Homework</h1>
+            <table class="ui sortable table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Creator</th>
+                    <th>Last Modified</th>
+                    <th>Due Date</th>
+                    <th>Submissions</th>
+                    <th></th>
+                    <th>Entries</th>
+                    <th>Avg. Grade</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for homework_def in klass.homework_definitions.all %}
+                    <tr>
+                        <td>
+                            {{ forloop.counter }}
+                        </td>
+                        <td>{{ homework_def.name }}</td>
+                        <td>{{ homework_def.creator }}</td>
+                        <td>{{ homework_def.modified }}</td>
+                        <td>{{ homework_def.due_date }}</td>
+                        <td>
+                            <a class="ui mini blue button" href="{% url "homework:submission_list" definition_pk=homework_def.pk %}">Submissions</a>
+                        </td>
+                        <td>
+                            <a class="ui mini yellow button" href="{% url "homework:edit_homework_def" klass_pk=klass.pk definition_pk=homework_def.pk %}">Edit</a>
+                        </td>
+                        <td>{{ homework_def.submissions.count }}</td>
+                        <td>{{ homework_def.avg_grade }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-
 {% endblock %}

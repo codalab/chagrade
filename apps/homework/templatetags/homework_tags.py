@@ -54,6 +54,8 @@ def has_item(dictionary, key):
 
 
 def format_log_name(log_name):
+    if log_name == 'inputfile':
+        return 'Input file'
     parts = log_name.split("_")
     log_name = " ".join(parts).capitalize()
     return log_name

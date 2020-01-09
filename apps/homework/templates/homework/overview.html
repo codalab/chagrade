@@ -134,7 +134,7 @@
                                                                 {% else %}
                                                                     <td>No Status</td>
                                                                 {% endif %}
-                                                                {% if tracker.score %}
+                                                                {% if tracker.score is not None %}
                                                                     <td>{{tracker.score}}</td>
                                                                 {% else %}
                                                                     <td>No Score Yet</td>

@@ -15,9 +15,26 @@
         .no-padding {
             padding: 1vh 0 0 0 !important;
         }
+
+        .iframe-logs {
+            position: fixed;
+            top: 5em;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .logs-modal {
+            height: 80%;
+            width: 80%;
+        }
     </style>
-
-
 {% endblock %}
 
 {% block content %}
@@ -30,7 +47,6 @@
 
                 <div class="ui header">Submission {{ submission.pk }} for homework {{ definition.name }}{% if team %} for team {{ team.name }}{% endif %}</div>
                 {% if definition %}
-                    {#                    {% if definition.team_based %}#}
                     {% with definition|get_last_submission:user.pk as submission %}
                         {% with submission|get_last_grade as grade %}
                             <div class="ui message">
@@ -66,30 +82,61 @@
                                         </div>
                                     </div>
 
-                                    <div class="ui grid">
-                                        <div class="column">
-                                            {% for tracker in submission.tracked_submissions.all %}
-                                                {% if tracker.logs %}
-                                                    <div class="ui header">Submission Logs</div>
-                                                    <div class="ui divider"></div>
-                                                    <div class="ui horizontal inline list">
-                                                        {% for log_name in logs_possible %}
-                                                            {% if tracker.logs|has_item:log_name %}
-                                                                <a class="item"
-                                                                   href="{{ tracker.logs|get_item:log_name }}"
-                                                                   target="_blank">
-                                                                    {{ log_name|format_log_name }}
-                                                                </a>
-                                                            {% endif %}
-                                                        {% endfor %}
+                                    {% for log_set in log_objects %}
+                                            <div class="ui grid">
+                                                <div class="column">
+                                                    <div class="row">
+                                                        <div class="sixteeen wide column">
+                                                            <div class="ui header">Submission Files</div>
+                                                            <div class="ui divider"></div>
+                                                            <div class="ui horizontal inline list">
+                                                                {% for log_name in files_possible %}
+                                                                    {% if log_set|has_item:log_name %}
+                                                                        <a class="item"
+                                                                           href="{{ log_set|get_item:log_name }}"
+                                                                           target="_blank">
+                                                                            {{ log_name|format_log_name }}
+                                                                        </a>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                {% else %}
-                                                    <td>No Logs Yet</td>
+                                                    <div class="row" style="margin-top: 1em !important;">
+                                                        <div class="sixteen wide column">
+                                                            <div class="ui header">Submission Logs</div>
+                                                            <div class="ui divider"></div>
+                                                            <div class="ui horizontal inline list">
+                                                                {% for log_name in logs_possible %}
+                                                                    {% if log_set|has_item:log_name %}
+                                                                        <a class="item" onclick="triggerModal('{{ log_name }}_modal')">
+                                                                            {{ log_name|format_log_name }}
+                                                                        </a>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {% for log_name in logs_possible %}
+                                                {% if log_set|has_item:log_name %}
+                                                    <div class="ui modal logs-modal" id="{{ log_name }}_modal">
+                                                        <i class="close icon"></i>
+                                                        <div class="header">
+                                                            {{ log_name|format_log_name }}
+                                                        </div>
+                                                        <div class="content">
+                                                            <iframe class="iframe-logs" src="{{ log_set|get_item:log_name }}">
+                                                                Your browser does not support iFrames
+                                                            </iframe>
+                                                        </div>
+                                                    </div>
                                                 {% endif %}
                                             {% endfor %}
-                                        </div>
-                                    </div>
 
+                                    {% endfor %}
                                 </div>
                             </div>
                         {% endwith %}
@@ -98,4 +145,12 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block extra_script %}
+    <script>
+        var triggerModal = function(id) {
+            $(`#${id}`).modal('show')
+        }
+    </script>
 {% endblock %}

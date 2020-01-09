@@ -88,6 +88,9 @@
                 .done(function (data) {
                     self.github_information = data.github_info
                     self.user_information = data
+                    if (!_.get(self, 'github_information.repos_url', false)) {
+                        return
+                    }
                     self.github_request(self.github_information.repos_url, function (repo_data) {
                         self.github_repositories = repo_data
                         let repo = _.find(repo_data, ['name', self.submission.github_repo_name])
