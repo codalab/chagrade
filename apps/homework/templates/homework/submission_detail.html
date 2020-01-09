@@ -82,8 +82,7 @@
                                         </div>
                                     </div>
 
-                                    {% for tracker in submission.tracked_submissions.all %}
-                                        {% if tracker.logs %}
+                                    {% for log_set in log_objects %}
                                             <div class="ui grid">
                                                 <div class="column">
                                                     <div class="row">
@@ -92,9 +91,9 @@
                                                             <div class="ui divider"></div>
                                                             <div class="ui horizontal inline list">
                                                                 {% for log_name in files_possible %}
-                                                                    {% if tracker.logs|has_item:log_name %}
+                                                                    {% if log_set|has_item:log_name %}
                                                                         <a class="item"
-                                                                           href="{{ tracker.logs|get_item:log_name }}"
+                                                                           href="{{ log_set|get_item:log_name }}"
                                                                            target="_blank">
                                                                             {{ log_name|format_log_name }}
                                                                         </a>
@@ -109,7 +108,7 @@
                                                             <div class="ui divider"></div>
                                                             <div class="ui horizontal inline list">
                                                                 {% for log_name in logs_possible %}
-                                                                    {% if tracker.logs|has_item:log_name %}
+                                                                    {% if log_set|has_item:log_name %}
                                                                         <a class="item" onclick="triggerModal('{{ log_name }}_modal')">
                                                                             {{ log_name|format_log_name }}
                                                                         </a>
@@ -122,14 +121,14 @@
                                             </div>
 
                                             {% for log_name in logs_possible %}
-                                                {% if tracker.logs|has_item:log_name %}
+                                                {% if log_set|has_item:log_name %}
                                                     <div class="ui modal logs-modal" id="{{ log_name }}_modal">
                                                         <i class="close icon"></i>
                                                         <div class="header">
                                                             {{ log_name|format_log_name }}
                                                         </div>
                                                         <div class="content">
-                                                            <iframe class="iframe-logs" src="{{ tracker.logs|get_item:log_name }}">
+                                                            <iframe class="iframe-logs" src="{{ log_set|get_item:log_name }}">
                                                                 Your browser does not support iFrames
                                                             </iframe>
                                                         </div>
@@ -137,7 +136,6 @@
                                                 {% endif %}
                                             {% endfor %}
 
-                                        {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>

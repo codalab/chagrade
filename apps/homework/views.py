@@ -123,6 +123,8 @@ class SubmissionDetailView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
                 's3_file',
                 'file',
             ]
+            # This is so we're not calling tracker.logs multiple times in the template. It's a property, call it once.
+            context['log_objects'] = [tracker.logs for tracker in submission.tracked_submissions.all()]
         except ObjectDoesNotExist:
             raise Http404('Definition object not found')
         return context
