@@ -68,7 +68,7 @@ def create_students_from_csv(request, version):
         line_count = 0
         for row in csv_reader:
             if len(row) >= 6:
-                if row[3] == 'Student ID' and row[4] == 'Student Email':
+                if line_count == 0 and 'first name' in row[0].lower() and 'student id' in row[3].lower() and 'student email' in row[4].lower():
                     continue
                 data = {
                     'user': {
