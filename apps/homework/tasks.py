@@ -134,5 +134,7 @@ def post_submission(submission_pk, data_file=None):
         )
         logger.info(f'Succeeded posting submission with id {submission.id} to phase.')
     else:
+        logger.info(phase_final_resp.status_code)
+        logger.info(phase_final_resp.json())
         logger.info(f'Did not succeed in posting submission with id {submission.id} to phase.')
     submission.submitted_to_challenge = True
