@@ -1,13 +1,27 @@
-# from django.contrib.auth import get_user_model
-# from django.test import TestCase
-# from django.urls import reverse
+from django.contrib.auth import get_user_model
+from apps.api.views.profiles import make_ordinal
+
+
+#from django.test import TestCase
+#from django.urls import reverse
 #
-# from apps.klasses.models import Klass
-# from apps.profiles.models import Instructor
-#
-# User = get_user_model()
-#
-#
+#from apps.klasses.models import Klass
+#from apps.profiles.models import Instructor
+
+User = get_user_model()
+
+
+def test_make_ordinal():
+    assert make_ordinal(5) == '5th'
+    assert make_ordinal(293) == '293rd'
+    assert make_ordinal(2) == '2nd'
+    assert make_ordinal(111) == '111th'
+    assert make_ordinal(400) == '400th'
+
+
+
+
+
 # class ProfilesIntegrationTests(TestCase):
 #
 #     def setUp(self):
