@@ -93,9 +93,12 @@ def create_students_from_csv(request, version):
                     new_student_serializer.is_valid(raise_exception=True)
                 except ValidationError:
                     if new_student_serializer.errors:
-                        error_dict = dict(new_student_serializer.errors)
-                        error_dict['student'] = {'identifier': [ErrorDetail(f'From top of CSV, {make_ordinal(line_count + 1)} student with email: {str(row[4])}', code='invalid')]}
-                        raise ValidationError(error_dict)
+                        error_dict = dict(new_student_serializer.errors).get('user')
+                        field_errors_string = ''
+                        for key in error_dict:
+                            for error_string in error_dict[key]:
+                                field_errors_string += error_string + ' \n'
+                        raise ValidationError(f'From top of CSV, {make_ordinal(line_count + 1)} student with email: {str(row[4])}: {field_errors_string}')
 
                 new_student = new_student_serializer.save()
                 # If there's something in the student leader column

@@ -14,6 +14,7 @@ from apps.homework.models import Submission, SubmissionTracker
 
 logger = logging.getLogger(__name__)
 
+
 class SubmissionPostException(BaseException):
 
     def __init__(self, *args, **kwargs):
