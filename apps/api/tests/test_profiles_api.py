@@ -61,6 +61,7 @@ class ProfilesIntegrationTests(APITestCase):
         with open(invalid_email_csv_filename, 'r+') as f:
             resp = self.client.post(reverse('api:create_students_from_csv', kwargs={'version': 'v1'}), {'file': f, 'klass': self.klass.pk})
             assert resp.status_code == 400
+            assert resp.json()[0] == f'From top of CSV, {make_ordinal(2)} student with email: sam.com: Enter a valid email address. \n'
 
         final_student_count = self.klass.enrolled_students.count()
         assert final_student_count - initial_student_count == 1 # fails when creating second student, so one should exist
