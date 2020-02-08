@@ -1,22 +1,72 @@
-# from django.contrib.auth import get_user_model
-# from django.test import TestCase
-# from django.urls import reverse
-#
-# from apps.klasses.models import Klass
-# from apps.profiles.models import Instructor
-#
-# User = get_user_model()
-#
-#
-# class ProfilesIntegrationTests(TestCase):
-#
-#     def setUp(self):
-#         self.user = User.objects.create_user(username='user', password='pass')
-#         self.instructor = Instructor.objects.create(university_name='Test')
-#         self.user.instructor = self.instructor
-#         self.user.save()
-#         self.klass = Klass.objects.create(instructor=self.instructor, course_number="1")
-#
+import os
+
+from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.test import TestCase
+from django.urls import reverse
+from rest_framework.test import APITestCase
+
+from apps.api.views.profiles import make_ordinal
+from apps.profiles.models import Instructor
+from apps.klasses.models import Klass
+
+User = get_user_model()
+
+
+def test_make_ordinal():
+    assert make_ordinal(5) == '5th'
+    assert make_ordinal(293) == '293rd'
+    assert make_ordinal(2) == '2nd'
+    assert make_ordinal(111) == '111th'
+    assert make_ordinal(400) == '400th'
+
+
+class ProfilesIntegrationTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', password='pass')
+        self.instructor = Instructor.objects.create(university_name='Test')
+        self.user.instructor = self.instructor
+        self.user.save()
+        self.klass = Klass.objects.create(instructor=self.instructor, course_number="1")
+
+    def test_normal_csv_upload(self):
+        self.client.force_login(self.user)
+        initial_student_count = self.klass.enrolled_students.count()
+        normal_csv_filename = os.path.join(os.path.dirname(settings.BASE_DIR), 'apps/api/tests/files/sample_upload_csvs/normal.csv')
+
+        with open(normal_csv_filename, 'r+') as f:
+            resp = self.client.post(reverse('api:create_students_from_csv', kwargs={'version': 'v1'}), {'file': f, 'klass': self.klass.pk})
+            assert resp.status_code == 200
+
+        final_student_count = self.klass.enrolled_students.count()
+        assert final_student_count - initial_student_count == 3
+
+    def test_lowercase_header_column_csv_upload(self):
+        self.client.force_login(self.user)
+        initial_student_count = self.klass.enrolled_students.count()
+        lowercase_csv_filename = os.path.join(os.path.dirname(settings.BASE_DIR), 'apps/api/tests/files/sample_upload_csvs/lowercase_last_name.csv')
+
+        with open(lowercase_csv_filename, 'r+') as f:
+            resp = self.client.post(reverse('api:create_students_from_csv', kwargs={'version': 'v1'}), {'file': f, 'klass': self.klass.pk})
+            assert resp.status_code == 200
+
+        final_student_count = self.klass.enrolled_students.count()
+        assert final_student_count - initial_student_count == 3
+
+    def test_invalid_email_csv_upload(self):
+        self.client.force_login(self.user)
+        initial_student_count = self.klass.enrolled_students.count()
+        invalid_email_csv_filename = os.path.join(os.path.dirname(settings.BASE_DIR), 'apps/api/tests/files/sample_upload_csvs/invalid_email_2nd_student.csv')
+
+        with open(invalid_email_csv_filename, 'r+') as f:
+            resp = self.client.post(reverse('api:create_students_from_csv', kwargs={'version': 'v1'}), {'file': f, 'klass': self.klass.pk})
+            assert resp.status_code == 400
+            assert resp.json()[0] == f'From top of CSV, {make_ordinal(2)} student with email: sam.com: Enter a valid email address. \n'
+
+        final_student_count = self.klass.enrolled_students.count()
+        assert final_student_count - initial_student_count == 1 # fails when creating second student, so one should exist
+
+
 #     def test_get_users_works(self):
 #         """Tests that we can retrieve a list of users"""
 #         self.client.login(username='user', password='pass')
