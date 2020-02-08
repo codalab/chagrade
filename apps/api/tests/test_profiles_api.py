@@ -44,9 +44,9 @@ class ProfilesIntegrationTests(APITestCase):
     def test_lowercase_header_column_csv_upload(self):
         self.client.force_login(self.user)
         initial_student_count = self.klass.enrolled_students.count()
-        normal_csv_filename = os.path.join(os.path.dirname(settings.BASE_DIR), 'apps/api/tests/files/sample_upload_csvs/lowercase_last_name.csv')
+        lowercase_csv_filename = os.path.join(os.path.dirname(settings.BASE_DIR), 'apps/api/tests/files/sample_upload_csvs/lowercase_last_name.csv')
 
-        with open(normal_csv_filename, 'r+') as f:
+        with open(lowercase_csv_filename, 'r+') as f:
             resp = self.client.post(reverse('api:create_students_from_csv', kwargs={'version': 'v1'}), {'file': f, 'klass': self.klass.pk})
             assert resp.status_code == 200
 
@@ -56,9 +56,9 @@ class ProfilesIntegrationTests(APITestCase):
     def test_invalid_email_csv_upload(self):
         self.client.force_login(self.user)
         initial_student_count = self.klass.enrolled_students.count()
-        normal_csv_filename = os.path.join(os.path.dirname(settings.BASE_DIR), 'apps/api/tests/files/sample_upload_csvs/invalid_email_2nd_student.csv')
+        invalid_email_csv_filename = os.path.join(os.path.dirname(settings.BASE_DIR), 'apps/api/tests/files/sample_upload_csvs/invalid_email_2nd_student.csv')
 
-        with open(normal_csv_filename, 'r+') as f:
+        with open(invalid_email_csv_filename, 'r+') as f:
             resp = self.client.post(reverse('api:create_students_from_csv', kwargs={'version': 'v1'}), {'file': f, 'klass': self.klass.pk})
             assert resp.status_code == 400
 
