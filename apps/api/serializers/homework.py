@@ -134,7 +134,10 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'custom_challenge_urls',
             'teams',
             'id',
-            'force_github'
+            'force_github',
+            'jupyter_notebook_enabled',
+            'jupyter_notebook_lowest',
+            'jupyter_notebook_highest',
         ]
 
 
