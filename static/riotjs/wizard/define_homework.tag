@@ -28,20 +28,25 @@
         </div>
 
         <div class="fields">
-            <div class="five wide field">
+            <div class="four wide field">
                 <label>Max Number of Submissions Per Student (0-40):</label>
                 <input type="number" name="max_submissions_per_student" max="40" min="0" ref="max_submissions_per_student"
                        value="{definition.max_submissions_per_student}">
             </div>
-            <div class="five wide field">
+            <div class="four wide field">
                 <label>Custom Questions Only (No competition):</label>
                 <input class="ui checkbox" type="checkbox" name="questions_only" ref="questions_only"
                        checked="{definition.questions_only}" onclick="{ update_questions_only }">
             </div>
-            <div class="six wide field">
+            <div if="{ !definition.questions_only }" class="four wide field">
                 <label>Only allow Github submissions (No direct file upload):</label>
                 <input class="ui checkbox" type="checkbox" name="force_github" ref="force_github"
                        checked="{definition.force_github}">
+            </div>
+            <div if="{ !definition.questions_only }" class="four wide field">
+                <label>Jupyter Notebook Auto Grading:</label>
+                <input class="ui checkbox" type="checkbox" name="jupyter_notebook_enabled" ref="jupyter_notebook_enabled"
+                       checked="{definition.jupyter_notebook_enabled}" onclick="{ update_jupyter_notebook_behavior }">
             </div>
         </div>
 
@@ -224,13 +229,30 @@
 
             <h4 class="ui header">Criteria</h4>
 
+            <div if="{definition.jupyter_notebook_enabled}" style="margin-top: 2.5vh; margin-bottom: 0.5vh;">
+                <h4 style="margin-bottom: 2.5vh" class="ui dividing header">Jupyter Notebook Auto Grading Parameters</h4>
+                <div class="two inline fields">
+                    <div class="six wide inline field">
+                        <label>Lowest Grade:</label>
+                        <input type="text" name="{'criteria' + '_lower_range_' + index}" maxlength="6"
+                               ref="jupyter_notebook_lowest_grade" value="{_.get(definition, 'jupyter_notebook_lowest', 0.0)}">
+                    </div>
+
+                    <div class="six wide inline field">
+                        <label>Highest Grade:</label>
+                        <input class="" type="text" name="{'criteria' + '_upper_range_' + index}" maxlength="6"
+                               ref="jupyter_notebook_highest_grade" value="{_.get(definition, 'jupyter_notebook_highest', 1.0)}">
+                    </div>
+                </div>
+            </div>
+
             <div style="margin-top: 2.5vh; margin-bottom: 0.5vh;" each="{criteria, index in criterias}">
                 <h4 style="margin-bottom: 2.5vh" class="ui dividing header">Criterion {index + 1}</h4>
                 <div class="three inline fields">
                     <div class="four wide inline field">
                         <input type="hidden" name="{'criteria' + '_id_' + index}" ref="{'criteria' + '_id_' + index}"
                                value="{criteria.id}">
-                        <label>Criteria:</label>
+                        <label>Description:</label>
                         <input type="text" name="{'criteria' + '_description_' + index}" maxlength="200"
                                ref="{'criteria' + '_description_' + index}" value="{criteria.description || ''}">
                     </div>
@@ -465,6 +487,7 @@
         self.update_definition = function () {
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
+                    console.log(data)
                     data.teams.forEach(function (team) {
                         data.custom_challenge_urls.forEach(function (custom_url) {
                             if (team.id === custom_url.team) {
@@ -518,6 +541,11 @@
 
         self.update_questions_only = function () {
             self.definition.questions_only = self.refs.questions_only.checked
+            self.update()
+        }
+
+        self.update_jupyter_notebook_behavior = function () {
+            self.definition.jupyter_notebook_enabled = self.refs.jupyter_notebook_enabled.checked
             self.update()
         }
 
@@ -575,6 +603,9 @@
                 "team_based": self.refs.team_based.checked,
                 "max_submissions_per_student": self.refs.max_submissions_per_student.value,
                 "force_github": self.refs.force_github.checked,
+                "jupyter_notebook_enabled": self.refs.jupyter_notebook_enabled.checked,
+                "jupyter_notebook_lowest": _.get(self.refs.jupyter_notebook_lowest_grade, 'value', 0.0),
+                "jupyter_notebook_highest": _.get(self.refs.jupyter_notebook_highest_grade, 'value', 1.0),
                 "criterias": [
                     /*{
                      "description": "string",
