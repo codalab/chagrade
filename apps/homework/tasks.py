@@ -23,20 +23,35 @@ class SubmissionPostException(BaseException):
         super(SubmissionPostException, self).__init__(*args, **kwargs)
 
 
-def retrieve_score_from_jupyter_notebook(fd):
+def retrieve_score_from_jupyter_notebook(fd, submission):
     content = fd.readlines()
-    filtered_content = list(filter(lambda line: 'final score' in str(line) and 'print' not in str(line), content))
+
+    # Jupyter Notebook files are formatted as json. The json is formatted in a human-readable
+    # way with newlines and indentation. We can exploit this formatting by parsing the file into
+    # lines and then filtering the lines that don't match "Your final score is".
+    #
+    # The line that we are looking for is formatted in the following way:
+    #   "Your final score is x / x, congratulations!"
+    #
+    # To receive the substring containing the score from the lines that match "Your final score is", we use regex.
+    #
+    # If there are multiple matches, a warning is placed on the submission, and the last match in the file is used
+    # per the specs of this feature.
+
+    filtered_content = list(filter(lambda line: 'Your final score is' in str(line) and 'print' not in str(line), content))
     if len(filtered_content) is not 1:
-        raise IndexError('Exactly one line should contain the phrase "final score" and not include the phrase "print".')
-    score_string = str(filtered_content[0])
+        # Add warning to the submission model
+        logger.warning(f'Multiple Jupyter Notebook score string matches in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}). Exactly one line should contain the phrase "final score" and not include the phrase "print".')
+
+    score_string = str(filtered_content[-1])
     start_index = score_string.find('is')
 
-    found = re.search('[0-9]+ \/ [0-9]+', score_string)
+    found = re.search(r'(?=.)([+-]?([0-9]*)(\.([0-9]+))?) \/ (?=.)([+-]?([0-9]*)(\.([0-9]+))?)', score_string)
 
     # Check for no matches
     separated = found.group().split(' ')
-    numerator = int(separated[0])
-    denominator = int(separated[2])
+    numerator = float(separated[0])
+    denominator = float(separated[2])
     return numerator, denominator
 
 
@@ -105,10 +120,20 @@ def post_submission(submission_pk, data_file=None):
             if submission.definition.jupyter_notebook_enabled:
                 # Temporary files can only be opened once, so both reads need to happen within this context manager
                 with data_to_upload.open() as fd:
-                    numerator, denominator = retrieve_score_from_jupyter_notebook(data_to_upload)
+                    numerator, denominator = retrieve_score_from_jupyter_notebook(data_to_upload, submission)
                     fd.seek(0)
                     submission.jupyter_notebook.save(data_to_upload.name, data_to_upload)
+                    if denominator != submission.definition.jupyter_notebook_highest:
+                        # Add warning to submission model
+                        pass
+                    if numerator > submission.definition.jupyter_notebook_highest:
+                        # Add warning to submission model
+                        numerator = submission.definition.jupyter_notebook_highest
+                    if numerator < submission.definition.jupyter_notebook_lowest:
+                        # Add warning to submission model
+                        numerator = submission.definition.jupyter_notebook_lowest
                     submission.jupyter_score = numerator
+                    submission.save()
             else:
                 storage_resp = requests.put(
                     url=s3_file_url,
