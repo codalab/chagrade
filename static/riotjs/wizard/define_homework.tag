@@ -10,19 +10,31 @@
                     </label>
                     <div class="ui input left icon datepicker">
                         <i class="calendar icon"></i>
-                        <input name="due_date" ref="due_date" type="text" value="{definition.due_date}" autocomplete="off">
+                        <input name="due_date"
+                               ref="due_date"
+                               type="text"
+                               value="{definition.due_date}"
+                               autocomplete="off">
                     </div>
                 </div>
             </div>
 
             <div class="three wide required field">
                 <label>Name:</label>
-                <input type="text" name="name" maxlength="100" required ref="name" value="{definition.name}">
+                <input type="text"
+                       name="name"
+                       maxlength="100"
+                       required
+                       ref="name"
+                       value="{definition.name}">
             </div>
 
             <div class="ten wide field">
                 <label>Description:</label>
-                <input type="text" name="description" maxlength="300" ref="description"
+                <input type="text"
+                       name="description"
+                       maxlength="300"
+                       ref="description"
                        value="{definition.description}">
             </div>
         </div>
@@ -30,23 +42,38 @@
         <div class="fields">
             <div class="four wide field">
                 <label>Max Number of Submissions Per Student (0-40):</label>
-                <input type="number" name="max_submissions_per_student" max="40" min="0" ref="max_submissions_per_student"
+                <input type="number"
+                       name="max_submissions_per_student"
+                       max="40"
+                       min="0"
+                       ref="max_submissions_per_student"
                        value="{definition.max_submissions_per_student}">
             </div>
             <div class="four wide field">
                 <label>Custom Questions Only (No competition):</label>
-                <input class="ui checkbox" type="checkbox" name="questions_only" ref="questions_only"
-                       checked="{definition.questions_only}" onclick="{ update_questions_only }">
+                <input class="ui checkbox"
+                       type="checkbox"
+                       name="questions_only"
+                       ref="questions_only"
+                       checked="{definition.questions_only}"
+                       onclick="{ update_questions_only }">
             </div>
             <div if="{ !definition.questions_only }" class="four wide field">
                 <label>Only allow Github submissions (No direct file upload):</label>
-                <input class="ui checkbox" type="checkbox" name="force_github" ref="force_github"
+                <input class="ui checkbox"
+                       type="checkbox"
+                       name="force_github"
+                       ref="force_github"
                        checked="{definition.force_github}">
             </div>
             <div if="{ !definition.questions_only }" class="four wide field">
                 <label>Jupyter Notebook Auto Grading:</label>
-                <input class="ui checkbox" type="checkbox" name="jupyter_notebook_enabled" ref="jupyter_notebook_enabled"
-                       checked="{definition.jupyter_notebook_enabled}" onclick="{ update_jupyter_notebook_behavior }">
+                <input class="ui checkbox"
+                       type="checkbox"
+                       name="jupyter_notebook_enabled"
+                       ref="jupyter_notebook_enabled"
+                       checked="{definition.jupyter_notebook_enabled}"
+                       onclick="{ update_jupyter_notebook_behavior }">
             </div>
         </div>
 
@@ -101,31 +128,46 @@
         <div class="fields">
             <div class="four wide field">
                 <label>Ask method name:</label>
-                <input class="ui checkbox" type="checkbox" name="ask_method_name" ref="ask_method_name"
+                <input class="ui checkbox"
+                       type="checkbox"
+                       name="ask_method_name"
+                       ref="ask_method_name"
                        checked="{definition.ask_method_name}">
             </div>
 
             <div class="four wide field">
                 <label>Ask method description:</label>
-                <input class="ui checkbox" type="checkbox" name="ask_method_description" ref="ask_method_description"
+                <input class="ui checkbox"
+                       type="checkbox"
+                       name="ask_method_description"
+                       ref="ask_method_description"
                        checked="{definition.ask_method_description}">
             </div>
 
             <div class="four wide field">
                 <label>Ask project url:</label>
-                <input class="ui checkbox" type="checkbox" name="ask_project_url" ref="ask_project_url"
+                <input class="ui checkbox"
+                       type="checkbox"
+                       name="ask_project_url"
+                       ref="ask_project_url"
                        checked="{definition.ask_project_url}">
             </div>
 
             <div class="four wide field">
                 <label>Ask publication url:</label>
-                <input class="ui checkbox" type="checkbox" name="ask_publication_url" ref="ask_publication_url"
+                <input class="ui checkbox"
+                       type="checkbox"
+                       name="ask_publication_url"
+                       ref="ask_publication_url"
                        checked="{definition.ask_publication_url}">
             </div>
 
             <div class="four wide field">
                 <label>Team based:</label>
-                <input class="ui checkbox" type="checkbox" name="team_based" ref="team_based"
+                <input class="ui checkbox"
+                       type="checkbox"
+                       name="team_based"
+                       ref="team_based"
                        checked="{definition.team_based}">
             </div>
         </div>
@@ -145,8 +187,11 @@
                            data-content="Ex: http://competitions.codalab.org/competitions/2"></i>
                         Challenge URL:
                     </label>
-                    <input type="text" data-custom-challenge-id="{team.custom_challenge_id}" name="team_challenge_url"
-                           ref="team_{team.id}_challenge_url" value="{team.custom_challenge_url}">
+                    <input type="text" data-custom-challenge-
+                           id="{team.custom_challenge_id}"
+                           name="team_challenge_url"
+                           ref="team_{team.id}_challenge_url"
+                           value="{team.custom_challenge_url}">
                 </div>
             </virtual>
         </div>
@@ -163,9 +208,14 @@
                 <div class="ui four inline fields">
                     <div class="required six wide field">
                         <label>Question:</label>
-                        <textarea type="text" name="{'question' + '_question_' + index}" rows="1"
-                                  ref="{'question' + '_question_' + index}" value="{question.question}"> </textarea>
-                        <input type="hidden" name="{'question' + '_id_' + index}" ref="{'question' + '_id_' + index}"
+                        <textarea type="text"
+                                  name="{'question' + '_question_' + index}"
+                                  rows="1"
+                                  ref="{'question' + '_question_' + index}"
+                                  value="{question.question}"> </textarea>
+                        <input type="hidden"
+                               name="{'question' + '_id_' + index}"
+                               ref="{'question' + '_id_' + index}"
                                value="{question.id}">
                     </div>
 
@@ -204,8 +254,14 @@
                             <i if="{ question.question_type === 'MS' }" class="ui grey square icon"> </i>
                             <i if="{ question.question_type === 'SS' }" class="ui grey circle icon"> </i>
                         </label>
-                        <input type="text" name="{'question' + '_answer_' + index}" maxlength="200" placeholder="Option {candidate_index + 1}"
-                               ref="{'answer_candidate_' + index + '_' + candidate_index}" value="{answer_candidate}" onkeypress="{ () => focus_next_input(event, index, candidate_index)}" onkeyup="{ () => update_answer_candidate_text(event, index, candidate_index)}">
+                        <input type="text"
+                               name="{'question' + '_answer_' + index}"
+                               maxlength="200"
+                               placeholder="Option {candidate_index + 1}"
+                               ref="{'answer_candidate_' + index + '_' + candidate_index}"
+                               value="{answer_candidate}"
+                               onkeypress="{ () => focus_next_input(event, index, candidate_index)}"
+                               onkeyup="{ () => update_answer_candidate_text(event, index, candidate_index)}">
                     </div>
                     <div class="six wide inline field">
                         <a onclick="{remove_answer_candidate.bind(this, index, candidate_index)}" class="delete-button">
@@ -214,7 +270,10 @@
                     </div>
                 </div>
 
-                <button if="{question.question_type === 'MS' || question.question_type === 'SS'}" class="ui basic green button add-answer-candidate" onclick="{ () => add_answer_candidate(event, index) }" ref="{'add_answer_candidate_button_' + index}">
+                <button if="{question.question_type === 'MS' || question.question_type === 'SS'}"
+                        class="ui basic green button add-answer-candidate"
+                        onclick="{ () => add_answer_candidate(event, index) }"
+                        ref="{'add_answer_candidate_button_' + index}">
                     <i class="green plus icon"> </i> Add answer candidate
                 </button>
 
@@ -234,14 +293,21 @@
                 <div class="two inline fields">
                     <div class="six wide inline field">
                         <label>Lowest Grade:</label>
-                        <input type="text" name="{'criteria' + '_lower_range_' + index}" maxlength="6"
-                               ref="jupyter_notebook_lowest_grade" value="{_.get(definition, 'jupyter_notebook_lowest', 0.0)}">
+                        <input type="text"
+                               name="{'criteria' + '_lower_range_' + index}"
+                               maxlength="6"
+                               ref="jupyter_notebook_lowest_grade"
+                               value="{_.get(definition, 'jupyter_notebook_lowest', 0.0)}">
                     </div>
 
                     <div class="six wide inline field">
                         <label>Highest Grade:</label>
-                        <input class="" type="text" name="{'criteria' + '_upper_range_' + index}" maxlength="6"
-                               ref="jupyter_notebook_highest_grade" value="{_.get(definition, 'jupyter_notebook_highest', 1.0)}">
+                        <input class=""
+                               type="text"
+                               name="{'criteria' + '_upper_range_' + index}"
+                               maxlength="6"
+                               ref="jupyter_notebook_highest_grade"
+                               value="{_.get(definition, 'jupyter_notebook_highest', 1.0)}">
                     </div>
                 </div>
             </div>
