@@ -1,14 +1,15 @@
-import logging
 import re
-import os
+import logging
+import requests
+
 from tempfile import TemporaryFile
 from urllib.parse import urlparse
-
-import requests
+from django.conf import settings
 from celery.task import task
 from requests.auth import HTTPBasicAuth
 
 from apps.homework.models import Submission, SubmissionTracker
+
 
 # TODO: Clean this up and possibly have a flag between running this as a task vs actually calling it? (Heroku vs Docker)
 
@@ -39,20 +40,21 @@ def retrieve_score_from_jupyter_notebook(fd, submission):
     # per the specs of this feature.
 
     filtered_content = list(filter(lambda line: 'Your final score is' in str(line) and 'print' not in str(line), content))
-    if len(filtered_content) is not 1:
+    if len(filtered_content) != 1:
         # Add warning to the submission model
         logger.warning(f'Multiple Jupyter Notebook score string matches in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}). Exactly one line should contain the phrase "final score" and not include the phrase "print".')
 
     score_string = str(filtered_content[-1])
     start_index = score_string.find('is')
 
-    found = re.search(r'(?=.)([+-]?([0-9]*)(\.([0-9]+))?) \/ (?=.)([+-]?([0-9]*)(\.([0-9]+))?)', score_string)
+    found = re.search(r'Your final score is (?P<numer>.+) / (?P<denom>.+), congratulations!', score_string)
 
-    # Check for no matches
-    separated = found.group().split(' ')
-    numerator = float(separated[0])
-    denominator = float(separated[2])
-    return numerator, denominator
+    numerator = found.group('numer')
+    denominator = found.group('denom')
+
+    # TODO: Check for no matches
+
+    return float(numerator), float(denominator)
 
 
 @task
@@ -68,16 +70,16 @@ def post_submission(submission_pk, data_file=None):
         domain = parsed_uri.netloc
         path = parsed_uri.path
         challenge_pk = path.split('/')[-1]
-        site_url = "{0}://{1}".format(scheme, domain)
-        submission_url = '{0}/api/competition/{1}/submission/sas'.format(site_url, challenge_pk)
+        site_url = f"{scheme}://{domain}"
+        submission_url = f'{site_url}/api/competition/{challenge_pk}/submission/sas'
 
         logger.info(f"Making submission to {submission_url}")
 
         # Post our request to the submission SAS API endpoint
         resp = requests.post(
             url=submission_url, auth=HTTPBasicAuth(
-                os.environ.get('CODALAB_SUBMISSION_USERNAME'),
-                os.environ.get('CODALAB_SUBMISSION_PASSWORD')
+                settings.CODALAB_SUBMISSION_USERNAME,
+                settings.CODALAB_SUBMISSION_PASSWORD
             )
         )
 
@@ -103,7 +105,7 @@ def post_submission(submission_pk, data_file=None):
                     new_path += component + '/'
                 else:
                     new_path += component
-            repo_url = '{scheme}://{domain}{path}'.format(scheme=repo_scheme, domain=repo_loc, path=new_path)
+            repo_url = f'{repo_scheme}://{repo_loc}{new_path}'
             logger.info(f"Streaming github file for submission: {submission.pk}.")
             repo_resp = requests.get(repo_url, stream=True)
             for chunk in repo_resp.iter_content(chunk_size=1024):
@@ -121,6 +123,9 @@ def post_submission(submission_pk, data_file=None):
                 # Temporary files can only be opened once, so both reads need to happen within this context manager
                 with data_to_upload.open() as fd:
                     numerator, denominator = retrieve_score_from_jupyter_notebook(data_to_upload, submission)
+                    # This seek happens, because the retrieve_score_from_jupyter_notebook reads the file.
+                    # The file position is reset here, so the next read, when the file is stored
+                    # (the .save method below), all of the file contents are read.
                     fd.seek(0)
                     submission.jupyter_notebook.save(data_to_upload.name, data_to_upload)
                     if denominator != submission.definition.jupyter_notebook_highest:
@@ -150,10 +155,10 @@ def post_submission(submission_pk, data_file=None):
 
     if not submission.definition.jupyter_notebook_enabled:
         # Example of url format we're expecting: https://competitions.codalab.org/api/competition/20616/phases/
-        phases_request_url = "{0}/api/competition/{1}/phases/".format(site_url, challenge_pk)
+        phases_request_url = f"{site_url}/api/competition/{challenge_pk}/phases/"
         phases_request = requests.get(url=phases_request_url, auth=HTTPBasicAuth(
-            os.environ.get('CODALAB_SUBMISSION_USERNAME'),
-            os.environ.get('CODALAB_SUBMISSION_PASSWORD')
+            settings.CODALAB_SUBMISSION_USERNAME,
+            settings.CODALAB_SUBMISSION_PASSWORD
         ))
         phases_dict = phases_request.json()[0]['phases']
         phase_id = None
@@ -166,17 +171,16 @@ def post_submission(submission_pk, data_file=None):
             logger.info(f'No is_active field on phase. Update Codalab to latest version. Not POSTing a submission to Codalab.')
             return
 
-        sub_descr = "Chagrade_Submission_{0}".format(submission.id)
-        finalize_url = "{0}/api/competition/{1}/submission?description={2}&phase_id={3}".format(site_url, challenge_pk,
-                                                                                                sub_descr, phase_id)
-        custom_filename = "{username}_{date}.zip".format(username=submission.creator.user.username, date=submission.created)
+        sub_descr = f"Chagrade_Submission_{submission.id}"
+        finalize_url = f"{site_url}/api/competition/{challenge_pk}/submission?description={sub_descr}&phase_id={phase_id}"
+        custom_filename = f"{submission.creator.user.username}_{submission.created}.zip"
         phase_final_resp = requests.post(finalize_url, data={
             'id': submission_data,
             'name': custom_filename,
             'type': 'application/zip',
         }, auth=HTTPBasicAuth(
-            os.environ.get('CODALAB_SUBMISSION_USERNAME'),
-            os.environ.get('CODALAB_SUBMISSION_PASSWORD')
+            settings.CODALAB_SUBMISSION_USERNAME,
+            settings.CODALAB_SUBMISSION_PASSWORD
         ))
 
         # If we succeed in posting to the phase, create a new tracker and store the submission info
