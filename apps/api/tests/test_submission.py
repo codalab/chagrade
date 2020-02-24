@@ -64,6 +64,11 @@ class SubmissionAPIEndpointsTests(TestCase):
             'files/valid_notebook.ipynb'
         )
 
+        self.no_matches_notebook = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'files/no_score_string_matches.ipynb'
+        )
+
         self.multiple_matches_notebook = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'files/multiple_score_string_matches.ipynb'
@@ -359,8 +364,15 @@ class SubmissionAPIEndpointsTests(TestCase):
         assert new_submission.jupyter_score == 2.0
         assert resp.status_code == 201
 
-    def test_unsuccessfully_submit_jupyter_notebook_with_no_score_string_matches(self):
-        pass
+    def test_successfully_submit_jupyter_notebook_with_no_score_string_matches(self):
+        self.client.login(username='student_user', password='pass')
+
+        # submit file to submission API with jupyter homework definition
+        resp = self._direct_file_upload_helper(self.no_matches_notebook, self.jupyter_notebook_definition)
+        new_submission_id = int(resp.json()['id'])
+        new_submission = Submission.objects.get(pk=new_submission_id)
+        assert new_submission.jupyter_score == new_submission.definition.jupyter_notebook_lowest
+        assert resp.status_code == 201
 
     def test_successfully_submit_jupyter_notebook_with_score_too_low(self):
         self.client.login(username='student_user', password='pass')

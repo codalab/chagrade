@@ -39,22 +39,41 @@ def retrieve_score_from_jupyter_notebook(fd, submission):
     # If there are multiple matches, a warning is placed on the submission, and the last match in the file is used
     # per the specs of this feature.
 
+    existing_messages = submission.reporting_messages
+    if fd.name.split('.')[-1] != 'ipynb':
+        if 'errors' not in existing_messages:
+            existing_messages['errors'] = []
+        existing_messages['errors'].append('File submitted does not have .ipynb extension. (Hint that this is not a Jupyter Notebook.')
+        logger.error(f'The file submitted with this notebook does not have .ipynb extension. Error in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
+
     filtered_content = list(filter(lambda line: 'Your final score is' in str(line) and 'print' not in str(line), content))
     if len(filtered_content) != 1:
         # Add warning to the submission model
-        logger.warning(f'Multiple Jupyter Notebook score string matches in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}). Exactly one line should contain the phrase "final score" and not include the phrase "print".')
+        if len(filtered_content) > 1:
+            if 'warnings' not in existing_messages:
+                existing_messages['warnings'] = []
+            existing_messages['warnings'].append('Multiple Jupyter Notebook score string matches in submission. Only one line should contain the matching score string, "Your final score is x / x, congratulations!".')
+            logger.warning(f'Multiple Jupyter Notebook score string matches in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}). Exactly one line should contain the phrase "final score" and not include the phrase "print".')
+        if len(filtered_content) == 0:
+            if 'errors' not in existing_messages:
+                existing_messages['errors'] = []
+            existing_messages['errors'].append('Cannot find score in Jupyter Notebook. No matches for the string, "Your final score is x / x, congratulations!".')
+            logger.error(f'Cannot find score in Jupyter Notebook. No matches for the string, "Your final score is x / x, congratulations!". Error in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
 
-    score_string = str(filtered_content[-1])
-    start_index = score_string.find('is')
+    submission.reporting_messages = existing_messages
+    submission.save()
 
-    found = re.search(r'Your final score is (?P<numer>.+) / (?P<denom>.+), congratulations!', score_string)
+    if len(filtered_content) > 0:
+        score_string = str(filtered_content[-1])
+        start_index = score_string.find('is')
 
-    numerator = found.group('numer')
-    denominator = found.group('denom')
+        found = re.search(r'Your final score is (?P<numer>.+) / (?P<denom>.+), congratulations!', score_string)
 
-    # TODO: Check for no matches
-
-    return float(numerator), float(denominator)
+        numerator = found.group('numer')
+        denominator = found.group('denom')
+        return float(numerator), float(denominator)
+    else:
+        return submission.definition.jupyter_notebook_lowest, submission.definition.jupyter_notebook_highest
 
 
 @task
@@ -128,15 +147,27 @@ def post_submission(submission_pk, data_file=None):
                     # (the .save method below), all of the file contents are read.
                     fd.seek(0)
                     submission.jupyter_notebook.save(data_to_upload.name, data_to_upload)
+
+                    submission_warnings = []
                     if denominator != submission.definition.jupyter_notebook_highest:
-                        # Add warning to submission model
-                        pass
+                        logger.warning(f'Score denominator is not equal to the one defined in homework definition. Warning in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
+                        submission_warnings.append('Score denominator is not equal to the one defined in homework definition.')
                     if numerator > submission.definition.jupyter_notebook_highest:
                         # Add warning to submission model
                         numerator = submission.definition.jupyter_notebook_highest
+                        logger.warning(f'Score numerator greater than the maximum defined in homework definition. Warning in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
+                        submission_warnings.append('Score numerator greater than the maximum defined in homework definition.')
                     if numerator < submission.definition.jupyter_notebook_lowest:
                         # Add warning to submission model
+                        logger.warning(f'Score numerator lower than the minimum defined in homework definition. Warning in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
                         numerator = submission.definition.jupyter_notebook_lowest
+                        submission_warnings.append('Score numerator lower than the minimum defined in homework definition.')
+
+                    existing_messages = submission.reporting_messages
+                    if 'warnings' not in existing_messages:
+                        existing_messages['warnings'] = []
+                    existing_messages['warnings'].extend(submission_warnings)
+                    submission.reporting_messages = existing_messages
                     submission.jupyter_score = numerator
                     submission.save()
             else:

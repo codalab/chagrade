@@ -99,6 +99,14 @@ class Submission(models.Model):
     jupyter_notebook = models.FileField(null=True, blank=True, upload_to=upload_jupyter_notebook)
     jupyter_score = models.FloatField(null=True)
 
+    reporting_messages = JSONField(default=dict)
+    # Reporting messages is used to report warnings and errors on the submission during the automatic Jupyter Notebook grading process.
+    # This field should take the form of:
+    # {
+    #     'warnings': ['warning string 1', 'warning string 2'],
+    #     'errors': ['error string 1', 'error string 2'],
+    # }
+
     def __str__(self):
         return "{}".format(self.github_url)
 

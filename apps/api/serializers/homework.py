@@ -23,7 +23,6 @@ class QuestionAnswerSerializer(ModelSerializer):
 
 
 class SubmissionSerializer(WritableNestedModelSerializer):
-
     question_answers = QuestionAnswerSerializer(many=True, required=False)
 
     class Meta:
