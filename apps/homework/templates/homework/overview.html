@@ -46,12 +46,18 @@
                                                 <h4>Due Date: {{ definition.due_date }}</h4>
                                                 <p>{{ definition.description }}</p>
                                                 {% if not definition.questions_only %}
+
+                                                {% if not definition.jupyter_notebook_enabled %}
                                                     <a href="{{ definition.challenge_url }}"
                                                        target="_blank" rel="noopener noreferrer"
                                                        class="ui blue button">Codalab Challenge</a>
+                                                {% endif %}
                                                     {% if definition.starting_kit_github_url %}
                                                         <a href="{{ definition.starting_kit_github_url }}" target="_blank" rel="noopener noreferrer" class="ui blue button">
                                                             <i class="ui github icon"></i>
+                                                            {% if definition.jupyter_notebook_enabled %}
+                                                                Jupyter Notebook
+                                                            {% endif %}
                                                             Starting Kit</a>
                                                         <br>
                                                     {% endif %}

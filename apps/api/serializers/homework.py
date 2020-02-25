@@ -23,7 +23,6 @@ class QuestionAnswerSerializer(ModelSerializer):
 
 
 class SubmissionSerializer(WritableNestedModelSerializer):
-
     question_answers = QuestionAnswerSerializer(many=True, required=False)
 
     class Meta:
@@ -134,7 +133,10 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'custom_challenge_urls',
             'teams',
             'id',
-            'force_github'
+            'force_github',
+            'jupyter_notebook_enabled',
+            'jupyter_notebook_lowest',
+            'jupyter_notebook_highest',
         ]
 
 

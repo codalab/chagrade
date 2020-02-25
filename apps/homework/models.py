@@ -37,6 +37,11 @@ class Definition(models.Model):
     max_submissions_per_student = models.IntegerField(default=20, null=False, validators=[MaxValueValidator(40), MinValueValidator(0)])
     force_github = models.BooleanField(default=False)
 
+    # Jupyter Notebook Grading Parameters
+    jupyter_notebook_enabled = models.BooleanField(default=False)
+    jupyter_notebook_lowest = models.FloatField(default=0.0, null=True, blank=False)
+    jupyter_notebook_highest = models.FloatField(default=1.0, null=True, blank=False)
+
     # These values for submissions will have to be grabbed from v1.5 API
     # We should almost set these automatically by an API request to the challenge and see if these options are enabled
     #  or not?
@@ -62,6 +67,13 @@ class Definition(models.Model):
         return site_url
 
 
+def upload_jupyter_notebook(instance, filename):
+    file_split = filename.split('.')
+    file_extension = file_split[len(file_split) - 1]
+    path = f'jupyter_notebooks/submissions/{instance.pk}.{file_extension}'
+    return path
+
+
 class Submission(models.Model):
     klass = models.ForeignKey('klasses.Klass', default=None, related_name='homework_submissions', on_delete=models.CASCADE)
     definition = models.ForeignKey('Definition', default=None, related_name='submissions', on_delete=models.CASCADE)
@@ -84,6 +96,17 @@ class Submission(models.Model):
     submitted_to_challenge = models.BooleanField(default=False)
 
     team = models.ForeignKey('groups.Team', default=None, null=True, blank=True, related_name='submissions', on_delete=models.SET_NULL)
+
+    jupyter_notebook = models.FileField(null=True, blank=True, upload_to=upload_jupyter_notebook)
+    jupyter_score = models.FloatField(null=True)
+
+    reporting_messages = JSONField(default=dict)
+    # Reporting messages is used to report warnings and errors on the submission during the automatic Jupyter Notebook grading process.
+    # This field should take the form of:
+    # {
+    #     'warnings': ['warning string 1', 'warning string 2'],
+    #     'errors': ['error string 1', 'error string 2'],
+    # }
 
     def __str__(self):
         return "{}".format(self.github_url)

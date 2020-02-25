@@ -5,13 +5,21 @@
         </div>
         <h1 class="ui dividing header" id="submission_header">
             Submission Form for { definition.name }
-            <a if={ definition.challenge_url }
+            <a if={ definition.challenge_url && !definition.starting_kit_github_url }
                href="{ definition.challenge_url }"
                target="_blank"
                rel="noopener noreferrer"
                id="challenge_button"
                class="ui blue button">
                Codalab Challenge
+            </a>
+            <a if={ definition.starting_kit_github_url }
+               href="{ definition.starting_kit_github_url }"
+               target="_blank"
+               rel="noopener noreferrer"
+               id="challenge_button"
+               class="ui blue button">
+                Jupyter Notebook Starting Kit
             </a>
         </h1>
 
@@ -23,7 +31,7 @@
                             <i class="pop-up question blue circle icon"
                                data-title="A URL from your github repo to a specific zip file"
                                data-content="Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip"> </i>
-                            Submission Github URL (Must be zip file):
+                            Submission Github URL (Must be {definition.jupyter_notebook_enabled ? ".ipynb" : ".zip"} file):
                         </label>
                     </span>
                     <input name="github_url" ref="github_url" type="text"
@@ -45,8 +53,8 @@
             <div if="{ !_.get(definition, 'force_github', false) }" class="fields">
                 <div class="sixteen wide field">
                     <h1>OR</h1>
-                    <label>Direct File Upload:</label>
-                    <input type="file" accept="application/zip, .zip" ref="direct_file">
+                    <label>Direct File Upload {definition.jupyter_notebook_enabled ? "(.ipynb file)" : "(.zip file)"}:</label>
+                    <input type="file" accept="{definition.jupyter_notebook_enabled ? ".ipynb" : "application/zip, .zip"}" ref="direct_file">
                 </div>
             </div>
         </div>
@@ -345,6 +353,18 @@
             $('#file-tree-header').removeClass('hidden')
         }
 
+        self.check_filename_extension = function (filename) {
+            let split_url = filename.split('.')
+            let extension = split_url[split_url.length - 1]
+            let desired_extension = self.definition.jupyter_notebook_enabled ? 'ipynb' : 'zip'
+            if (extension !== desired_extension) {
+                toastr.error(`Please upload a file with .${desired_extension} extension. You uploaded a file with a .${extension} extension.`)
+                return false
+            } else {
+                return true
+            }
+        }
+
         self.submit_form = function () {
             self.update({loading: true})
             let question_answers = []
@@ -402,6 +422,11 @@
                 if (!self.github_active) {
                     let github_ref = self.refs.github_ref.value
                     self.github_url = self.refs.github_url.value
+                    if (_.get(self.github_url, 'length', 0) > 0) {
+                        if (!self.check_filename_extension(self.github_url)) {
+                            return
+                        }
+                    }
 
                     if (!!github_ref) {
                         let split_url = self.github_url.split('/')
@@ -415,6 +440,9 @@
 
                             for (var key in data) {
                                 formData.append(key, data[key]);
+                            }
+                            if (!self.check_filename_extension(self.refs.direct_file.files[0].name)) {
+                                return
                             }
 
                             // add assoc key values, this will be posts values

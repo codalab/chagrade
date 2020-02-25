@@ -37,6 +37,17 @@ class SubmissionAPIEndpointsTests(TestCase):
             description='test',
             challenge_url='http://example.com/competitions/1',
         )
+        self.jupyter_notebook_definition = Definition.objects.create(
+            klass=self.klass,
+            creator=self.instructor,
+            due_date=timezone.now(),
+            name='jupyter_notebook_test',
+            description='jupyter_notebook_test',
+            jupyter_notebook_enabled=True,
+            jupyter_notebook_highest=10.0,
+            jupyter_notebook_lowest=0.0,
+            starting_kit_github_url='http://github.com/fake_starting_kit',
+        )
         self.submission = Submission.objects.create(
             definition=self.definition,
             klass=self.klass,
@@ -48,15 +59,44 @@ class SubmissionAPIEndpointsTests(TestCase):
             'files/test_submission.zip'
         )
 
-        assert os.path.exists(self.test_file_path)
+        self.single_match_notebook = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'files/valid_notebook.ipynb'
+        )
 
-    def _direct_file_upload_helper(self):
-        with open(self.test_file_path, 'rb') as submission_file:
+        self.no_matches_notebook = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'files/no_score_string_matches.ipynb'
+        )
+
+        self.multiple_matches_notebook = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'files/multiple_score_string_matches.ipynb'
+        )
+
+        self.score_too_low_notebook = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'files/score_too_low_notebook.ipynb'
+        )
+
+        self.score_too_high_notebook = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'files/score_too_high_notebook.ipynb'
+        )
+
+        assert os.path.exists(self.test_file_path)
+        assert os.path.exists(self.single_match_notebook)
+        assert os.path.exists(self.multiple_matches_notebook)
+        assert os.path.exists(self.score_too_low_notebook)
+        assert os.path.exists(self.score_too_high_notebook)
+
+    def _direct_file_upload_helper(self, filename, definition):
+        with open(filename, 'rb') as submission_file:
             resp = self.client.post(
                 reverse('api:submission-list', kwargs={'version': 'v1'}),
                 data={
                     "klass": self.klass.pk,
-                    "definition": self.definition.pk,
+                    "definition": definition.pk,
                     "creator": self.student.pk,
                     "file": submission_file,
                     "method_name": "instructor method",
@@ -293,7 +333,7 @@ class SubmissionAPIEndpointsTests(TestCase):
         self.definition.force_github = True
         self.definition.save()
 
-        resp = self._direct_file_upload_helper()
+        resp = self._direct_file_upload_helper(self.test_file_path, self.definition)
         assert resp.status_code == 400
         assert resp.content.decode('UTF-8') == '"This homework only takes github submissions!"'
 
@@ -301,6 +341,56 @@ class SubmissionAPIEndpointsTests(TestCase):
         self.client.login(username='student_user', password='pass')
 
         with patch('apps.api.views.homework.post_submission') as post_submission:
-            resp = self._direct_file_upload_helper()
+            resp = self._direct_file_upload_helper(self.test_file_path, self.definition)
             assert resp.status_code == 201
             assert post_submission.called
+
+    def test_successfully_submit_valid_jupyter_notebook(self):
+        self.client.login(username='student_user', password='pass')
+
+        resp = self._direct_file_upload_helper(self.single_match_notebook, self.jupyter_notebook_definition)
+        new_submission_id = int(resp.json()['id'])
+        new_submission = Submission.objects.get(pk=new_submission_id)
+        assert new_submission.jupyter_score == 9.0
+        assert resp.status_code == 201
+
+    def test_successfully_submit_jupyter_notebook_with_multiple_score_string_matches(self):
+        self.client.login(username='student_user', password='pass')
+
+        # submit file to submission API with jupyter homework definition
+        resp = self._direct_file_upload_helper(self.multiple_matches_notebook, self.jupyter_notebook_definition)
+        new_submission_id = int(resp.json()['id'])
+        new_submission = Submission.objects.get(pk=new_submission_id)
+        assert new_submission.jupyter_score == 2.0
+        assert resp.status_code == 201
+
+    def test_successfully_submit_jupyter_notebook_with_no_score_string_matches(self):
+        self.client.login(username='student_user', password='pass')
+
+        # submit file to submission API with jupyter homework definition
+        resp = self._direct_file_upload_helper(self.no_matches_notebook, self.jupyter_notebook_definition)
+        new_submission_id = int(resp.json()['id'])
+        new_submission = Submission.objects.get(pk=new_submission_id)
+        assert new_submission.jupyter_score == new_submission.definition.jupyter_notebook_lowest
+        assert resp.status_code == 201
+
+    def test_successfully_submit_jupyter_notebook_with_score_too_low(self):
+        self.client.login(username='student_user', password='pass')
+
+        # submit file to submission API with jupyter homework definition
+        resp = self._direct_file_upload_helper(self.score_too_low_notebook, self.jupyter_notebook_definition)
+        new_submission_id = int(resp.json()['id'])
+        new_submission = Submission.objects.get(pk=new_submission_id)
+        assert new_submission.jupyter_score == new_submission.definition.jupyter_notebook_lowest
+        assert resp.status_code == 201
+
+    def test_successfully_submit_jupyter_notebook_with_score_too_high(self):
+        self.client.login(username='student_user', password='pass')
+
+        # submit file to submission API with jupyter homework definition
+        resp = self._direct_file_upload_helper(self.score_too_high_notebook, self.jupyter_notebook_definition)
+        new_submission_id = int(resp.json()['id'])
+        new_submission = Submission.objects.get(pk=new_submission_id)
+        assert new_submission.jupyter_score == new_submission.definition.jupyter_notebook_highest
+        assert resp.status_code == 201
+
