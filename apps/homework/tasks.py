@@ -2,6 +2,7 @@ import re
 import logging
 import requests
 
+from collections import defaultdict
 from tempfile import TemporaryFile
 from urllib.parse import urlparse
 from django.conf import settings
@@ -39,10 +40,8 @@ def retrieve_score_from_jupyter_notebook(fd, submission):
     # If there are multiple matches, a warning is placed on the submission, and the last match in the file is used
     # per the specs of this feature.
 
-    existing_messages = submission.reporting_messages
+    existing_messages = defaultdict(list, submission.reporting_messages)
     if fd.name.split('.')[-1] != 'ipynb':
-        if 'errors' not in existing_messages:
-            existing_messages['errors'] = []
         existing_messages['errors'].append('File submitted does not have .ipynb extension. (Hint that this is not a Jupyter Notebook.')
         logger.error(f'The file submitted with this notebook does not have .ipynb extension. Error in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
 
@@ -50,13 +49,9 @@ def retrieve_score_from_jupyter_notebook(fd, submission):
     if len(filtered_content) != 1:
         # Add warning to the submission model
         if len(filtered_content) > 1:
-            if 'warnings' not in existing_messages:
-                existing_messages['warnings'] = []
             existing_messages['warnings'].append('Multiple Jupyter Notebook score string matches in submission. Only one line should contain the matching score string, "Your final score is x / x, congratulations!".')
             logger.warning(f'Multiple Jupyter Notebook score string matches in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}). Exactly one line should contain the phrase "final score" and not include the phrase "print".')
         if len(filtered_content) == 0:
-            if 'errors' not in existing_messages:
-                existing_messages['errors'] = []
             existing_messages['errors'].append('Cannot find score in Jupyter Notebook. No matches for the string, "Your final score is x / x, congratulations!".')
             logger.error(f'Cannot find score in Jupyter Notebook. No matches for the string, "Your final score is x / x, congratulations!". Error in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
 
@@ -65,10 +60,7 @@ def retrieve_score_from_jupyter_notebook(fd, submission):
 
     if len(filtered_content) > 0:
         score_string = str(filtered_content[-1])
-        start_index = score_string.find('is')
-
         found = re.search(r'Your final score is (?P<numer>.+) / (?P<denom>.+), congratulations!', score_string)
-
         numerator = found.group('numer')
         denominator = found.group('denom')
         return float(numerator), float(denominator)
@@ -163,9 +155,7 @@ def post_submission(submission_pk, data_file=None):
                         numerator = submission.definition.jupyter_notebook_lowest
                         submission_warnings.append('Score numerator lower than the minimum defined in homework definition.')
 
-                    existing_messages = submission.reporting_messages
-                    if 'warnings' not in existing_messages:
-                        existing_messages['warnings'] = []
+                    existing_messages = defaultdict(list, submission.reporting_messages)
                     existing_messages['warnings'].extend(submission_warnings)
                     submission.reporting_messages = existing_messages
                     submission.jupyter_score = numerator

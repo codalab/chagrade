@@ -302,8 +302,7 @@
 
                     <div class="six wide inline field">
                         <label>Highest Grade:</label>
-                        <input class=""
-                               type="text"
+                        <input type="text"
                                name="{'criteria' + '_upper_range_' + index}"
                                maxlength="6"
                                ref="jupyter_notebook_highest_grade"
