@@ -7,6 +7,7 @@ from rest_framework import permissions, status
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.exceptions import ValidationError, ErrorDetail
 
 from apps.api.permissions import StudentPermissionCheck, UserPermissionCheck
 from apps.api.serializers.profiles import ChaUserSerializer, TestStudentSerializer
@@ -44,6 +45,21 @@ class TestStudentViewSet(ModelViewSet):
     serializer_class = serializers.profiles.TestStudentSerializer
 
 
+def make_ordinal(n):
+    """Convert an integer into its ordinal representation:
+
+       make_ordinal(0)   => '0th'
+       make_ordinal(3)   => '3rd'
+       make_ordinal(122) => '122nd'
+       make_ordinal(213) => '213th'
+    """
+    n = int(n)
+    suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
+    if 11 <= (n % 100) <= 13:
+        suffix = 'th'
+    return f'{n}{suffix}'
+
+
 @api_view(['POST'])
 def create_students_from_csv(request, version):
     with open(request.FILES['file'].temporary_file_path()) as csv_file:
@@ -51,7 +67,7 @@ def create_students_from_csv(request, version):
         line_count = 0
         for row in csv_reader:
             if len(row) >= 6:
-                if row[0] == 'First Name' and row[3] == 'Student ID' and row[4] == 'Student Email':
+                if line_count == 0 and 'first name' in row[0].lower() and 'student id' in row[3].lower() and 'student email' in row[4].lower():
                     continue
                 data = {
                     'user': {
@@ -72,15 +88,22 @@ def create_students_from_csv(request, version):
                         'klass': request.data.get('klass')
                     }
                 new_student_serializer = TestStudentSerializer(data=data)
-                new_student_serializer.is_valid(raise_exception=True)
-                if new_student_serializer.errors:
-                    return Response({'errors': new_student_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    new_student = new_student_serializer.save()
-                    # If there's something in the student leader column
-                    if len(row) == 7 and contains_valid_team_name and row[6] in ['t', 'T', 'true', 'True', 'TRUE']:
-                        new_student.team.leader = new_student
-                        new_student.team.save()
+                try:
+                    new_student_serializer.is_valid(raise_exception=True)
+                except ValidationError:
+                    if new_student_serializer.errors:
+                        error_dict = dict(new_student_serializer.errors).get('user')
+                        field_errors_string = ''
+                        for key in error_dict:
+                            for error_string in error_dict[key]:
+                                field_errors_string += error_string + ' \n'
+                        raise ValidationError(f'From top of CSV, {make_ordinal(line_count + 1)} student with email: {str(row[4])}: {field_errors_string}')
+
+                new_student = new_student_serializer.save()
+                # If there's something in the student leader column
+                if len(row) == 7 and contains_valid_team_name and row[6].lower() in ['t', 'true']:
+                    new_student.team.leader = new_student
+                    new_student.team.save()
             else:
                 print("Row too short to read.")
             line_count += 1

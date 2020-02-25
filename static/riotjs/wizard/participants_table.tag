@@ -209,7 +209,6 @@
                     self.update_klass()
                 })
                 .fail(function (response) {
-                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         toastr.error("Error with " + key + "! " + response.responseJSON[key])
                     });
@@ -230,7 +229,6 @@
                     self.update_klass()
                 })
                 .fail(function (response) {
-                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         toastr.error("Error with " + key + "! " + response.responseJSON[key])
                     });
@@ -250,8 +248,9 @@
         }
 
         self.do_csv_upload = function () {
-            var files = $('#hidden_file_input').prop("files")
-            var form_data = new FormData();
+            let input = $('#hidden_file_input')
+            let files = input.prop("files")
+            let form_data = new FormData();
             form_data.append('file', files[0], 'students.csv');
             form_data.append('klass', KLASS);
 
@@ -269,12 +268,10 @@
                     self.update_teams()
                 })
                 .fail(function (response) {
-                    Object.keys(response.responseJSON).forEach(function (key_outer) {
-                        Object.keys(response.responseJSON[key_outer]).forEach(function (key_inner) {
-                            console.log("Error with " + key_outer + " - " + key_inner + ": " + response.responseJSON[key_outer][key_inner][0])
-                            toastr.error("Error with " + key_outer + " - " + key_inner + ": " + response.responseJSON[key_outer][key_inner][0])
-                        });
-                    });
+                    toastr.error(response.responseJSON[0])
+                })
+                .always(function (data) {
+                    input.val(null)
                 })
         }
 
@@ -321,7 +318,6 @@
                     $("#message_form_modal").modal('hide')
                 })
                 .fail(function (response) {
-                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         toastr.error("Error with " + key + "! " + response.responseJSON[key])
                     });

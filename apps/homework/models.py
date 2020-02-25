@@ -54,6 +54,7 @@ class Definition(models.Model):
 
     class Meta:
         unique_together = ('klass', 'name')
+        ordering = ['name']
 
     def __str__(self):
         return "{}".format(self.name)
