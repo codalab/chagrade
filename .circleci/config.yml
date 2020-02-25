@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: circleci/python:3.6
         environment:
-          DJANGO_SETTINGS_MODULE: chagrade.settings.base
+          DJANGO_SETTINGS_MODULE: chagrade.settings.test
           DB_NAME: chagrade_website
           DB_USER: postgres
           DB_PASSWORD: postgres
@@ -18,7 +18,7 @@ jobs:
       - checkout
       - run:
           name: Set ENV Vars
-          command: export DJANGO_SETTINGS_MODULE="chagrade.settings.base"
+          command: export DJANGO_SETTINGS_MODULE="chagrade.settings.test"
       - run:
           name: CHOWN Python Library Dirs
           command: sudo chown -R $(whoami) /usr/local/

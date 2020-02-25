@@ -29,6 +29,9 @@ drf-extensions==0.3.1
 # Old version -> #drf-writable-nested==0.5.1
 -e git+https://github.com/gibsonbailey/drf-writable-nested.git@master#egg=drf-writable-nested
 
+# Use in memory storage for testing endpoints that utilize filefields
+dj-inmemorystorage==2.0.0
+
 drf-yasg==1.9.1
 Faker==1.0.1
 flex==6.13.2
