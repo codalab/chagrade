@@ -1,19 +1,19 @@
 version: 2
 jobs:
   build:
-    environment:
-      DJANGO_SETTINGS_MODULE: chagrade.settings.base
-      DB_NAME: chagrade_website
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_HOST: localhost
-      POSTGRES_DB: chagrade_website
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_HOST_AUTH_METHOD: trust
     docker:
       - image: circleci/python:3.6
+        environment:
+          DJANGO_SETTINGS_MODULE: chagrade.settings.base
+          DB_NAME: chagrade_website
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: localhost
       - image: postgres:9.5
+        environment:
+          POSTGRES_DB: chagrade_website
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
     steps:
       - checkout
       - run:
