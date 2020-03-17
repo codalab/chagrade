@@ -42,8 +42,12 @@ class GradeFormView(LoginRequiredMixin, WizardMixin, TemplateView):
         context = super(GradeFormView, self).get_context_data(**kwargs)
         context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Grade-Submission'
         try:
-            context['submission'] = Submission.objects.get(pk=kwargs.get('submission_pk'))
-            context['definition'] = context['submission'].definition
+            submission = Submission.objects.get(pk=kwargs.get('submission_pk'))
+            context['submission'] = submission
+            context['definition'] = submission.definition
+            if submission.reporting_messages:
+                context['submission_jupyter_errors'] = submission.reporting_messages.get('errors')
+                context['submission_jupyter_warnings'] = submission.reporting_messages.get('warnings')
         except ObjectDoesNotExist:
             raise Http404("Could not find submission!")
         return context
@@ -56,8 +60,12 @@ class GradeEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Grade-Submission'
         try:
-            context['submission'] = Submission.objects.get(pk=self.kwargs.get('submission_pk'))
-            context['definition'] = context['submission'].definition
+            submission = Submission.objects.get(pk=kwargs.get('submission_pk'))
+            context['submission'] = submission
+            context['definition'] = submission.definition
+            if submission.reporting_messages:
+                context['submission_jupyter_errors'] = submission.reporting_messages.get('errors')
+                context['submission_jupyter_warnings'] = submission.reporting_messages.get('warnings')
             context['grade'] = Grade.objects.get(pk=self.kwargs.get('grade_pk'))
         except ObjectDoesNotExist:
             raise Http404("Could not find object!")

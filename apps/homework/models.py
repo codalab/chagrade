@@ -197,34 +197,38 @@ class Grade(models.Model):
 
     overall_grade = models.DecimalField(max_digits=6, decimal_places=2, default=0)
 
-    text_grade = models.CharField(max_length=10, null=True, blank=True, default="0/0")
+    text_grade = models.CharField(max_length=20, null=True, blank=True, default="0/0")
 
     teacher_comments = models.CharField(max_length=400, default='', null=True, blank=True)
     instructor_notes = models.CharField(max_length=400, default='', null=True, blank=True)
 
     published = models.BooleanField(default=False)
 
+    needs_review = models.BooleanField(default=True)
+    jupyter_notebook_grade = models.FloatField(null=True)
+
     def __str__(self):
         return "{0}:{1}".format(self.submission.github_url, self.evaluator.user.username)
 
     def get_total_score_total_possible(self):
-        total_possible = 0
-        total = 0
-        for criteria_answer in self.criteria_answers.all():
-            total_possible += criteria_answer.criteria.upper_range
-            total += criteria_answer.score
+        total_possible = self.get_total_possible()
+        total = self.get_total_score()
         return total, total_possible
 
     def get_total_possible(self):
         total_possible = 0
         for criteria_answer in self.criteria_answers.all():
             total_possible += criteria_answer.criteria.upper_range
+        if self.submission.definition.jupyter_notebook_enabled:
+            total_possible += self.submission.definition.jupyter_notebook_highest
         return total_possible
 
     def get_total_score(self):
         total = 0
         for criteria_answer in self.criteria_answers.all():
             total += criteria_answer.score
+        if self.submission.definition.jupyter_notebook_enabled:
+            total += self.jupyter_notebook_grade or 0.0
         return total
 
     def calculate_grade(self):

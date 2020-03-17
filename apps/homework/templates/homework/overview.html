@@ -75,10 +75,18 @@
                                                     <ul class="ui relaxed celled list">
 
                                                         {% if not definition.questions_only %}
-                                                            <div class="item"><a
-                                                                    href="{{ submission.github_url }}"
-                                                                    target="_blank" rel="noopener noreferrer"
-                                                                    class="">Github URL for Submission</a></div>
+                                                            {% if submission.github_url %}
+                                                                <div class="item"><a
+                                                                        href="{{ submission.github_url }}"
+                                                                        target="_blank" rel="noopener noreferrer"
+                                                                        class="">Github URL for Submission</a></div>
+                                                            {% else %}
+                                                                {% if definition.jupyter_notebook_enabled %}
+                                                                <div class="item"><a
+                                                                        href="{{ submission.jupyter_notebook.url }}"
+                                                                        class="">Jupyter Notebook File</a></div>
+                                                                {% endif %}
+                                                            {% endif %}
                                                         {% endif %}
                                                         {% if definition.ask_method_name %}
                                                             <div class="item">Method Name:
@@ -120,7 +128,7 @@
                                                     <a href="{% url "homework:submission_list" definition_pk=definition.pk %}"
                                                        class="ui blue fluid button">View Submissions</a>
 
-                                                    {%  if not definition.questions_only %}
+                                                    {%  if not definition.questions_only and not definition.jupyter_notebook_enabled %}
                                                         <table class="ui table">
                                                             <thead>
                                                             <tr>
@@ -160,6 +168,41 @@
                                                             </tbody>
                                                         </table>
                                                     {% endif %}
+
+                                                    {% if definition.jupyter_notebook_enabled %}
+                                                        <table class="ui table">
+                                                            <thead>
+                                                            <tr>
+                                                                <th>ID</th>
+                                                                <th>Status</th>
+                                                                <th>Notebook Score</th>
+                                                                <th>Direct Upload?</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {% if submission %}
+                                                                    <td>{{ submission.id }}</td>
+                                                                    {% if submission.grades.first %}
+                                                                        {% if submission.grades.first.published %}
+                                                                            <td>Reviewed</td>
+                                                                        {% else %}
+                                                                            <td>In Review</td>
+                                                                        {% endif %}
+                                                                    {% else %}
+                                                                        <td>In Review</td>
+                                                                    {% endif %}
+                                                                    <td>{{ submission.jupyter_score }}</td>
+
+                                                                    <td class="center aligned">
+                                                                        {% if submission.is_direct_upload %}
+                                                                            <i class="ui checkmark icon"></i>
+                                                                        {% endif %}
+                                                                    </td>
+                                                                {% endif %}
+                                                            </tbody>
+                                                        </table>
+                                                    {% endif %}
+
 
                                                 {% else %}
                                                     <a href="{% url "homework:submit_homework" klass_pk=klass.pk definition_pk=definition.pk use_github=1 %}"

@@ -29,8 +29,8 @@
                     <span>
                         <label>
                             <i class="pop-up question blue circle icon"
-                               data-title="A URL from your github repo to a specific zip file"
-                               data-content="Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip"> </i>
+                               data-title="{definition.jupyter_notebook_enabled ? 'A URL from your github repo to a specific ipynb file' : 'A URL from your github repo to a specific zip file'}"
+                               data-content="{definition.jupyter_notebook_enabled ? 'Ex: https://github.com/zhengying-liu/info232/blob/master/TP0/TP0.ipynb' : 'Ex: https://github.com/Tthomas63/chagrade_test_submission/blob/master/chagrade_test_submission-master.zip'}"> </i>
                             Submission Github URL (Must be {definition.jupyter_notebook_enabled ? ".ipynb" : ".zip"} file):
                         </label>
                     </span>

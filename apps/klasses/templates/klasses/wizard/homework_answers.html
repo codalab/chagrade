@@ -31,8 +31,10 @@
                         <th>Team Name</th>
                     {% endif %}
 
-                    {% if not definition.questions_only %}
+                    {% if not definition.questions_only and not definition.jupyter_notebook_enabled %}
                         <th>Submission Score</th>
+                    {% elif definition.jupyter_notebook_enabled %}
+                        <th>Jupyter Notebook Auto-Grade Score</th>
                     {% endif %}
 
                     {% for question in definition.custom_questions.all %}
@@ -55,17 +57,25 @@
                         {% endif %}
 
                         {% if not definition.questions_only %}
-                            <td>
-                                {% with instructor_submission.tracked_submissions.last as sub_tracker %}
+                            {% if definition.jupyter_notebook_enabled %}
+                                <td>
                                     <div style="width: 150px;">
-                                        {% if sub_tracker.score %}
-                                            {{ sub_tracker.score }}
-                                        {% else %}
-                                            No Score
-                                        {% endif %}
+                                        {{ instructor_submission.jupyter_score }}
                                     </div>
-                                {% endwith %}
-                            </td>
+                                </td>
+                            {% else %}
+                                <td>
+                                    {% with instructor_submission.tracked_submissions.last as sub_tracker %}
+                                        <div style="width: 150px;">
+                                            {% if sub_tracker.score %}
+                                                {{ sub_tracker.score }}
+                                            {% else %}
+                                                No Score
+                                            {% endif %}
+                                        </div>
+                                    {% endwith %}
+                                </td>
+                            {% endif %}
                         {% endif %}
 
                         {% for answer in instructor_submission.question_answers.all %}
@@ -119,17 +129,25 @@
                             {% endif %}
 
                             {% if not definition.questions_only %}
-                                <td>
-                                    {% with submission.tracked_submissions.last as sub_tracker %}
+                                {% if definition.jupyter_notebook_enabled %}
+                                    <td>
                                         <div style="width: 150px;">
-                                            {% if sub_tracker.score %}
-                                                {{ sub_tracker.score }}
-                                            {% else %}
-                                                No Score
-                                            {% endif %}
+                                            {{ instructor_submission.jupyter_score }}
                                         </div>
-                                    {% endwith %}
-                                </td>
+                                    </td>
+                                {% else %}
+                                    <td>
+                                        {% with submission.tracked_submissions.last as sub_tracker %}
+                                            <div style="width: 150px;">
+                                                {% if sub_tracker.score %}
+                                                    {{ sub_tracker.score }}
+                                                {% else %}
+                                                    No Score
+                                                {% endif %}
+                                            </div>
+                                        {% endwith %}
+                                    </td>
+                                {% endif %}
                             {% endif %}
 
                             {% if submission %}
