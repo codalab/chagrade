@@ -199,8 +199,8 @@ class Grade(models.Model):
 
     text_grade = models.CharField(max_length=20, null=True, blank=True, default="0/0")
 
-    teacher_comments = models.CharField(max_length=400, default='', null=True, blank=True)
-    instructor_notes = models.CharField(max_length=400, default='', null=True, blank=True)
+    teacher_comments = models.TextField(default='', null=True, blank=True)
+    instructor_notes = models.TextField(default='', null=True, blank=True)
 
     published = models.BooleanField(default=False)
 
