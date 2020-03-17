@@ -77,14 +77,14 @@
                                                         {% if not definition.questions_only %}
                                                             {% if submission.github_url %}
                                                                 <div class="item"><a
-                                                                        href="{{ submission.github_url }}"
-                                                                        target="_blank" rel="noopener noreferrer"
-                                                                        class="">Github URL for Submission</a></div>
+                                                                    href="{{ submission.github_url }}"
+                                                                    target="_blank" rel="noopener noreferrer"
+                                                                    class="">Github URL for Submission</a></div>
                                                             {% else %}
                                                                 {% if definition.jupyter_notebook_enabled %}
                                                                 <div class="item"><a
-                                                                        href="{{ submission.jupyter_notebook.url }}"
-                                                                        class="">Jupyter Notebook File</a></div>
+                                                                    href="{{ submission.jupyter_notebook.url }}"
+                                                                    class="">Jupyter Notebook File</a></div>
                                                                 {% endif %}
                                                             {% endif %}
                                                         {% endif %}
@@ -154,7 +154,12 @@
                                                                     <td>No Score Yet</td>
                                                                 {% endif %}
                                                                 {% if tracker.logs %}
-                                                                    <td><a href="{% url "homework:submission_detail" submission_pk=submission.pk %}" class="ui blue label">Logs</a></td>
+                                                                    <td>
+                                                                        <a href="{% url "homework:submission_detail" submission_pk=submission.pk %}"
+                                                                           class="ui blue label">
+                                                                           Logs
+                                                                        </a>
+                                                                    </td>
                                                                 {% else %}
                                                                     <td>No Logs Yet</td>
                                                                 {% endif %}
