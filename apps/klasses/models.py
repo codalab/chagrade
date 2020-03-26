@@ -12,6 +12,7 @@ from django.db import models
 from django.utils import timezone
 
 from apps.homework.models import Submission, Grade
+from chagrade.storage import PublicStorage
 
 
 def upload_image(instance, filename):
@@ -44,8 +45,8 @@ class Klass(models.Model):
     # Don't like this related name but we already used .klasses
     group = models.ForeignKey('groups.Group', related_name='klasses', null=True, blank=True, on_delete=models.SET_NULL)
 
-    image = models.ImageField(null=True, blank=True, upload_to=upload_image)
-    syllabus = models.FileField(null=True, blank=True, upload_to=upload_syllabus)
+    image = models.ImageField(null=True, blank=True, upload_to=upload_image, storage=PublicStorage())
+    syllabus = models.FileField(null=True, blank=True, upload_to=upload_syllabus, storage=PublicStorage())
 
     active = models.BooleanField(default=False)
 
