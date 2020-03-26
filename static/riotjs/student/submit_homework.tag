@@ -23,7 +23,7 @@
             </a>
         </h1>
 
-        <div if="{ !definition.questions_only && !github_active }">
+        <div if="{ !definition.questions_only && !github_active || definition.jupyter_notebook_enabled }">
             <div class="fields">
                 <div class="sixteen wide field">
                     <span>
@@ -419,7 +419,7 @@
             data['question_answers'] = question_answers
 
             if (!self.definition.questions_only) {
-                if (!self.github_active) {
+                if (!self.github_active || self.definition.jupyter_notebook_enabled) {
                     let github_ref = self.refs.github_ref.value
                     self.github_url = self.refs.github_url.value
                     if (_.get(self.github_url, 'length', 0) > 0) {
@@ -542,7 +542,6 @@
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
                     self.definition = data
-                    console.log(data)
                     self.update()
 
                     if (self.github_active) {
