@@ -542,6 +542,7 @@
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
                     self.definition = data
+                    console.log(data)
                     self.update()
 
                     if (self.github_active) {
