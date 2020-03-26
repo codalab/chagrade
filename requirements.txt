@@ -28,7 +28,7 @@ drf-extensions==0.3.1
 # TODO: Install updated version of drf-writable-nested from PyPi rather than Bailey's fork
 # Old version -> #drf-writable-nested==0.5.1
 #-e git+https://github.com/gibsonbailey/drf-writable-nested.git@master#egg=drf-writable-nested
-git+https://github.com/gibsonbailey/drf-writable-nested.git@master#egg=drf-writable-nested
+#git+https://github.com/gibsonbailey/drf-writable-nested.git@master#egg=drf-writable-nested
 
 # Use in memory storage for testing endpoints that utilize filefields
 dj-inmemorystorage==2.0.0
