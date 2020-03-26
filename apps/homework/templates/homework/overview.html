@@ -187,12 +187,8 @@
                                                             <tbody>
                                                                 {% if submission %}
                                                                     <td>{{ submission.id }}</td>
-                                                                    {% if submission.grades.first %}
-                                                                        {% if submission.grades.first.published %}
-                                                                            <td>Reviewed</td>
-                                                                        {% else %}
-                                                                            <td>In Review</td>
-                                                                        {% endif %}
+                                                                    {% if submission.grades.first and submission.grades.first.published %}
+                                                                        <td>Reviewed</td>
                                                                     {% else %}
                                                                         <td>In Review</td>
                                                                     {% endif %}
