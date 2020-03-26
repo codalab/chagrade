@@ -19,4 +19,4 @@ AWS_STORAGE_BUCKET_NAME = cloudcube_bucket
 AWS_DEFAULT_ACL = os.environ.get('AWS_DEFAULT_ACL', 'private')
 AWS_QUERYSTRING_AUTH = False
 
-STATICFILES_STORAGE = 'yourapp.storages.PublicStorage'
+STATICFILES_STORAGE = 'chagrade.storages.PublicStorage'
