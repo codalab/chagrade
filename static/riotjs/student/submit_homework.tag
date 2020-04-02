@@ -59,7 +59,7 @@
             </div>
         </div>
 
-        <div if="{ !definition.questions_only && github_active && !definition.jupyter_enabled }" class="fields">
+        <div if="{ !definition.questions_only && github_active && !definition.jupyter_notebook_enabled }" class="fields">
             <div class="sixteen wide field">
                 <div class="row">
                 <span>
