@@ -17,8 +17,8 @@
         <table style="display: block; overflow-x: scroll;" class="ui celled table">
             <thead style="width: {{ question_quantity_sensitive_width }}%;">
             <tr>
-                <th class="left-sticky">#</th>
-                <th class="left-sticky right-border">Student Name</th>
+                <th>#</th>
+                <th class="left-sticky">Student Name</th>
 
                 {% with definition.submissions.last as submission %}
                     {% with submission.grades.last.get_total_possible as grade %}
@@ -41,9 +41,9 @@
             </thead>
             <tbody style="width: {{ question_quantity_sensitive_width }}%;">
             <tr class="ui active">
-                <td class="left-sticky">1</td>
+                <td>1</td>
                 {% if instructor_submission %}
-                    <td class="left-sticky right-border">{{ instructor_student.user.username }}</td>
+                    <td class="left-sticky">{{ instructor_student.user.username }}</td>
 
                     {% with instructor_submission.grades.last.get_total_score as grade %}
                         <td>{{ grade }}</td>
@@ -81,7 +81,7 @@
 
                 {% else %}
 
-                    <td class="left-sticky right-border">No Instructor Submission.</td>
+                    <td class="left-sticky">No Instructor Submission.</td>
 
                     {# No Grade #}
                     <td></td>
@@ -103,10 +103,10 @@
 
             {% for student in non_instructor_students %}
                 <tr>
-                    <td class="left-sticky">
+                    <td>
                         {{ forloop.counter|add:1 }}
                     </td>
-                    <td class="left-sticky right-border">{{ student.user.username }}</td>
+                    <td class="left-sticky">{{ student.user.username }}</td>
 
                     {% with student.submitted_homeworks.last as submission %}
                         {% with submission.grades.last.get_total_score as grade %}
@@ -161,9 +161,6 @@
         position: sticky;
         left: 0;
         background: white;
-    }
-
-    .right-border {
         border-right: solid gray;
     }
 
