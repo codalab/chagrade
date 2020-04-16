@@ -14,28 +14,28 @@
             <a class="ui blue button" href="{% url 'api:homework_answers_CSV' version='v1' klass_pk=klass.pk definition_pk=definition.pk %}?format=csv" download="homework_answers_for_{{ klass.title }}_{{ definition.name }}.csv">Download CSV</a>
         </span>
 
-        <table style="display: block; overflow-x: scroll;" class="ui celled table">
+        <table style="display: block; overflow-x: scroll; max-height: 100vh;" class="ui celled table">
             <thead style="width: {{ question_quantity_sensitive_width }}%;">
             <tr>
-                <th>#</th>
-                <th class="left-sticky">Student Name</th>
+                <th class="top-sticky">#</th>
+                <th class="left-sticky top-sticky" style="z-index: 100;">Student Name</th>
 
                 {% with definition.submissions.last as submission %}
                     {% with submission.grades.last.get_total_possible as grade %}
-                        <th>Grade (Out of {{ grade }})</th>
+                        <th class="top-sticky">Grade (Out of {{ grade }})</th>
                     {% endwith %}
                 {% endwith %}
 
                 {% if definition.team_based %}
-                    <th>Team Name</th>
+                    <th class="top-sticky">Team Name</th>
                 {% endif %}
 
                 {% if not definition.questions_only %}
-                    <th>Submission Score</th>
+                    <th class="top-sticky">Submission Score</th>
                 {% endif %}
 
                 {% for question in definition.custom_questions.all %}
-                    <th><pre>{{ question.question }}</pre></th>
+                    <th class="top-sticky"><pre>{{ question.question }}</pre></th>
                 {% endfor %}
             </tr>
             </thead>
@@ -162,6 +162,11 @@
         left: 0;
         background: white;
         border-right: solid gray;
+    }
+
+    .top-sticky {
+        position: sticky;
+        top: 0;
     }
 
     tr.active > .left-sticky {
