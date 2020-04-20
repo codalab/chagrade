@@ -15,6 +15,22 @@
         .no-padding {
             padding: 1vh 0 0 0 !important;
         }
+        div.ui.statistic {
+            padding: 1em 0 0 0;
+            width: 100%;
+        }
+
+        div.ui.tiny.statistic {
+            width: 100%;
+            padding: 0.75em 0em 0.75em 0;
+        }
+        div.ui.secondary.segment {
+            height: 100%;
+        }
+        .ui.statistic+.ui.statistic {
+            margin-left: 0;
+        }
+
     </style>
 {% endblock %}
 
@@ -149,7 +165,7 @@
                                                                     <td>No Status</td>
                                                                 {% endif %}
                                                                 {% if tracker.score is not None %}
-                                                                    <td>{{tracker.score}}</td>
+                                                                    <td class="center aligned">{{tracker.score}}</td>
                                                                 {% else %}
                                                                     <td>No Score Yet</td>
                                                                 {% endif %}
@@ -165,7 +181,9 @@
                                                                 {% endif %}
                                                                 <td class="center aligned">
                                                                     {% if submission.is_direct_upload %}
-                                                                        <i class="ui checkmark icon"></i>
+                                                                        Yes
+                                                                    {% else %}
+                                                                        No
                                                                     {% endif %}
                                                                 </td>
                                                                 <td>{{ tracker.remote_phase }}</td>
@@ -192,11 +210,13 @@
                                                                     {% else %}
                                                                         <td>In Review</td>
                                                                     {% endif %}
-                                                                    <td>{{ submission.jupyter_score }}</td>
+                                                                    <td class="center aligned">{{ submission.jupyter_score }}</td>
 
                                                                     <td class="center aligned">
                                                                         {% if submission.is_direct_upload %}
-                                                                            <i class="ui checkmark icon"></i>
+                                                                            Yes
+                                                                        {% else %}
+                                                                            No
                                                                         {% endif %}
                                                                     </td>
                                                                 {% endif %}
@@ -213,11 +233,39 @@
                                         </div>
                                         {% if grade %}
                                             <div class="row">
-                                                <div class="center aligned sixteen wide column">
-                                                    <div class="ui divider"></div>
-                                                    <h3 class="ui header">Grade: </h3>{{ grade.text_grade }}
-                                                    <div class="ui stacked segment message">
-                                                        <h4 class="ui header">Teacher comments: </h4>
+                                                <div class="five wide column">
+                                                    <div class="ui statistic">
+                                                      <div class="value">
+                                                        {{ grade.text_grade }}
+                                                      </div>
+                                                      <div class="label">
+                                                        Total Grade
+                                                      </div>
+                                                    </div>
+                                                        {% if definition.jupyter_notebook_enabled %}
+                                                            <div class="ui tiny statistic">
+                                                                <div class="value">
+                                                                    {{  grade.jupyter_notebook_grade }}/{{ definition.jupyter_notebook_highest }}
+                                                                </div>
+                                                                <div class="label">
+                                                                    JUPYTER NOTEBOOK GRADE
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                        {% for criteria_answer in grade.criteria_answers.all %}
+                                                            <div class="ui tiny statistic">
+                                                                <div class="value">
+                                                                    {{ criteria_answer.score }}/{{ criteria_answer.criteria.upper_range }}
+                                                                </div>
+                                                                <div class="label">
+                                                                    {{criteria_answer.criteria.description}}
+                                                                </div>
+                                                            </div>
+                                                        {% endfor %}
+                                                </div>
+                                                <div class="eleven wide column">
+                                                    <div class="ui secondary segment">
+                                                        <h3 class="ui header">Teacher comments: </h3>
                                                         <pre>{{ grade.teacher_comments }}</pre>
                                                     </div>
                                                 </div>
