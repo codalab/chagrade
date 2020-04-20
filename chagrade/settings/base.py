@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'apps.api',
     'apps.factory',
     'apps.metrics',
+    'apps.commands',
 ]
 
 MIDDLEWARE = [
