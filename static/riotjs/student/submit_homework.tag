@@ -543,6 +543,7 @@
                 .done(function (data) {
                     self.definition = data
                     self.update()
+                    console.info("data", data)
 
                     if (self.github_active) {
                         $('.ui.checkbox').checkbox()

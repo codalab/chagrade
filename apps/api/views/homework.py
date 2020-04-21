@@ -1,6 +1,7 @@
 import logging
 
 from django.contrib.auth import get_user_model
+from django.db.models import Prefetch
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -93,6 +94,9 @@ class SubmissionViewSet(ModelViewSet):
 
 class DefinitionViewSet(ModelViewSet):
     queryset = Definition.objects.all()
+    queryset = Definition.objects.all().prefetch_related(Prefetch(
+        'custom_questions',
+        queryset=Question.objects.order_by('id')))
     serializer_class = DefinitionSerializer
     permission_classes = (DefinitionPermissionCheck,)
 
