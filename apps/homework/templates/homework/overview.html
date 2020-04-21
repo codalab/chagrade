@@ -30,6 +30,9 @@
         .ui.statistic+.ui.statistic {
             margin-left: 0;
         }
+        .word-wrap {
+            white-space: pre-line;
+        }
 
     </style>
 {% endblock %}
@@ -266,7 +269,7 @@
                                                 <div class="eleven wide column">
                                                     <div class="ui secondary segment">
                                                         <h3 class="ui header">Teacher comments: </h3>
-                                                        <pre>{{ grade.teacher_comments }}</pre>
+                                                        <div class="word-wrap">{{ grade.teacher_comments }}</div>
                                                     </div>
                                                 </div>
                                             </div>
