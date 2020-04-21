@@ -3,19 +3,6 @@
 
 {% block title %}Welcome{% endblock %}
 
-{% block extra_head %}
-    <style>
-        .condensed {
-            margin: 0.5vh 0 0 0 !important;
-            padding: 0.5vh 0 0 0 !important;
-        }
-
-        .no-padding {
-            padding: 1vh 0 0 0 !important;
-        }
-    </style>
-{% endblock %}
-
 {% block content %}
     <a class="ui blue button" href="{% url 'profiles:instructor_overview' %}">Back to Instructor Overview</a>
     <div class="fourteen wide column">

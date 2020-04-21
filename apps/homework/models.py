@@ -41,7 +41,7 @@ class Definition(models.Model):
     # Jupyter Notebook Grading Parameters
     jupyter_notebook_enabled = models.BooleanField(default=False)
     jupyter_notebook_lowest = models.FloatField(default=0.0, null=True, blank=False)
-    jupyter_notebook_highest = models.FloatField(default=1.0, null=True, blank=False)
+    jupyter_notebook_highest = models.FloatField(default=10.0, null=True, blank=False)
 
     # These values for submissions will have to be grabbed from v1.5 API
     # We should almost set these automatically by an API request to the challenge and see if these options are enabled
@@ -206,7 +206,7 @@ class Grade(models.Model):
     published = models.BooleanField(default=False)
 
     needs_review = models.BooleanField(default=True)
-    jupyter_notebook_grade = models.DecimalField(max_digits=6, decimal_places=1, default=0)
+    jupyter_notebook_grade = models.DecimalField(max_digits=6, decimal_places=1, default=0, null=True)
 
     def __str__(self):
         return "{0}:{1}".format(self.submission.github_url, self.evaluator.user.username)
