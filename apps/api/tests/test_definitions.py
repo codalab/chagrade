@@ -17,6 +17,10 @@ class DefinitionAPIEndpointsTests(TestCase):
         self.instructor = Instructor.objects.create(university_name='Test')
         self.main_user.instructor = self.instructor
         self.main_user.save()
+        self.second_user = User.objects.create_user(username='user123', password='pass123', email='test123@email.com')
+        self.second_instructor = Instructor.objects.create(university_name='Test')
+        self.second_user.instructor = self.second_instructor
+        self.second_user.save()
         self.student_user = User.objects.create_user(username='student_user', password='pass')
         self.klass = Klass.objects.create(instructor=self.instructor, course_number="1")
 
@@ -48,7 +52,7 @@ class DefinitionAPIEndpointsTests(TestCase):
         resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': 1}))
         assert resp.status_code == 401
 
-    def test_student_user_can_only_post_and_get_definitions(self):
+    def test_student_user_can_only_get_definitions(self):
         self.client.login(username='student_user', password='pass')
         resp = self.client.get(reverse('api:definition-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 200
@@ -97,13 +101,13 @@ class DefinitionAPIEndpointsTests(TestCase):
                 'description': 'test'
                   }
         )
-        d_pk = resp.json()['id']
+        definition_pk = resp.json()['id']
         data = resp.json()
         assert data['name'] == 'test_definition'
         assert resp.status_code == 201
 
         resp = self.client.put(
-            reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': d_pk}),
+            reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': definition_pk}),
             data={
                 'name': 'A Different Name',
                 'klass': self.klass.pk,
@@ -113,6 +117,41 @@ class DefinitionAPIEndpointsTests(TestCase):
         )
         assert resp.status_code == 200
 
-        resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': d_pk}))
+        resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': definition_pk}))
         assert resp.status_code == 204
+
+    def test_second_instructor_user_can_not_put_on_first_instructor_definitions(self):
+        self.client.login(username='user123', password='pass123')
+
+        resp = self.client.get(reverse('api:definition-list', kwargs={'version': 'v1'}))
+        assert resp.status_code == 200
+
+        resp = self.client.post(
+            reverse('api:definition-list', kwargs={'version': 'v1'}),
+            data={
+                'klass': self.klass.pk,
+                'creator': self.instructor.pk,
+                'due_date': timezone.now(),
+                'name': 'test_definition',
+                'description': 'test'
+                  }
+        )
+        definition_pk = resp.json()['id']
+        data = resp.json()
+        assert data['name'] == 'test_definition'
+        assert resp.status_code == 201
+
+        resp = self.client.put(
+            reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': definition_pk}),
+            data={
+                'name': 'A Different Name',
+                'klass': self.klass.pk,
+                'creator': self.instructor.pk
+            },
+            content_type='application/json'
+        )
+        assert resp.status_code == 403
+
+        resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': definition_pk}))
+        assert resp.status_code == 403
 
