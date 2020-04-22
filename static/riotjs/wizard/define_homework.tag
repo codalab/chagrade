@@ -237,6 +237,9 @@
                                 <div class="item" data-value="TX">
                                     <i class="ui align left icon"></i> Text
                                 </div>
+                                <div class="item" data-value="UL">
+                                    <i class="ui linkify icon"></i> URL
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -713,9 +716,13 @@
                 let question = self.questions[index]
                 if (question.question_type !== null) {
                     let answer_candidates = null
+                    if (question.question_type === 'UL') {
+                        answer_candidates = question.text
+                    }
                     if (question.question_type === 'TX') {
                         answer_candidates = question.text
-                    } else if (question.question_type === 'MS' || question.question_type === 'SS') {
+                    }
+                    else if (question.question_type === 'MS' || question.question_type === 'SS') {
                         answer_candidates = question.answer_candidates.filter(function (answer) {
                             return answer !== ''
                         })

@@ -175,6 +175,20 @@
                           type="text" value="{question.prev_answer || ''}" rows="2"> </textarea>
             </div>
 
+            <div if="{ question.question_type === 'UL' }" class="sixteen wide field">
+                <input name="{'question_id_' + index}" ref="{'question_id_' + index}" type="hidden"
+                       value="{question.id}">
+                <label><pre>{question.question}</pre></label>
+
+                <div class="ui labeled input">
+                    <div class="ui label">
+                        URL
+                    </div>
+                    <input data-question-id="" name="{'question_answer_' + index}" ref="{'question_answer_' + question.id}"
+                          type="text" value="{question.prev_answer || ''}" placeholder="mysite.com">
+                </div>
+            </div>
+
             <div if="{ question.question_type === 'SS' }" class="grouped fields">
                 <label><pre>{question.question}</pre></label>
                 <div each="{ candidate_answer, candidate_index in question.candidate_answers }" class="field">

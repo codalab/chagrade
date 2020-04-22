@@ -278,11 +278,13 @@ class Question(models.Model):
     MULTIPLE_SELECT = 'MS'
     SINGLE_SELECT = 'SS'
     TEXT = 'TX'
+    URL = 'UL'
 
     TYPE_CHOICES = [
         (MULTIPLE_SELECT, 'Checkboxes'),
         (SINGLE_SELECT, 'Multiple Choice'),
         (TEXT, 'Text Answer'),
+        (URL, 'URL Answer'),
     ]
     question_type = models.CharField(max_length=2, choices=TYPE_CHOICES, default=TEXT)
 
