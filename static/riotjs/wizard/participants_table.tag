@@ -16,10 +16,11 @@
 </field>
 <participants-table>
     <div>
-        <span>
+        <div class="right_and_left">
+            <h1>Teams</h1>
             <a onclick="{goto_create_team}" class="ui blue button">Create Student Team</a>
-        </span>
-        <h1>Teams</h1>
+        </div>
+
         <table class="ui sortable table">
             <thead>
             <tr>
@@ -64,25 +65,27 @@
     <div class="ui divider" style=""></div>
 
     <div style="">
-        <span>
-            <div onclick="{download_csv}"
-                 data-tooltip="Download CSV of the students and their team assignments in this class."
-                 class="ui blue button">Download Students CSV</div>
-            <a href="/api/v1/enroll_students_sample_csv/?format=csv"
-               class="ui blue button"
-               download="sample_student_enroll.csv"
-               data-tooltip="Download this CSV as an example template for the format required to upload a CSV of students.
-                             This CSV is populated by dummy data.">
-                Download Template Students CSV
-            </a>
-            <a class="ui facebook button" data-tooltip="Column Format: First Name,Last Name,Display Name,Student ID,Email,Team,Team Leader(Optional boolean)"
-               onclick="document.getElementById('hidden_file_input').click()">Upload CSV</a>
-            <input id="hidden_file_input" hidden type="file" onchange="{do_csv_upload}"/>
-            <a class="ui green icon button" onclick="{ show_student_modal }">
-                <i class="add square icon"></i> Add new student
-            </a>
-        </span>
-        <h1>Students</h1>
+        <div class="right_and_left">
+            <h1>Students</h1>
+                <div>
+                <div onclick="{download_csv}"
+                     data-tooltip="Download CSV of the students and their team assignments in this class."
+                     class="ui blue button">Download Students CSV</div>
+                <a href="/api/v1/enroll_students_sample_csv/?format=csv"
+                   class="ui blue button"
+                   download="sample_student_enroll.csv"
+                   data-tooltip="Download this CSV as an example template for the format required to upload a CSV of students.
+                                 This CSV is populated by dummy data.">
+                    Download Template Students CSV
+                </a>
+                <a class="ui facebook button" data-tooltip="Column Format: First Name,Last Name,Display Name,Student ID,Email,Team,Team Leader(Optional boolean)"
+                   onclick="document.getElementById('hidden_file_input').click()">Upload CSV</a>
+                <input id="hidden_file_input" hidden type="file" onchange="{do_csv_upload}"/>
+                <a class="ui green icon button" onclick="{ show_student_modal }">
+                    <i class="add square icon"></i> Add new student
+                </a>
+            </div>
+        </div>
         <table class="ui sortable table">
             <thead>
             <tr>
@@ -365,4 +368,10 @@
                 })
         }
     </script>
+    <style>
+        div.right_and_left {
+            display: flex;
+                justify-content: space-between;
+        }
+    </style>
 </participants-table>
