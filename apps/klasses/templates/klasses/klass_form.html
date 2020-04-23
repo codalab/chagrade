@@ -5,46 +5,57 @@
 {% block content %}
     <div class="ui vertical masthead container">
         <div class="ui center aligned grid">
-            <div class="ui fourteen wide column">
+            <div class="ui ten wide column">
 
                 <form class="ui form" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
 
                     {{ form.non_field_errors }}
+                    <div class="two fields">
 
-                    <div class="field">
-                        {{ form.title.errors }}
-                        {{ form.title.label_tag }}
-                        {{ form.title }}
+                        <div class="eleven wide field">
+                            {{ form.title.errors }}
+                            {{ form.title.label_tag }}
+                            {{ form.title }}
+                        </div>
+
+                        <div class="five wide field">
+                            {{ form.course_number.errors }}
+                            {{ form.course_number.label_tag }}
+                            {{ form.course_number }}
+                        </div>
+
                     </div>
 
-                    <div class="field">
-                        {{ form.course_number.errors }}
-                        {{ form.course_number.label_tag }}
-                        {{ form.course_number }}
-                    </div>
+                        <div class="sixteen wide text field">
+                            {{ form.description.errors }}
+                            {{ form.description.label_tag }}
+                            {{ form.description }}
+                        </div>
 
-                    <div class="field">
-                        {{ form.description.errors }}
-                        {{ form.description.label_tag }}
-                        {{ form.description }}
-                    </div>
+                    <div class="two fields">
 
-                    <div class="field">
-                        {{ form.image.errors }}
-                        {{ form.image.label_tag }}
-                        {{ form.image }}
-                    </div>
+                        <div class="eight wide field">
+                            {{ form.image.errors }}
+                            {{ form.image.label_tag }}
+                            {{ form.image }}
+                        </div>
 
-                    <div class="field">
-                        {{ form.syllabus.errors }}
-                        {{ form.syllabus.label_tag }}
-                        {{ form.syllabus }}
-                    </div>
+                        <div class="eight wide field">
+                            {{ form.syllabus.errors }}
+                            {{ form.syllabus.label_tag }}
+                            {{ form.syllabus }}
+                        </div>
 
-                    <input type="submit" value="Submit">
+                    </div>
+                    <input class="ui primary right floated button" type="submit" value="Submit">
                 </form>
             </div>
         </div>
     </div>
+    <style>
+        form {
+            text-align: left;
+        }
+    </style>
 {% endblock %}
