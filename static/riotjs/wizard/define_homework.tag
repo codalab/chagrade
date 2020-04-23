@@ -278,8 +278,9 @@
                 </button>
 
             </div>
-
-            <a class="ui green button" onclick="{ () => add_question(questions.length) }">Add Question</a>
+            <div class="button-container">
+                <a class="ui green button" onclick="{ () => add_question(questions.length) }">Add Question</a>
+            </div>
         </div>
 
         <div class="ui divider"></div>
@@ -341,16 +342,20 @@
                 </div>
             </div>
 
-            <a class="ui blue button" onclick="{add_criteria}">Add Criterion</a>
+            <div class="button-container">
+                <a class="ui blue button" onclick="{add_criteria}">Add Criterion</a>
+            </div>
 
         </div>
 
         <div class="ui divider"></div>
 
-        <span><a onclick="{submit_form}" class="ui green button">Submit</a><a onclick="{cancel_button}"
-                                                                              class="ui red button">Cancel</a></span>
-        <div class="ui error message"></div>
+            <div class="button-container">
+                <span><a onclick="{submit_form}" class="ui green button">Submit</a>
+                <a onclick="{cancel_button}" class="ui red button">Cancel</a></span>
+            <div class="ui error message"></div>
 
+        </div>
     </form>
 
     <script>
@@ -788,6 +793,9 @@
         .delete-button {
             cursor: pointer;
         }
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+        }
     </style>
-
 </define-homework>
