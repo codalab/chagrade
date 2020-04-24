@@ -16,7 +16,7 @@
 </field>
 <participants-table>
     <div>
-        <div class="right_and_left">
+        <div class="right-and-left">
             <h1>Teams</h1>
             <a onclick="{goto_create_team}" class="ui blue button">Create Student Team</a>
         </div>
@@ -65,7 +65,7 @@
     <div class="ui divider" style=""></div>
 
     <div style="">
-        <div class="right_and_left">
+        <div class="right-and-left">
             <h1>Students</h1>
                 <div>
                 <div onclick="{download_csv}"
@@ -369,9 +369,9 @@
         }
     </script>
     <style>
-        div.right_and_left {
+        div.right-and-left {
             display: flex;
-                justify-content: space-between;
+            justify-content: space-between;
         }
     </style>
 </participants-table>
