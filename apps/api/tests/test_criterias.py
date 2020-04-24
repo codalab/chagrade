@@ -34,10 +34,6 @@ class CriteriaGETMethodTests(TestCase):
         )
 
     def test_anonymous_user_cannot_get_criterias(self):
-        from chagrade.storage import PublicStorage
-        print(PublicStorage.__dict__)
-        assert False
-
         resp = self.client.get(reverse('api:criteria-list', kwargs={'version': 'v1'}))
         assert resp.status_code == 401
 
