@@ -3,8 +3,10 @@ from urllib.parse import urlparse
 
 import requests
 import logging
+
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db.models import Sum
 from django.db import models
 
 # Require an account type to determine users vs students?
@@ -217,13 +219,13 @@ class Grade(models.Model):
         return total, total_possible
 
     def get_total_possible(self):
-        total_possible = sum([criteria_answer.criteria.upper_range for criteria_answer in self.criteria_answers.all()])
+        total_possible = self.criteria_answers.all().aggregate(Sum('upper_range'))
         if self.submission.definition.jupyter_notebook_enabled:
             total_possible += self.submission.definition.jupyter_notebook_highest
         return total_possible
 
     def get_total_score(self):
-        total = sum([criteria_answer.score for criteria_answer in self.criteria_answers.all()])
+        total = self.criteria_answers.all().aggregate(Sum('score'))
         if self.submission.definition.jupyter_notebook_enabled:
             total += self.jupyter_notebook_grade or 0.0
         return total
