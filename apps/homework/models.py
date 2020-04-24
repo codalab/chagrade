@@ -1,4 +1,5 @@
 import os
+from decimal import Decimal
 from urllib.parse import urlparse
 
 import requests
@@ -219,15 +220,15 @@ class Grade(models.Model):
         return total, total_possible
 
     def get_total_possible(self):
-        total_possible = self.criteria_answers.all().aggregate(Sum('criteria__upper_range'))
+        total_possible = self.criteria_answers.all().aggregate(Sum('criteria__upper_range'))['criteria__upper_range__sum']
         if self.submission.definition.jupyter_notebook_enabled:
             total_possible += self.submission.definition.jupyter_notebook_highest
         return total_possible
 
     def get_total_score(self):
-        total = self.criteria_answers.all().aggregate(Sum('score'))
+        total = self.criteria_answers.all().aggregate(Sum('score'))['score__sum']
         if self.submission.definition.jupyter_notebook_enabled:
-            total += self.jupyter_notebook_grade or 0.0
+            total += self.jupyter_notebook_grade or Decimal(0.0)
         return total
 
     def calculate_grade(self):
