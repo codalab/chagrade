@@ -9,8 +9,8 @@ from .base import *
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 cloudcube_url = os.environ.get('CLOUDCUBE_URL')
-cloudcube_bucket = os.path.basename(cloudcube_url)
-cloudcube_base_url = cloudcube_url.replace(cloudcube_bucket, "")  # get base url by removing bucket
+cloudcube_bucket = os.path.basename(cloudcube_url)   # "bucketname"
+cloudcube_base_url = os.path.dirname(cloudcube_url)
 
 AWS_S3_ENDPOINT_URL = cloudcube_base_url
 AWS_ACCESS_KEY_ID = os.environ.get('CLOUDCUBE_ACCESS_KEY_ID')
