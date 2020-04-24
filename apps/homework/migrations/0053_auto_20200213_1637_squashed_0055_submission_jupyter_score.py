@@ -6,7 +6,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [('homework', '0053_auto_20200213_1637'), ('homework', '0054_submission_jupyter_notebook'), ('homework', '0055_submission_jupyter_score')]
+    #replaces = [('homework', '0053_auto_20200213_1637'), ('homework', '0054_submission_jupyter_notebook'), ('homework', '0055_submission_jupyter_score')]
 
     dependencies = [
         ('homework', '0052_auto_20191214_0009'),
