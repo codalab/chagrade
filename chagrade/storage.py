@@ -7,5 +7,5 @@ class PublicStorage(S3Boto3Storage):
     default_acl = "public-read"
 
 
-if settings.TEST:
+if settings.DEFAULT_FILE_STORAGE != 'storages.backends.s3boto3.S3Boto3Storage':
     PublicStorage = FileSystemStorage
