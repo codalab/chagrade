@@ -1,6 +1,7 @@
 import logging
 
 from django.contrib.auth import get_user_model
+from django.db.models import Prefetch
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -49,6 +50,16 @@ class SubmissionViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.is_valid(raise_exception=True)
         new_sub = serializer.save()
+
+        # Move grade and other answers from most recent submission to this new submission
+        pre_existing_submission = new_sub.creator.submitted_homeworks.order_by('created').filter(definition=new_sub.definition).exclude(pk=new_sub.pk).last()
+        if pre_existing_submission is not None:
+            pre_existing_grade = pre_existing_submission.grades.last()
+            if pre_existing_grade is not None:
+                pre_existing_grade.submission = new_sub
+                pre_existing_grade.needs_review = True
+                pre_existing_grade.save()
+
         if new_sub.pk and not new_sub.submitted_to_challenge:
             file_to_submit = self.request.data.get('file')
             if not new_sub.definition.questions_only and ( new_sub.github_url or file_to_submit ):
@@ -83,6 +94,9 @@ class SubmissionViewSet(ModelViewSet):
 
 class DefinitionViewSet(ModelViewSet):
     queryset = Definition.objects.all()
+    queryset = Definition.objects.all().prefetch_related(Prefetch(
+        'custom_questions',
+        queryset=Question.objects.order_by('id')))
     serializer_class = DefinitionSerializer
     permission_classes = (DefinitionPermissionCheck,)
 

@@ -106,3 +106,4 @@ class GradesAPIEndpointsTests(TestCase):
 
         resp = self.client.delete(reverse('api:grade-detail', kwargs={'version': 'v1', 'pk': new_grade_pk}))
         assert resp.status_code == 204
+

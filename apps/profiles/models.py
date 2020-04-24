@@ -1,6 +1,7 @@
 import uuid
 import requests
 import json
+from decimal import Decimal
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -73,7 +74,7 @@ class StudentMembership(models.Model):
                         grade_quantity += 1
                         grade_total += calculated_grade
         if grade_quantity > 0:
-            return str(round(grade_total * 100.0 / grade_quantity, 1)) + '%'
+            return str(round(grade_total * Decimal(100.0) / grade_quantity, 1)) + '%'
         else:
             return 'No grades yet'
 
