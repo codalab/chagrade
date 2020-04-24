@@ -24,6 +24,7 @@
                     {% else %}
                         <div class="item">No Submission</div>
                     {% endif %}
+                    <div class="item">Submission Date: {{ submission.created }}</div>
                 </div>
 
                 {% if not definition.questions_only %}
