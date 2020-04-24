@@ -79,7 +79,7 @@
 
         <!-- URL Fields -->
         <div if="{ !definition.questions_only }" class="fields">
-            <div class="eight wide required field">
+            <div if="{ !definition.jupyter_notebook_enabled }" class="eight wide required field">
                 <label>
                     <i class="pop-up question blue circle icon"
                        data-title="A URL to a challenge. Chagrade compatible features should be enabled."
@@ -101,8 +101,9 @@
                        ref="starting_kit_github_url" value="{definition.starting_kit_github_url}">
             </div>
         </div>
+
         <!-- Scoring Fields -->
-        <div if="{ !definition.questions_only }" class="fields">
+        <div if="{ !definition.questions_only && !definition.jupyter_notebook_enabled }" class="fields">
             <div class="eight wide required field">
                 <label>
                     <i class="pop-up question blue circle icon"
@@ -734,10 +735,13 @@
             }
 
             if (!self.definition.questions_only) {
-                obj_data["challenge_url"] = self.refs.challenge_url.value
+                if (!self.definition.jupyter_notebook_enabled) {
+                    obj_data["challenge_url"] = self.refs.challenge_url.value
+                    obj_data["baseline_score"] = self.refs.baseline_score.value
+                    obj_data["target_score"] = self.refs.target_score.value
+                }
+
                 obj_data["starting_kit_github_url"] = self.refs.starting_kit_github_url.value
-                obj_data["baseline_score"] = self.refs.baseline_score.value
-                obj_data["target_score"] = self.refs.target_score.value
 
                 self.definition.teams.forEach(function (team) {
                     if (self.refs["team_" + team.id + "_challenge_url"].value !== '') {

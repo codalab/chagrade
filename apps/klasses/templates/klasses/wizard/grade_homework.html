@@ -56,13 +56,26 @@
                                         </td>
                                         <td style="text-align: center;">
                                             {% if not grade %}
-                                                <a href="{% url "homework:grade_homework" klass_pk=klass.pk submission_pk=submission.pk %}"
-                                                   class="ui grey button">Grade</a>
+                                                {% if homework_def.jupyter_notebook_enabled %}
+                                                    <a href="{% url "homework:grade_homework" klass_pk=klass.pk submission_pk=submission.pk %}"
+                                                       class="ui orange button">Grade</a>
+                                                {% else %}
+                                                    <a href="{% url "homework:grade_homework" klass_pk=klass.pk submission_pk=submission.pk %}"
+                                                       class="ui gray button">Grade</a>
+                                                {% endif %}
                                             {% else %}
                                                 {% if grade.published %}
-                                                    <a href="{% url "homework:edit_grade" klass_pk=klass.pk submission_pk=submission.pk grade_pk=grade.pk %}" class="ui green button">Edit Grade</a>
+                                                    {% if grade.needs_review and homework_def.jupyter_notebook_enabled %}
+                                                        <a href="{% url "homework:edit_grade" klass_pk=klass.pk submission_pk=submission.pk grade_pk=grade.pk %}" class="ui orange button">Edit Grade</a>
+                                                    {% else %}
+                                                        <a href="{% url "homework:edit_grade" klass_pk=klass.pk submission_pk=submission.pk grade_pk=grade.pk %}" class="ui green button">Edit Grade</a>
+                                                    {% endif %}
                                                 {% else %}
-                                                    <a href="{% url "homework:edit_grade" klass_pk=klass.pk submission_pk=submission.pk grade_pk=grade.pk %}" class="ui yellow button">Edit Grade</a>
+                                                    {% if grade.needs_review and homework_def.jupyter_notebook_enabled %}
+                                                        <a href="{% url "homework:edit_grade" klass_pk=klass.pk submission_pk=submission.pk grade_pk=grade.pk %}" class="ui orange button">Edit Grade</a>
+                                                    {% else %}
+                                                        <a href="{% url "homework:edit_grade" klass_pk=klass.pk submission_pk=submission.pk grade_pk=grade.pk %}" class="ui yellow button">Edit Grade</a>
+                                                    {% endif %}
                                                 {% endif %}
                                             {% endif %}
                                         </td>
@@ -76,8 +89,9 @@
             </table>
             <div class="ui horizonatal relaxed list">
                 <div class="ui gray label">Not Graded</div>
-                <div class="ui yellow label">Grade not published</div>
-                <div class="ui green label">Grade published</div>
+                <div class="ui yellow label">Grade Not Published</div>
+                <div class="ui green label">Grade Published</div>
+                <div class="ui orange label">Jupyter Notebook Needs Review</div>
             </div>
         </div>
     </div>
