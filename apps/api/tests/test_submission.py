@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.homework.models import Definition, Submission
+from apps.homework.models import Definition, Submission, Grade
 from apps.klasses.models import Klass
 from apps.profiles.models import Instructor, StudentMembership
 
@@ -394,3 +394,21 @@ class SubmissionAPIEndpointsTests(TestCase):
         assert new_submission.jupyter_score == new_submission.definition.jupyter_notebook_highest
         assert resp.status_code == 201
 
+    def test_resubmission_does_not_affect_grade(self):
+        self.client.login(username='student_user', password='pass')
+
+        resp = self._direct_file_upload_helper(self.single_match_notebook, self.jupyter_notebook_definition)
+        new_submission_id = int(resp.json()['id'])
+        new_submission = Submission.objects.get(pk=new_submission_id)
+        assert new_submission.jupyter_score == 9.0
+        assert resp.status_code == 201
+
+        grade = Grade.objects.create(submission=new_submission, jupyter_notebook_grade=177.0, evaluator=self.main_user.instructor)
+
+        resp = self._direct_file_upload_helper(self.single_match_notebook, self.jupyter_notebook_definition)
+        new_submission_id = int(resp.json()['id'])
+        new_submission = Submission.objects.get(pk=new_submission_id)
+        assert new_submission.jupyter_score == 9.0
+        assert resp.status_code == 201
+
+        assert new_submission.grades.last().jupyter_notebook_grade == grade.jupyter_notebook_grade
