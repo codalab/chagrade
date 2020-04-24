@@ -219,7 +219,7 @@ class Grade(models.Model):
         return total, total_possible
 
     def get_total_possible(self):
-        total_possible = self.criterias.all().aggregate(Sum('upper_range'))
+        total_possible = self.criteria_answers.all().aggregate(Sum('criteria__upper_range'))
         if self.submission.definition.jupyter_notebook_enabled:
             total_possible += self.submission.definition.jupyter_notebook_highest
         return total_possible
