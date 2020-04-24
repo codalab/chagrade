@@ -56,15 +56,14 @@
                     {% endif %}
 
                     {% if not definition.questions_only %}
+                        <td>
                         {% if definition.jupyter_notebook_enabled %}
-                            <td>
-                                <div style="width: 150px;">
-                                    {{ instructor_submission.jupyter_score }}
-                                </div>
-                            </td>
+                            <div style="width: 150px;">
+                                {{ instructor_submission.jupyter_score }}
+                            </div>
                         {% else %}
-                            <td>
-                                {% with instructor_submission.tracked_submissions.last as sub_tracker %}
+                            {% with instructor_submission.tracked_submissions.last as sub_tracker %}
+                                {% if sub_tracker %}
                                     <div style="width: 150px;">
                                         {% if sub_tracker.score %}
                                             {{ sub_tracker.score }}
@@ -72,9 +71,10 @@
                                             No Score
                                         {% endif %}
                                     </div>
-                                {% endwith %}
-                            </td>
+                                {% endif %}
+                            {% endwith %}
                         {% endif %}
+                        </td>
                     {% endif %}
 
                     {% for answer in instructor_submission.question_answers.all %}
@@ -128,15 +128,14 @@
                         {% endif %}
 
                         {% if not definition.questions_only %}
+                            <td>
                             {% if definition.jupyter_notebook_enabled %}
-                                <td>
-                                    <div style="width: 150px;">
-                                        {{ instructor_submission.jupyter_score }}
-                                    </div>
-                                </td>
+                                <div style="width: 150px;">
+                                    {{ instructor_submission.jupyter_score }}
+                                </div>
                             {% else %}
-                                <td>
-                                    {% with submission.tracked_submissions.last as sub_tracker %}
+                                {% with submission.tracked_submissions.last as sub_tracker %}
+                                    {% if sub_tracker %}
                                         <div style="width: 150px;">
                                             {% if sub_tracker.score %}
                                                 {{ sub_tracker.score }}
@@ -144,9 +143,10 @@
                                                 No Score
                                             {% endif %}
                                         </div>
-                                    {% endwith %}
-                                </td>
+                                    {% endif %}
+                                {% endwith %}
                             {% endif %}
+                            </td>
                         {% endif %}
 
                         {% if submission %}
