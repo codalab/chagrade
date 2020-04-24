@@ -7,15 +7,6 @@
 
 {% block extra_head %}
     <style>
-        .condensed {
-            margin: 0.5vh 0 0 0 !important;
-            padding: 0.5vh 0 0 0 !important;
-        }
-
-        .no-padding {
-            padding: 1vh 0 0 0 !important;
-        }
-
         .popup-container {
             padding: 20px !important;
         }
@@ -100,9 +91,15 @@
                                                                         <i class="file code icon"></i>
                                                                     </a>
                                                                 {% else %}
-                                                                    <a class="ui mini blue icon disabled button">
-                                                                        <i class="file code icon"></i>
-                                                                    </a>
+                                                                    {% if submission.jupyter_notebook %}
+                                                                        <a class="ui mini blue icon button" href="{{ submission.jupyter_notebook.url }}" target="_blank" rel="noopener noreferrer">
+                                                                            <i class="file code icon"></i>
+                                                                        </a>
+                                                                    {% else %}
+                                                                        <a class="ui mini blue icon disabled button">
+                                                                            <i class="file code icon"></i>
+                                                                        </a>
+                                                                    {% endif %}
                                                                 {% endif %}
                                                             </td>
                                                             <td>
