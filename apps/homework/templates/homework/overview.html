@@ -95,9 +95,12 @@
                                                                     class="">Github URL for Submission</a></div>
                                                             {% else %}
                                                                 {% if definition.jupyter_notebook_enabled %}
-                                                                <div class="item"><a
-                                                                    href="{{ submission.jupyter_notebook.url }}"
-                                                                    class="">Jupyter Notebook File</a></div>
+                                                                    {% if submission.jupyter_notebook %}
+                                                                        <div class="item">
+                                                                            <a href="{{ submission.jupyter_notebook.url }}"
+                                                                            class="">Jupyter Notebook File</a>
+                                                                        </div>
+                                                                    {% endif %}
                                                                 {% endif %}
                                                             {% endif %}
                                                         {% endif %}
@@ -228,7 +231,7 @@
                                                 {% endif %}
                                             </div>
                                         </div>
-                                        {% if grade %}
+                                        {% if grade and grade.published %}
                                             <div class="row">
                                                 <div class="five wide column">
                                                     <div class="ui statistic">

@@ -43,8 +43,8 @@ class Definition(models.Model):
 
     # Jupyter Notebook Grading Parameters
     jupyter_notebook_enabled = models.BooleanField(default=False)
-    jupyter_notebook_lowest = models.FloatField(default=0.0, null=True, blank=False)
-    jupyter_notebook_highest = models.FloatField(default=10.0, null=True, blank=False)
+    jupyter_notebook_lowest = models.DecimalField(max_digits=6, decimal_places=1, default=0.0, null=True)
+    jupyter_notebook_highest = models.DecimalField(max_digits=6, decimal_places=1, default=10.0, null=True)
 
     # These values for submissions will have to be grabbed from v1.5 API
     # We should almost set these automatically by an API request to the challenge and see if these options are enabled
@@ -102,7 +102,7 @@ class Submission(models.Model):
     team = models.ForeignKey('groups.Team', default=None, null=True, blank=True, related_name='submissions', on_delete=models.SET_NULL)
 
     jupyter_notebook = models.FileField(null=True, blank=True, upload_to=upload_jupyter_notebook, storage=PublicStorage())
-    jupyter_score = models.FloatField(null=True)
+    jupyter_score = models.DecimalField(max_digits=6, decimal_places=1, default=0, null=True)
 
     reporting_messages = JSONField(default=dict)
     # Reporting messages is used to report warnings and errors on the submission during the automatic Jupyter Notebook grading process.
@@ -220,13 +220,13 @@ class Grade(models.Model):
         return total, total_possible
 
     def get_total_possible(self):
-        total_possible = self.criteria_answers.all().aggregate(Sum('criteria__upper_range'))['criteria__upper_range__sum']
+        total_possible = self.criteria_answers.all().aggregate(Sum('criteria__upper_range'))['criteria__upper_range__sum'] or Decimal(0.0)
         if self.submission.definition.jupyter_notebook_enabled:
             total_possible += self.submission.definition.jupyter_notebook_highest
         return total_possible
 
     def get_total_score(self):
-        total = self.criteria_answers.all().aggregate(Sum('score'))['score__sum']
+        total = self.criteria_answers.all().aggregate(Sum('score'))['score__sum'] or Decimal(0.0)
         if self.submission.definition.jupyter_notebook_enabled:
             total += self.jupyter_notebook_grade or Decimal(0.0)
         return total
