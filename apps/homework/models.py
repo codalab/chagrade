@@ -24,6 +24,7 @@ class Definition(models.Model):
 
     name = models.CharField(default=None, max_length=100, null=False, blank=False)
     description = models.CharField(max_length=300, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     questions_only = models.BooleanField(default=False, null=False)
 
@@ -66,6 +67,28 @@ class Definition(models.Model):
         site_url = "{0}://{1}".format(scheme, domain)
         return site_url
 
+    def avg_grade_value(self):
+        total_grades = 0
+        student_count = 0
+        for student in self.klass.enrolled_students.all():
+            submission = student.submitted_homeworks.filter(definition=self).last()
+            if submission is not None:
+                grade = submission.grades.last()
+                if grade is not None:
+                    score = grade.calculate_grade()
+                    total_grades += score
+                    student_count += 1
+        if student_count != 0:
+            avg = total_grades / student_count
+            return avg
+        return None
+
+    def avg_grade(self):
+        value = self.avg_grade_value()
+        if value is not None:
+            value *= 100
+            return f'{value:.1f}%'
+        return "No Grades"
 
 def upload_jupyter_notebook(instance, filename):
     file_split = filename.split('.')
