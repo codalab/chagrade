@@ -3,9 +3,9 @@ from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone
 
-from apps.homework.models import Definition
+from apps.homework.models import Definition, Criteria, Submission, Grade, CriteriaAnswer
 from apps.klasses.models import Klass
-from apps.profiles.models import Instructor
+from apps.profiles.models import Instructor, StudentMembership
 
 User = get_user_model()
 
@@ -19,7 +19,6 @@ class DefinitionAPIEndpointsTests(TestCase):
         self.main_user.save()
         self.student_user = User.objects.create_user(username='student_user', password='pass')
         self.klass = Klass.objects.create(instructor=self.instructor, course_number="1")
-
         self.definition = Definition.objects.create(klass=self.klass, creator=self.instructor, name='test_def_1', description='A simple test', due_date=timezone.now())
 
     def test_anonymous_user_cannot_perform_crud_methods_on_definitions(self):
@@ -115,4 +114,35 @@ class DefinitionAPIEndpointsTests(TestCase):
 
         resp = self.client.delete(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': d_pk}))
         assert resp.status_code == 204
+
+    def test_avg_grade_is_correct(self):
+        self.criteria = Criteria.objects.create(
+            definition=self.definition,
+            lower_range=0,
+            upper_range=5,
+        )
+        for i in range(5):
+            self.student_user = User.objects.create_user(username=f'student_user{i}', password='pass', email=f'test{i}@email.com')
+            self.student = StudentMembership.objects.create(
+                user=self.student_user,
+                klass=self.klass,
+                student_id=f"{i}",
+            )
+            self.submission = Submission.objects.create(
+                definition=self.definition,
+                klass=self.klass,
+                creator=self.student,
+            )
+            self.grade = Grade.objects.create(
+                submission=self.submission,
+                evaluator=self.instructor,
+            )
+            self.criteria_answer = CriteriaAnswer.objects.create(
+                grade=self.grade,
+                criteria=self.criteria,
+                score=i,
+            )
+            print(i)
+        assert self.definition.avg_grade() == "40.0%"
+
 
