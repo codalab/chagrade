@@ -12,14 +12,14 @@
             <span>
                 <a href="{% url 'homework:get_grades_csv' klass_pk=klass.pk %}" class="ui blue button">Download CSV</a>
             </span>
-            <table class="ui sortable table">
+            <table style="display: block; overflow-x: scroll; max-height: 100vh;" class="ui sortable table" onscroll="second_row_height_adjustment()">
                 <thead>
-                <tr>
+                <tr id="first-row">
                     <th></th>
                     <th></th>
                     <th></th>
                     {% for homework_def in klass.homework_definitions.all %}
-                        <th colspan="2">
+                        <th class="top-sticky" colspan="2">
                             {{ homework_def.name }}
                             <a href="{% url "klasses:homework_answers" definition_pk=homework_def.pk klass_pk=klass.pk %}" class="ui blue icon button table-header-link">
                                 <i class="ui th list icon"></i>
@@ -27,10 +27,10 @@
                         </th>
                     {% endfor %}
                 </tr>
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Team</th>
+                <tr id="second-row">
+                    <th class="top-sticky">#</th>
+                    <th class="top-sticky left-sticky" style="z-index: 100;">Name</th>
+                    <th class="top-sticky">Team</th>
                     {% for homework_def in klass.homework_definitions.all %}
                         <th>Grade</th>
                         <th>Edit</th>
@@ -43,7 +43,7 @@
                         <td>
                             {{ forloop.counter }}
                         </td>
-                        <td>{{ student.user.username }}</td>
+                        <td class="left-sticky">{{ student.user.username }}</td>
                         <td>{{ student.team.name }}</td>
                         {% for homework_def in klass.homework_definitions.all %}
                             {% with homework_def|get_last_submission:student.user.pk as submission %}
@@ -95,4 +95,69 @@
             </div>
         </div>
     </div>
+
+    <style>
+        .left-sticky {
+            position: sticky;
+            left: 0;
+            background: white;
+            border-right: solid gray;
+        }
+
+        .top-sticky {
+            position: sticky;
+            top: 0;
+        }
+
+        tr.active > .left-sticky {
+            background: #e0e0e0;
+        }
+    </style>
+    <script>
+        function getContentWidth (element) {
+            let styles = getComputedStyle(element)
+            return element.clientWidth
+                - parseFloat(styles.paddingLeft)
+                - parseFloat(styles.paddingRight)
+        }
+
+        let table = $('.ui.sortable.table')[0]
+        let first_row = $('#first-row')[0]
+        let second_row = $('#second-row')[0]
+        let first_row_height = first_row.offsetHeight
+        let second_row_height = second_row.offsetHeight
+        let table_inner_width = getContentWidth(table)
+        let first_row_outer_width = first_row.offsetWidth
+        let first_row_elements = $('#first-row > th')
+
+        let extra_width = table_inner_width - first_row_outer_width + 50
+        if (extra_width > 0) {
+            let last_element_first_row = first_row_elements[first_row_elements.length - 1]
+            last_element_first_row.style.width = last_element_first_row.offsetWidth + extra_width + 'px'
+        }
+
+        let column_count = first_row_elements.length
+
+        let rows = $('tbody > tr')
+        _.forEach(rows, (row) => {
+            let children = _.filter(row.childNodes, (child) => child.nodeType === Node.ELEMENT_NODE)
+            let column_disparity = column_count - children.length
+            if (column_disparity > 0) {
+                for (let i = 0; i < column_disparity; i++) {
+                    row.appendChild(document.createElement("TD"))
+                }
+            }
+        })
+
+        const second_row_height_adjustment = () => {
+            if (table.scrollTop <= second_row_height) {
+                second_row.style.height = second_row_height + 'px'
+            } else if (table.scrollTop > second_row_height && table.scrollTop < first_row_height) {
+                second_row.style.height = table.scrollTop + 1 + 'px'
+            }
+            if (table.scrollTop >= first_row_height) {
+                second_row.style.height = first_row_height + 'px'
+            }
+        }
+    </script>
 {% endblock %}
