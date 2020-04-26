@@ -16,8 +16,8 @@
 
         <table style="display: block; overflow-x: scroll; max-height: 100vh;" class="ui celled table">
             <thead style="width: {{ question_quantity_sensitive_width }}%;">
-            <tr>
-                <th class="top-sticky">#</th>
+            <tr id="first-row">
+                <th class="left-sticky top-sticky" style="border-right: none;">#</th>
                 <th class="left-sticky top-sticky" style="z-index: 100;">Student Name</th>
 
                 {% with definition.submissions.last as submission %}
@@ -42,7 +42,7 @@
             </tr>
             </thead>
             <tbody style="width: {{ question_quantity_sensitive_width }}%;">
-            <tr class="ui active">
+            <tr id="row-1" class="ui active">
                 <td>1</td>
                 {% if instructor_submission %}
                     <td class="left-sticky">{{ instructor_student.user.username }}</td>
@@ -112,7 +112,7 @@
             </tr>
 
             {% for student in non_instructor_students %}
-                <tr>
+                <tr id="row-{{ forloop.counter|add:1 }}">
                     <td>
                         {{ forloop.counter|add:1 }}
                     </td>
@@ -200,4 +200,37 @@
             word-wrap: break-word;
          }
     </style>
+    <script>
+        function getContentWidth (element) {
+            let styles = getComputedStyle(element)
+            return element.clientWidth
+                - parseFloat(styles.paddingLeft)
+                - parseFloat(styles.paddingRight)
+        }
+
+        let table = $('.ui.celled.table')[0]
+        let first_row = $('#first-row')[0]
+        let table_inner_width = getContentWidth(table)
+        let first_row_outer_width = first_row.offsetWidth
+        let first_row_elements = $('#first-row > th')
+
+        let extra_width = table_inner_width - first_row_outer_width + 50
+        if (extra_width > 0) {
+            let last_element_first_row = first_row_elements[first_row_elements.length - 1]
+            last_element_first_row.style.width = last_element_first_row.offsetWidth + extra_width + 'px'
+        }
+
+        let column_count = first_row_elements.length
+
+        let rows = $('tbody > tr')
+        _.forEach(rows, (row) => {
+            let children = _.filter(row.childNodes, (child) => child.nodeType === Node.ELEMENT_NODE)
+            let column_disparity = column_count - children.length
+            if (column_disparity > 0) {
+                for (let i = 0; i < column_disparity; i++) {
+                    row.appendChild(document.createElement("TD"))
+                }
+            }
+        })
+    </script>
 {% endblock %}
