@@ -9,7 +9,9 @@ from django.conf import settings
 from celery.task import task
 from requests.auth import HTTPBasicAuth
 
-from apps.homework.models import Submission, SubmissionTracker
+from django.core.files.uploadedfile import TemporaryUploadedFile
+
+from apps.homework.models import Submission, SubmissionTracker, Grade
 
 
 # TODO: Clean this up and possibly have a flag between running this as a task vs actually calling it? (Heroku vs Docker)
@@ -25,8 +27,42 @@ class SubmissionPostException(BaseException):
         super(SubmissionPostException, self).__init__(*args, **kwargs)
 
 
-def retrieve_score_from_jupyter_notebook(fd, submission):
-    content = fd.readlines()
+def build_jupyter_notebook_submission(data_file, filename, submission):
+    numerator, denominator = retrieve_score_from_jupyter_notebook(data_file, filename, submission)
+    # This seek happens, because the retrieve_score_from_jupyter_notebook reads the file.
+    # The file position is reset here, so the next read, when the file is stored
+    # (the .save method below), all of the file contents are read.
+
+    data_file.seek(0)
+    submission.jupyter_notebook.save(filename, data_file)
+
+    submission_warnings = []
+    if denominator != submission.definition.jupyter_notebook_highest:
+        logger.warning(f'Score denominator is not equal to the one defined in homework definition. Warning in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
+        submission_warnings.append('Score denominator is not equal to the one defined in homework definition.')
+    if numerator > submission.definition.jupyter_notebook_highest:
+        # Add warning to submission model
+        numerator = submission.definition.jupyter_notebook_highest
+        logger.warning(f'Score numerator greater than the maximum defined in homework definition. Warning in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
+        submission_warnings.append('Score numerator greater than the maximum defined in homework definition.')
+    if numerator < submission.definition.jupyter_notebook_lowest:
+        # Add warning to submission model
+        logger.warning(f'Score numerator lower than the minimum defined in homework definition. Warning in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
+        numerator = submission.definition.jupyter_notebook_lowest
+        submission_warnings.append('Score numerator lower than the minimum defined in homework definition.')
+
+    existing_messages = defaultdict(list, submission.reporting_messages)
+    existing_messages['warnings'].extend(submission_warnings)
+    submission.reporting_messages = existing_messages
+    submission.jupyter_score = numerator
+    submission.save()
+
+    if not submission.grades.first():
+        Grade.objects.create(submission=submission, jupyter_notebook_grade=submission.jupyter_score, evaluator=submission.definition.creator)
+
+
+def retrieve_score_from_jupyter_notebook(file, filename, submission):
+    content = file.readlines()
 
     # Jupyter Notebook files are formatted as json. The json is formatted in a human-readable
     # way with newlines and indentation. We can exploit this formatting by parsing the file into
@@ -41,7 +77,7 @@ def retrieve_score_from_jupyter_notebook(fd, submission):
     # per the specs of this feature.
 
     existing_messages = defaultdict(list, submission.reporting_messages)
-    if fd.name.split('.')[-1] != 'ipynb':
+    if filename.split('.')[-1] != 'ipynb':
         existing_messages['errors'].append('File submitted does not have .ipynb extension. (Hint that this is not a Jupyter Notebook.')
         logger.error(f'The file submitted with this notebook does not have .ipynb extension. Error in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
 
@@ -101,9 +137,10 @@ def post_submission(submission_pk, data_file=None):
         submission_data = resp.json()['id']
         s3_file_url = resp.json()['url']
 
+    direct_upload = bool(data_file)
     with TemporaryFile() as f:
         data_to_upload = None
-        if not data_file:
+        if not direct_upload:
             logger.info(f"Beginning read of github repository for submission {submission.pk}.")
             parsed_repo_uri = urlparse(submission.github_url)
             repo_scheme = parsed_repo_uri.scheme
@@ -130,36 +167,13 @@ def post_submission(submission_pk, data_file=None):
             data_to_upload = data_file
             temp_size = str(data_to_upload.size)
         if data_to_upload:
+
             if submission.definition.jupyter_notebook_enabled:
-                # Temporary files can only be opened once, so both reads need to happen within this context manager
-                with data_to_upload.open() as fd:
-                    numerator, denominator = retrieve_score_from_jupyter_notebook(data_to_upload, submission)
-                    # This seek happens, because the retrieve_score_from_jupyter_notebook reads the file.
-                    # The file position is reset here, so the next read, when the file is stored
-                    # (the .save method below), all of the file contents are read.
-                    fd.seek(0)
-                    submission.jupyter_notebook.save(data_to_upload.name, data_to_upload)
+                filename = data_to_upload.name
+                if not direct_upload:
+                    filename = submission.github_url.split('/')[-1]
+                build_jupyter_notebook_submission(data_to_upload, filename, submission)
 
-                    submission_warnings = []
-                    if denominator != submission.definition.jupyter_notebook_highest:
-                        logger.warning(f'Score denominator is not equal to the one defined in homework definition. Warning in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
-                        submission_warnings.append('Score denominator is not equal to the one defined in homework definition.')
-                    if numerator > submission.definition.jupyter_notebook_highest:
-                        # Add warning to submission model
-                        numerator = submission.definition.jupyter_notebook_highest
-                        logger.warning(f'Score numerator greater than the maximum defined in homework definition. Warning in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
-                        submission_warnings.append('Score numerator greater than the maximum defined in homework definition.')
-                    if numerator < submission.definition.jupyter_notebook_lowest:
-                        # Add warning to submission model
-                        logger.warning(f'Score numerator lower than the minimum defined in homework definition. Warning in submission {submission.pk} for homework "{submission.definition.name}" (pk={submission.definition.pk}).')
-                        numerator = submission.definition.jupyter_notebook_lowest
-                        submission_warnings.append('Score numerator lower than the minimum defined in homework definition.')
-
-                    existing_messages = defaultdict(list, submission.reporting_messages)
-                    existing_messages['warnings'].extend(submission_warnings)
-                    submission.reporting_messages = existing_messages
-                    submission.jupyter_score = numerator
-                    submission.save()
             else:
                 storage_resp = requests.put(
                     url=s3_file_url,
