@@ -101,7 +101,7 @@ class Submission(models.Model):
 
     team = models.ForeignKey('groups.Team', default=None, null=True, blank=True, related_name='submissions', on_delete=models.SET_NULL)
 
-    jupyter_notebook = models.FileField(null=True, blank=True, upload_to=upload_jupyter_notebook, storage=PublicStorage)
+    jupyter_notebook = models.FileField(null=True, blank=True, upload_to=upload_jupyter_notebook, storage=PublicStorage())
     jupyter_score = models.DecimalField(max_digits=6, decimal_places=1, default=0, null=True)
 
     reporting_messages = JSONField(default=dict)

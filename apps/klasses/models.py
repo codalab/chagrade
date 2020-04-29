@@ -1,5 +1,3 @@
-import uuid
-
 from django.core.files.base import ContentFile
 from django.db import models
 
@@ -45,8 +43,8 @@ class Klass(models.Model):
     # Don't like this related name but we already used .klasses
     group = models.ForeignKey('groups.Group', related_name='klasses', null=True, blank=True, on_delete=models.SET_NULL)
 
-    image = models.ImageField(null=True, blank=True, upload_to=upload_image, storage=PublicStorage)
-    syllabus = models.FileField(null=True, blank=True, upload_to=upload_syllabus, storage=PublicStorage)
+    image = models.ImageField(null=True, blank=True, upload_to=upload_image, storage=PublicStorage())
+    syllabus = models.FileField(null=True, blank=True, upload_to=upload_syllabus, storage=PublicStorage())
 
     active = models.BooleanField(default=False)
 
