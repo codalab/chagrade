@@ -10,7 +10,7 @@
     <div class="ui centered grid">
         <div class="row">
             <div class="ui fourteen wide column message">
-                <h4 class="ui header">Submission Info:</h4>
+                <h4 class="ui header">Submission Info: {{ submission.definition }}</h4>
                 <div class="ui relaxed celled list">
                     <div class="item">First Name: {{ submission.creator.user.first_name }}</div>
                     <div class="item">Last Name: {{ submission.creator.user.last_name }}</div>
@@ -24,16 +24,44 @@
                     {% else %}
                         <div class="item">No Submission</div>
                     {% endif %}
+                    <div class="item">Submission Date: {{ submission.created }}</div>
                 </div>
 
                 {% if not definition.questions_only %}
                     <h4 class="ui header">Challenge Rules</h4>
                     <div class="ui relaxed celled list">
                         <a href="{{ definition.challenge_url }}" class="item" target="_blank" rel="noopener noreferrer">Link to challenge competition</a>
-                        <a href="{{ submission.github_url }}" class="item" target="_blank" rel="noopener noreferrer">Link to Github repo of submission</a>
+                        {% if submission.github_url %}
+                            <a href="{{ submission.github_url }}" class="item" target="_blank" rel="noopener noreferrer">Link to Github repo of submission</a>
+                        {% endif %}
                         <a class="ui mini blue button" href="{% url "homework:submission_detail" submission_pk=submission.pk %}">Submission Details</a>
                     </div>
                 {% endif %}
+
+                {% if definition.jupyter_notebook_enabled %}
+                    <h4 class="ui header">Jupyter Notebook</h4>
+                    <div class="ui relaxed celled list">
+                        <div>Auto-Grade Score: {{ submission.jupyter_score }} / {{ definition.jupyter_notebook_highest }}</div>
+                        {% if submission_jupyter_warnings %}
+                            <div>Auto-Grade Warnings:</div>
+                            <ul>
+                            {% for warning in submission_jupyter_warnings %}
+                                <li>{{ warning }}</li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
+
+                        {% if submission_jupyter_errors %}
+                            <div>Auto-Grade Errors:</div>
+                            <ul>
+                            {% for error in submission_jupyter_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
 
                 <h4>Questions</h4>
                 <div class="ui relaxed celled list">
