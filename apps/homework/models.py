@@ -12,6 +12,7 @@ from django.db import models
 from requests.auth import HTTPBasicAuth
 
 from apps.homework.validators import validate_submission_github_url
+from chagrade.storage import PublicStorage
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +98,7 @@ class Submission(models.Model):
 
     team = models.ForeignKey('groups.Team', default=None, null=True, blank=True, related_name='submissions', on_delete=models.SET_NULL)
 
-    jupyter_notebook = models.FileField(null=True, blank=True, upload_to=upload_jupyter_notebook)
+    jupyter_notebook = models.FileField(null=True, blank=True, upload_to=upload_jupyter_notebook, storage=PublicStorage)
     jupyter_score = models.FloatField(null=True)
 
     reporting_messages = JSONField(default=dict)
