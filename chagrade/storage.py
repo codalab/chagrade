@@ -1,11 +1,9 @@
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
-from storages.backends.s3boto3 import S3Boto3Storage
+from django.core.files.storage import get_storage_class
 
 
-class PublicStorage(S3Boto3Storage):
+StorageClass = get_storage_class(settings.DEFAULT_FILE_STORAGE)
+
+
+class PublicStorage(StorageClass):
     default_acl = "public-read"
-
-
-if settings.DEFAULT_FILE_STORAGE != 'storages.backends.s3boto3.S3Boto3Storage':
-    PublicStorage = FileSystemStorage
