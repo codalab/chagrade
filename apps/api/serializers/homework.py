@@ -173,5 +173,7 @@ class GradeSerializer(WritableNestedModelSerializer):
             'teacher_comments',
             'instructor_notes',
             'criteria_answers',
-            'published'
+            'published',
+            'needs_review',
+            'jupyter_notebook_grade',
         ]

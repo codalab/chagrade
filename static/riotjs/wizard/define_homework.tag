@@ -79,7 +79,7 @@
 
         <!-- URL Fields -->
         <div if="{ !definition.questions_only }" class="fields">
-            <div class="eight wide required field">
+            <div if="{ !definition.jupyter_notebook_enabled }" class="eight wide required field">
                 <label>
                     <i class="pop-up question blue circle icon"
                        data-title="A URL to a challenge. Chagrade compatible features should be enabled."
@@ -101,8 +101,9 @@
                        ref="starting_kit_github_url" value="{definition.starting_kit_github_url}">
             </div>
         </div>
+
         <!-- Scoring Fields -->
-        <div if="{ !definition.questions_only }" class="fields">
+        <div if="{ !definition.questions_only && !definition.jupyter_notebook_enabled }" class="fields">
             <div class="eight wide required field">
                 <label>
                     <i class="pop-up question blue circle icon"
@@ -278,8 +279,9 @@
                 </button>
 
             </div>
-
-            <a class="ui green button" onclick="{ () => add_question(questions.length) }">Add Question</a>
+            <div class="button-container">
+                <a class="ui green button" onclick="{ () => add_question(questions.length) }">Add Question</a>
+            </div>
         </div>
 
         <div class="ui divider"></div>
@@ -341,16 +343,20 @@
                 </div>
             </div>
 
-            <a class="ui blue button" onclick="{add_criteria}">Add Criterion</a>
+            <div class="button-container">
+                <a class="ui blue button" onclick="{add_criteria}">Add Criterion</a>
+            </div>
 
         </div>
 
         <div class="ui divider"></div>
 
-        <span><a onclick="{submit_form}" class="ui green button">Submit</a><a onclick="{cancel_button}"
-                                                                              class="ui red button">Cancel</a></span>
-        <div class="ui error message"></div>
+            <div class="button-container">
+                <span><a onclick="{submit_form}" class="ui green button">Submit</a>
+                <a onclick="{cancel_button}" class="ui red button">Cancel</a></span>
+            <div class="ui error message"></div>
 
+        </div>
     </form>
 
     <script>
@@ -552,7 +558,6 @@
         self.update_definition = function () {
             CHAGRADE.api.get_definition(DEFINITION)
                 .done(function (data) {
-                    console.log(data)
                     data.teams.forEach(function (team) {
                         data.custom_challenge_urls.forEach(function (custom_url) {
                             if (team.id === custom_url.team) {
@@ -667,10 +672,6 @@
                 "ask_publication_url": self.refs.ask_publication_url.checked,
                 "team_based": self.refs.team_based.checked,
                 "max_submissions_per_student": self.refs.max_submissions_per_student.value,
-                "force_github": self.refs.force_github.checked,
-                "jupyter_notebook_enabled": self.refs.jupyter_notebook_enabled.checked,
-                "jupyter_notebook_lowest": _.get(self.refs.jupyter_notebook_lowest_grade, 'value', 0.0),
-                "jupyter_notebook_highest": _.get(self.refs.jupyter_notebook_highest_grade, 'value', 1.0),
                 "criterias": [
                     /*{
                      "description": "string",
@@ -734,10 +735,18 @@
             }
 
             if (!self.definition.questions_only) {
-                obj_data["challenge_url"] = self.refs.challenge_url.value
+                if (!self.definition.jupyter_notebook_enabled) {
+                    obj_data["challenge_url"] = self.refs.challenge_url.value
+                    obj_data["baseline_score"] = self.refs.baseline_score.value
+                    obj_data["target_score"] = self.refs.target_score.value
+                }
+
+                obj_data["force_github"] = self.refs.force_github.checked
                 obj_data["starting_kit_github_url"] = self.refs.starting_kit_github_url.value
-                obj_data["baseline_score"] = self.refs.baseline_score.value
-                obj_data["target_score"] = self.refs.target_score.value
+                obj_data["jupyter_notebook_enabled"] = self.refs.jupyter_notebook_enabled.checked
+                obj_data["jupyter_notebook_lowest"] = _.get(self.refs.jupyter_notebook_lowest_grade, 'value', 0.0)
+                obj_data["jupyter_notebook_highest"] = _.get(self.refs.jupyter_notebook_highest_grade, 'value', 1.0)
+
 
                 self.definition.teams.forEach(function (team) {
                     if (self.refs["team_" + team.id + "_challenge_url"].value !== '') {
@@ -788,6 +797,9 @@
         .delete-button {
             cursor: pointer;
         }
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+        }
     </style>
-
 </define-homework>
