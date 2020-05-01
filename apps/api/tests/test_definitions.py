@@ -60,7 +60,7 @@ class DefinitionAPIEndpointsTests(TestCase):
         resp = self.client.post(
             reverse('api:definition-list', kwargs={'version': 'v1'}),
             data={
-                    'klass': self.klass.pk,
+                'klass': self.klass.pk,
                 'creator': self.instructor.pk,
                 'due_date': timezone.now(),
                 'name': 'test1',
@@ -95,12 +95,12 @@ class DefinitionAPIEndpointsTests(TestCase):
             reverse('api:definition-list', kwargs={'version': 'v1'}),
             data={
                 'klass': self.klass.pk,
-                'creator': self.instructor.pk,
                 'due_date': timezone.now(),
                 'name': 'test_definition',
                 'description': 'test'
                   }
         )
+
         definition_pk = resp.json()['id']
         data = resp.json()
         assert data['name'] == 'test_definition'

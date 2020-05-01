@@ -142,12 +142,13 @@ class DefinitionSerializer(WritableNestedModelSerializer):
         read_only_fields = ['creator',]
 
     def validate(self, data):
-        user = self.context['request'].user.instructor
+        creator = self.context['request'].user.instructor
+        data['creator'] = creator
         owner = data['klass'].instructor
-        if user == owner:
+        if creator == owner:
             return data
         else:
-            raise PermissionDenied("You do not own this homework.")
+            raise PermissionDenied("You are not an instructor for this class.")
 
 
 class CriteriaAnswerSerializer(ModelSerializer):
