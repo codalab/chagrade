@@ -209,13 +209,15 @@
                 </div>
             </div>
         </div>
+        <div class="ui error message"></div>
     </div>
+
 
     <span><a onclick="{submit_form}" class="ui green button">Submit</a><a onclick="{cancel_button}"
                                                                           class="ui red button">Cancel</a></span>
 
     <script>
-
+        console.log('questions')
         var self = this
         self.loading = false
         self.errors = []
@@ -380,9 +382,36 @@
         }
 
         self.submit_form = function () {
-            self.update({loading: true})
             let question_answers = []
+            var validation_object = {
+                //on: 'blur',
+                fields: {}
 
+            }
+            for (q in self.definition.custom_questions) {
+                let question = self.definition.custom_questions[q]
+                if (question.question_type === 'UL') {
+                    if (!document.getElementsByName('question_answer_' + q )[0].value == "") {
+                        validation_object.fields['question_answer_' + q] = {
+                            rules: [
+                                {
+                                    type: 'url',
+                                    prompt: 'Please enter a valid url'
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+            let deepClone = JSON.parse(JSON.stringify(validation_object));
+            console.log('deepclone', validation_object)
+            let form = $('.ui.form')
+            form.form(validation_object)
+            form.form('validate form')
+            if ( !form.form('is valid')) {
+                return
+            }
+            self.update({loading: true})
             for (let i = 0; i < self.definition.custom_questions.length; i++) {
                 let question = self.definition.custom_questions[i]
                 let question_answer = []
@@ -406,7 +435,6 @@
                 question_answers.push(answer)
             }
 
-
             if (window.SUBMISSION !== undefined) {
                 var result = confirm("There is already an existing submission. Submitting again will overwrite the previous submission and any previously attached grades will be lost. Continue?")
                 if (!result) {
@@ -423,14 +451,15 @@
                 "method_description": self.refs.method_description.value || '',
                 "project_url": self.refs.project_url.value || '',
                 "publication_url": self.refs.publication_url.value || '',
-                "question_answers": [
-                    /*{
-                     "question": 0,
-                     "text": "string"
-                     }*/
-                ]
+                //"question_answers": [
+                //    /*{
+                //     "question": 0,
+                //     "text": "string"
+                //     }*/
+                //]
             }
             data['question_answers'] = question_answers
+            var submission_data = data
 
             if (!self.definition.questions_only) {
                 if (!self.github_active || self.definition.jupyter_notebook_enabled) {
@@ -458,14 +487,30 @@
                             if (!self.check_filename_extension(self.refs.direct_file.files[0].name)) {
                                 return
                             }
-
                             // add assoc key values, this will be posts values
                             formData.append("file", self.refs.direct_file.files[0], self.refs.direct_file.files[0].name);
                             formData.append("upload_file", true);
 
                             CHAGRADE.api.form_request('POST', URLS.API + "submissions/", formData)
                                 .done(function (data) {
-                                    window.location = '/homework/overview/' + KLASS
+                                    CHAGRADE.api.update_submission(data.id, submission_data)
+                                        .done(function (data) {
+                                            window.location = '/homework/overview/' + KLASS
+                                        })
+                                        .fail(function (response) {
+
+                                            Object.keys(response.responseJSON).forEach(function (key) {
+                                                if (key === 'question_answers') {
+                                                    toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
+                                                } else {
+                                                    self.update({loading: false})
+                                                    toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                                                }
+                                            });
+                                        })
+
+                                    console.log("data", data)
+                                    // window.location = '/homework/overview/' + KLASS
                                 })
                                 .fail(function (response) {
                                     toastr.error(response.responseText)
