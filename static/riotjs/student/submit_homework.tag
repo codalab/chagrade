@@ -396,7 +396,7 @@
                             rules: [
                                 {
                                     type: 'url',
-                                    prompt: 'Please enter a valid url'
+                                    prompt: 'Please enter a valid url or leave blank'
                                 }
                             ]
                         }
