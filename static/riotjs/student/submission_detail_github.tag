@@ -12,8 +12,12 @@
             <ol>
                 <li each="{ question in definition.custom_questions }">{ question.question }
                     <ul>
-                        <li each="{ answer in question.student_answers }">{ answer }</li>
+                        <li if="{ question.question_type == 'UL' }" each="{ answer in question.student_answers }">
+                        <a href={ answer } target="_blank">{ answer }</a>
+                        </li>
+                        <li if="{ question.question_type != 'UL' }" each="{ answer in question.student_answers }">{ answer }</li>
                     </ul>
+
                 </li>
             </ol>
         </div>

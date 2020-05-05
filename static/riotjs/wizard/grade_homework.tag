@@ -5,7 +5,7 @@
             <li each="{ question in definition.custom_questions }">{ question.question }
                 <ul>
                     <li if="{ question.question_type == 'UL' }" each="{ answer in question.student_answers }">
-                        <a href="{ answer }" target="_blank">{ answer }</a>
+                        <a href={ answer } target="_blank">{ answer }</a>
                     </li>
                     <li if="{ question.question_type != 'UL' }" each="{ answer in question.student_answers }">{ answer }</li>
                 </ul>
