@@ -350,12 +350,10 @@
         </div>
 
         <div class="ui divider"></div>
-
+            <div class="ui error message"></div>
             <div class="button-container">
                 <span><a onclick="{submit_form}" class="ui green button">Submit</a>
                 <a onclick="{cancel_button}" class="ui red button">Cancel</a></span>
-            <div class="ui error message"></div>
-
         </div>
     </form>
 
