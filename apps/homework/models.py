@@ -294,7 +294,7 @@ class Question(models.Model):
 
     has_specific_answer = models.BooleanField(default=False)
 
-    question = models.CharField(max_length=300)
+    question = models.TextField()
     candidate_answers = JSONField(blank=True, default=list)
 
     def __str__(self):
