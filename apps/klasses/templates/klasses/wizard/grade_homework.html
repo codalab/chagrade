@@ -9,9 +9,17 @@
     <div class="ui fourteen wide column message">
         <div style="overflow-x: scroll;">
             <h1>Students</h1>
-            <span>
-                <a href="{% url 'homework:get_grades_csv' klass_pk=klass.pk %}" class="ui blue button">Download CSV</a>
-            </span>
+            <div class="table-header-container">
+                <span>
+                    <a href="{% url 'homework:get_grades_csv' klass_pk=klass.pk %}" class="ui blue button">Download CSV</a>
+                </span>
+                <div class="ui horizonatal relaxed list">
+                    <div class="ui gray label">Not Graded</div>
+                    <div class="ui yellow label">Grade Not Published</div>
+                    <div class="ui green label">Grade Published</div>
+                    <div class="ui orange label">Jupyter Notebook Needs Review</div>
+                </div>
+            </div>
             <table style="display: block; overflow-x: scroll; max-height: 100vh;" class="ui sortable table" onscroll="second_row_height_adjustment()">
                 <thead>
                 <tr id="first-row">
@@ -87,16 +95,15 @@
                 {% endfor %}
                 </tbody>
             </table>
-            <div class="ui horizonatal relaxed list">
-                <div class="ui gray label">Not Graded</div>
-                <div class="ui yellow label">Grade Not Published</div>
-                <div class="ui green label">Grade Published</div>
-                <div class="ui orange label">Jupyter Notebook Needs Review</div>
-            </div>
         </div>
     </div>
 
     <style>
+        .table-header-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
         .left-sticky {
             position: sticky;
             left: 0;
