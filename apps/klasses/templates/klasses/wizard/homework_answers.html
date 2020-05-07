@@ -85,7 +85,7 @@
                         {% elif answer.question.question_type == 'UL' %}
                             <td>
                                 <div style="min-width: 450px;">
-                                    <a href={{ answer.answer|format_json_array }} target="_blank"> {{ answer.answer|format_json_array }}</a>
+                                    <a href={{ answer.answer|format_json_array|format_url_with_schema }} target="_blank"> {{ answer.answer|format_json_array }}</a>
                                 </div>
                             </td>
                         {% else %}

@@ -23,7 +23,7 @@
             </a>
         </h1>
 
-        <div if="{ !definition.questions_only && !github_active || definition.jupyter_notebook_enabled }">
+        <div if="{ (!definition.questions_only && !github_active) || (!definition.questions_only && definition.jupyter_notebook_enabled) }">
             <div class="fields">
                 <div class="sixteen wide field">
                     <span>
