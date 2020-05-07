@@ -142,7 +142,6 @@ class DefinitionAPIEndpointsTests(TestCase):
                 criteria=self.criteria,
                 score=i,
             )
-            print(i)
         assert self.definition.avg_grade() == "40.0%"
 
 

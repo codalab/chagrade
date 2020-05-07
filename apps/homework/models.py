@@ -1,4 +1,5 @@
 import os
+from decimal import Decimal
 from urllib.parse import urlparse
 
 import requests
@@ -76,7 +77,7 @@ class Definition(models.Model):
                 grade = submission.grades.last()
                 if grade is not None:
                     score = grade.calculate_grade()
-                    total_grades += score
+                    total_grades += score or Decimal('0.0')
                     student_count += 1
         if student_count != 0:
             avg = total_grades / student_count
@@ -89,6 +90,7 @@ class Definition(models.Model):
             value *= 100
             return f'{value:.1f}%'
         return "No Grades"
+
 
 def upload_jupyter_notebook(instance, filename):
     file_split = filename.split('.')
