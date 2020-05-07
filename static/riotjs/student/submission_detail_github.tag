@@ -1,7 +1,7 @@
 <submission-detail-github>
     <div class="{definition.questions_only ? 'sixteen' : 'six'} wide column">
 
-        <a if="{ submission.github_url }" class="ui tiny black button" href="{ submission.github_url }">Submission File</a>
+        <a if="{ submission.github_url }" class="ui tiny black button" href="{ opts.submission_url }" target="_blank">Submission File</a>
         <p>Submitted: { format_date(submission.created) }</p>
         <p if="{ !!submission.commit_hash && submission.commit_hash !== 'Commit (Optional)' }">Commit hash: { submission.commit_hash.slice(0,6) }</p>
         <p if="{ submission.github_repo_name }">Repository Name: { submission.github_repo_name }</p>

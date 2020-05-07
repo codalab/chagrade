@@ -2,6 +2,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load homework_tags %}
+{% load chagrade_tags %}
 
 {% block title %}Welcome{% endblock %}
 
@@ -69,7 +70,19 @@
                                             <div class="ui header">Submission Information</div>
                                             <div class="ui divider"></div>
 
-                                            <submission-detail-github class="ui grid" submission_pk="{{ submission.pk }}" hash="{{ submission.commit_hash }}" user_pk="{{ request.user.pk }}"></submission-detail-github>
+                                            <submission-detail-github
+                                                class="ui grid"
+                                                submission_pk="{{ submission.pk }}"
+
+                                                {% if definition.jupyter_notebook_enabled  %}
+                                                    submission_url="{{ submission.github_url|nb_viewer_format_for_github_jupyter_notebook_url }}"
+                                                {% else %}
+                                                    submission_url="{{ submission.github_url }}"
+                                                {% endif %}
+
+                                                hash="{{ submission.commit_hash }}"
+                                                user_pk="{{ request.user.pk }}"
+                                            ></submission-detail-github>
                                         </div>
                                     </div>
 

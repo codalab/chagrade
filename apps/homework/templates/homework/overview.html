@@ -91,7 +91,11 @@
                                                         {% if not definition.questions_only %}
                                                             {% if submission.github_url %}
                                                                 <div class="item"><a
-                                                                    href="{{ submission.github_url }}"
+                                                                        {% if definition.jupyter_notebook_enabled  %}
+                                                                            href="{{ submission.github_url|nb_viewer_format_for_github_jupyter_notebook_url }}"
+                                                                        {% else %}
+                                                                            href="{{ submission.github_url }}"
+                                                                        {% endif %}
                                                                     target="_blank" rel="noopener noreferrer"
                                                                     class="">Github URL for Submission</a></div>
                                                             {% else %}
