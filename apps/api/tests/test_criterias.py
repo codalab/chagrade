@@ -44,7 +44,6 @@ class CriteriaGETMethodTests(TestCase):
             reverse('api:definition-list', kwargs={'version': 'v1'}),
             data={
                 'klass': self.klass.pk,
-                'creator': self.instructor.pk,
                 'due_date': timezone.now(),
                 'name': "test",
                 'challenge_url': "http://www.test.com/",

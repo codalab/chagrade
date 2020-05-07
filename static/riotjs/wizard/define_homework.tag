@@ -774,6 +774,7 @@
                     window.location = '/klasses/wizard/' + KLASS + '/define_homework'
                 })
                 .fail(function (response) {
+                    console.log(response)
                     Object.keys(response.responseJSON).forEach(function (key) {
                         if (key === 'criterias' || key === 'custom_questions') {
                             toastr.error("An error occured with " + key.replace(/_/g, ' ') + "! Please make sure you did not leave any fields blank.")

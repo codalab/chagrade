@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'apps.api',
     'apps.factory',
     'apps.metrics',
+    'apps.commands',
 ]
 
 MIDDLEWARE = [
@@ -256,7 +257,6 @@ S3_USE_SIGV4 = os.environ.get("S3_USE_SIGV4", True)
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
 AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
 AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL', '')
 AWS_DEFAULT_ACL = None  # Uses buckets security access policies

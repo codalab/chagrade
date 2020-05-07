@@ -56,12 +56,13 @@
 {% block extra_script %}
     <script>
         $(document).ready( function () {
-
+            if (window.location.href.includes("deleted=true")){
+                return toastr.success("Successfully deleted homework")
+            }
             function delete_definition(pk) {
                 CHAGRADE.api.delete_definition(pk)
                     .done(function (data) {
-                        toastr.success("Successfully deleted homework")
-                        window.location = '/klasses/wizard/{{ klass.pk }}/define_homework'
+                        window.location = '/klasses/wizard/{{ klass.pk }}/define_homework?deleted=true'
                     })
                     .fail(function (response) {
                         console.log(response)
