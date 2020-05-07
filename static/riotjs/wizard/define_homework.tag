@@ -238,6 +238,9 @@
                                 <div class="item" data-value="TX">
                                     <i class="ui align left icon"></i> Text
                                 </div>
+                                <div class="item" data-value="UL">
+                                    <i class="ui linkify icon"></i> URL
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -280,7 +283,7 @@
 
             </div>
             <div class="button-container">
-                <a class="ui green button" onclick="{ () => add_question(questions.length) }">Add Question</a>
+                <a class="ui green button add-question" onclick="{ () => add_question(questions.length) }">Add Question</a>
             </div>
         </div>
 
@@ -350,12 +353,10 @@
         </div>
 
         <div class="ui divider"></div>
-
+            <div class="ui error message"></div>
             <div class="button-container">
                 <span><a onclick="{submit_form}" class="ui green button">Submit</a>
                 <a onclick="{cancel_button}" class="ui red button">Cancel</a></span>
-            <div class="ui error message"></div>
-
         </div>
     </form>
 
@@ -714,9 +715,13 @@
                 let question = self.questions[index]
                 if (question.question_type !== null) {
                     let answer_candidates = null
+                    if (question.question_type === 'UL') {
+                        answer_candidates = question.text
+                    }
                     if (question.question_type === 'TX') {
                         answer_candidates = question.text
-                    } else if (question.question_type === 'MS' || question.question_type === 'SS') {
+                    }
+                    else if (question.question_type === 'MS' || question.question_type === 'SS') {
                         answer_candidates = question.answer_candidates.filter(function (answer) {
                             return answer !== ''
                         })
@@ -794,9 +799,16 @@
             font-size: 1.0em !important;
         }
 
+        div.button-container > a.add-question {
+            display: block;
+            margin-left: auto;
+            z-index: 1;
+        }
+
         .delete-button {
             cursor: pointer;
         }
+
         .button-container {
             display: flex;
             justify-content: flex-end;

@@ -139,6 +139,17 @@ class DefinitionSerializer(WritableNestedModelSerializer):
             'jupyter_notebook_highest',
         ]
 
+        read_only_fields = ['creator',]
+
+    def validate(self, data):
+        creator = self.context['request'].user.instructor
+        data['creator'] = creator
+        owner = data['klass'].instructor
+        if creator == owner:
+            return data
+        else:
+            raise PermissionDenied("You are not an instructor for this class.")
+
 
 class CriteriaAnswerSerializer(ModelSerializer):
     class Meta:

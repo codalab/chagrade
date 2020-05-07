@@ -4,7 +4,10 @@
         <ol>
             <li each="{ question in definition.custom_questions }">{ question.question }
                 <ul>
-                    <li each="{ answer in question.student_answers }">{ answer }</li>
+                    <li if="{ question.question_type == 'UL' }" each="{ answer in question.student_answers }">
+                        <a href={ add_http_schema(answer) } target="_blank">{ answer }</a>
+                    </li>
+                    <li if="{ question.question_type != 'UL' }" each="{ answer in question.student_answers }">{ answer }</li>
                 </ul>
             </li>
         </ol>
@@ -59,6 +62,13 @@
         }
         self.grade = {
             'criteria_answers': []
+        }
+
+        self.add_http_schema = function (url) {
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'http://' + url
+            }
+            return url
         }
 
         self.update_criteria_answers = function() {

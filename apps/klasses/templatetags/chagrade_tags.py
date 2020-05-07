@@ -1,4 +1,5 @@
 import logging
+import re
 
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
@@ -7,6 +8,13 @@ from apps.homework.models import Submission
 
 register = template.Library()
 logger = logging.getLogger(__name__)
+
+
+def format_url_with_schema(url):
+    if type(url) == str:
+        if not re.match('(?:http|https)://', url):
+            return 'http://{}'.format(url)
+    return url
 
 
 def get_submission(definition_pk, student_pk):
@@ -33,5 +41,6 @@ def format_json_array(json_array):
     return outstring
 
 
+register.filter('format_url_with_schema', format_url_with_schema)
 register.filter('get_submission', get_submission)
 register.filter('format_json_array', format_json_array)
