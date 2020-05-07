@@ -34,7 +34,6 @@ class DefinitionAPIEndpointsTests(TestCase):
             reverse('api:definition-list', kwargs={'version': 'v1'}),
             data={
                 'klass': self.klass.pk,
-                'creator': self.instructor.pk,
                 'due_date': timezone.now(),
                 'name': 'test',
                 'description': 'test'
@@ -61,7 +60,6 @@ class DefinitionAPIEndpointsTests(TestCase):
             reverse('api:definition-list', kwargs={'version': 'v1'}),
             data={
                 'klass': self.klass.pk,
-                'creator': self.instructor.pk,
                 'due_date': timezone.now(),
                 'name': 'test1',
                 'description': 'test'
@@ -76,7 +74,6 @@ class DefinitionAPIEndpointsTests(TestCase):
             data={
                 'name': 'A Different Name',
                 'klass': self.klass.pk,
-                'creator': self.instructor.pk
             },
             content_type='application/json'
         )
@@ -111,7 +108,6 @@ class DefinitionAPIEndpointsTests(TestCase):
             data={
                 'name': 'A Different Name',
                 'klass': self.klass.pk,
-                'creator': self.instructor.pk
             },
             content_type='application/json'
         )
@@ -126,7 +122,6 @@ class DefinitionAPIEndpointsTests(TestCase):
             reverse('api:definition-list', kwargs={'version': 'v1'}),
             data={
                 'klass': self.klass.pk,
-                'creator': self.instructor.pk,
                 'due_date': timezone.now(),
                 'name': 'test_definition',
                 'description': 'test'
@@ -142,7 +137,6 @@ class DefinitionAPIEndpointsTests(TestCase):
             data={
                 'name': 'A Different Name',
                 'klass': self.klass.pk,
-                'creator': self.instructor.pk
             },
             content_type='application/json'
         )

@@ -56,29 +56,30 @@
 {% block extra_script %}
     <script>
         $(document).ready( function () {
-            if (window.location.href.includes("deleted=true")){
-                return toastr.success("Successfully deleted homework")
-            }
-            function delete_definition(pk) {
-                CHAGRADE.api.delete_definition(pk)
-                    .done(function (data) {
-                        window.location = '/klasses/wizard/{{ klass.pk }}/define_homework?deleted=true'
-                    })
-                    .fail(function (response) {
-                        console.log(response)
-                        Object.keys(response.responseJSON).forEach(function (key) {
-                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
-                        });
-                    })
-            }
-
-            $('.delete-definition').click( (e) => {
+            let delete_buttons = $('.delete-definition')
+            delete_buttons.click( (e) => {
                 let pk = $(e.target).attr('id')
                 let affirmative = confirm('Are you sure you wish to delete this homework?')
                 if (affirmative) {
                     delete_definition(pk)
                 }
             })
+
+            if (window.location.href.includes("deleted=true")){
+                return toastr.success("Successfully deleted homework")
+            }
+
+            function delete_definition(pk) {
+                CHAGRADE.api.delete_definition(pk)
+                    .done(function (data) {
+                        window.location = '/klasses/wizard/{{ klass.pk }}/define_homework?deleted=true'
+                    })
+                    .fail(function (response) {
+                        Object.keys(response.responseJSON).forEach(function (key) {
+                            toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                        });
+                    })
+            }
         })
     </script>
 {% endblock %}
