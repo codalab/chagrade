@@ -438,15 +438,15 @@
             }
 
             var data = {
-                "klass": KLASS,
-                "definition": DEFINITION,
-                "creator": STUDENT,
-                "method_name": self.refs.method_name.value || '',
-                "method_description": self.refs.method_description.value || '',
-                "project_url": self.refs.project_url.value || '',
-                "publication_url": self.refs.publication_url.value || '',
+                'klass': KLASS,
+                'definition': DEFINITION,
+                'creator': STUDENT,
+                'method_name': self.refs.method_name.value || '',
+                'method_description': self.refs.method_description.value || '',
+                'project_url': self.refs.project_url.value || '',
+                'publication_url': self.refs.publication_url.value || '',
+                'question_answers': question_answers,
             }
-            data['question_answers'] = question_answers
             var submission_data = data
 
             if (!self.definition.questions_only) {
