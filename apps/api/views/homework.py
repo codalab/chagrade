@@ -96,7 +96,7 @@ class DefinitionViewSet(ModelViewSet):
     queryset = Definition.objects.all()
     queryset = Definition.objects.all().prefetch_related(Prefetch(
         'custom_questions',
-        queryset=Question.objects.order_by('question')))
+        queryset=Question.objects.all()))
     serializer_class = DefinitionSerializer
     permission_classes = (DefinitionPermissionCheck,)
 
