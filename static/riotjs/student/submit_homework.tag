@@ -211,13 +211,10 @@
         </div>
         <div class="ui error message"></div>
     </div>
-
-
     <span><a onclick="{submit_form}" class="ui green button">Submit</a><a onclick="{cancel_button}"
                                                                           class="ui red button">Cancel</a></span>
 
     <script>
-        console.log('questions')
         var self = this
         self.loading = false
         self.errors = []
@@ -384,7 +381,6 @@
         self.submit_form = function () {
             let question_answers = []
             var validation_object = {
-                //on: 'blur',
                 fields: {}
 
             }
@@ -403,8 +399,6 @@
                     }
                 }
             }
-            let deepClone = JSON.parse(JSON.stringify(validation_object));
-            console.log('deepclone', validation_object)
             let form = $('.ui.form')
             form.form(validation_object)
             form.form('validate form')
@@ -451,12 +445,6 @@
                 "method_description": self.refs.method_description.value || '',
                 "project_url": self.refs.project_url.value || '',
                 "publication_url": self.refs.publication_url.value || '',
-                //"question_answers": [
-                //    /*{
-                //     "question": 0,
-                //     "text": "string"
-                //     }*/
-                //]
             }
             data['question_answers'] = question_answers
             var submission_data = data
@@ -508,9 +496,6 @@
                                                 }
                                             });
                                         })
-
-                                    console.log("data", data)
-                                    // window.location = '/homework/overview/' + KLASS
                                 })
                                 .fail(function (response) {
                                     toastr.error(response.responseText)
