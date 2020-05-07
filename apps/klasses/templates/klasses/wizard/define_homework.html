@@ -34,7 +34,7 @@
                         </td>
                         <td>{{ homework_def.name }}</td>
                         <td>{{ homework_def.creator }}</td>
-                        <td>{{ homework_def.modified }}</td>
+                        <td>{{ homework_def.updated_at }}</td>
                         <td>{{ homework_def.due_date }}</td>
                         <td>
                             <a class="ui mini blue button" href="{% url "homework:submission_list" definition_pk=homework_def.pk %}">Submissions</a>
