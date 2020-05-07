@@ -283,7 +283,7 @@
 
             </div>
             <div class="button-container">
-                <a class="ui green button" onclick="{ () => add_question(questions.length) }">Add Question</a>
+                <a class="ui green button add-question" onclick="{ () => add_question(questions.length) }">Add Question</a>
             </div>
         </div>
 
@@ -801,9 +801,16 @@
             font-size: 1.0em !important;
         }
 
+        div.button-container > a.add-question {
+            display: block;
+            margin-left: auto;
+            z-index: 1;
+        }
+
         .delete-button {
             cursor: pointer;
         }
+
         .button-container {
             display: flex;
             justify-content: flex-end;
