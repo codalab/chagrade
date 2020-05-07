@@ -27,7 +27,7 @@ class Definition(models.Model):
     due_date = models.DateTimeField(default=None)
 
     name = models.CharField(default=None, max_length=100, null=False, blank=False)
-    description = models.CharField(max_length=300, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     questions_only = models.BooleanField(default=False, null=False)
@@ -322,6 +322,9 @@ class Question(models.Model):
 
     question = models.TextField()
     candidate_answers = JSONField(blank=True, default=list)
+
+    class Meta:
+        ordering = ('question',)
 
     def __str__(self):
         return self.question
