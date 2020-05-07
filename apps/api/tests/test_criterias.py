@@ -44,7 +44,6 @@ class CriteriaGETMethodTests(TestCase):
             reverse('api:definition-list', kwargs={'version': 'v1'}),
             data={
                 'klass': self.klass.pk,
-                'creator': self.instructor.pk,
                 'due_date': timezone.now(),
                 'name': "test",
                 'challenge_url': "http://www.test.com/",
@@ -59,7 +58,6 @@ class CriteriaGETMethodTests(TestCase):
 
         resp = self.client.put(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': self.criteria.pk}),
                                data={'klass': self.klass.pk,
-                                     'creator': self.instructor.pk,
                                      'name': 'newtestname1'},
                                content_type='application/json')
         assert resp.status_code == 401
@@ -80,7 +78,6 @@ class CriteriaGETMethodTests(TestCase):
             reverse('api:definition-list', kwargs={'version': 'v1'}),
             data={
                 'klass': self.klass.pk,
-                'creator': self.instructor.pk,
                 'due_date': timezone.now(),
                 'name': "test1",
                 'challenge_url': "http://www.test.com/",
@@ -96,7 +93,6 @@ class CriteriaGETMethodTests(TestCase):
 
         resp = self.client.put(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': self.criteria.pk}),
                                data={'klass': self.klass.pk,
-                                     'creator': self.instructor.pk,
                                      'name': 'newtestname'})
         assert resp.status_code == 403
 
@@ -116,7 +112,6 @@ class CriteriaGETMethodTests(TestCase):
             reverse('api:definition-list', kwargs={'version': 'v1'}),
             data={
                 'klass': self.klass.pk,
-                'creator': self.instructor.pk,
                 'due_date': timezone.now(),
                 'name': "test",
                 'challenge_url': "http://www.test.com/",
@@ -132,7 +127,6 @@ class CriteriaGETMethodTests(TestCase):
 
         resp = self.client.put(reverse('api:definition-detail', kwargs={'version': 'v1', 'pk': crit_pk}),
                                data={'klass': self.klass.pk,
-                                     'creator': self.instructor.pk,
                                      'name': 'newtestname1'},
                                content_type='application/json')
         assert resp.status_code == 200
