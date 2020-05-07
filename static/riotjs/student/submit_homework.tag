@@ -23,7 +23,7 @@
             </a>
         </h1>
 
-        <div if="{ !definition.questions_only && !github_active || definition.jupyter_notebook_enabled }">
+        <div if="{ (!definition.questions_only && !github_active) || (!definition.questions_only && definition.jupyter_notebook_enabled) }">
             <div class="fields">
                 <div class="sixteen wide field">
                     <span>
@@ -175,6 +175,20 @@
                           type="text" value="{question.prev_answer || ''}" rows="2"> </textarea>
             </div>
 
+            <div if="{ question.question_type === 'UL' }" class="sixteen wide field">
+                <input name="{'question_id_' + index}" ref="{'question_id_' + index}" type="hidden"
+                       value="{question.id}">
+                <label><pre>{question.question}</pre></label>
+
+                <div class="ui labeled input">
+                    <div class="ui label">
+                        URL
+                    </div>
+                    <input data-question-id="" name="{'question_answer_' + index}" ref="{'question_answer_' + question.id}"
+                          type="text" value="{question.prev_answer || ''}" placeholder="mysite.com">
+                </div>
+            </div>
+
             <div if="{ question.question_type === 'SS' }" class="grouped fields">
                 <label><pre>{question.question}</pre></label>
                 <div each="{ candidate_answer, candidate_index in question.candidate_answers }" class="field">
@@ -195,13 +209,12 @@
                 </div>
             </div>
         </div>
+        <div class="ui error message"></div>
     </div>
-
     <span><a onclick="{submit_form}" class="ui green button">Submit</a><a onclick="{cancel_button}"
                                                                           class="ui red button">Cancel</a></span>
 
     <script>
-
         var self = this
         self.loading = false
         self.errors = []
@@ -366,9 +379,33 @@
         }
 
         self.submit_form = function () {
-            self.update({loading: true})
             let question_answers = []
+            var validation_object = {
+                fields: {}
 
+            }
+            for (q in self.definition.custom_questions) {
+                let question = self.definition.custom_questions[q]
+                if (question.question_type === 'UL') {
+                    if (!document.getElementsByName('question_answer_' + q )[0].value == "") {
+                        validation_object.fields['question_answer_' + q] = {
+                            rules: [
+                                {
+                                    type: 'url',
+                                    prompt: 'Please enter a valid url or leave blank'
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+            let form = $('.ui.form')
+            form.form(validation_object)
+            form.form('validate form')
+            if ( !form.form('is valid')) {
+                return
+            }
+            self.update({loading: true})
             for (let i = 0; i < self.definition.custom_questions.length; i++) {
                 let question = self.definition.custom_questions[i]
                 let question_answer = []
@@ -392,7 +429,6 @@
                 question_answers.push(answer)
             }
 
-
             if (window.SUBMISSION !== undefined) {
                 var result = confirm("There is already an existing submission. Submitting again will overwrite the previous submission and any previously attached grades will be lost. Continue?")
                 if (!result) {
@@ -402,21 +438,16 @@
             }
 
             var data = {
-                "klass": KLASS,
-                "definition": DEFINITION,
-                "creator": STUDENT,
-                "method_name": self.refs.method_name.value || '',
-                "method_description": self.refs.method_description.value || '',
-                "project_url": self.refs.project_url.value || '',
-                "publication_url": self.refs.publication_url.value || '',
-                "question_answers": [
-                    /*{
-                     "question": 0,
-                     "text": "string"
-                     }*/
-                ]
+                'klass': KLASS,
+                'definition': DEFINITION,
+                'creator': STUDENT,
+                'method_name': self.refs.method_name.value || '',
+                'method_description': self.refs.method_description.value || '',
+                'project_url': self.refs.project_url.value || '',
+                'publication_url': self.refs.publication_url.value || '',
+                'question_answers': question_answers,
             }
-            data['question_answers'] = question_answers
+            var submission_data = data
 
             if (!self.definition.questions_only) {
                 if (!self.github_active || self.definition.jupyter_notebook_enabled) {
@@ -444,14 +475,27 @@
                             if (!self.check_filename_extension(self.refs.direct_file.files[0].name)) {
                                 return
                             }
-
                             // add assoc key values, this will be posts values
                             formData.append("file", self.refs.direct_file.files[0], self.refs.direct_file.files[0].name);
                             formData.append("upload_file", true);
 
                             CHAGRADE.api.form_request('POST', URLS.API + "submissions/", formData)
                                 .done(function (data) {
-                                    window.location = '/homework/overview/' + KLASS
+                                    CHAGRADE.api.update_submission(data.id, submission_data)
+                                        .done(function (data) {
+                                            window.location = '/homework/overview/' + KLASS
+                                        })
+                                        .fail(function (response) {
+
+                                            Object.keys(response.responseJSON).forEach(function (key) {
+                                                if (key === 'question_answers') {
+                                                    toastr.error("An error occured with " + key + "! Please make sure you did not leave any fields blank.")
+                                                } else {
+                                                    self.update({loading: false})
+                                                    toastr.error("Error with " + key + "! " + response.responseJSON[key])
+                                                }
+                                            });
+                                        })
                                 })
                                 .fail(function (response) {
                                     toastr.error(response.responseText)
