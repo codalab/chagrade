@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'apps.api',
     'apps.factory',
     'apps.metrics',
+    'apps.commands',
 ]
 
 MIDDLEWARE = [
@@ -169,7 +170,6 @@ SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['username', 'first_name', 'email']
 
 SOCIAL_AUTH_CHAHUB_KEY = os.environ.get('SOCIAL_AUTH_CODALAB_KEY')
 SOCIAL_AUTH_CHAHUB_SECRET = os.environ.get('SOCIAL_AUTH_CODALAB_SECRET')
-
 SOCIAL_AUTH_CHAHUB_BASE_URL = os.environ.get('SOCIAL_AUTH_CHAHUB_BASE_URL', 'https://chahub.org')
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'index'
@@ -257,7 +257,6 @@ S3_USE_SIGV4 = os.environ.get("S3_USE_SIGV4", True)
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-AWS_STORAGE_PRIVATE_BUCKET_NAME = os.environ.get('AWS_STORAGE_PRIVATE_BUCKET_NAME')
 AWS_S3_CALLING_FORMAT = os.environ.get('AWS_S3_CALLING_FORMAT', 'boto.s3.connection.OrdinaryCallingFormat')
 AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL', '')
 AWS_DEFAULT_ACL = None  # Uses buckets security access policies
@@ -319,3 +318,5 @@ LOGGING = {
     },
 }
 
+CODALAB_SUBMISSION_USERNAME = os.environ.get('CODALAB_SUBMISSION_USERNAME')
+CODALAB_SUBMISSION_PASSWORD = os.environ.get('CODALAB_SUBMISSION_PASSWORD')

@@ -8,45 +8,124 @@
 
 {% block wizard_content %}
     <div class="ui fourteen wide column message">
-        <div style="overflow-x: scroll;">
-            <h1>{{ definition.name }}</h1>
+        <h1>{{ definition.name }}</h1>
 
-            <span>
-                <a class="ui blue button" href="{% url 'api:homework_answers_CSV' version='v1' klass_pk=klass.pk definition_pk=definition.pk %}?format=csv" download="homework_answers_for_{{ klass.title }}_{{ definition.name }}.csv">Download CSV</a>
-            </span>
+        <span>
+            <a class="ui blue button" href="{% url 'api:homework_answers_CSV' version='v1' klass_pk=klass.pk definition_pk=definition.pk %}?format=csv" download="homework_answers_for_{{ klass.title }}_{{ definition.name }}.csv">Download CSV</a>
+        </span>
 
-            <table style="width: {{ question_quantity_sensitive_width }}%;" class="ui striped celled table">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Student Name</th>
+        <table style="display: block; overflow-x: scroll; max-height: 100vh;" class="ui celled table">
+            <thead style="width: {{ question_quantity_sensitive_width }}%;">
+            <tr id="first-row">
+                <th class="left-sticky top-sticky" style="border-right: none;">#</th>
+                <th class="left-sticky top-sticky" style="z-index: 100;">Student Name</th>
 
-                    {% with definition.submissions.last as submission %}
-                        {% with submission.grades.last.get_total_possible as grade %}
-                            <th>Grade (Out of {{ grade }})</th>
-                        {% endwith %}
+                {% with definition.submissions.last as submission %}
+                    {% with submission.grades.last.get_total_possible as grade %}
+                        <th class="top-sticky">Grade (Out of {{ grade }})</th>
+                    {% endwith %}
+                {% endwith %}
+
+                {% if definition.team_based %}
+                    <th class="top-sticky">Team Name</th>
+                {% endif %}
+
+                {% if not definition.questions_only and not definition.jupyter_notebook_enabled %}
+                    <th class="top-sticky">Submission Score</th>
+                {% elif definition.jupyter_notebook_enabled %}
+                    <th class="top-sticky">Jupyter Notebook Auto-Grade Score</th>
+                {% endif %}
+
+                {% for question in definition.custom_questions.all %}
+                    <th class="top-sticky"><pre>{{ question.question }}</pre></th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody style="width: {{ question_quantity_sensitive_width }}%;">
+            <tr id="row-1" class="ui active">
+                <td>1</td>
+                {% if instructor_submission %}
+                    <td class="left-sticky">{{ instructor_student.user.username }}</td>
+
+                    {% with instructor_submission.grades.last.get_total_score as grade %}
+                        <td>{{ grade }}</td>
                     {% endwith %}
 
                     {% if definition.team_based %}
-                        <th>Team Name</th>
+                        <td>{{ student.team.name }}</td>
                     {% endif %}
 
                     {% if not definition.questions_only %}
-                        <th>Submission Score</th>
+                        <td>
+                        {% if definition.jupyter_notebook_enabled %}
+                            <div style="width: 150px;">
+                                {{ instructor_submission.jupyter_score }}
+                            </div>
+                        {% else %}
+                            {% with instructor_submission.tracked_submissions.last as sub_tracker %}
+                                {% if sub_tracker %}
+                                    <div style="width: 150px;">
+                                        {% if sub_tracker.score %}
+                                            {{ sub_tracker.score }}
+                                        {% else %}
+                                            No Score
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+                        </td>
                     {% endif %}
 
-                    {% for question in definition.custom_questions.all %}
-                        <th><pre>{{ question.question }}</pre></th>
+                    {% for answer in instructor_submission.question_answers.all %}
+                        {% if answer.question.question_type == 'TX' %}
+                            <td>
+                                <div style="min-width: 450px;">{{ answer.answer|format_json_array }}</div>
+                            </td>
+                        {% elif answer.question.question_type == 'UL' %}
+                            <td>
+                                <div style="min-width: 450px;">
+                                    <a href={{ answer.answer|format_json_array|format_url_with_schema }} target="_blank"> {{ answer.answer|format_json_array }}</a>
+                                </div>
+                            </td>
+                        {% else %}
+                            <td>
+                                <div style="min-width: 200px;">{{ answer.answer|format_json_array }}</div>
+                            </td>
+                        {% endif %}
                     {% endfor %}
-                </tr>
-                </thead>
-                <tbody>
-                <tr class="ui active">
-                    <td>1</td>
-                    {% if instructor_submission %}
-                        <td>{{ instructor_student.user.username }}</td>
 
-                        {% with instructor_submission.grades.last.get_total_score as grade %}
+                {% else %}
+
+                    <td class="left-sticky">No Instructor Submission.</td>
+
+                    {# No Grade #}
+                    <td></td>
+
+                    {% if definition.team_based %}
+                        <td></td>
+                    {% endif %}
+
+                    {% if not definition.questions_only %}
+                        <td></td>
+                    {% endif %}
+
+                    {% for question in question_quantity_range %}
+                        <td></td>
+                    {% endfor %}
+
+                {% endif %}
+            </tr>
+
+            {% for student in non_instructor_students %}
+                <tr id="row-{{ forloop.counter|add:1 }}">
+                    <td>
+                        {{ forloop.counter|add:1 }}
+                    </td>
+                    <td class="left-sticky">{{ student.user.username }}</td>
+
+                    {% with student.submitted_homeworks.last as submission %}
+                        {% with submission.grades.last.get_total_score as grade %}
                             <td>{{ grade }}</td>
                         {% endwith %}
 
@@ -56,71 +135,13 @@
 
                         {% if not definition.questions_only %}
                             <td>
-                                {% with instructor_submission.tracked_submissions.last as sub_tracker %}
-                                    <div style="width: 150px;">
-                                        {% if sub_tracker.score %}
-                                            {{ sub_tracker.score }}
-                                        {% else %}
-                                            No Score
-                                        {% endif %}
-                                    </div>
-                                {% endwith %}
-                            </td>
-                        {% endif %}
-
-                        {% for answer in instructor_submission.question_answers.all %}
-                            {% if answer.question.question_type == 'TX' %}
-                                <td>
-                                    <div style="min-width: 450px;">{{ answer.answer|format_json_array }}</div>
-                                </td>
+                            {% if definition.jupyter_notebook_enabled %}
+                                <div style="width: 150px;">
+                                    {{ instructor_submission.jupyter_score }}
+                                </div>
                             {% else %}
-                                <td>
-                                    <div style="min-width: 200px;">{{ answer.answer|format_json_array }}</div>
-                                </td>
-                            {% endif %}
-                        {% endfor %}
-
-                    {% else %}
-
-                        <td>No Instructor Submission.</td>
-
-                        {# No Grade #}
-                        <td></td>
-
-                        {% if definition.team_based %}
-                            <td></td>
-                        {% endif %}
-
-                        {% if not definition.questions_only %}
-                            <td></td>
-                        {% endif %}
-
-                        {% for question in question_quantity_range %}
-                            <td></td>
-                        {% endfor %}
-
-                    {% endif %}
-                </tr>
-
-                {% for student in non_instructor_students %}
-                    <tr>
-                        <td>
-                            {{ forloop.counter|add:1 }}
-                        </td>
-                        <td>{{ student.user.username }}</td>
-
-                        {% with student.submitted_homeworks.last as submission %}
-                            {% with submission.grades.last.get_total_score as grade %}
-                                <td>{{ grade }}</td>
-                            {% endwith %}
-
-                            {% if definition.team_based %}
-                                <td>{{ student.team.name }}</td>
-                            {% endif %}
-
-                            {% if not definition.questions_only %}
-                                <td>
-                                    {% with submission.tracked_submissions.last as sub_tracker %}
+                                {% with submission.tracked_submissions.last as sub_tracker %}
+                                    {% if sub_tracker %}
                                         <div style="width: 150px;">
                                             {% if sub_tracker.score %}
                                                 {{ sub_tracker.score }}
@@ -128,36 +149,54 @@
                                                 No Score
                                             {% endif %}
                                         </div>
-                                    {% endwith %}
-                                </td>
-                            {% endif %}
-
-                            {% if submission %}
-                                {% for answer in submission.question_answers.all %}
-                                    {% if answer.question.question_type == 'TX' %}
-                                        <td>
-                                            <div style="min-width: 450px;">{{ answer.answer|format_json_array }}</div>
-                                        </td>
-                                    {% else %}
-                                        <td>
-                                            <div style="min-width: 200px;">{{ answer.answer|format_json_array }}</div>
-                                        </td>
                                     {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                {% for question in question_quantity_range %}
-                                    <td></td>
-                                {% endfor %}
+                                {% endwith %}
                             {% endif %}
-                        {% endwith %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                            </td>
+                        {% endif %}
+
+                        {% if submission %}
+                            {% for answer in submission.question_answers.all %}
+                                {% if answer.question.question_type == 'TX' %}
+                                    <td>
+                                        <div style="min-width: 450px;">{{ answer.answer|format_json_array }}</div>
+                                    </td>
+                                {% else %}
+                                    <td>
+                                        <div style="min-width: 200px;">{{ answer.answer|format_json_array }}</div>
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            {% for question in question_quantity_range %}
+                                <td></td>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <style>
+
+    .left-sticky {
+        position: sticky;
+        left: 0;
+        background: white;
+        border-right: solid gray;
+    }
+
+    .top-sticky {
+        position: sticky;
+        top: 0;
+    }
+
+    tr.active > .left-sticky {
+        background: #e0e0e0;
+    }
+
     pre {
             overflow-x: auto;
             white-space: pre-wrap;
@@ -167,4 +206,37 @@
             word-wrap: break-word;
          }
     </style>
+    <script>
+        function getContentWidth (element) {
+            let styles = getComputedStyle(element)
+            return element.clientWidth
+                - parseFloat(styles.paddingLeft)
+                - parseFloat(styles.paddingRight)
+        }
+
+        let table = $('.ui.celled.table')[0]
+        let first_row = $('#first-row')[0]
+        let table_inner_width = getContentWidth(table)
+        let first_row_outer_width = first_row.offsetWidth
+        let first_row_elements = $('#first-row > th')
+
+        let extra_width = table_inner_width - first_row_outer_width + 50
+        if (extra_width > 0) {
+            let last_element_first_row = first_row_elements[first_row_elements.length - 1]
+            last_element_first_row.style.width = last_element_first_row.offsetWidth + extra_width + 'px'
+        }
+
+        let column_count = first_row_elements.length
+
+        let rows = $('tbody > tr')
+        _.forEach(rows, (row) => {
+            let children = _.filter(row.childNodes, (child) => child.nodeType === Node.ELEMENT_NODE)
+            let column_disparity = column_count - children.length
+            if (column_disparity > 0) {
+                for (let i = 0; i < column_disparity; i++) {
+                    row.appendChild(document.createElement("TD"))
+                }
+            }
+        })
+    </script>
 {% endblock %}

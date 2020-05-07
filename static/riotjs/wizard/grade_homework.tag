@@ -4,17 +4,22 @@
         <ol>
             <li each="{ question in definition.custom_questions }">{ question.question }
                 <ul>
-                    <li each="{ answer in question.student_answers }">{ answer }</li>
+                    <li if="{ question.question_type == 'UL' }" each="{ answer in question.student_answers }">
+                        <a href={ add_http_schema(answer) } target="_blank">{ answer }</a>
+                    </li>
+                    <li if="{ question.question_type != 'UL' }" each="{ answer in question.student_answers }">{ answer }</li>
                 </ul>
             </li>
         </ol>
     </div>
 
     <h4 class="ui header">Grades:</h4>
+    <label>Jupyter Notebook ({definition.jupyter_notebook_lowest} - {definition.jupyter_notebook_highest}):</label>
+    <input placeholder="{definition.jupyter_notebook_lowest} - {definition.jupyter_notebook_highest}" name="jupyter_notebook_grade" ref="jupyter_notebook_grade" type="text" value="{grade.jupyter_notebook_grade}">
     <div class="ui relaxed celled list">
         <ol>
             <li each="{criteria, index in definition.criterias}" class="inline field">
-                <label>{criteria.description}:</label>
+                <label>{criteria.description} ({criteria.lower_range} - {criteria.upper_range}):</label>
                 <input name="{'criteria_answer_def_' + index}" ref="{'criteria_answer_def_' + index}" type="hidden" value="{criteria.id}">
                 <input name="{'criteria_answer_id_' + index}" ref="{'criteria_answer_id_' + index}" type="hidden" value="{criteria.answer_id}">
                 <input placeholder="{criteria.lower_range} - {criteria.upper_range}" name="{'criteria_answer_' + index}" ref="{'criteria_answer_' + index}" type="text" value="{ criteria.prev_answer }">
@@ -59,6 +64,13 @@
             'criteria_answers': []
         }
 
+        self.add_http_schema = function (url) {
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'http://' + url
+            }
+            return url
+        }
+
         self.update_criteria_answers = function() {
             var data =self.definition
 
@@ -85,6 +97,7 @@
                 "evaluator": INSTRUCTOR,
                 "teacher_comments": self.refs.teacher_comments.value,
                 "instructor_notes": self.refs.instructor_notes.value,
+                "needs_review": false,
                 "criteria_answers": [
                     /*{
                         "criteria": 0,
@@ -102,10 +115,13 @@
                     temp_data['id'] = self.refs['criteria_answer_id_' + index].value
                 }
                 obj_data['criteria_answers'].push(temp_data)
-
             }
 
             obj_data.published = published
+
+            if (self.definition.jupyter_notebook_enabled) {
+                obj_data['jupyter_notebook_grade'] = self.refs.jupyter_notebook_grade.value
+            }
 
             if (window.GRADE != undefined) {
                 var endpoint = CHAGRADE.api.update_grade(GRADE, obj_data)

@@ -16,8 +16,9 @@ def validate_submission_github_url(value):
     repo_path = parsed_repo_uri.path
     path_components = repo_path.split('/')
    # If the last component, our file-name, doesn't have a zip extension
-    if path_components[-1].split('.')[-1] != 'zip':
+    extension = path_components[-1].split('.')[-1]
+    if extension not in ['ipynb', 'zip']:
         raise ValidationError(
-            message='%(value)s does not point to a zip file!',
+            message='%(value)s does not point to a zip or ipynb file!',
             params={'value': value},
         )

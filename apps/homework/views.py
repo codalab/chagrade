@@ -42,8 +42,12 @@ class GradeFormView(LoginRequiredMixin, WizardMixin, TemplateView):
         context = super(GradeFormView, self).get_context_data(**kwargs)
         context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Grade-Submission'
         try:
-            context['submission'] = Submission.objects.get(pk=kwargs.get('submission_pk'))
-            context['definition'] = context['submission'].definition
+            submission = Submission.objects.get(pk=kwargs.get('submission_pk'))
+            context['submission'] = submission
+            context['definition'] = submission.definition
+            if submission.reporting_messages:
+                context['submission_jupyter_errors'] = submission.reporting_messages.get('errors')
+                context['submission_jupyter_warnings'] = submission.reporting_messages.get('warnings')
         except ObjectDoesNotExist:
             raise Http404("Could not find submission!")
         return context
@@ -56,8 +60,12 @@ class GradeEditFormView(LoginRequiredMixin, WizardMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['wiki_page_url'] = 'https://github.com/codalab/chagrade/wiki/Grade-Submission'
         try:
-            context['submission'] = Submission.objects.get(pk=self.kwargs.get('submission_pk'))
-            context['definition'] = context['submission'].definition
+            submission = Submission.objects.get(pk=kwargs.get('submission_pk'))
+            context['submission'] = submission
+            context['definition'] = submission.definition
+            if submission.reporting_messages:
+                context['submission_jupyter_errors'] = submission.reporting_messages.get('errors')
+                context['submission_jupyter_warnings'] = submission.reporting_messages.get('warnings')
             context['grade'] = Grade.objects.get(pk=self.kwargs.get('grade_pk'))
         except ObjectDoesNotExist:
             raise Http404("Could not find object!")
@@ -78,7 +86,12 @@ class HomeworkOverView(LoginRequiredMixin, TemplateView):
         except ObjectDoesNotExist:
             raise Http404('Klass object not found')
 
-        student = klass.enrolled_students.get(user=self.request.user)
+        student = klass.enrolled_students.filter(user=self.request.user)
+        if student.exists():
+            student = student.first()
+        else:
+            raise Http404("You are not enrolled in this class.")
+
         context['definitions'] = klass.homework_definitions.all().annotate(
             number_of_submissions_made=Subquery(Submission.objects.filter(creator=student, definition=OuterRef('pk')).values('definition__pk').annotate(total_subs=Count('pk')).values('total_subs'))
         ).annotate(

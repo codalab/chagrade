@@ -33,6 +33,7 @@ services:
     env_file: .env
     volumes:
       - .:/app
+      - ./backups:/backups
     ports:
       - "8000:8000"
     depends_on:
@@ -57,6 +58,7 @@ services:
       - 5432:5432
     volumes:
       - ./var/lib/postgresql/data:/app/var/lib/postgresql/data
+      - ./backups:/backups
     env_file: .env
     logging:
       options:
@@ -134,7 +136,5 @@ services:
       while ! nc -z minio $MINIO_PORT; echo 'Waiting for minio to startup...' && sleep 0.1; sleep 3;
       /usr/bin/mc config host add minio_docker http://minio:$MINIO_PORT $MINIO_ACCESS_KEY $MINIO_SECRET_KEY;
       /usr/bin/mc mb minio_docker/$AWS_STORAGE_BUCKET_NAME;
-      /usr/bin/mc mb minio_docker/$AWS_STORAGE_PRIVATE_BUCKET_NAME;
-      /usr/bin/mc policy set download minio_docker/$AWS_STORAGE_BUCKET_NAME;
       exit 0;
       "
