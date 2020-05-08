@@ -89,11 +89,7 @@
                                                             <td>
                                                                 {% if submission.github_url %}
                                                                     <a class="ui mini blue icon button"
-                                                                        {% if definition.jupyter_notebook_enabled  %}
-                                                                            href="{{ submission.github_url|nb_viewer_format_for_github_jupyter_notebook_url }}"
-                                                                        {% else %}
-                                                                            href="{{ submission.github_url }}"
-                                                                        {% endif %}
+                                                                       href="{{ submission.nb_viewer_format_submission_url }}"
                                                                        target="_blank" rel="noopener noreferrer">
                                                                         <i class="file code icon"></i>
                                                                     </a>

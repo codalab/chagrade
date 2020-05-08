@@ -1,4 +1,5 @@
 import os
+import re
 from decimal import Decimal
 from urllib.parse import urlparse
 
@@ -142,6 +143,20 @@ class Submission(models.Model):
 
     def __str__(self):
         return "{}".format(self.github_url)
+
+    @property
+    def nb_viewer_format_submission_url(self):
+        # This property is for prepending the nbviewer domain to the Github URL for Jupyter Notebook submissions.
+        url = self.github_url
+        if self.definition.jupyter_notebook_enabled:
+            if type(url) == str:
+                if not re.match('.*ipynb$', url):
+                    return url
+                if not re.match('.*github\.com.*', url):
+                    return url
+                url = url.split('github.com')[-1]
+                return f'https://nbviewer.jupyter.org/github{url}'
+        return url
 
     @property
     def get_challenge_url(self):

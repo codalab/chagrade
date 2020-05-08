@@ -24,17 +24,6 @@ def format_as_int(number):
         return number
 
 
-def nb_viewer_format_for_github_jupyter_notebook_url(url):
-    if type(url) == str:
-        if not re.match('.*ipynb$', url):
-            return url
-        if not re.match('.*github\.com.*', url):
-            return url
-        url = url.split('github.com')[-1]
-        return f'https://nbviewer.jupyter.org/github{url}'
-    return url
-
-
 def get_submission(definition_pk, student_pk):
     """Gets a submission given a definition and a student"""
     try:
@@ -59,7 +48,6 @@ def format_json_array(json_array):
     return outstring
 
 
-register.filter('nb_viewer_format_for_github_jupyter_notebook_url', nb_viewer_format_for_github_jupyter_notebook_url)
 register.filter('format_as_int', format_as_int)
 register.filter('format_url_with_schema', format_url_with_schema)
 register.filter('get_submission', get_submission)
