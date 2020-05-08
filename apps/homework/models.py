@@ -64,6 +64,10 @@ class Definition(models.Model):
     def __str__(self):
         return "{}".format(self.name)
 
+    @property
+    def has_standard_questions(self):
+        return bool(self.ask_project_url) or bool(self.ask_publication_url) or bool(self.ask_method_name) or bool(self.ask_method_description)
+
     def get_challenge_url(self):
         parsed_uri = urlparse(self.challenge_url)
         scheme = parsed_uri.scheme

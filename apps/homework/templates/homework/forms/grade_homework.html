@@ -91,7 +91,7 @@
                                    target="_blank" rel="noopener noreferrer"
                                 >{{ submission.publication_url }}</a></li>{% endif %}
                     </ol>
-                    {% if not definition.ask_project_url and not definition.ask_publication_url and not definition.ask_method_name and not definition.ask_method_description %}
+                    {% if not definition.has_standard_questions %}
                         <p>No standard questions defined for this homework.</p>
                     {% endif %}
                 </div>
