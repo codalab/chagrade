@@ -252,12 +252,7 @@
                                                     {% if definition.jupyter_notebook_enabled %}
                                                         <div class="ui tiny statistic">
                                                             <div class="value">
-                                                                {% if not grade.jupyter_notebook_grade %}
-                                                                    0.0
-                                                                {% else %}
-                                                                    {{ grade.jupyter_notebook_grade }}
-                                                                {% endif %}
-                                                                /{{ definition.jupyter_notebook_highest|format_as_int }}
+                                                                {{ grade.jupyter_notebook_grade|default:0.0 }}/{{ definition.jupyter_notebook_highest|format_as_int }}
                                                             </div>
                                                             <div class="label">
                                                                 JUPYTER NOTEBOOK GRADE
