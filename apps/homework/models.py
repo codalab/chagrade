@@ -1,4 +1,5 @@
 import os
+import re
 from decimal import Decimal
 from urllib.parse import urlparse
 
@@ -27,7 +28,7 @@ class Definition(models.Model):
     due_date = models.DateTimeField(default=None)
 
     name = models.CharField(default=None, max_length=100, null=False, blank=False)
-    description = models.CharField(max_length=300, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     questions_only = models.BooleanField(default=False, null=False)
@@ -63,6 +64,10 @@ class Definition(models.Model):
 
     def __str__(self):
         return "{}".format(self.name)
+
+    @property
+    def has_standard_questions(self):
+        return bool(self.ask_project_url) or bool(self.ask_publication_url) or bool(self.ask_method_name) or bool(self.ask_method_description)
 
     def get_challenge_url(self):
         parsed_uri = urlparse(self.challenge_url)
@@ -138,6 +143,20 @@ class Submission(models.Model):
 
     def __str__(self):
         return "{}".format(self.github_url)
+
+    @property
+    def nb_viewer_format_submission_url(self):
+        # This property is for prepending the nbviewer domain to the Github URL for Jupyter Notebook submissions.
+        url = self.github_url
+        if self.definition.jupyter_notebook_enabled:
+            if type(url) == str:
+                if not re.match('.*ipynb$', url):
+                    return url
+                if not re.match('.*github\.com.*', url):
+                    return url
+                url = url.split('github.com')[-1]
+                return f'https://nbviewer.jupyter.org/github{url}'
+        return url
 
     @property
     def get_challenge_url(self):
@@ -257,7 +276,7 @@ class Grade(models.Model):
 
     def calculate_grade(self):
         total, total_possible = self.get_total_score_total_possible()
-        self.text_grade = f"{total}/{total_possible}"
+        self.text_grade = f"{total}/{int(total_possible)}"
         if total_possible != 0 and total is not None:
             self.overall_grade = total / total_possible
             self.save()
@@ -322,6 +341,9 @@ class Question(models.Model):
 
     question = models.TextField()
     candidate_answers = JSONField(blank=True, default=list)
+
+    class Meta:
+        ordering = ('question',)
 
     def __str__(self):
         return self.question

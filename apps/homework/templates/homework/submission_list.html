@@ -87,7 +87,9 @@
                                                             {% endif %}
                                                             <td>
                                                                 {% if submission.github_url %}
-                                                                    <a class="ui mini blue icon button" href="{{ submission.github_url }}" target="_blank" rel="noopener noreferrer">
+                                                                    <a class="ui mini blue icon button"
+                                                                       href="{{ submission.nb_viewer_format_submission_url }}"
+                                                                       target="_blank" rel="noopener noreferrer">
                                                                         <i class="file code icon"></i>
                                                                     </a>
                                                                 {% else %}

@@ -17,6 +17,13 @@ def format_url_with_schema(url):
     return url
 
 
+def format_as_int(number):
+    if number is not None:
+        return int(number)
+    else:
+        return number
+
+
 def get_submission(definition_pk, student_pk):
     """Gets a submission given a definition and a student"""
     try:
@@ -41,6 +48,7 @@ def format_json_array(json_array):
     return outstring
 
 
+register.filter('format_as_int', format_as_int)
 register.filter('format_url_with_schema', format_url_with_schema)
 register.filter('get_submission', get_submission)
 register.filter('format_json_array', format_json_array)

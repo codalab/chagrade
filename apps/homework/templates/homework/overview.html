@@ -2,6 +2,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load homework_tags %}
+{% load chagrade_tags %}
 
 {% block title %}Welcome{% endblock %}
 
@@ -90,7 +91,7 @@
                                                         {% if not definition.questions_only %}
                                                             {% if submission.github_url %}
                                                                 <div class="item"><a
-                                                                    href="{{ submission.github_url }}"
+                                                                    href="{{ submission.nb_viewer_format_submission_url }}"
                                                                     target="_blank" rel="noopener noreferrer"
                                                                     class="">Github URL for Submission</a></div>
                                                             {% else %}
@@ -236,7 +237,9 @@
                                                 <div class="five wide column">
                                                     <div class="ui statistic">
                                                         <div class="value">
-                                                            {{ grade.text_grade }}
+                                                            {% with grade.calculate_grade as g %}
+                                                                {{ grade.text_grade }}
+                                                            {% endwith %}
                                                         </div>
                                                         <div class="label">
                                                             Total Grade
@@ -245,7 +248,7 @@
                                                     {% if definition.jupyter_notebook_enabled %}
                                                         <div class="ui tiny statistic">
                                                             <div class="value">
-                                                                {{ grade.jupyter_notebook_grade }}/{{ definition.jupyter_notebook_highest }}
+                                                                {{ grade.jupyter_notebook_grade|default:0.0 }}/{{ definition.jupyter_notebook_highest|format_as_int }}
                                                             </div>
                                                             <div class="label">
                                                                 JUPYTER NOTEBOOK GRADE

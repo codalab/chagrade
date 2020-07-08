@@ -1,5 +1,5 @@
 <grade-homework>
-    <h4>Other Homework Questions</h4>
+    <h4>Custom Homework Questions</h4>
     <div class="ui relaxed celled list">
         <ol>
             <li each="{ question in definition.custom_questions }">{ question.question }
@@ -11,11 +11,17 @@
                 </ul>
             </li>
         </ol>
+        <p if="{ definition.custom_questions.length == 0}">No custom questions defined for this homework.</p>
     </div>
 
-    <h4 class="ui header">Grades:</h4>
-    <label>Jupyter Notebook ({definition.jupyter_notebook_lowest} - {definition.jupyter_notebook_highest}):</label>
-    <input placeholder="{definition.jupyter_notebook_lowest} - {definition.jupyter_notebook_highest}" name="jupyter_notebook_grade" ref="jupyter_notebook_grade" type="text" value="{grade.jupyter_notebook_grade}">
+    <h4 class="ui header">Criteria:</h4>
+    <label if="{ definition.jupyter_notebook_enabled }">Jupyter Notebook ({definition.jupyter_notebook_lowest} - {definition.jupyter_notebook_highest}):</label>
+    <input if="{ definition.jupyter_notebook_enabled }"
+           placeholder="{definition.jupyter_notebook_lowest} - {definition.jupyter_notebook_highest}"
+           name="jupyter_notebook_grade"
+           ref="jupyter_notebook_grade"
+           type="text"
+           value="{grade.jupyter_notebook_grade}">
     <div class="ui relaxed celled list">
         <ol>
             <li each="{criteria, index in definition.criterias}" class="inline field">
@@ -25,6 +31,7 @@
                 <input placeholder="{criteria.lower_range} - {criteria.upper_range}" name="{'criteria_answer_' + index}" ref="{'criteria_answer_' + index}" type="text" value="{ criteria.prev_answer }">
             </li>
         </ol>
+        <p if="{ definition.criterias.length == 0 && !definition.jupyter_notebook_enabled }">No grading criteria defined for this homework.</p>
     </div>
     <div class="ui form">
         <div class="fields">

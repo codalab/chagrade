@@ -121,14 +121,11 @@
                 <a class="ui button" href="{% url "profiles:login" %}">Login</a>
             {% endif %}
         </div>
-
-        <img class="logo" onclick="location.href='/'" alt="chagrade_logo" src="{% static 'images/chagrade_logo.png' %}">
+        <a id="home-logo" class="logo" href="/"></a>
     </div>
 
 </header>
 <div class="ui container">
-
-
     <div class="app">
         <div class="ui segment hide-border">
             <div class="module container-padding">
@@ -204,6 +201,16 @@
 
 {% block extra_script %}
 {% endblock %}
+
+<style>
+    #home-logo {
+        background-image: url('{% static "images/chagrade_logo.png" %}');
+        background-size: contain;
+        background-repeat: no-repeat;
+        height: 40px;
+        width: 220px;
+    }
+</style>
 
 </body>
 </html>

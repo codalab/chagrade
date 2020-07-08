@@ -32,36 +32,41 @@
                     <div class="ui relaxed celled list">
                         <a href="{{ definition.challenge_url }}" class="item" target="_blank" rel="noopener noreferrer">Link to challenge competition</a>
                         {% if submission.github_url %}
-                            <a href="{{ submission.github_url }}" class="item" target="_blank" rel="noopener noreferrer">Link to Github repo of submission</a>
+                            <a
+                               href="{{ submission.nb_viewer_format_submission_url }}"
+                               class="item"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                            >Link to Github repo of submission</a>
                         {% endif %}
                         <a class="ui mini blue button" href="{% url "homework:submission_detail" submission_pk=submission.pk %}">Submission Details</a>
                     </div>
+
+                    {% if definition.jupyter_notebook_enabled %}
+                        <h4 class="ui header">Jupyter Notebook</h4>
+                        <div class="ui relaxed celled list">
+                            <div>Auto-Grade Score: {{ submission.jupyter_score }} / {{ definition.jupyter_notebook_highest }}</div>
+                            {% if submission_jupyter_warnings %}
+                                <div>Auto-Grade Warnings:</div>
+                                <ul>
+                                {% for warning in submission_jupyter_warnings %}
+                                    <li>{{ warning }}</li>
+                                {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            {% if submission_jupyter_errors %}
+                                <div>Auto-Grade Errors:</div>
+                                <ul>
+                                {% for error in submission_jupyter_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
                 {% endif %}
-
-                {% if definition.jupyter_notebook_enabled %}
-                    <h4 class="ui header">Jupyter Notebook</h4>
-                    <div class="ui relaxed celled list">
-                        <div>Auto-Grade Score: {{ submission.jupyter_score }} / {{ definition.jupyter_notebook_highest }}</div>
-                        {% if submission_jupyter_warnings %}
-                            <div>Auto-Grade Warnings:</div>
-                            <ul>
-                            {% for warning in submission_jupyter_warnings %}
-                                <li>{{ warning }}</li>
-                            {% endfor %}
-                            </ul>
-                        {% endif %}
-
-                        {% if submission_jupyter_errors %}
-                            <div>Auto-Grade Errors:</div>
-                            <ul>
-                            {% for error in submission_jupyter_errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                            </ul>
-                        {% endif %}
-                    </div>
-                {% endif %}
-
 
                 <h4>Questions</h4>
                 <div class="ui relaxed celled list">
@@ -81,6 +86,9 @@
                                    target="_blank" rel="noopener noreferrer"
                                 >{{ submission.publication_url }}</a></li>{% endif %}
                     </ol>
+                    {% if not definition.has_standard_questions %}
+                        <p>No standard questions defined for this homework.</p>
+                    {% endif %}
                 </div>
                 <grade-homework></grade-homework>
             </div>

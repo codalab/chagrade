@@ -69,7 +69,13 @@
                                             <div class="ui header">Submission Information</div>
                                             <div class="ui divider"></div>
 
-                                            <submission-detail-github class="ui grid" submission_pk="{{ submission.pk }}" hash="{{ submission.commit_hash }}" user_pk="{{ request.user.pk }}"></submission-detail-github>
+                                            <submission-detail-github
+                                                class="ui grid"
+                                                submission_pk="{{ submission.pk }}"
+                                                submission_url="{{ submission.nb_viewer_format_submission_url }}"
+                                                hash="{{ submission.commit_hash }}"
+                                                user_pk="{{ request.user.pk }}"
+                                            ></submission-detail-github>
                                         </div>
                                     </div>
 

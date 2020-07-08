@@ -3,7 +3,18 @@
     <form class="ui form" ref="form" onsubmit="{  }">
         <!-- Important information -->
         <div class="fields">
-            <div class="three wide field">
+
+            <div class="six wide required field">
+                <label>Name:</label>
+                <input type="text"
+                       name="name"
+                       maxlength="100"
+                       required
+                       ref="name"
+                       value="{definition.name}">
+            </div>
+
+            <div class="twelve wide field">
                 <div class="ui required calendar field">
                     <label>
                         Due-Date:
@@ -18,24 +29,16 @@
                     </div>
                 </div>
             </div>
-
-            <div class="three wide required field">
-                <label>Name:</label>
-                <input type="text"
-                       name="name"
-                       maxlength="100"
-                       required
-                       ref="name"
-                       value="{definition.name}">
-            </div>
-
-            <div class="ten wide field">
+        </div>
+        <div class="fields">
+            <div class="sixteen wide field">
                 <label>Description:</label>
-                <input type="text"
+                <textarea type="text"
                        name="description"
                        maxlength="300"
                        ref="description"
                        value="{definition.description}">
+                </textarea>
             </div>
         </div>
 
