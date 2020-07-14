@@ -37,7 +37,12 @@
                                class="item"
                                target="_blank"
                                rel="noopener noreferrer"
-                            >Link to Github repo of submission</a>
+                            >
+                            {% if definition.jupyter_notebook_enabled %}
+                                Link to submission</a>
+                            {% else %}
+                                Link to Github repo of submission</a>
+                            {% endif %}
                         {% endif %}
                         <a class="ui mini blue button" href="{% url "homework:submission_detail" submission_pk=submission.pk %}">Submission Details</a>
                     </div>
