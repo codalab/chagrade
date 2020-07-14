@@ -35,7 +35,6 @@
                 <label>Description:</label>
                 <textarea type="text"
                        name="description"
-                       maxlength="300"
                        ref="description"
                        value="{definition.description}">
                 </textarea>
